@@ -118,6 +118,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
         volumeInfo: {
           title: l.volumeInfo?.title || 'Sem título',
           description: l.volumeInfo?.description || 'Sem descrição disponível.',
+          link: l.volumeInfo?.infoLink || l.volumeInfo?.previewLink || null,
         },
       });
     });
@@ -141,6 +142,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores}${ano}` : 'Sem descrição disponível.',
+          link: l.key ? `https://openlibrary.org${l.key}` : null,
         },
       });
     });
@@ -163,6 +165,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores} · clássico de domínio público` : 'Clássico de domínio público.',
+          link: l.id ? `https://www.gutenberg.org/ebooks/${l.id}` : null,
         },
       });
     });

@@ -156,7 +156,7 @@
   .notif-item .n-s { font-size: 10.5px; color: var(--ink-faint); margin-top: 1px; }
 
   /* ---------- barra de navegação ---------- */
-  .tabbar { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom)); left: 14px; right: 14px; background: var(--card); border: 1px solid var(--card-b);
+  .tabbar { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + 6px); left: 14px; right: 14px; background: var(--card); border: 1px solid var(--card-b);
     border-radius: 24px; display: flex; padding: 8px; gap: 4px; box-shadow: var(--shadow); z-index: 20; }
   .tab-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px;
     padding: 9px 2px; border-radius: 18px; cursor: pointer; color: var(--ink-faint); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 10px;
@@ -883,11 +883,7 @@
 <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
   <div class="t">💛 Preferências do Match</div>
   <div>
-    <div class="s" style="margin-bottom:6px;">Você se identifica como:</div>
-    <div class="onboard-topic-grid" id="generoGrid"></div>
-  </div>
-  <div>
-    <div class="s" style="margin:6px 0;">Quer ver no Match:</div>
+    <div class="s" style="margin-bottom:6px;">Quer ver no Match:</div>
     <div class="onboard-topic-grid" id="matchPrefGrid"></div>
   </div>
 </div>
@@ -1614,9 +1610,27 @@ if (p.autor_id !== sessionData.session.user.id) {
     fecharCompartilhar();
     mostrarToast('🔁 Repostado no seu feed');
   };
-  window.copiarLink = function () {
+  window.copiarLink = async function () {
+    const post = feedPosts[compartilharPostIdx];
+    const textoCompartilhar = post ? `"${post.texto}" — via Átomo` : 'Átomo — meu diário e perfil intelectual';
+    const urlApp = 'https://atomoapp.netlify.app';
     fecharCompartilhar();
-    mostrarToast('🔗 Link copiado (simulado — sem backend ainda)');
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Átomo', text: textoCompartilhar, url: urlApp });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return; // usuário cancelou o compartilhamento, tudo bem
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${textoCompartilhar}\n${urlApp}`);
+      mostrarToast('🔗 Link copiado! Cole onde quiser compartilhar');
+    } catch (e) {
+      mostrarToast('😕 não consegui copiar o link — tenta de novo');
+    }
   };
 
   // ---------- perfil: diário ----------
@@ -2338,9 +2352,7 @@ window.abrirMatch = async function () {
     .filter(u => {
       // se você definiu preferência, o gênero da pessoa precisa bater (a não ser que você aceite "Todos")
       const euAceito = !minhaMatchPref.length || minhaMatchPref.includes('Todos') || minhaMatchPref.includes(u.genero);
-      // e a pessoa também precisa aceitar você (mesma lógica, no sentido contrário)
-      const elaAceita = !u.match_preferencia || !u.match_preferencia.length || u.match_preferencia.includes('Todos') || u.match_preferencia.includes(meuGenero);
-      return euAceito && elaAceita;
+      return euAceito;
     })
     .map(u => {
       const interesses = u.assuntos_favoritos || [];
@@ -2511,24 +2523,33 @@ window.trocarModoDescobrir = function (modo) {
       const dados = await resp.json();
       itens = (dados.items || []).map(l => {
         const info = l.volumeInfo;
-        return { kind: '📖 Livro', title: info.title || 'Sem título', desc: (info.description || 'Sem descrição disponível.').slice(0, 150) };
+        return { kind: '📖 Livro', title: info.title || 'Sem título', desc: (info.description || 'Sem descrição disponível.').slice(0, 150), link: info.link || null };
       });
     } catch (e) { console.log('erro ao carregar livros:', e); }
 
     window.ITENS_LIVROS_ATUAIS = itens;
     lista.innerHTML = itens.length
       ? itens.map((d, i) => `
-        <div class="discover-card">
+        <div class="discover-card" onclick="abrirLivroExterno(${i})" style="cursor:pointer;">
           <span class="discover-kind">${d.kind}</span>
           <div class="discover-title">${d.title}</div>
           <div class="discover-desc">${d.desc}</div>
           <div class="post-actions" style="margin-top:10px;">
-            <div class="post-action" onclick="comentarItemLivro(${i})">💬 comentar</div>
-            <div class="post-action" onclick="compartilharItemLivro(${i})">↗ compartilhar</div>
+            <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">💬 comentar</div>
+            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">↗ compartilhar</div>
           </div>
         </div>`).join('')
       : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
   }
+
+  window.abrirLivroExterno = function (i) {
+    const item = window.ITENS_LIVROS_ATUAIS[i];
+    if (item && item.link) {
+      window.open(item.link, '_blank', 'noopener');
+    } else {
+      mostrarToast('😕 esse livro não tem um link disponível');
+    }
+  };
 
   window.comentarItemLivro = function (i) {
     discoverPendenteReal = window.ITENS_LIVROS_ATUAIS[i];
@@ -2873,7 +2894,6 @@ window.abrirDmDireto = async function (id) {
 
   window.openConfig = function () {
   document.getElementById('configOverlay').classList.add('open');
-  renderGeneroGrid();
   renderMatchPrefGrid();
   renderEmojiStreakGrid();
 };
@@ -2881,23 +2901,8 @@ window.abrirDmDireto = async function (id) {
   window.closeConfig = function () { document.getElementById('configOverlay').classList.remove('open'); };
 
 let matchAtivado = true;
-const GENEROS = ['Mulher', 'Homem', 'Não-binário', 'Prefiro não dizer'];
 const MATCH_PREFS = ['Mulher', 'Homem', 'Não-binário', 'Todos'];
-let meuGenero = null;
 let minhaMatchPref = [];
-
-function renderGeneroGrid() {
-  document.getElementById('generoGrid').innerHTML = GENEROS.map(g =>
-    `<div class="onboard-topic-chip ${meuGenero === g ? 'on' : ''}" onclick="selecionarGenero('${g}')">${g}</div>`
-  ).join('');
-}
-
-window.selecionarGenero = async function (g) {
-  meuGenero = g;
-  renderGeneroGrid();
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  await supabaseClient.from('usuarios').update({ genero: meuGenero }).eq('id', sessionData.session.user.id);
-};
 
 function renderMatchPrefGrid() {
   document.getElementById('matchPrefGrid').innerHTML = MATCH_PREFS.map(p =>
@@ -3091,7 +3096,6 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       if (perfil.avatar_url) aplicarFotoPerfil(perfil.avatar_url);
       if (perfil.modo_escuro) toggleDarkMode();
       if (perfil.assuntos_favoritos) assuntosFavoritos = perfil.assuntos_favoritos;
-      if (perfil.genero) meuGenero = perfil.genero;
       if (perfil.match_preferencia) minhaMatchPref = perfil.match_preferencia;
       if (perfil.ordem_tipos && perfil.ordem_tipos.length === TIPOS.length) ordemTipos = perfil.ordem_tipos;
       if (perfil.emoji_streak) {
