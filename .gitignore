@@ -1,0 +1,6 @@
+# nunca sobe pro GitHub — tem suas chaves de API
+.env
+servidor.env
+
+# dependências do Node (todo mundo que clonar reinstala com "npm install")
+node_modules/
