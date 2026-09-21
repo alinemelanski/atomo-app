@@ -118,29 +118,47 @@ app.get('/api/musicas-em-alta', async (req, res) => {
   }
 });
 
+function limparHtmlTumblr(html) {
+  if (!html) return '';
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 app.get('/api/tumblr-tag', async (req, res) => {
   const tag = (req.query.tag || '').trim();
   if (!tag) return res.status(400).json({ erro: 'faltou o parâmetro tag' });
 
   try {
+    // npf=true força o Tumblr a devolver os posts no formato novo (blocos de
+    // conteúdo), que é o que a gente sabe ler abaixo — sem isso, a API manda
+    // o formato clássico (campos como "body"/"caption"/"photos"), que ficava
+    // de fora do parser e por isso vinha tudo "sem texto"/sem imagem.
     const resposta = await fetch(
-      `https://api.tumblr.com/v2/tagged?tag=${encodeURIComponent(tag)}&api_key=${process.env.TUMBLR_API_KEY}&limit=20`
+      `https://api.tumblr.com/v2/tagged?tag=${encodeURIComponent(tag)}&api_key=${process.env.TUMBLR_API_KEY}&limit=20&npf=true`
     );
     const dados = await resposta.json();
     const postsBrutos = Array.isArray(dados.response) ? dados.response : [];
 
     const posts = postsBrutos.map(p => {
-      const blocos = Array.isArray(p.content) ? p.content : [];
       let texto = '';
       let imagemUrl = null;
 
+      const blocos = Array.isArray(p.content) ? p.content : [];
       blocos.forEach(bloco => {
         if (bloco.type === 'text' && bloco.text) {
-          texto += (texto ? ' ' : '') + bloco.text;
+          texto += (texto ? '\n' : '') + bloco.text;
         }
         if (bloco.type === 'link') {
           const partes = [bloco.title, bloco.description].filter(Boolean).join(' — ');
-          if (partes) texto += (texto ? ' ' : '') + partes;
+          if (partes) texto += (texto ? '\n' : '') + partes;
         }
         if (bloco.type === 'image' && !imagemUrl && Array.isArray(bloco.media) && bloco.media[0]) {
           imagemUrl = bloco.media[0].url;
@@ -149,6 +167,31 @@ app.get('/api/tumblr-tag', async (req, res) => {
           imagemUrl = bloco.poster[0].url;
         }
       });
+
+      // se por algum motivo esse post não veio no formato novo (ex.: alguns
+      // reblogs antigos), tenta ler o formato clássico do Tumblr como reserva
+      if (!texto && !imagemUrl) {
+        if (p.type === 'text') {
+          texto = limparHtmlTumblr(p.body) || limparHtmlTumblr(p.title);
+        } else if (p.type === 'photo') {
+          texto = limparHtmlTumblr(p.caption);
+          if (Array.isArray(p.photos) && p.photos[0] && p.photos[0].original_size) {
+            imagemUrl = p.photos[0].original_size.url || null;
+          }
+        } else if (p.type === 'quote') {
+          texto = [p.text, p.source ? limparHtmlTumblr(p.source) : ''].filter(Boolean).join(' — ');
+        } else if (p.type === 'link') {
+          texto = [p.title, p.description ? limparHtmlTumblr(p.description) : ''].filter(Boolean).join(' — ');
+        } else if (p.type === 'chat') {
+          texto = limparHtmlTumblr(p.body);
+        } else if (p.type === 'video') {
+          texto = limparHtmlTumblr(p.caption);
+        } else if (p.type === 'answer') {
+          texto = [p.question, p.answer].filter(Boolean).join(' — ');
+        } else if (p.type === 'audio') {
+          texto = limparHtmlTumblr(p.caption);
+        }
+      }
 
       return {
         id: p.id,
