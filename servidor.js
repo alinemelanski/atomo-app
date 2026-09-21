@@ -1,9 +1,37 @@
 require('dotenv').config({ path: './servidor.env' });
 const express = require('express');
 const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+
+// mesma URL e chave publicável (anon) que o front-end já usa — não é segredo,
+// é protegida por RLS no banco (só permite INSERT na tabela de lista de espera)
+const supabase = createClient(
+  'https://wfhikucbygmjeawrfsfq.supabase.co',
+  'sb_publishable_Sqnu4JCusHeikELanoyPpQ_M0UCLEeP'
+);
+
+app.post('/api/lista-espera', async (req, res) => {
+  const email = (req.body?.email || '').trim().toLowerCase();
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!emailValido) return res.status(400).json({ erro: 'e-mail inválido' });
+
+  const { error } = await supabase.from('lista_espera').insert({ email });
+
+  if (error) {
+    if (error.code === '23505') {
+      // e-mail já cadastrado — trata como sucesso, não precisa assustar quem tenta de novo
+      return res.json({ ok: true, jaCadastrado: true });
+    }
+    console.log('erro ao inserir na lista de espera:', error.message);
+    return res.status(500).json({ erro: 'não consegui salvar seu e-mail, tenta de novo' });
+  }
+
+  res.json({ ok: true });
+});
 
 console.log('TOKEN CARREGADO:', process.env.TMDB_API_KEY ? process.env.TMDB_API_KEY.slice(0, 20) + '...' : 'VAZIO/UNDEFINED');
 console.log('V3 EM JSON:', JSON.stringify(process.env.TMDB_API_KEY_V3));

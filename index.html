@@ -622,7 +622,7 @@
         <div class="profile-name"><h2 id="profNome">ana_art</h2><div class="handle" id="profHandle">@ana_art</div>
           <div class="mini-stats-row">
             <span class="amigos-inline" onclick="openVisitantes()">👀 <span id="viewsCount">312</span> visualizações</span>
-            <span class="amigos-inline" onclick="openAmigos()"><span id="amigosCount">48</span> amigos</span>
+            <span class="amigos-inline" onclick="openAmigos()"><span id="amigosCount">48</span> seguidores</span>
           </div>
         </div>
         <button class="edit-profile-btn" onclick="abrirEditarPerfil()">✏️ Editar</button>
@@ -707,9 +707,13 @@
     </div>
     <!-- OVERLAY: PERFIL DE OUTRA PESSOA -->
 <div class="dm-chat-overlay" id="perfilAlheioOverlay">
-  <div class="dm-chat-header">
+  <div class="dm-chat-header" style="position:relative;">
     <button class="back-btn" onclick="closeOverlay('perfilAlheioOverlay')">←</button>
-    <h2 style="font-size:16px;" id="perfilAlheioTitulo">Perfil</h2>
+    <h2 style="font-size:16px; flex:1;" id="perfilAlheioTitulo">Perfil</h2>
+    <button class="back-btn" onclick="event.stopPropagation(); togglePerfilAlheioMenu()">⋮</button>
+    <div id="perfilAlheioMenu" style="display:none; position:absolute; top:42px; right:0; background:var(--card); border:1px solid var(--card-b); border-radius:12px; box-shadow:var(--shadow); z-index:5; overflow:hidden; min-width:150px;">
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();">🚫 Bloquear</div>
+    </div>
   </div>
   <div style="text-align:center; margin-bottom:14px;">
     <div class="profile-avatar" id="perfilAlheioAvatar" style="margin:0 auto 10px;">?</div>
@@ -717,7 +721,6 @@
     <div class="handle" id="perfilAlheioHandle"></div>
     <div class="bio-box" id="perfilAlheioBio" style="margin-top:8px;"></div>
     <button class="seguir-btn" id="perfilAlheioSeguirBtn" style="margin-top:10px;" onclick="seguirDoOverlay()"></button>
-    <div style="font-size:11px; color:var(--ink-faint); margin-top:10px; cursor:pointer;" id="perfilAlheioBloquearBtn" onclick="bloquearUsuarioAtual()">🚫 Bloquear</div>
   </div>
   <div id="perfilAlheioPosts"></div>
 </div>
@@ -828,13 +831,17 @@
       <div class="visitor-lock-note">Toda visita conta — não tem como visitar sem aparecer. Se não quer que alguém saiba que você viu o perfil, não visite.</div>
     </div>
 
-    <!-- OVERLAY: AMIGOS -->
+    <!-- OVERLAY: SEGUIDORES/SEGUINDO -->
     <div class="dm-chat-overlay" id="amigosOverlay">
       <div class="dm-chat-header">
         <button class="back-btn" onclick="closeOverlay('amigosOverlay')">←</button>
-        <h2 style="font-size:16px;">Amigos</h2>
+        <h2 style="font-size:16px;">Seguidores</h2>
       </div>
       <input type="text" id="buscaPessoasInput" class="busca-input" placeholder="🔍 Buscar por @usuário ou nome..." oninput="filtrarPessoas()" />
+      <div class="diary-tabs">
+        <div class="diary-tab on" id="tabSeguindo" onclick="trocarAbaSeguir('seguindo')">Seguindo</div>
+        <div class="diary-tab" id="tabSeguidores" onclick="trocarAbaSeguir('seguidores')">Seguidores</div>
+      </div>
       <div id="amigosList" style="overflow-y:auto;"></div>
       <div class="sugestoes-label">Sugestões pra seguir</div>
       <div id="sugestoesList" style="overflow-y:auto;"></div>
@@ -1072,8 +1079,6 @@ async function carregarPostsReais() {
 
   // amigos // visitantes //
 
- let AMIGOS = [];
-
   const DISCOVER = [
     { kind: '📰 Notícia', title: 'Autora brasileira anuncia novo livro de contos', desc: 'Lançamento previsto pra o fim do ano, com pré-venda já aberta pros primeiros capítulos.', regiao: 'br' },
     { kind: '🎧 Podcast', title: 'Novo episódio: como nasce um poema', desc: 'Conversa sobre processo criativo com três poetas convidados.', regiao: 'br' },
@@ -1307,7 +1312,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
       <div class="post">
         <div class="post-head">
           <div class="post-avatar" style="cursor:pointer;" onclick="abrirPerfilAlheio('${p.autor_id}')">${p.iniciais}</div>
-          <div class="post-who"><div class="n">@${p.autor}</div><div class="t">${p.tempo}</div></div>
+          <div class="post-who" style="cursor:pointer;" onclick="abrirPerfilAlheio('${p.autor_id}')"><div class="n">@${p.autor}</div><div class="t">${p.tempo}</div></div>
           <span class="post-tag">${p.tipo}</span>
         </div>
         ${modoFeedAtivo === 'interesse' && relevante ? '<div class="post-relevante-tag">✨ do seu interesse</div><br>' : ''}
@@ -1720,6 +1725,8 @@ if (p.autor_id !== sessionData.session.user.id) {
   // ---------- sugestoes ----------
 
   let SUGESTOES = [];
+  let SEGUINDO = [];
+  let SEGUIDORES = [];
 
   async function carregarAmigosEsugestoes() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -1740,71 +1747,86 @@ if (p.autor_id !== sessionData.session.user.id) {
     .from('seguidores').select('seguidor_id').eq('seguido_id', meuId);
   const idsQueMeSeguem = (meSeguem || []).map(r => r.seguidor_id);
 
-  AMIGOS = [];
+  SEGUINDO = [];
+  SEGUIDORES = [];
   SUGESTOES = [];
 
   (todosUsuarios || []).forEach(u => {
     const euSigoEle = idsQueSigo.includes(u.id);
     const eleMeSegue = idsQueMeSeguem.includes(u.id);
-    const item = { id: u.id, nome: u.handle, iniciais: (u.handle || '?')[0].toUpperCase(), bio: u.bio || 'sem bio ainda' };
+    const item = { id: u.id, nome: u.handle, iniciais: (u.handle || '?')[0].toUpperCase(), bio: u.bio || 'sem bio ainda', seguindo: euSigoEle };
 
-    if (euSigoEle && eleMeSegue) {
-      AMIGOS.push(item);
-    } else {
-      SUGESTOES.push({ ...item, jaSegue: eleMeSegue, seguindo: euSigoEle });
-    }
+    if (euSigoEle) SEGUINDO.push(item);
+    if (eleMeSegue) SEGUIDORES.push(item);
+    if (!euSigoEle && !eleMeSegue) SUGESTOES.push(item);
   });
 
-  document.getElementById('amigosCount').textContent = AMIGOS.length;
+  document.getElementById('amigosCount').textContent = SEGUIDORES.length;
 }
+
+let abaSeguirAtiva = 'seguindo';
 
 window.openAmigos = async function () {
   await carregarAmigosEsugestoes();
   document.getElementById('amigosOverlay').classList.add('open');
   document.getElementById('buscaPessoasInput').value = '';
-  renderAmigosLista();
+  abaSeguirAtiva = 'seguindo';
+  document.getElementById('tabSeguindo').classList.add('on');
+  document.getElementById('tabSeguidores').classList.remove('on');
+  renderConexoesLista();
   renderSugestoesLista();
 };
-  function renderAmigosLista(filtro) {
+  window.trocarAbaSeguir = function (aba) {
+    abaSeguirAtiva = aba;
+    document.getElementById('tabSeguindo').classList.toggle('on', aba === 'seguindo');
+    document.getElementById('tabSeguidores').classList.toggle('on', aba === 'seguidores');
+    renderConexoesLista(document.getElementById('buscaPessoasInput').value);
+  };
+  function renderConexoesLista(filtro) {
     const f = (filtro || '').toLowerCase();
-    const lista = AMIGOS.filter(a => a.nome.toLowerCase().includes(f) || a.bio.toLowerCase().includes(f));
+    const fonte = abaSeguirAtiva === 'seguindo' ? SEGUINDO : SEGUIDORES;
+    const lista = fonte.filter(a => a.nome.toLowerCase().includes(f) || a.bio.toLowerCase().includes(f));
     document.getElementById('amigosList').innerHTML = lista.map(a => `
-      <div class="friend-row" onclick="abrirDmDireto('${a.id}')">
+      <div class="friend-row" onclick="abrirPerfilDoAmigo('${a.id}')">
         <div class="friend-avatar">${a.iniciais}</div>
         <div class="friend-info"><div class="n">@${a.nome}</div><div class="s">${a.bio}</div></div>
-      </div>`).join('') || `<div class="visitor-lock-note">Ninguém encontrado.</div>`;
+        <button class="seguir-btn ${a.seguindo ? 'pendente' : ''}" style="flex:none;" onclick="event.stopPropagation(); toggleSeguir('${a.id}', ${a.seguindo})">${a.seguindo ? 'Seguindo' : 'Seguir'}</button>
+        <div class="post-action" style="flex:none;" onclick="event.stopPropagation(); abrirDmDireto('${a.id}')">💬</div>
+      </div>`).join('') || `<div class="visitor-lock-note">${abaSeguirAtiva === 'seguindo' ? 'Você ainda não segue ninguém.' : 'Ninguém te segue ainda.'}</div>`;
   }
   function renderSugestoesLista(filtro) {
     const f = (filtro || '').toLowerCase();
     const lista = SUGESTOES.filter(s => s.nome.toLowerCase().includes(f) || s.bio.toLowerCase().includes(f));
     document.getElementById('sugestoesList').innerHTML = lista.map((s, i) => `
-      <div class="friend-row">
+      <div class="friend-row" onclick="abrirPerfilDoAmigo('${s.id}')">
         <div class="friend-avatar">${s.iniciais}</div>
         <div class="friend-info"><div class="n">@${s.nome}</div><div class="s">${s.bio}</div></div>
-        <button class="seguir-btn ${s.seguindo ? 'pendente' : ''}" onclick="event.stopPropagation(); seguirPessoa('${s.id}')">${s.seguindo ? 'Seguindo' : 'Seguir'}</button>
+        <button class="seguir-btn ${s.seguindo ? 'pendente' : ''}" onclick="event.stopPropagation(); toggleSeguir('${s.id}', ${s.seguindo})">${s.seguindo ? 'Seguindo' : 'Seguir'}</button>
       </div>`).join('') || `<div class="visitor-lock-note">Ninguém encontrado.</div>`;
   }
   window.filtrarPessoas = function () {
     const termo = document.getElementById('buscaPessoasInput').value;
-    renderAmigosLista(termo);
+    renderConexoesLista(termo);
     renderSugestoesLista(termo);
   };
-  window.seguirPessoa = async function (id) {
-  const s = SUGESTOES.find(x => x.id === id);
-  if (!s || s.seguindo) return;
+  window.toggleSeguir = async function (id, seguindoAtualmente) {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session.user.id;
 
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  const meuId = sessionData.session.user.id;
+    if (seguindoAtualmente) {
+      const { error } = await supabaseClient.from('seguidores').delete().eq('seguidor_id', meuId).eq('seguido_id', id);
+      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      mostrarToast('Deixou de seguir');
+    } else {
+      const { error } = await supabaseClient.from('seguidores').insert({ seguidor_id: meuId, seguido_id: id });
+      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      mostrarToast('💛 Agora você segue essa pessoa');
+    }
 
-  const { error } = await supabaseClient.from('seguidores').insert({ seguidor_id: meuId, seguido_id: id });
-  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
-
-  mostrarToast(s.jaSegue ? '💛 Agora vocês são amigos!' : `Seguindo @${s.nome} — vira amigo quando ela seguir de volta`);
-
-  await carregarAmigosEsugestoes();
-  renderAmigosLista(document.getElementById('buscaPessoasInput').value);
-  renderSugestoesLista(document.getElementById('buscaPessoasInput').value);
-};
+    await carregarAmigosEsugestoes();
+    renderConexoesLista(document.getElementById('buscaPessoasInput').value);
+    renderSugestoesLista(document.getElementById('buscaPessoasInput').value);
+  };
   window.abrirDmDireto = function (nome) {
     closeOverlay('amigosOverlay');
     abrirDm(nome);
@@ -2032,8 +2054,10 @@ window.abrirPerfilAlheio = async function (autorId) {
 
   const btnSeguir = document.getElementById('perfilAlheioSeguirBtn');
   btnSeguir.textContent = jaSigo ? 'Seguindo' : 'Seguir';
+  btnSeguir.classList.toggle('pendente', !!jaSigo);
   btnSeguir.dataset.autorId = autorId;
   btnSeguir.dataset.jaSigo = jaSigo ? 'sim' : 'nao';
+  document.getElementById('perfilAlheioMenu').style.display = 'none';
 
   const { data: posts } = await supabaseClient
     .from('posts').select('*').eq('autor_id', autorId).eq('privado', false)
@@ -2054,17 +2078,35 @@ window.abrirPerfilAlheio = async function (autorId) {
 
 window.seguirDoOverlay = async function () {
   const btn = document.getElementById('perfilAlheioSeguirBtn');
-  if (btn.dataset.jaSigo === 'sim') return;
+  const autorId = btn.dataset.autorId;
+  const jaSigo = btn.dataset.jaSigo === 'sim';
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
-  await supabaseClient.from('seguidores').insert({
-    seguidor_id: sessionData.session.user.id,
-    seguido_id: btn.dataset.autorId,
-  });
+  const meuId = sessionData.session.user.id;
 
-  btn.textContent = 'Seguindo';
-  btn.dataset.jaSigo = 'sim';
-  mostrarToast('💛 Agora você segue essa pessoa');
+  if (jaSigo) {
+    const { error } = await supabaseClient.from('seguidores').delete().eq('seguidor_id', meuId).eq('seguido_id', autorId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    btn.textContent = 'Seguir';
+    btn.classList.remove('pendente');
+    btn.dataset.jaSigo = 'nao';
+    mostrarToast('Deixou de seguir');
+  } else {
+    const { error } = await supabaseClient.from('seguidores').insert({ seguidor_id: meuId, seguido_id: autorId });
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    btn.textContent = 'Seguindo';
+    btn.classList.add('pendente');
+    btn.dataset.jaSigo = 'sim';
+    mostrarToast('💛 Agora você segue essa pessoa');
+  }
+};
+
+window.togglePerfilAlheioMenu = function () {
+  const menu = document.getElementById('perfilAlheioMenu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+};
+window.fecharPerfilAlheioMenu = function () {
+  document.getElementById('perfilAlheioMenu').style.display = 'none';
 };
 
  window.buscarFilmeReal = async function () {
@@ -2880,9 +2922,14 @@ window.enviarDmMsg = async function () {
 };
 
 window.abrirDmDireto = async function (id) {
-  const amigo = AMIGOS.find(a => a.id === id);
+  const amigo = SEGUINDO.find(a => a.id === id) || SEGUIDORES.find(a => a.id === id) || SUGESTOES.find(a => a.id === id);
   closeOverlay('amigosOverlay');
   await abrirDm(id, amigo ? amigo.nome : 'alguém');
+};
+
+window.abrirPerfilDoAmigo = async function (id) {
+  closeOverlay('amigosOverlay');
+  await abrirPerfilAlheio(id);
 };
 
   // ---------- navegação ----------
