@@ -306,6 +306,7 @@
   .estado-vazio .sub { font-size: 12px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 16px; }
   /* ---------- descobrir (@) ---------- */
   .discover-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .discover-card-destaque { border: 1.5px solid var(--accent-a); background: linear-gradient(180deg, var(--accent-soft) 0%, var(--card) 40%); }
   .discover-kind { display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 800; padding: 4px 10px;
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); margin-bottom: 8px; }
   .discover-title { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 3px; }
@@ -583,6 +584,7 @@
     <!-- DESCOBRIR (@) -->
     <div class="screen" id="screen-descobrir">
       <div class="top-row"><h1>@ Descobrir</h1></div>
+      <input type="text" id="buscaDescobrirInput" class="busca-input" placeholder="🔍 Buscar por tag no Tumblr..." oninput="aoDigitarBuscaDescobrir()" style="margin-bottom:12px;" />
       <div class="feed-modo-row">
       <div class="feed-modo-chip on" data-modo-descobrir="relevante" onclick="trocarModoDescobrir('relevante')">✨ Mais relevantes</div>
       <div class="feed-modo-chip" data-modo-descobrir="tudo" onclick="trocarModoDescobrir('tudo')">🔀 Tudo</div>
@@ -723,6 +725,15 @@
     <button class="seguir-btn" id="perfilAlheioSeguirBtn" style="margin-top:10px;" onclick="seguirDoOverlay()"></button>
   </div>
   <div id="perfilAlheioPosts"></div>
+</div>
+
+<!-- OVERLAY: PRÉVIA DE LIVRO -->
+<div class="dm-chat-overlay" id="livroPreviewOverlay">
+  <div class="dm-chat-header">
+    <button class="back-btn" onclick="closeOverlay('livroPreviewOverlay')">←</button>
+    <h2 style="font-size:16px;" id="livroPreviewTitulo">Prévia</h2>
+  </div>
+  <div id="livroPreviewCorpo" style="overflow-y:auto; flex:1;"></div>
 </div>
 
 <!-- OVERLAY: EDITAR PERFIL -->
@@ -2533,6 +2544,17 @@ function aplicarFotoPerfil(url) {
     renderDiscover();
   };
 
+  const TUMBLR_TAG_PADRAO = 'diario';
+  let termoBuscaDescobrir = '';
+  let debounceBuscaDescobrir = null;
+  window.aoDigitarBuscaDescobrir = function () {
+    clearTimeout(debounceBuscaDescobrir);
+    debounceBuscaDescobrir = setTimeout(() => {
+      termoBuscaDescobrir = document.getElementById('buscaDescobrirInput').value.trim();
+      renderDiscover();
+    }, 400);
+  };
+
   let modoDescobrirAtivo = 'relevante';
 window.trocarModoDescobrir = function (modo) {
   modoDescobrirAtivo = modo;
@@ -2565,14 +2587,23 @@ window.trocarModoDescobrir = function (modo) {
       const dados = await resp.json();
       itens = (dados.items || []).map(l => {
         const info = l.volumeInfo;
-        return { kind: '📖 Livro', title: info.title || 'Sem título', desc: (info.description || 'Sem descrição disponível.').slice(0, 150), link: info.link || null };
+        return {
+          kind: '📖 Livro',
+          title: info.title || 'Sem título',
+          desc: (info.description || 'Sem descrição disponível.').slice(0, 150),
+          link: info.link || null,
+          fonte: l.fonte || null,
+          googleId: l.googleId || null,
+          gutendexId: l.gutendexId || null,
+          coverId: l.coverId || null,
+        };
       });
     } catch (e) { console.log('erro ao carregar livros:', e); }
 
     window.ITENS_LIVROS_ATUAIS = itens;
     lista.innerHTML = itens.length
       ? itens.map((d, i) => `
-        <div class="discover-card" onclick="abrirLivroExterno(${i})" style="cursor:pointer;">
+        <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
           <span class="discover-kind">${d.kind}</span>
           <div class="discover-title">${d.title}</div>
           <div class="discover-desc">${d.desc}</div>
@@ -2584,13 +2615,42 @@ window.trocarModoDescobrir = function (modo) {
       : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
   }
 
-  window.abrirLivroExterno = function (i) {
+  window.abrirLivroPreview = async function (i) {
     const item = window.ITENS_LIVROS_ATUAIS[i];
-    if (item && item.link) {
-      window.open(item.link, '_blank', 'noopener');
-    } else {
-      mostrarToast('😕 esse livro não tem um link disponível');
+    if (!item) return;
+
+    document.getElementById('livroPreviewTitulo').textContent = item.title;
+    const corpo = document.getElementById('livroPreviewCorpo');
+    document.getElementById('livroPreviewOverlay').classList.add('open');
+
+    if (item.fonte === 'Google Books' && item.googleId) {
+      corpo.innerHTML = `<iframe src="https://books.google.com/books?id=${item.googleId}&printsec=frontcover&output=embed" style="width:100%; height:70vh; border:none; border-radius:12px;"></iframe>`;
+      return;
     }
+
+    if (item.fonte === 'Gutendex' && item.gutendexId) {
+      corpo.innerHTML = `<div class="visitor-lock-note">Carregando prévia...</div>`;
+      try {
+        const resp = await fetch(`${API_BASE}/api/livro-texto?id=${item.gutendexId}`);
+        const dados = await resp.json();
+        corpo.innerHTML = `
+          <div class="bio-box" style="margin-bottom:10px;">📖 clássico de domínio público — trecho do texto integral</div>
+          <div style="white-space:pre-wrap; line-height:1.6; font-size:13.5px; padding:2px 2px 20px;">${(dados.texto || 'Prévia não disponível.').replace(/</g, '&lt;')}</div>
+          ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">🔗 ler o livro completo</div>` : ''}
+        `;
+      } catch (e) {
+        corpo.innerHTML = `<div class="visitor-lock-note">Não consegui carregar a prévia agora.</div>`;
+      }
+      return;
+    }
+
+    // Open Library (ou qualquer item sem prévia embutida): capa + descrição + link de saída
+    const capaUrl = item.coverId ? `https://covers.openlibrary.org/b/id/${item.coverId}-L.jpg` : null;
+    corpo.innerHTML = `
+      ${capaUrl ? `<img src="${capaUrl}" alt="" style="max-width:180px; display:block; margin:0 auto 14px; border-radius:10px; box-shadow:var(--shadow);">` : ''}
+      <div class="discover-desc" style="margin-bottom:14px;">${item.desc}</div>
+      ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">🔗 abrir no site de origem</div>` : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
+    `;
   };
 
   window.comentarItemLivro = function (i) {
@@ -2628,34 +2688,25 @@ async function renderDiscover() {
   } catch (e) { console.log('erro filmes descobrir:', e); }
 
   try {
-    const respPodcasts = await fetch(`${API_BASE}/api/podcasts-em-alta`);
-    const dadosPodcasts = await respPodcasts.json();
-    (dadosPodcasts.results || []).slice(0, 3).forEach(p => {
-      itensReais.push({ kind: '🎧 Podcast', title: p.collectionName, desc: p.artistName || 'Sem descrição disponível.', collectionId: p.collectionId });
+    const tag = termoBuscaDescobrir || TUMBLR_TAG_PADRAO;
+    const respTumblr = await fetch(`${API_BASE}/api/tumblr-tag?tag=${encodeURIComponent(tag)}`);
+    const dadosTumblr = await respTumblr.json();
+    (dadosTumblr.posts || []).slice(0, 8).forEach(p => {
+      itensReais.push({
+        kind: '✨ Tumblr',
+        title: p.blogName ? `@${p.blogName}` : 'Tumblr',
+        desc: p.texto || 'Sem descrição disponível.',
+        imagemUrl: p.imagemUrl,
+        postUrl: p.postUrl,
+        destaque: true,
+      });
     });
-  } catch (e) { console.log('erro podcasts descobrir:', e); }
-
-    try {
-    const respNoticias = await fetch(`${API_BASE}/api/noticias-em-alta`);
-    const dadosNoticias = await respNoticias.json();
-    (dadosNoticias.articles || []).slice(0, 3).forEach(n => {
-      itensReais.push({ kind: '📰 Notícia', title: n.title, desc: n.description || 'Sem descrição disponível.', linkNoticia: n.url });
-    });
-  } catch (e) { console.log('erro noticias descobrir:', e); }
-
-
-  try {
-    const respMusicas = await fetch(`${API_BASE}/api/musicas-em-alta`);
-    const dadosMusicas = await respMusicas.json();
-       (dadosMusicas.data || []).slice(0, 3).forEach(m => {
-      itensReais.push({ kind: '🎵 Música', title: `${m.title} — ${m.artist.name}`, desc: `Do álbum "${m.album.title}"`, regiao: 'mundo', previewUrl: m.preview });
-    });
-  } catch (e) { console.log('erro musicas descobrir:', e); }
+  } catch (e) { console.log('erro tumblr descobrir:', e); }
 
      const itensFiltrados = modoDescobrirAtivo === 'relevante'
     ? [...itensReais].sort((a, b) => {
-        const scoreA = assuntosFavoritos.some(fav => a.kind.includes(fav)) ? 1 : 0;
-        const scoreB = assuntosFavoritos.some(fav => b.kind.includes(fav)) ? 1 : 0;
+        const scoreA = (a.destaque ? 2 : 0) + (assuntosFavoritos.some(fav => a.kind.includes(fav)) ? 1 : 0);
+        const scoreB = (b.destaque ? 2 : 0) + (assuntosFavoritos.some(fav => b.kind.includes(fav)) ? 1 : 0);
         return scoreB - scoreA;
       })
     : itensReais;
@@ -2663,12 +2714,13 @@ async function renderDiscover() {
   window.ITENS_DESCOBRIR_ATUAIS = itensFiltrados;
   lista.innerHTML = itensFiltrados.length
     ? itensFiltrados.map((d, i) => `
-      <div class="discover-card">
+      <div class="discover-card ${d.destaque ? 'discover-card-destaque' : ''}">
         <span class="discover-kind">${d.kind}</span>
+        ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; border-radius:12px; margin:8px 0; display:block;">` : ''}
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
-        ${(d.filmeId || d.previewUrl || d.collectionId) ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
-${d.linkNoticia ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="window.open('${d.linkNoticia}', '_blank')">🔗 ler matéria</div>` : ''}
+        ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
+${d.postUrl ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="window.open('${d.postUrl}', '_blank')">🔗 ver no Tumblr</div>` : ''}
             <div class="post-actions" style="margin-top:10px;">
           <div class="post-action" onclick="comentarItemDescobrir(${i})">💬 comentar</div>
           <div class="post-action" onclick="compartilharItemDescobrir(${i})">↗ compartilhar</div>

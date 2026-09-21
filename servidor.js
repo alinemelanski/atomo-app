@@ -118,6 +118,48 @@ app.get('/api/musicas-em-alta', async (req, res) => {
   }
 });
 
+app.get('/api/tumblr-tag', async (req, res) => {
+  const tag = (req.query.tag || '').trim();
+  if (!tag) return res.status(400).json({ erro: 'faltou o parâmetro tag' });
+
+  try {
+    const resposta = await fetch(
+      `https://api.tumblr.com/v2/tagged?tag=${encodeURIComponent(tag)}&api_key=${process.env.TUMBLR_API_KEY}&limit=20`
+    );
+    const dados = await resposta.json();
+    const postsBrutos = Array.isArray(dados.response) ? dados.response : [];
+
+    const posts = postsBrutos.map(p => {
+      const blocos = Array.isArray(p.content) ? p.content : [];
+      let texto = '';
+      let imagemUrl = null;
+
+      blocos.forEach(bloco => {
+        if (bloco.type === 'text' && bloco.text) {
+          texto += (texto ? ' ' : '') + bloco.text;
+        }
+        if (bloco.type === 'image' && !imagemUrl && Array.isArray(bloco.media) && bloco.media[0]) {
+          imagemUrl = bloco.media[0].url;
+        }
+      });
+
+      return {
+        id: p.id,
+        blogName: p.blog_name || null,
+        texto: texto.slice(0, 240) || 'Sem descrição disponível.',
+        imagemUrl,
+        tags: p.tags || [],
+        postUrl: p.post_url || null,
+      };
+    });
+
+    res.json({ posts });
+  } catch (erro) {
+    console.log('erro Tumblr (tagged):', erro.message);
+    res.status(500).json({ erro: 'erro ao buscar no tumblr' });
+  }
+});
+
 app.get('/api/livros-em-destaque', async (req, res) => {
   // junta 3 fontes de livro numa lista só, cada uma no seu try/catch — se uma
   // cair, as outras continuam aparecendo normal. Todo item vira o mesmo
@@ -143,6 +185,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
     (dados.items || []).forEach(l => {
       itens.push({
         fonte: 'Google Books',
+        googleId: l.id || null,
         volumeInfo: {
           title: l.volumeInfo?.title || 'Sem título',
           description: l.volumeInfo?.description || 'Sem descrição disponível.',
@@ -167,6 +210,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       const ano = l.first_publish_year ? ` (${l.first_publish_year})` : '';
       itens.push({
         fonte: 'Open Library',
+        coverId: l.cover_i || null,
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores}${ano}` : 'Sem descrição disponível.',
@@ -190,6 +234,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       const autores = (l.authors || []).map(a => a.name).join(', ');
       itens.push({
         fonte: 'Gutendex',
+        gutendexId: l.id || null,
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores} · clássico de domínio público` : 'Clássico de domínio público.',
@@ -202,6 +247,51 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   }
 
   res.json({ items: itens });
+});
+
+app.get('/api/livro-texto', async (req, res) => {
+  // pega um trecho de verdade do texto integral de um livro do Gutendex
+  // (domínio público) pra mostrar como prévia dentro do próprio app
+  const id = (req.query.id || '').trim();
+  if (!id) return res.status(400).json({ erro: 'faltou o parâmetro id' });
+
+  try {
+    const respLivro = await fetch(`https://gutendex.com/books/${encodeURIComponent(id)}`);
+    const livro = await respLivro.json();
+    const formatos = livro.formats || {};
+
+    const chaveTxt = Object.keys(formatos).find(k => k.startsWith('text/plain'));
+    const chaveHtml = Object.keys(formatos).find(k => k.startsWith('text/html'));
+    const urlEscolhida = formatos[chaveTxt] || formatos[chaveHtml];
+
+    if (!urlEscolhida) {
+      return res.json({
+        titulo: livro.title || 'Sem título',
+        autor: (livro.authors || []).map(a => a.name).join(', '),
+        texto: 'Prévia não disponível pra este livro.',
+      });
+    }
+
+    const respTexto = await fetch(urlEscolhida);
+    let bruto = await respTexto.text();
+
+    if (!chaveTxt && chaveHtml) {
+      bruto = bruto.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
+    }
+
+    // pula licença/sumário do início do arquivo do Gutenberg e pega um trecho do miolo
+    const inicio = Math.min(3000, Math.floor(bruto.length * 0.05));
+    const trecho = bruto.slice(inicio, inicio + 6000).trim();
+
+    res.json({
+      titulo: livro.title || 'Sem título',
+      autor: (livro.authors || []).map(a => a.name).join(', '),
+      texto: trecho || 'Prévia não disponível pra este livro.',
+    });
+  } catch (erro) {
+    console.log('erro ao buscar texto do livro (Gutendex):', erro.message);
+    res.status(500).json({ erro: 'não consegui carregar a prévia' });
+  }
 });
 
 app.get('/api/buscar-podcast', async (req, res) => {
