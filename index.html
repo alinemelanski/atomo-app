@@ -440,10 +440,33 @@
     padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); resize: none; outline: none; }
   .pulse-highlight { animation: pulse-glow 0.9s ease; border-radius: 14px; }
   @keyframes pulse-glow { 0%,100% { box-shadow: none; } 40% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+
+  /* ---------- puxar para atualizar ---------- */
+  .pull-refresh-indicator {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    left: 50%;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--card-b);
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-60px) scale(0.8);
+    transition: opacity .12s ease;
+  }
+  .pull-refresh-indicator.spinning { transition: transform .2s ease, opacity .12s ease; }
+  .pull-refresh-indicator.spinning span { display: inline-block; animation: pull-spin .7s linear infinite; }
+  @keyframes pull-spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
   <div class="device" id="device">
+    <div class="pull-refresh-indicator" id="pullRefreshIndicator"><span>↓</span></div>
 
     <!-- SPLASH: papel amassando na entrada -->
     <div class="splash-screen" id="splashScreen">
@@ -584,7 +607,7 @@
     <!-- DESCOBRIR (@) -->
     <div class="screen" id="screen-descobrir">
       <div class="top-row"><h1>@ Descobrir</h1></div>
-      <input type="text" id="buscaDescobrirInput" class="busca-input" placeholder="🔍 Buscar por tag no Tumblr..." oninput="aoDigitarBuscaDescobrir()" style="margin-bottom:12px;" />
+      <input type="text" id="buscaDescobrirInput" class="busca-input" placeholder="🔍 Buscar por tag..." oninput="aoDigitarBuscaDescobrir()" style="margin-bottom:12px;" />
       <div class="feed-modo-row">
       <div class="feed-modo-chip on" data-modo-descobrir="relevante" onclick="trocarModoDescobrir('relevante')">✨ Mais relevantes</div>
       <div class="feed-modo-chip" data-modo-descobrir="tudo" onclick="trocarModoDescobrir('tudo')">🔀 Tudo</div>
@@ -2693,8 +2716,8 @@ async function renderDiscover() {
     const dadosTumblr = await respTumblr.json();
     (dadosTumblr.posts || []).slice(0, 8).forEach(p => {
       itensReais.push({
-        kind: '✨ Tumblr',
-        title: p.blogName ? `@${p.blogName}` : 'Tumblr',
+        kind: '🎨 Mural',
+        title: p.blogName ? `@${p.blogName}` : 'Achado por aí',
         desc: p.texto || 'Sem descrição disponível.',
         imagemUrl: p.imagemUrl,
         postUrl: p.postUrl,
@@ -2720,7 +2743,7 @@ async function renderDiscover() {
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
-${d.postUrl ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="window.open('${d.postUrl}', '_blank')">🔗 ver no Tumblr</div>` : ''}
+${d.postUrl ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="window.open('${d.postUrl}', '_blank')">🔗 ver original</div>` : ''}
             <div class="post-actions" style="margin-top:10px;">
           <div class="post-action" onclick="comentarItemDescobrir(${i})">💬 comentar</div>
           <div class="post-action" onclick="compartilharItemDescobrir(${i})">↗ compartilhar</div>
@@ -2990,6 +3013,90 @@ window.abrirPerfilDoAmigo = async function (id) {
     document.getElementById('screen-' + id).classList.add('active');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === id));
   };
+
+  // ---------- puxar para atualizar ----------
+  (function initPuxarAtualizar() {
+    const indicador = document.getElementById('pullRefreshIndicator');
+    if (!indicador) return;
+    const spanIcone = indicador.querySelector('span');
+
+    const ATUALIZAR_POR_TELA = {
+      feed: () => carregarPostsReais(),
+      descobrir: () => renderDiscover(),
+      livros: () => renderLivros(),
+      mensagens: () => renderDmList(),
+    };
+
+    const LIMIAR = 70;
+    const PUXAR_MAX = 110;
+    let startY = 0;
+    let puxando = false;
+    let ultimaDist = 0;
+    let telaAtual = null;
+    let atualizando = false;
+
+    function overlayAberto() {
+      return !!document.querySelector('.open, .show:not(#toast2)');
+    }
+
+    function resetIndicador() {
+      indicador.classList.remove('spinning');
+      indicador.style.opacity = '0';
+      indicador.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
+      spanIcone.textContent = '↓';
+    }
+
+    document.addEventListener('touchstart', (e) => {
+      if (atualizando || overlayAberto()) { puxando = false; return; }
+      const tela = document.querySelector('.screen.active');
+      if (!tela || tela.scrollTop > 0) { puxando = false; return; }
+      const id = tela.id.replace('screen-', '');
+      if (!ATUALIZAR_POR_TELA[id]) { puxando = false; return; }
+      startY = e.touches[0].clientY;
+      telaAtual = tela;
+      puxando = true;
+      ultimaDist = 0;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!puxando || atualizando) return;
+      if (overlayAberto() || (telaAtual && telaAtual.scrollTop > 0)) { puxando = false; resetIndicador(); return; }
+      const dy = e.touches[0].clientY - startY;
+      if (dy <= 0) { ultimaDist = 0; resetIndicador(); return; }
+      const dist = Math.min(dy * 0.5, PUXAR_MAX);
+      ultimaDist = dist;
+      const progresso = Math.min(dist / LIMIAR, 1);
+      indicador.style.opacity = String(progresso);
+      indicador.style.transform = `translateX(-50%) translateY(${dist - 60}px) scale(${0.8 + progresso * 0.3}) rotate(${dist * 3}deg)`;
+      spanIcone.textContent = progresso >= 1 ? '↑' : '↓';
+    }, { passive: true });
+
+    document.addEventListener('touchend', async () => {
+      if (!puxando || atualizando) { puxando = false; return; }
+      puxando = false;
+      const disparou = ultimaDist >= LIMIAR;
+      if (!disparou) { resetIndicador(); return; }
+
+      atualizando = true;
+      indicador.classList.add('spinning');
+      indicador.style.opacity = '1';
+      indicador.style.transform = 'translateX(-50%) translateY(4px) scale(1)';
+      spanIcone.textContent = '↻';
+
+      const id = telaAtual ? telaAtual.id.replace('screen-', '') : null;
+      const fnAtualizar = id ? ATUALIZAR_POR_TELA[id] : null;
+      try {
+        if (fnAtualizar) await fnAtualizar();
+      } catch (e) {
+        console.log('erro ao atualizar:', e);
+      }
+      setTimeout(() => {
+        atualizando = false;
+        indicador.classList.remove('spinning');
+        resetIndicador();
+      }, 350);
+    });
+  })();
 
   window.openConfig = function () {
   document.getElementById('configOverlay').classList.add('open');

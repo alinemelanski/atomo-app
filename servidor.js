@@ -138,15 +138,22 @@ app.get('/api/tumblr-tag', async (req, res) => {
         if (bloco.type === 'text' && bloco.text) {
           texto += (texto ? ' ' : '') + bloco.text;
         }
+        if (bloco.type === 'link') {
+          const partes = [bloco.title, bloco.description].filter(Boolean).join(' — ');
+          if (partes) texto += (texto ? ' ' : '') + partes;
+        }
         if (bloco.type === 'image' && !imagemUrl && Array.isArray(bloco.media) && bloco.media[0]) {
           imagemUrl = bloco.media[0].url;
+        }
+        if (bloco.type === 'video' && !imagemUrl && bloco.poster && bloco.poster[0]) {
+          imagemUrl = bloco.poster[0].url;
         }
       });
 
       return {
         id: p.id,
         blogName: p.blog_name || null,
-        texto: texto.slice(0, 240) || 'Sem descrição disponível.',
+        texto: texto || 'Sem texto neste post.',
         imagemUrl,
         tags: p.tags || [],
         postUrl: p.post_url || null,
