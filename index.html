@@ -656,6 +656,7 @@
       </div>
       <div class="bio-box" id="profBio">poemas, croquis e pensamentos soltos ✏️</div>
       <div class="streak-chip" onclick="abrirDetalheSequencia()"><span id="streakEmoji">🧶</span> <span id="streakCount">4</span> dias seguidos escrevendo</div>
+      <div class="streak-chip" onclick="abrirPerguntasPendentes()" style="margin-top:6px;">❓ perguntas anônimas <span id="perguntasPendentesBadge" style="display:none; background:var(--accent-a); color:#fff; border-radius:999px; padding:1px 7px; font-size:10px; margin-left:4px;">0</span></div>
       <div class="selos-perfil-row" id="selosPerfilRow"></div>
       <div class="composer" style="margin:14px 0;">
         <textarea id="perfilComposerText" placeholder="Escreva uma anotação..."></textarea>
@@ -676,6 +677,16 @@
         <div class="diary-tab" id="diaryTabPrivado" onclick="setDiaryTab('privado')">Só eu 🔒</div>
       </div>
       <div id="diaryList"></div>
+      <div id="meuPerguntasArea" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- OVERLAY: PERGUNTAS ANÔNIMAS PENDENTES -->
+    <div class="dm-chat-overlay" id="perguntasPendentesOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('perguntasPendentesOverlay')">←</button>
+        <h2 style="font-size:16px;">Perguntas anônimas</h2>
+      </div>
+      <div id="perguntasPendentesList" style="overflow-y:auto;"></div>
     </div>
 
     <!-- OVERLAY: NOTIFICAÇÕES -->
@@ -757,9 +768,13 @@
       <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguidores')"><span id="perfilAlheioSeguidoresCount">0</span> seguidores</span>
     </div>
     <div class="bio-box" id="perfilAlheioBio" style="margin-top:8px;"></div>
-    <button class="seguir-btn" id="perfilAlheioSeguirBtn" style="margin-top:10px;" onclick="seguirDoOverlay()"></button>
+    <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
+      <button class="seguir-btn" id="perfilAlheioSeguirBtn" onclick="seguirDoOverlay()"></button>
+      <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()">❓ pergunta anônima</button>
+    </div>
   </div>
   <div id="perfilAlheioPosts"></div>
+  <div id="perfilAlheioPerguntasArea" style="margin-top:16px;"></div>
 </div>
 
 <!-- OVERLAY: PRÉVIA DE LIVRO -->
@@ -864,6 +879,19 @@
         <div class="write-popup-head"><span class="pe">↗</span><span class="write-popup-title">Compartilhar</span></div>
         <div class="share-option" onclick="repostarNoFeed()">🔁 Repostar no meu feed</div>
         <div class="share-option" onclick="copiarLink()">🔗 Copiar link</div>
+      </div>
+    </div>
+
+    <!-- POP-UP: PERGUNTA ANÔNIMA -->
+    <div class="write-popup-bg" id="perguntaAnonimaPopupBg">
+      <div class="write-popup" style="position:relative;">
+        <button class="write-popup-close" onclick="document.getElementById('perguntaAnonimaPopupBg').classList.remove('show')">✕</button>
+        <div class="write-popup-head"><span class="pe">❓</span><span class="write-popup-title">Pergunta anônima</span></div>
+        <div class="write-popup-sub">Ela chega sem o seu nome — só a pessoa vê a pergunta, e pode responder em público</div>
+        <textarea id="perguntaAnonimaTexto" placeholder="Escreva sua pergunta..."></textarea>
+        <div class="write-popup-foot" style="justify-content:flex-end;">
+          <button class="post-btn" onclick="enviarPerguntaAnonima()">Enviar</button>
+        </div>
       </div>
     </div>
 
@@ -2175,6 +2203,7 @@ window.abrirPerfilAlheio = async function (autorId) {
     : `<div class="visitor-lock-note">Nada compartilhado ainda.</div>`;
 
   await supabaseClient.from('visitas').insert({ visitante_id: meuId, visitado_id: autorId });
+  await renderPerguntasPublicas(autorId, 'perfilAlheioPerguntasArea');
 
   document.getElementById('perfilAlheioOverlay').classList.add('open');
 };
@@ -2216,6 +2245,138 @@ async function notificarNovoSeguidor(seguidoId, seguidorId) {
     titulo: 'Novo seguidor',
     subtitulo: euUsuario ? `@${euUsuario.handle} começou a te seguir` : 'Alguém começou a te seguir',
   });
+}
+
+// ---------- perguntas anônimas ----------
+window.abrirPerguntaAnonima = function () {
+  if (!window.PERFIL_ALHEIO_ATUAL_ID) return;
+  document.getElementById('perguntaAnonimaTexto').value = '';
+  document.getElementById('perguntaAnonimaPopupBg').classList.add('show');
+};
+
+window.enviarPerguntaAnonima = async function () {
+  const texto = document.getElementById('perguntaAnonimaTexto').value.trim();
+  if (!texto) return;
+  const destinatarioId = window.PERFIL_ALHEIO_ATUAL_ID;
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session.user.id;
+
+  const { error } = await supabaseClient.from('perguntas_anonimas').insert({
+    destinatario_id: destinatarioId,
+    remetente_id: meuId,
+    pergunta: texto,
+  });
+
+  document.getElementById('perguntaAnonimaPopupBg').classList.remove('show');
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  mostrarToast('❓ Pergunta enviada, sem o seu nome');
+
+  const { data: dono } = await supabaseClient.from('usuarios').select('notif_ativado').eq('id', destinatarioId).maybeSingle();
+  if (!dono || dono.notif_ativado !== false) {
+    await supabaseClient.from('notificacoes').insert({
+      usuario_id: destinatarioId,
+      tipo: 'pergunta',
+      titulo: 'Nova pergunta anônima',
+      subtitulo: 'Alguém te mandou uma pergunta sem se identificar',
+    });
+  }
+};
+
+async function renderPerguntasPublicas(autorId, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const { data: perguntas } = await supabaseClient
+    .from('perguntas_anonimas')
+    .select('id, pergunta, resposta, respondida_em')
+    .eq('destinatario_id', autorId)
+    .eq('respondida', true)
+    .order('respondida_em', { ascending: false });
+
+  if (!perguntas || !perguntas.length) { container.innerHTML = ''; return; }
+
+  container.innerHTML = `
+    <div style="font-size:11.5px; font-weight:800; color:var(--ink-dim); margin-bottom:8px;">❓ Perguntas anônimas respondidas</div>
+    ${perguntas.map(p => `
+      <div class="post" style="margin-bottom:8px;">
+        <div style="font-size:12px; color:var(--ink-faint); margin-bottom:4px;">❓ ${p.pergunta}</div>
+        <div class="post-body">${p.resposta}</div>
+      </div>`).join('')}
+  `;
+}
+
+window.abrirPerguntasPendentes = async function () {
+  document.getElementById('perguntasPendentesOverlay').classList.add('open');
+  await renderPerguntasPendentes();
+};
+
+async function renderPerguntasPendentes() {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session.user.id;
+  const { data: pendentes } = await supabaseClient
+    .from('perguntas_anonimas')
+    .select('id, pergunta, criado_em')
+    .eq('destinatario_id', meuId)
+    .eq('respondida', false)
+    .order('criado_em', { ascending: false });
+
+  const lista = document.getElementById('perguntasPendentesList');
+  lista.innerHTML = (pendentes && pendentes.length)
+    ? pendentes.map(p => `
+      <div class="post" style="margin-bottom:10px;">
+        <div class="post-body" style="margin-bottom:8px;">❓ ${p.pergunta}</div>
+        <textarea id="respostaPergunta${p.id}" placeholder="Escreva sua resposta (vai aparecer pública no seu perfil)..." style="margin-bottom:8px;"></textarea>
+        <div class="post-actions">
+          <div class="post-action" onclick="responderPergunta(${p.id})">✅ Responder</div>
+          <div class="post-action" onclick="descartarPergunta(${p.id})">🗑 Descartar</div>
+        </div>
+      </div>`).join('')
+    : `<div class="visitor-lock-note">Nenhuma pergunta por enquanto.</div>`;
+
+  atualizarBadgePerguntasPendentes(pendentes ? pendentes.length : 0);
+}
+
+window.responderPergunta = async function (id) {
+  const campoResposta = document.getElementById(`respostaPergunta${id}`);
+  const resposta = campoResposta ? campoResposta.value.trim() : '';
+  if (!resposta) { mostrarToast('Escreve uma resposta antes de enviar'); return; }
+
+  const { error } = await supabaseClient.from('perguntas_anonimas')
+    .update({ resposta, respondida: true, respondida_em: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  mostrarToast('✅ Resposta publicada no seu perfil');
+  await renderPerguntasPendentes();
+  await carregarPerguntasPublicasMinhas();
+};
+
+window.descartarPergunta = async function (id) {
+  const { error } = await supabaseClient.from('perguntas_anonimas').delete().eq('id', id);
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  await renderPerguntasPendentes();
+};
+
+async function carregarPerguntasPublicasMinhas() {
+  if (!window.MEU_USUARIO_ID) return;
+  await renderPerguntasPublicas(window.MEU_USUARIO_ID, 'meuPerguntasArea');
+}
+
+async function atualizarBadgePerguntasPendentes(contagemConhecida) {
+  let n = contagemConhecida;
+  if (n === undefined) {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return;
+    const { count } = await supabaseClient
+      .from('perguntas_anonimas')
+      .select('id', { count: 'exact', head: true })
+      .eq('destinatario_id', sessionData.session.user.id)
+      .eq('respondida', false);
+    n = count || 0;
+  }
+  const badge = document.getElementById('perguntasPendentesBadge');
+  if (!badge) return;
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'inline-block' : 'none';
 }
 
 window.togglePerfilAlheioMenu = function () {
@@ -3511,6 +3672,8 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     await atualizarContadorVisitas();
     renderDmList();
     carregarPostsReais();
+    atualizarBadgePerguntasPendentes();
+    carregarPerguntasPublicasMinhas();
 
     supabaseClient
       .channel('notificacoes-realtime')
@@ -3521,6 +3684,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         filter: `usuario_id=eq.${session.user.id}`,
       }, () => {
         carregarNotificacoes();
+        atualizarBadgePerguntasPendentes();
         mostrarToast('🔔 Nova notificação chegou!');
       })
       .subscribe();
@@ -3647,7 +3811,7 @@ window.openNotifs = async function () {
   const lista = window.NOTIFICACOES_REAIS || [];
 
   document.getElementById('notifList').innerHTML = lista.length
-    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? '💬' : n.tipo === 'seguidor' ? '👤' : '🔔'}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
+    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? '💬' : n.tipo === 'seguidor' ? '👤' : n.tipo === 'pergunta' ? '❓' : '🔔'}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
     : `<div class="visitor-lock-note">Nenhuma notificação ainda 🌱</div>`;
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
