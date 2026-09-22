@@ -134,7 +134,7 @@ async function enviarPushParaUsuario(usuarioId, titulo, corpo) {
 // chamada por um agendador EXTERNO (o Render free não fica ligado sozinho o
 // tempo todo — ver README/instruções) a cada poucos minutos. Protegida por
 // segredo compartilhado (CRON_SECRET) pra ninguém de fora disparar notificação.
-app.post('/api/cron/notificacoes', async (req, res) => {
+async function rodarCronNotificacoes(req, res) {
   const segredo = req.query.segredo || req.headers['x-cron-secret'];
   if (!process.env.CRON_SECRET || segredo !== process.env.CRON_SECRET) {
     return res.status(401).json({ erro: 'não autorizado' });
@@ -185,7 +185,12 @@ app.post('/api/cron/notificacoes', async (req, res) => {
     console.log('erro no cron de notificações:', erro.message);
     res.status(500).json({ erro: erro.message });
   }
-});
+}
+
+// aceita GET e POST — alguns serviços de cron externos (como o cron-job.org
+// no plano grátis) só mandam GET por padrão
+app.get('/api/cron/notificacoes', rodarCronNotificacoes);
+app.post('/api/cron/notificacoes', rodarCronNotificacoes);
 
 app.post('/api/lista-espera', async (req, res) => {
   const email = (req.body?.email || '').trim().toLowerCase();
