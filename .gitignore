@@ -4,3 +4,6 @@ servidor.env
 
 # dependências do Node (todo mundo que clonar reinstala com "npm install")
 node_modules/
+
+# backup local antigo, não faz parte do projeto
+bu-novo.html
