@@ -56,7 +56,8 @@ app.post('/api/push/inscrever', async (req, res) => {
 });
 
 // mensagens variadas — a manhã sempre pergunta/convida (sono, sonho), a
-// noite é sempre uma frase de reflexão, nunca uma pergunta
+// noite é sempre uma reflexão filosófica curta sobre a vida/o dia — nunca
+// uma pergunta, nunca um convite pra escrever, só um pensamento pra levar
 const MENSAGENS_MANHA = [
   'Bom dia! Como foi seu sono essa noite? 🌙',
   'Lembra do seu sonho de hoje? Anota antes que ele escape.',
@@ -66,11 +67,14 @@ const MENSAGENS_MANHA = [
   'Como foi acordar hoje? Guarda esse momento no seu diário.',
 ];
 const MENSAGENS_NOITE = [
-  'O dia de hoje já virou história — vale guardar um pedacinho dele.',
-  'Antes de dormir, um instante pra registrar como foi seu dia.',
-  'Mais um dia se encerrando. Seu diário tá esperando por ele.',
-  'Hoje já é passado. Bom deixar um pouco dele guardado.',
-  'O dia acabou. Um registro rápido antes de fechar os olhos.',
+  'Cada dia é uma página que não se reescreve — essa também deixou sua marca.',
+  'O tempo não pede licença pra passar. Só pede atenção.',
+  'Nem todo dia precisa de sentido. Alguns só precisam ser vividos até o fim.',
+  'Há um segredo escondido em cada dia comum, como uma semente dentro da casca.',
+  'A vida não é feita só dos grandes dias, mas da soma silenciosa dos comuns.',
+  'O que passou hoje não volta — mas também não se perde. Vira quem você é amanhã.',
+  'Existe uma sabedoria simples em ter chegado até aqui, até esta noite.',
+  'Debaixo da rotina de qualquer dia, sempre mora algo que vale guardar.',
 ];
 const HORARIO_NOITE_MIN = 21 * 60; // 21h00 (horário de Brasília) — fixo pra todo mundo
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
