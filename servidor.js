@@ -262,9 +262,12 @@ app.get('/api/livros-em-destaque', async (req, res) => {
     );
     const dados = await resposta.json();
     (dados.items || []).forEach(l => {
+      const capaGoogle = l.volumeInfo?.imageLinks?.thumbnail || l.volumeInfo?.imageLinks?.smallThumbnail || null;
       itens.push({
         fonte: 'Google Books',
         googleId: l.id || null,
+        capa: capaGoogle ? capaGoogle.replace('http://', 'https://') : null,
+        autor: (l.volumeInfo?.authors || []).join(', '),
         volumeInfo: {
           title: l.volumeInfo?.title || 'Sem título',
           description: l.volumeInfo?.description || 'Sem descrição disponível.',
@@ -290,6 +293,8 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       itens.push({
         fonte: 'Open Library',
         coverId: l.cover_i || null,
+        capa: l.cover_i ? `https://covers.openlibrary.org/b/id/${l.cover_i}-L.jpg` : null,
+        autor: autores,
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores}${ano}` : 'Sem descrição disponível.',
@@ -314,6 +319,8 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       itens.push({
         fonte: 'Gutendex',
         gutendexId: l.id || null,
+        capa: (l.formats && l.formats['image/jpeg']) || null,
+        autor: autores,
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores} · clássico de domínio público` : 'Clássico de domínio público.',

@@ -470,6 +470,17 @@
   .busca-wrap { position: relative; }
   .busca-wrap .icon-svg { position: absolute; left: 13px; top: 50%; margin-top: -8px; pointer-events: none; color: var(--ink-faint); }
   .busca-wrap .busca-input { padding-left: 36px; }
+  .livro-hero { text-align: center; padding: 4px 0 18px; }
+  .livro-hero .capa-img { width: 138px; height: 196px; object-fit: cover; border-radius: 10px; box-shadow: var(--shadow);
+    margin: 0 auto 14px; display: block; background: var(--accent-soft); }
+  .livro-hero .capa-vazia { width: 138px; height: 196px; border-radius: 10px; margin: 0 auto 14px; box-shadow: var(--shadow);
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); display: flex; align-items: center;
+    justify-content: center; font-size: 34px; }
+  .livro-hero .titulo-livro { font-family: 'Baloo 2', sans-serif; font-size: 19px; color: var(--ink); line-height: 1.25; padding: 0 8px; }
+  .livro-hero .autor-livro { font-size: 12px; color: var(--ink-faint); margin-top: 5px; font-weight: 700; }
+  .livro-link-externo { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 12.5px; font-weight: 800;
+    cursor: pointer; margin: 10px auto 0; }
   </style>
 </head>
 <body>
@@ -2961,6 +2972,8 @@ window.trocarModoDescobrir = function (modo) {
           googleId: l.googleId || null,
           gutendexId: l.gutendexId || null,
           coverId: l.coverId || null,
+          capa: l.capa || null,
+          autor: l.autor || '',
         };
       });
     } catch (e) { console.log('erro ao carregar livros:', e); return []; }
@@ -3002,33 +3015,43 @@ window.trocarModoDescobrir = function (modo) {
     const corpo = document.getElementById('livroPreviewCorpo');
     document.getElementById('livroPreviewOverlay').classList.add('open');
 
-    if (item.fonte === 'Google Books' && item.googleId) {
-      corpo.innerHTML = `<iframe src="https://books.google.com/books?id=${item.googleId}&printsec=frontcover&output=embed" style="width:100%; height:70vh; border:none; border-radius:12px;"></iframe>`;
-      return;
-    }
+    // capa "de livro de verdade" (nada de iframe genérico do Google) — a
+    // mesma moldura pra qualquer fonte, com fallback num retângulo colorido
+    // quando não tem imagem de capa disponível
+    const capaUrl = item.capa || (item.coverId ? `https://covers.openlibrary.org/b/id/${item.coverId}-L.jpg` : null);
+    const heroHtml = `
+      <div class="livro-hero">
+        ${capaUrl
+          ? `<img class="capa-img" src="${capaUrl}" alt="" onerror="this.outerHTML='<div class=&quot;capa-vazia&quot;>📖</div>'">`
+          : `<div class="capa-vazia">📖</div>`}
+        <div class="titulo-livro">${item.title}</div>
+        ${item.autor ? `<div class="autor-livro">${item.autor}</div>` : ''}
+      </div>`;
 
     if (item.fonte === 'Gutendex' && item.gutendexId) {
-      corpo.innerHTML = `<div class="visitor-lock-note">Carregando prévia...</div>`;
+      corpo.innerHTML = heroHtml + `<div class="visitor-lock-note">Carregando prévia...</div>`;
       try {
         const resp = await fetch(`${API_BASE}/api/livro-texto?id=${item.gutendexId}`);
         const dados = await resp.json();
-        corpo.innerHTML = `
+        corpo.innerHTML = heroHtml + `
           <div class="bio-box" style="margin-bottom:10px;">📖 clássico de domínio público — trecho do texto integral</div>
           <div style="white-space:pre-wrap; line-height:1.6; font-size:13.5px; padding:2px 2px 20px;">${(dados.texto || 'Prévia não disponível.').replace(/</g, '&lt;')}</div>
-          ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ler o livro completo</div>` : ''}
+          ${item.link ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ler o livro completo</div></div>` : ''}
         `;
       } catch (e) {
-        corpo.innerHTML = `<div class="visitor-lock-note">Não consegui carregar a prévia agora.</div>`;
+        corpo.innerHTML = heroHtml + `<div class="visitor-lock-note">Não consegui carregar a prévia agora.</div>`;
       }
       return;
     }
 
-    // Open Library (ou qualquer item sem prévia embutida): capa + descrição + link de saída
-    const capaUrl = item.coverId ? `https://covers.openlibrary.org/b/id/${item.coverId}-L.jpg` : null;
-    corpo.innerHTML = `
-      ${capaUrl ? `<img src="${capaUrl}" alt="" style="max-width:180px; display:block; margin:0 auto 14px; border-radius:10px; box-shadow:var(--shadow);">` : ''}
+    // Google Books e Open Library não dão o texto completo pela API — em vez
+    // de abrir o visualizador feio deles dentro do app, mostra a capa/sinopse
+    // no estilo do Átomo e deixa um botão bonito pra continuar lendo fora
+    corpo.innerHTML = heroHtml + `
       <div class="discover-desc" style="margin-bottom:14px;">${item.desc}</div>
-      ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} abrir no site de origem</div>` : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
+      ${item.link
+        ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ${item.fonte === 'Google Books' ? 'ler no Google Livros' : 'abrir no site de origem'}</div></div>`
+        : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
     `;
   };
 
