@@ -79,6 +79,15 @@ const MENSAGENS_NOITE = [
 const HORARIO_NOITE_MIN = 21 * 60; // 21h00 (horário de Brasília) — fixo pra todo mundo
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
 
+// escolhe a mensagem do dia por rotação (não por sorteio), pra nunca repetir
+// em dias seguidos — cada dia do calendário sempre cai num índice diferente
+// do anterior, e só volta a repetir depois de passar por todas as frases
+function indiceRotativoDoDia(dataYyyyMmDd, tamanho) {
+  const [ano, mes, dia] = dataYyyyMmDd.split('-').map(Number);
+  const diasDesdeEpoca = Math.floor(Date.UTC(ano, mes - 1, dia) / 86400000);
+  return ((diasDesdeEpoca % tamanho) + tamanho) % tamanho;
+}
+
 async function enviarPushParaUsuario(usuarioId, titulo, corpo) {
   const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('*').eq('usuario_id', usuarioId);
   let enviadas = 0;
@@ -140,12 +149,12 @@ app.post('/api/cron/notificacoes', async (req, res) => {
 
     let totalEnviadas = 0;
     for (const u of precisamManha) {
-      const msg = MENSAGENS_MANHA[Math.floor(Math.random() * MENSAGENS_MANHA.length)];
+      const msg = MENSAGENS_MANHA[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_MANHA.length)];
       totalEnviadas += await enviarPushParaUsuario(u.id, 'Bom dia 🌙', msg);
       await supabaseAdmin.from('usuarios').update({ ultima_notif_manha_data: hojeBrasilia }).eq('id', u.id);
     }
     for (const u of precisamNoite) {
-      const msg = MENSAGENS_NOITE[Math.floor(Math.random() * MENSAGENS_NOITE.length)];
+      const msg = MENSAGENS_NOITE[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_NOITE.length)];
       totalEnviadas += await enviarPushParaUsuario(u.id, 'Reflexão do dia', msg);
       await supabaseAdmin.from('usuarios').update({ ultima_notif_noite_data: hojeBrasilia }).eq('id', u.id);
     }
