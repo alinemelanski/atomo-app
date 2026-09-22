@@ -26,6 +26,18 @@
       color-scheme: dark;
     }
   }
+  :root[data-theme="dark"]{
+    --bg:#0D0D0D; --card:#1A1A1A; --card-b:#2C2C2C;
+    --ink:#F2F2F2; --ink-dim:#A8A8A8; --ink-faint:#6E6E6E;
+    --accent-a:#E08A63; --accent-b:#5FB3A3; --accent-soft:#262626;
+    --shadow:0 3px 14px rgba(0,0,0,.5); --shadow-lg:0 20px 46px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  .tema-btn{ position:fixed; top:16px; right:16px; width:38px; height:38px; border-radius:50%;
+    background:var(--card); border:1px solid var(--card-b); box-shadow:var(--shadow);
+    display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer;
+    z-index:10; }
+  .tema-btn:active{ transform:scale(.92); }
   *{ box-sizing:border-box; }
   body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Karla",-apple-system,system-ui,sans-serif;
     min-height:100vh; padding:20px 16px 60px; }
@@ -77,6 +89,7 @@
 </style>
 </head>
 <body>
+<button class="tema-btn" id="temaBtn" onclick="alternarTema()">🌙</button>
 <div class="page">
   <h1>📊 Métricas do Átomo</h1>
   <p class="sub">Painel privado — só você vê essa página.</p>
@@ -149,6 +162,36 @@
 </div>
 
 <script>
+  (function(){
+    try {
+      var salvo = localStorage.getItem('atomo_metricas_tema');
+      if (salvo === 'dark' || salvo === 'light') {
+        document.documentElement.setAttribute('data-theme', salvo);
+      }
+    } catch (e) {}
+  })();
+
+  function temaAtualEhEscuro(){
+    var attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'dark') return true;
+    if (attr === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  function atualizarIconeTema(){
+    var btn = document.getElementById('temaBtn');
+    if (btn) btn.textContent = temaAtualEhEscuro() ? '☀️' : '🌙';
+  }
+
+  function alternarTema(){
+    var novoTema = temaAtualEhEscuro() ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', novoTema);
+    try { localStorage.setItem('atomo_metricas_tema', novoTema); } catch (e) {}
+    atualizarIconeTema();
+  }
+
+  atualizarIconeTema();
+
   var API_BASE = 'https://atomo-app.onrender.com';
   var senhaAtual = '';
 
