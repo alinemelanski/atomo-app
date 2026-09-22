@@ -252,6 +252,21 @@
   background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 11px; font-weight: 800;
   display: flex; align-items: center; justify-content: center; }
 .guia-passo .icon-svg { display: inline-flex; vertical-align: -3px; }
+.notif-banner { position: fixed; left: 16px; right: 16px; max-width: 420px; margin: 0 auto; bottom: 84px;
+  background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 14px 16px;
+  box-shadow: var(--shadow); z-index: 45; display: flex; gap: 12px; align-items: flex-start;
+  transform: translateY(160%); transition: transform .35s ease; }
+.notif-banner.show { transform: translateY(0); }
+.notif-banner-icon { flex: none; width: 38px; height: 38px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); display: flex; align-items: center; justify-content: center; color: #fff; }
+.notif-banner-corpo { flex: 1; min-width: 0; }
+.notif-banner-corpo b { display: block; font-size: 13.5px; color: var(--ink); margin-bottom: 2px; }
+.notif-banner-corpo p { margin: 0; font-size: 12.5px; color: var(--ink-dim); line-height: 1.4; }
+.notif-banner-botoes { display: flex; gap: 8px; margin-top: 10px; }
+.notif-banner-botoes button { flex: 1; border: none; border-radius: 10px; padding: 9px 0; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.notif-banner-ativar { background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; }
+.notif-banner-depois { background: var(--accent-soft); color: var(--ink-dim); }
+
   .skeleton-post { background: var(--card); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; margin-bottom: 6px; }
 .skeleton-linha { height: 12px; border-radius: 6px; margin-bottom: 8px;
   background: linear-gradient(90deg, var(--card-b) 25%, var(--accent-soft) 50%, var(--card-b) 75%);
@@ -1032,6 +1047,18 @@
           <a href="termos.html" download style="font-size:11px; color:var(--ink-faint); text-decoration:underline;">Termos de Uso e Política de Privacidade</a>
         </div>
         <div class="config-version">Átomo · versão 0.1 (protótipo)</div>
+      </div>
+    </div>
+
+    <div class="notif-banner" id="notifBanner">
+      <div class="notif-banner-icon" id="notifBannerIcone">🔔</div>
+      <div class="notif-banner-corpo">
+        <b>Ativar notificações?</b>
+        <p>Um lembrete de manhã e à noite pra você não perder o hábito de escrever.</p>
+        <div class="notif-banner-botoes">
+          <button class="notif-banner-depois" onclick="fecharBannerNotificacao(true)">Agora não</button>
+          <button class="notif-banner-ativar" onclick="ativarNotifPeloBanner()">Ativar</button>
+        </div>
       </div>
     </div>
 
@@ -3869,7 +3896,38 @@ let notifAtivo = true;
 
   window.verificarPermissaoNotifPush = function (jaPediu) {
     if (jaPediu) return;
-    setTimeout(() => pedirPermissaoEInscreverPush(), 4500);
+    setTimeout(() => mostrarBannerNotificacao(), 4500);
+  };
+
+  // pedir notificação direto (sem toque da pessoa) é bloqueado silenciosamente pela
+  // maioria dos navegadores mobile — por isso mostramos um banner com botão, e só
+  // chamamos a permissão real a partir do clique nesse botão (gesto real do usuário)
+  window.mostrarBannerNotificacao = function () {
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (Notification.permission !== 'default') return;
+    if (document.querySelector('.write-popup-bg.show, .config-overlay.open, .dm-chat-overlay.open')) {
+      setTimeout(() => mostrarBannerNotificacao(), 3000);
+      return;
+    }
+    const banner = document.getElementById('notifBanner');
+    const icone2 = document.getElementById('notifBannerIcone');
+    if (icone2 && window.icone) icone2.innerHTML = icone('sino', 18, null, '#fff');
+    banner.classList.add('show');
+  };
+
+  window.fecharBannerNotificacao = async function (marcarPedido) {
+    document.getElementById('notifBanner').classList.remove('show');
+    if (marcarPedido) {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      if (sessionData.session) {
+        await supabaseClient.from('usuarios').update({ pediu_permissao_notif: true }).eq('id', sessionData.session.user.id);
+      }
+    }
+  };
+
+  window.ativarNotifPeloBanner = function () {
+    fecharBannerNotificacao(false);
+    pedirPermissaoEInscreverPush();
   };
 
   function mostrarToast(msg) {
@@ -4060,7 +4118,8 @@ window.loginComGoogle = async function () {
     }, 4000);
 
     // pede permissão de notificação externa já no cadastro, como combinado
-    setTimeout(() => pedirPermissaoEInscreverPush(), 1200);
+    // (via banner com botão, pra não ser bloqueado silenciosamente pelo navegador)
+    setTimeout(() => mostrarBannerNotificacao(), 1200);
   };
 
   // ---------- prompt do composer muda pelo horário, dá cara de ritual diário ----------
