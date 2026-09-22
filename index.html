@@ -462,7 +462,15 @@
   .pull-refresh-indicator.spinning { transition: transform .2s ease, opacity .12s ease; }
   .pull-refresh-indicator.spinning span { display: inline-block; animation: pull-spin .7s linear infinite; }
   @keyframes pull-spin { to { transform: rotate(360deg); } }
-</style>
+  /* ---------- icones (paleta thin-line) ---------- */
+  .icon-svg { display: inline-flex; align-items: center; justify-content: center; flex: none;
+    animation-name: iconFloat; animation-timing-function: ease-in-out; animation-iteration-count: infinite; vertical-align: middle; }
+  .icon-svg svg { display: block; width: 100%; height: 100%; }
+  @keyframes iconFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+  .busca-wrap { position: relative; }
+  .busca-wrap .icon-svg { position: absolute; left: 13px; top: 50%; margin-top: -8px; pointer-events: none; color: var(--ink-faint); }
+  .busca-wrap .busca-input { padding-left: 36px; }
+  </style>
 </head>
 <body>
   <div class="device" id="device">
@@ -589,7 +597,7 @@
         </div>
         <div class="composer-foot">
           <div style="display:flex; align-items:center; gap:8px;">
-            <label for="composerFotoInput" class="upload-foto-icon">📷</label>
+            <label for="composerFotoInput" class="upload-foto-icon"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
             <div class="privacy-toggle-mini" onclick="toggleComposerPrivado()">
               <span id="composerPrivIcon">🌍</span> <span id="composerPrivLabel">Compartilhável</span>
             </div>
@@ -609,7 +617,7 @@
     <!-- DESCOBRIR (@) -->
     <div class="screen" id="screen-descobrir">
       <div class="top-row"><h1>@ Descobrir</h1></div>
-      <input type="text" id="buscaDescobrirInput" class="busca-input" placeholder="🔍 Buscar por tag..." oninput="aoDigitarBuscaDescobrir()" style="margin-bottom:12px;" />
+      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaDescobrirInput" class="busca-input" placeholder="Buscar por tag..." oninput="aoDigitarBuscaDescobrir()" style="margin-bottom:12px;" /></div>
       <div class="feed-modo-row">
       <div class="feed-modo-chip on" data-modo-descobrir="relevante" onclick="trocarModoDescobrir('relevante')">✨ Mais relevantes</div>
       <div class="feed-modo-chip" data-modo-descobrir="tudo" onclick="trocarModoDescobrir('tudo')">🔀 Tudo</div>
@@ -620,7 +628,7 @@
     <!-- LIVROS -->
     <div class="screen" id="screen-livros">
       <div class="top-row"><h1>📖 Livros</h1></div>
-      <input type="text" id="buscaLivrosInput" class="busca-input" placeholder="🔍 Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" />
+      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaLivrosInput" class="busca-input" placeholder="Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" /></div>
       <div id="livrosList"></div>
     </div>
 
@@ -652,7 +660,7 @@
             <span class="amigos-inline" onclick="openAmigos()"><span id="amigosCount">48</span> seguidores</span>
           </div>
         </div>
-        <button class="edit-profile-btn" onclick="abrirEditarPerfil()">✏️ Editar</button>
+        <button class="edit-profile-btn" onclick="abrirEditarPerfil()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l.7-3.4L15.9 5.4a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2L7.2 19.1l-3.4.7Z"/><path d="M14 7.5l2.9 2.9"/></svg></span> Editar</button>
       </div>
       <div class="bio-box" id="profBio">poemas, croquis e pensamentos soltos ✏️</div>
       <div class="streak-chip" onclick="abrirDetalheSequencia()"><span id="streakEmoji">🧶</span> <span id="streakCount">4</span> dias seguidos escrevendo</div>
@@ -664,7 +672,7 @@
         <input type="file" id="perfilComposerFotoInput" accept="image/*" onchange="previewFotoComposerPerfil()" style="display:none;" />
         <div class="composer-foot">
           <div style="display:flex; align-items:center; gap:8px;">
-            <label for="perfilComposerFotoInput" class="upload-foto-icon">📷</label>
+            <label for="perfilComposerFotoInput" class="upload-foto-icon"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
             <div class="privacy-toggle-mini" onclick="togglePerfilPrivado()">
               <span id="perfilPrivIcon">🌍</span> <span id="perfilPrivLabel">Compartilhável</span>
             </div>
@@ -674,7 +682,7 @@
       </div>
       <div class="diary-tabs" id="diaryTabsSection">
         <div class="diary-tab on" id="diaryTabPublico" onclick="setDiaryTab('publico')">Compartilhado</div>
-        <div class="diary-tab" id="diaryTabPrivado" onclick="setDiaryTab('privado')">Só eu 🔒</div>
+        <div class="diary-tab" id="diaryTabPrivado" onclick="setDiaryTab('privado')">Só eu <span class="icon-svg" style="width:11px;height:11px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="8.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div>
       </div>
       <div id="diaryList"></div>
       <div id="meuPerguntasArea" style="margin-top:16px;"></div>
@@ -683,7 +691,7 @@
     <!-- OVERLAY: PERGUNTAS ANÔNIMAS PENDENTES -->
     <div class="dm-chat-overlay" id="perguntasPendentesOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('perguntasPendentesOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('perguntasPendentesOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Perguntas anônimas</h2>
       </div>
       <div id="perguntasPendentesList" style="overflow-y:auto;"></div>
@@ -692,7 +700,7 @@
     <!-- OVERLAY: NOTIFICAÇÕES -->
     <div class="dm-chat-overlay" id="notifOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('notifOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('notifOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Notificações</h2>
       </div>
       <div id="notifList" style="overflow-y:auto;"></div>
@@ -701,8 +709,8 @@
     <!-- POP-UP: DENUNCIAR -->
 <div class="write-popup-bg" id="denunciarPopupBg">
   <div class="write-popup" style="position:relative;">
-    <button class="write-popup-close" onclick="document.getElementById('denunciarPopupBg').classList.remove('show')">✕</button>
-    <div class="write-popup-head"><span class="pe">🚩</span><span class="write-popup-title">Denunciar</span></div>
+    <button class="write-popup-close" onclick="document.getElementById('denunciarPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+    <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span></span><span class="write-popup-title">Denunciar</span></div>
     <div class="share-option" onclick="enviarDenuncia('Spam')">Spam</div>
     <div class="share-option" onclick="enviarDenuncia('Conteúdo ofensivo')">Conteúdo ofensivo</div>
     <div class="share-option" onclick="enviarDenuncia('Assédio')">Assédio</div>
@@ -713,7 +721,7 @@
 <!-- OVERLAY: REORDENAR TIPOS -->
 <div class="dm-chat-overlay" id="reordenarTiposOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('reordenarTiposOverlay')">←</button>
+    <button class="back-btn" onclick="closeOverlay('reordenarTiposOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px;">Reordenar tipos</h2>
   </div>
   <div class="visitor-lock-note" style="margin-bottom:10px;">Segure e arraste pra reordenar</div>
@@ -723,7 +731,7 @@
 <!-- OVERLAY: BLOQUEADOS -->
 <div class="dm-chat-overlay" id="bloqueadosOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('bloqueadosOverlay')">←</button>
+    <button class="back-btn" onclick="closeOverlay('bloqueadosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px;">Pessoas bloqueadas</h2>
   </div>
   <div id="bloqueadosList"></div>
@@ -732,7 +740,7 @@
     <!-- OVERLAY: MATCH -->
 <div class="dm-chat-overlay" id="matchOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('matchOverlay')">←</button>
+    <button class="back-btn" onclick="closeOverlay('matchOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px;">Match</h2>
   </div>
   <div class="visitor-lock-note" style="margin-bottom:14px;">Gente com gosto parecido com o seu. Se as duas curtirem, vira conversa 💬</div>
@@ -742,20 +750,20 @@
     <!-- OVERLAY: BUSCA DE CONTEÚDO -->
     <div class="dm-chat-overlay" id="buscaConteudoOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('buscaConteudoOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('buscaConteudoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Buscar no Átomo</h2>
       </div>
-      <input type="text" id="buscaConteudoInput" class="busca-input" placeholder="🔍 Buscar por palavra ou tipo..." oninput="filtrarConteudo()" />
+      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaConteudoInput" class="busca-input" placeholder="Buscar por palavra ou tipo..." oninput="filtrarConteudo()" /></div>
       <div id="buscaConteudoList" style="overflow-y:auto;"></div>
     </div>
     <!-- OVERLAY: PERFIL DE OUTRA PESSOA -->
 <div class="dm-chat-overlay" id="perfilAlheioOverlay">
   <div class="dm-chat-header" style="position:relative;">
-    <button class="back-btn" onclick="closeOverlay('perfilAlheioOverlay')">←</button>
+    <button class="back-btn" onclick="closeOverlay('perfilAlheioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px; flex:1;" id="perfilAlheioTitulo">Perfil</h2>
     <button class="back-btn" onclick="event.stopPropagation(); togglePerfilAlheioMenu()">⋮</button>
     <div id="perfilAlheioMenu" style="display:none; position:absolute; top:42px; right:0; background:var(--card); border:1px solid var(--card-b); border-radius:12px; box-shadow:var(--shadow); z-index:5; overflow:hidden; min-width:150px;">
-      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();">🚫 Bloquear</div>
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Bloquear</div>
     </div>
   </div>
   <div style="text-align:center; margin-bottom:14px;">
@@ -770,7 +778,7 @@
     <div class="bio-box" id="perfilAlheioBio" style="margin-top:8px;"></div>
     <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
       <button class="seguir-btn" id="perfilAlheioSeguirBtn" onclick="seguirDoOverlay()"></button>
-      <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()">❓ pergunta anônima</button>
+      <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> pergunta anônima</button>
     </div>
   </div>
   <div id="perfilAlheioPosts"></div>
@@ -780,7 +788,7 @@
 <!-- OVERLAY: PRÉVIA DE LIVRO -->
 <div class="dm-chat-overlay" id="livroPreviewOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('livroPreviewOverlay')">←</button>
+    <button class="back-btn" onclick="closeOverlay('livroPreviewOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px;" id="livroPreviewTitulo">Prévia</h2>
   </div>
   <div id="livroPreviewCorpo" style="overflow-y:auto; flex:1;"></div>
@@ -790,12 +798,12 @@
 
     <div class="dm-chat-overlay" id="editarPerfilOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('editarPerfilOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('editarPerfilOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Editar perfil</h2>
       </div>
             <div style="text-align:center; margin:10px 0;">
         <img id="editAvatarPreview" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:none; margin-bottom:8px;" />
-        <label for="editAvatarInput" class="upload-foto-icon" style="margin:0 auto; display:flex;">📷</label>
+        <label for="editAvatarInput" class="upload-foto-icon" style="margin:0 auto; display:flex;"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
       <input type="file" id="editAvatarInput" accept="image/*" onchange="previewAvatarEscolhido()" style="display:none;" />
       </div>
       <div class="edit-field-label">Nome</div>
@@ -810,21 +818,21 @@
     <!-- OVERLAY: COMENTÁRIOS -->
     <div class="dm-chat-overlay" id="comentariosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('comentariosOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('comentariosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Comentários</h2>
       </div>
       <div class="post" id="comentariosPostOriginal" style="margin-bottom:14px;"></div>
       <div id="comentariosList" style="overflow-y:auto; flex:1; margin-bottom:10px;"></div>
       <div class="dm-input-row">
         <input type="text" id="comentarioInput" placeholder="Escreva um comentário..." />
-        <button class="dm-send-btn" onclick="enviarComentario()">➤</button>
+        <button class="dm-send-btn" onclick="enviarComentario()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
       </div>
     </div>
 
     <!-- POP-UP: DETALHE DA SEQUÊNCIA -->
     <div class="write-popup-bg" id="sequenciaPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharSequenciaPopup()">✕</button>
+        <button class="write-popup-close" onclick="fecharSequenciaPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe">🧶</span><span class="write-popup-title">Sua sequência</span></div>
         <div class="sequencia-numero"><span id="seqPopupNum">4</span> dias seguidos</div>
         <div class="sequencia-progresso-track"><div class="sequencia-progresso-fill" id="seqProgressFill"></div></div>
@@ -837,7 +845,7 @@
     <!-- OVERLAY: COLEÇÃO DE SELOS -->
     <div class="dm-chat-overlay" id="colecaoSelosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('colecaoSelosOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('colecaoSelosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Coleção de selos</h2>
       </div>
       <div class="selos-sub" id="selosSub">1 de 8 selos desbloqueados</div>
@@ -866,7 +874,7 @@
     <!-- POP-UP: TRAILER -->
 <div class="write-popup-bg" id="trailerPopupBg">
   <div class="write-popup" style="position:relative; padding-bottom:0;">
-    <button class="write-popup-close" onclick="document.getElementById('trailerPopupBg').classList.remove('show')">✕</button>
+    <button class="write-popup-close" onclick="document.getElementById('trailerPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     <div class="write-popup-head"><span class="pe">🎬</span><span class="write-popup-title" id="trailerPopupTituloTexto">Prévia</span></div>
     <div id="trailerCorpo"></div>
   </div>
@@ -875,18 +883,18 @@
     <!-- POP-UP: COMPARTILHAR -->
     <div class="write-popup-bg" id="compartilharPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharCompartilhar()">✕</button>
-        <div class="write-popup-head"><span class="pe">↗</span><span class="write-popup-title">Compartilhar</span></div>
-        <div class="share-option" onclick="repostarNoFeed()">🔁 Repostar no meu feed</div>
-        <div class="share-option" onclick="copiarLink()">🔗 Copiar link</div>
+        <button class="write-popup-close" onclick="fecharCompartilhar()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 16 8"/><path d="M9.5 8H16v6.5"/></svg></span></span><span class="write-popup-title">Compartilhar</span></div>
+        <div class="share-option" onclick="repostarNoFeed()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/></svg></span> Repostar no meu feed</div>
+        <div class="share-option" onclick="copiarLink()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/></svg></span> Copiar link</div>
       </div>
     </div>
 
     <!-- POP-UP: PERGUNTA ANÔNIMA -->
     <div class="write-popup-bg" id="perguntaAnonimaPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="document.getElementById('perguntaAnonimaPopupBg').classList.remove('show')">✕</button>
-        <div class="write-popup-head"><span class="pe">❓</span><span class="write-popup-title">Pergunta anônima</span></div>
+        <button class="write-popup-close" onclick="document.getElementById('perguntaAnonimaPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span></span><span class="write-popup-title">Pergunta anônima</span></div>
         <div class="write-popup-sub">Ela chega sem o seu nome — só a pessoa vê a pergunta, e pode responder em público</div>
         <textarea id="perguntaAnonimaTexto" placeholder="Escreva sua pergunta..."></textarea>
         <div class="write-popup-foot" style="justify-content:flex-end;">
@@ -898,7 +906,7 @@
     <!-- OVERLAY: VISITANTES -->
     <div class="dm-chat-overlay" id="visitantesOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('visitantesOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('visitantesOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Quem visitou</h2>
       </div>
       <div id="visitantesList" style="overflow-y:auto;"></div>
@@ -908,10 +916,10 @@
     <!-- OVERLAY: SEGUIDORES/SEGUINDO -->
     <div class="dm-chat-overlay" id="amigosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('amigosOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('amigosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;" id="amigosOverlayTitulo">Seguidores</h2>
       </div>
-      <input type="text" id="buscaPessoasInput" class="busca-input" placeholder="🔍 Buscar por @usuário ou nome..." oninput="filtrarPessoas()" />
+      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaPessoasInput" class="busca-input" placeholder="Buscar por @usuário ou nome..." oninput="filtrarPessoas()" /></div>
       <div class="diary-tabs">
         <div class="diary-tab on" id="tabSeguindo" onclick="trocarAbaSeguir('seguindo')">Seguindo</div>
         <div class="diary-tab" id="tabSeguidores" onclick="trocarAbaSeguir('seguidores')">Seguidores</div>
@@ -926,7 +934,7 @@
     <!-- OVERLAY: CHAT DE DM -->
     <div class="dm-chat-overlay" id="dmChatOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('dmChatOverlay')">←</button>
+        <button class="back-btn" onclick="closeOverlay('dmChatOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 id="dmChatName" style="font-size:16px;">@pedro_geek</h2>
       </div>
       <div class="dm-messages" id="dmMessages"></div>
@@ -935,17 +943,17 @@
       </div>
             <div class="dm-input-row">
         <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleGifPicker()">GIF</button>
-        <label for="dmFotoInput" class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;">📷</label>
+        <label for="dmFotoInput" class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
         <input type="file" id="dmFotoInput" accept="image/*" onchange="enviarFotoDm()" style="display:none;" />
         <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" />
-        <button class="dm-send-btn" onclick="enviarDmMsg()">➤</button>
+        <button class="dm-send-btn" onclick="enviarDmMsg()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
       </div>
     </div>
 
     <!-- CONFIGURAÇÕES -->
     <div class="config-overlay" id="configOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeConfig()">←</button>
+        <button class="back-btn" onclick="closeConfig()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:17px;">Configurações</h2>
       </div>
 
@@ -959,7 +967,7 @@
   </div>
 
       <div class="settings-row">
-        <div><div class="t">🔔 Notificações de amigos</div><div class="s">avisa quando um amigo posta ou comenta</div></div>
+        <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.22s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2a5 5 0 0 0-5 5v3.3c0 .8-.3 1.6-.9 2.2L5 16h14l-1.1-1.3a3 3 0 0 1-.9-2.2V9.2a5 5 0 0 0-5-5Z"/><path d="M10.1 19a1.9 1.9 0 0 0 3.8 0"/></svg></span> Notificações de amigos</div><div class="s">avisa quando um amigo posta ou comenta</div></div>
         <div class="toggle-sw on" id="notifSwitch" onclick="toggleNotif()"><div class="dot"></div></div>
       </div>
 
@@ -970,11 +978,11 @@
   </div>
 </div>
       <div class="settings-row settings-nav-row" onclick="abrirBloqueados()">
-        <div class="t">🚫 Pessoas bloqueadas</div>
+        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Pessoas bloqueadas</div>
         <div class="nav-chevron">›</div>
       </div>
       <div class="settings-row settings-nav-row" onclick="abrirReordenarTipos()">
-        <div class="t">↕️ Reordenar tipos de post</div>
+        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.8s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v13"/><path d="M4 7l3-3 3 3"/><path d="M17 20V7"/><path d="M14 17l3 3 3-3"/></svg></span> Reordenar tipos de post</div>
         <div class="nav-chevron">›</div>
       </div>
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
@@ -1008,7 +1016,7 @@
     <!-- POP-UP: escrita rápida (disparado por notificações tipo "bom dia") -->
     <div class="write-popup-bg" id="writePopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharWritePopup()">✕</button>
+        <button class="write-popup-close" onclick="fecharWritePopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe" id="writePopupIcon">☀️</span><span class="write-popup-title" id="writePopupTitle">Como foi seu sonho?</span></div>
         <div class="write-popup-sub" id="writePopupSub">Registra antes que esqueça 💭</div>
         <textarea id="writePopupText" placeholder="Escreve aqui..." autofocus></textarea>
@@ -1052,6 +1060,52 @@
   const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:3001'
     : 'https://atomo-app.onrender.com'; // servidor.js rodando no Render
+
+  // ---------- paleta de icones (thin-line, com flutuacao lenta) ----------
+  const ICONE_SVG = {
+    voltar: '<path d="M15 6l-6 6 6 6"/>',
+    fechar: '<path d="M6 6l12 12M18 6L6 18"/>',
+    camera: '<path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/>',
+    buscar: '<circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/>',
+    lixeira: '<path d="M4.5 7h15M9.5 7V4.9c0-.5.4-.9.9-.9h3.2c.5 0 .9.4.9.9V7M6.5 7l.8 12.2c0 1 .9 1.8 1.9 1.8h5.6c1 0 1.8-.8 1.9-1.8L17.5 7"/><path d="M10.3 11v6M13.7 11v6"/>',
+    editar: '<path d="M4.5 19.5l.7-3.4L15.9 5.4a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2L7.2 19.1l-3.4.7Z"/><path d="M14 7.5l2.9 2.9"/>',
+    enviar: '<path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/>',
+    compartilhar: '<path d="M8 16 16 8"/><path d="M9.5 8H16v6.5"/>',
+    link: '<path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/>',
+    repostar: '<path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/>',
+    responder: '<path d="M10.3 8.3 5.5 12l4.8 3.8"/><path d="M5.5 12H14a4.8 4.8 0 0 1 4.8 4.8v.9"/>',
+    fixar: '<path d="M9 4.5h6l-.6 6 2.1 2.1H7.5l2.1-2.1-.6-6Z"/><path d="M12 12.6v7"/>',
+    denunciar: '<path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/>',
+    cadeado: '<rect x="5" y="11" width="14" height="8.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    globo: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16"/><path d="M12 4c2.6 2.2 2.6 13.8 0 16M12 4c-2.6 2.2-2.6 13.8 0 16"/>',
+    bloquear: '<circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/>',
+    check: '<path d="M5 13l4 4 10-10"/>',
+    sino: '<path d="M12 4.2a5 5 0 0 0-5 5v3.3c0 .8-.3 1.6-.9 2.2L5 16h14l-1.1-1.3a3 3 0 0 1-.9-2.2V9.2a5 5 0 0 0-5-5Z"/><path d="M10.1 19a1.9 1.9 0 0 0 3.8 0"/>',
+    pessoa: '<circle cx="12" cy="8.3" r="3.3"/><path d="M5 19.8a7 7 0 0 1 14 0"/>',
+    pergunta: '<circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/>',
+    arraste: '<path d="M5 7h14M5 12h14M5 17h14"/>',
+    reordenar: '<path d="M7 4v13"/><path d="M4 7l3-3 3 3"/><path d="M17 20V7"/><path d="M14 17l3 3 3-3"/>',
+    setaBaixo: '<path d="M12 4v13"/><path d="M8 13l4 4 4-4"/>',
+    setaCima: '<path d="M12 20V7"/><path d="M8 11l4-4 4 4"/>',
+    atualizando: '<path d="M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.2 4.2v3.3h-3.3"/><path d="M6.8 19.8v-3.3h3.3"/>',
+    curtir: '<path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/>',
+    comentar: '<path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/>'
+  };
+  function icone(nome, tamanho, seed, cor) {
+    tamanho = tamanho || 16;
+    seed = seed || 0;
+    let hash = seed * 7;
+    for (let k = 0; k < nome.length; k++) hash += nome.charCodeAt(k);
+    const delay = ((hash % 10) * 0.22).toFixed(2);
+    const dur = (3.1 + (hash % 4) * 0.35).toFixed(2);
+    const corCss = cor ? ('color:' + cor + ';') : '';
+    const caminho = ICONE_SVG[nome] || '';
+    return '<span class="icon-svg" style="width:' + tamanho + 'px;height:' + tamanho + 'px;' +
+      'animation-duration:' + dur + 's;animation-delay:' + delay + 's;' + corCss + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+      'stroke-linecap="round" stroke-linejoin="round">' + caminho + '</svg></span>';
+  }
+  window.icone = icone;
 
   const TIPOS = ['História', 'Arte', 'Poema', 'Música', 'Conto', 'Livro', 'Filme', 'Série', 'Jogo', 'Podcast', 'Assunto', 'Finanças'];
   let tipoSelecionado = null;
@@ -1195,13 +1249,13 @@ async function carregarPostsReais() {
 
   window.toggleComposerPrivado = function () {
     composerPrivado = !composerPrivado;
-    document.getElementById('composerPrivIcon').textContent = composerPrivado ? '🔒' : '🌍';
+    document.getElementById('composerPrivIcon').innerHTML = composerPrivado ? icone('cadeado',16) : icone('globo',16);
     document.getElementById('composerPrivLabel').textContent = composerPrivado ? 'Só eu' : 'Compartilhável';
   };
 let perfilComposerPrivado = false;
 window.togglePerfilPrivado = function () {
   perfilComposerPrivado = !perfilComposerPrivado;
-  document.getElementById('perfilPrivIcon').textContent = perfilComposerPrivado ? '🔒' : '🌍';
+  document.getElementById('perfilPrivIcon').innerHTML = perfilComposerPrivado ? icone('cadeado',16) : icone('globo',16);
   document.getElementById('perfilPrivLabel').textContent = perfilComposerPrivado ? 'Só eu' : 'Compartilhável';
 };
 
@@ -1418,18 +1472,18 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         ${p.imagem_url ? `<img src="${p.imagem_url}" style="width:100%; border-radius:12px; margin-top:8px; display:block;" />` : ''}
         ${renderRefCard(p.ref)}
         <div class="post-actions">
-          <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">💛 ${p.likes}</div>
-          <div class="post-action" onclick="abrirComentarios(${i})">💬 ${p.comentarios.length ? p.comentarios.length + ' comentários' : 'comentar'}</div>
-          <div class="post-action" onclick="abrirCompartilhar(${i})">↗ compartilhar</div>
+          <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
+          <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length ? p.comentarios.length + ' comentários' : 'comentar'}</div>
+          <div class="post-action" onclick="abrirCompartilhar(${i})">${icone('compartilhar',14,i)} compartilhar</div>
           ${ehMeu
-            ? `<div class="post-action" onclick="apagarPost(${p.id})">🗑️</div>`
-            : `<div class="post-action" onclick="abrirDenuncia(${p.id}, '${p.autor_id}')">🚩</div>`}
+            ? `<div class="post-action" onclick="apagarPost(${p.id})">${icone('lixeira',14)}</div>`
+            : `<div class="post-action" onclick="abrirDenuncia(${p.id}, '${p.autor_id}')">${icone('denunciar',14)}</div>`}
         </div>
       </div>`;
 
       return ehMeu
         ? `<div class="post-swipe-wrap" ontouchstart="swipeIniciar(event)" ontouchmove="swipeMover(event, ${p.id})" ontouchend="swipeFinalizar(event, ${p.id})">
-            <div class="post-swipe-fundo">🗑️ Apagar</div>
+            <div class="post-swipe-fundo">${icone('lixeira',14)} Apagar</div>
             ${conteudoPost}
           </div>`
         : conteudoPost;
@@ -1475,13 +1529,13 @@ window.desbloquearDaLista = async function (bloqueioId) {
 
   if (jaBloqueado) {
     await supabaseClient.from('bloqueios').delete().eq('id', jaBloqueado.id);
-    btn.textContent = '🚫 Bloquear';
+    btn.innerHTML = icone('bloquear',13) + ' Bloquear';
     mostrarToast('Desbloqueado');
   } else {
     const confirmou = confirm('Bloquear essa pessoa? Ela some do seu feed e não pode mais te mandar mensagem.');
     if (!confirmou) return;
     await supabaseClient.from('bloqueios').insert({ usuario_id: meuId, bloqueado_id: alvoId });
-    btn.textContent = '✅ Desbloquear';
+    btn.innerHTML = icone('check',13) + ' Desbloquear';
     mostrarToast('🚫 Bloqueado');
     closeOverlay('perfilAlheioOverlay');
     carregarPostsReais();
@@ -1640,7 +1694,7 @@ window.swipeFinalizar = function (e, postId) {
       <div>
         <div class="cn">@${nome}</div>
         <div class="ct">${c.texto}</div>
-        <div class="post-action" style="font-size:10px; margin-top:2px; cursor:pointer;" onclick="responderComentario(${c.id}, '${nome}')">↩ responder</div>
+        <div class="post-action" style="font-size:10px; margin-top:2px; cursor:pointer;" onclick="responderComentario(${c.id}, '${nome}')">${icone('responder',12)} responder</div>
       </div>
     </div>`;
   }
@@ -1763,14 +1817,14 @@ if (p.autor_id !== sessionData.session.user.id) {
     const ref = e.ref_titulo ? { titulo: e.ref_titulo, autor: e.ref_autor, citacao: e.ref_citacao, tipo: e.tipo, trailer: e.ref_trailer, livroId: e.ref_livro_id, filmeId: e.ref_filme_id, capa: e.ref_capa } : null;
     return `
     <div class="diary-entry${e.fixado ? ' fixado' : ''}">
-      <div class="tag">${e.fixado ? '📌 ' : ''}${diaryTabAtiva === 'privado' ? '🔒 ' : ''}${e.tipo}</div>
+      <div class="tag">${e.fixado ? icone('fixar',10) + ' ' : ''}${diaryTabAtiva === 'privado' ? icone('cadeado',10) + ' ' : ''}${e.tipo}</div>
       <div class="body">${e.texto}</div>
       ${renderRefCard(ref)}
       <div class="foot">
         <span>${formatarTempoRelativo(e.criado_em)}</span>
         <span class="foot-actions">
-          <span class="post-action" onclick="fixarPost(${e.id}, ${e.fixado ? 'true' : 'false'})" style="cursor:pointer;" title="${e.fixado ? 'Desafixar' : 'Fixar no topo do Diário'}">${e.fixado ? '📌' : '📍'}</span>
-          <span class="post-action" onclick="apagarPost(${e.id})" style="cursor:pointer;">🗑️</span>
+          <span class="post-action" onclick="fixarPost(${e.id}, ${e.fixado ? 'true' : 'false'})" style="cursor:pointer;" title="${e.fixado ? 'Desafixar' : 'Fixar no topo do Diário'}">${e.fixado ? icone('fixar',14,0,'var(--accent-a)') : icone('fixar',14)}</span>
+          <span class="post-action" onclick="apagarPost(${e.id})" style="cursor:pointer;">${icone('lixeira',14)}</span>
         </span>
       </div>
     </div>`;
@@ -1918,7 +1972,7 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
         <div class="friend-avatar">${a.iniciais}</div>
         <div class="friend-info"><div class="n">@${a.nome}</div><div class="s">${a.bio}</div></div>
         <button class="seguir-btn ${a.seguindo ? 'pendente' : ''}" style="flex:none;" onclick="event.stopPropagation(); toggleSeguir('${a.id}', ${a.seguindo})">${a.seguindo ? 'Seguindo' : 'Seguir'}</button>
-        <div class="post-action" style="flex:none;" onclick="event.stopPropagation(); abrirDmDireto('${a.id}')">💬</div>
+        <div class="post-action" style="flex:none;" onclick="event.stopPropagation(); abrirDmDireto('${a.id}')">${icone('comentar',14)}</div>
       </div>`).join('') || `<div class="visitor-lock-note">${abaSeguirAtiva === 'seguindo' ? 'Você ainda não segue ninguém.' : 'Ninguém te segue ainda.'}</div>`;
   }
   function renderSugestoesLista(filtro) {
@@ -2158,7 +2212,7 @@ window.abrirPerfilAlheio = async function (autorId) {
   if (!usuario) return;
     const { data: sessionData2 } = await supabaseClient.auth.getSession();
   const { data: jaBloqueado } = await supabaseClient.from('bloqueios').select('id').eq('usuario_id', sessionData2.session.user.id).eq('bloqueado_id', autorId).maybeSingle();
-  document.getElementById('perfilAlheioBloquearBtn').textContent = jaBloqueado ? '✅ Desbloquear' : '🚫 Bloquear';
+  document.getElementById('perfilAlheioBloquearBtn').innerHTML = jaBloqueado ? (icone('check',13) + ' Desbloquear') : (icone('bloquear',13) + ' Bloquear');
   document.getElementById('perfilAlheioTitulo').textContent = '@' + usuario.handle;
   document.getElementById('perfilAlheioNome').textContent = usuario.nome;
   document.getElementById('perfilAlheioHandle').textContent = '@' + usuario.handle;
@@ -2326,8 +2380,8 @@ async function renderPerguntasPendentes() {
         <div class="post-body" style="margin-bottom:8px;">❓ ${p.pergunta}</div>
         <textarea id="respostaPergunta${p.id}" placeholder="Escreva sua resposta (vai aparecer pública no seu perfil)..." style="margin-bottom:8px;"></textarea>
         <div class="post-actions">
-          <div class="post-action" onclick="responderPergunta(${p.id})">✅ Responder</div>
-          <div class="post-action" onclick="descartarPergunta(${p.id})">🗑 Descartar</div>
+          <div class="post-action" onclick="responderPergunta(${p.id})">${icone('check',13)} Responder</div>
+          <div class="post-action" onclick="descartarPergunta(${p.id})">${icone('lixeira',13)} Descartar</div>
         </div>
       </div>`).join('')
     : `<div class="visitor-lock-note">Nenhuma pergunta por enquanto.</div>`;
@@ -2853,7 +2907,7 @@ window.trocarModoDescobrir = function (modo) {
           <div class="discover-desc">${d.desc}</div>
           <div class="post-actions" style="margin-top:10px;">
             <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">💬 comentar</div>
-            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">↗ compartilhar</div>
+            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">${icone('compartilhar',14,i)} compartilhar</div>
           </div>
         </div>`;
   }
@@ -2930,7 +2984,7 @@ window.trocarModoDescobrir = function (modo) {
         corpo.innerHTML = `
           <div class="bio-box" style="margin-bottom:10px;">📖 clássico de domínio público — trecho do texto integral</div>
           <div style="white-space:pre-wrap; line-height:1.6; font-size:13.5px; padding:2px 2px 20px;">${(dados.texto || 'Prévia não disponível.').replace(/</g, '&lt;')}</div>
-          ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">🔗 ler o livro completo</div>` : ''}
+          ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ler o livro completo</div>` : ''}
         `;
       } catch (e) {
         corpo.innerHTML = `<div class="visitor-lock-note">Não consegui carregar a prévia agora.</div>`;
@@ -2943,7 +2997,7 @@ window.trocarModoDescobrir = function (modo) {
     corpo.innerHTML = `
       ${capaUrl ? `<img src="${capaUrl}" alt="" style="max-width:180px; display:block; margin:0 auto 14px; border-radius:10px; box-shadow:var(--shadow);">` : ''}
       <div class="discover-desc" style="margin-bottom:14px;">${item.desc}</div>
-      ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">🔗 abrir no site de origem</div>` : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
+      ${item.link ? `<div class="post-action" style="cursor:pointer;" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} abrir no site de origem</div>` : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
     `;
   };
 
@@ -2983,7 +3037,7 @@ function cardDescobrirHtml(d, i) {
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
             <div class="post-actions" style="margin-top:10px;">
           <div class="post-action" onclick="comentarItemDescobrir(${i})">💬 comentar</div>
-          <div class="post-action" onclick="compartilharItemDescobrir(${i})">↗ compartilhar</div>
+          <div class="post-action" onclick="compartilharItemDescobrir(${i})">${icone('compartilhar',14,i)} compartilhar</div>
         </div>  
        </div>`;
 }
@@ -3381,7 +3435,7 @@ window.abrirPerfilDoAmigo = async function (id) {
       indicador.classList.remove('spinning');
       indicador.style.opacity = '0';
       indicador.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
-      spanIcone.textContent = '↓';
+      spanIcone.innerHTML = icone('setaBaixo',18);
     }
 
     document.addEventListener('touchstart', (e) => {
@@ -3406,7 +3460,7 @@ window.abrirPerfilDoAmigo = async function (id) {
       const progresso = Math.min(dist / LIMIAR, 1);
       indicador.style.opacity = String(progresso);
       indicador.style.transform = `translateX(-50%) translateY(${dist - 60}px) scale(${0.8 + progresso * 0.3}) rotate(${dist * 3}deg)`;
-      spanIcone.textContent = progresso >= 1 ? '↑' : '↓';
+      spanIcone.innerHTML = progresso >= 1 ? icone('setaCima',18) : icone('setaBaixo',18);
     }, { passive: true });
 
     document.addEventListener('touchend', async () => {
@@ -3419,7 +3473,7 @@ window.abrirPerfilDoAmigo = async function (id) {
       indicador.classList.add('spinning');
       indicador.style.opacity = '1';
       indicador.style.transform = 'translateX(-50%) translateY(4px) scale(1)';
-      spanIcone.textContent = '↻';
+      spanIcone.innerHTML = icone('atualizando',18);
 
       const id = telaAtual ? telaAtual.id.replace('screen-', '') : null;
       const fnAtualizar = id ? ATUALIZAR_POR_TELA[id] : null;
@@ -3496,7 +3550,7 @@ function renderReordenarLista() {
     <div class="reordenar-item" draggable="true" data-i="${i}"
       ondragstart="arrastarInicio(event, ${i})" ondragover="arrastarSobre(event, ${i})" ondrop="arrastarSoltar(event, ${i})"
       ontouchstart="arrastarInicioTouch(event, ${i})" ontouchmove="arrastarMoverTouch(event)" ontouchend="arrastarFimTouch(event)">
-      <span class="alca">☰</span> ${t}
+      <span class="alca"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.8s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M5 12h14M5 17h14"/></svg></span></span> ${t}
     </div>`).join('');
 }
 
@@ -3811,7 +3865,7 @@ window.openNotifs = async function () {
   const lista = window.NOTIFICACOES_REAIS || [];
 
   document.getElementById('notifList').innerHTML = lista.length
-    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? '💬' : n.tipo === 'seguidor' ? '👤' : n.tipo === 'pergunta' ? '❓' : '🔔'}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
+    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? icone('comentar',18) : n.tipo === 'seguidor' ? icone('pessoa',18) : n.tipo === 'pergunta' ? icone('pergunta',18) : icone('sino',18)}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
     : `<div class="visitor-lock-note">Nenhuma notificação ainda 🌱</div>`;
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
