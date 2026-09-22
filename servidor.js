@@ -65,6 +65,15 @@ const MENSAGENS_MANHA = [
   'Que tal começar o dia registrando como você acordou?',
   'Bom dia! Um minutinho pra escrever sobre a noite que passou.',
   'Como foi acordar hoje? Guarda esse momento no seu diário.',
+  'Que sonho você levou dessa noite? Registra antes que ele se apague.',
+  'Bom dia! O que você imagina pro seu dia hoje?',
+  'Dormiu bem? Um registro rápido já é um bom começo de dia.',
+  'O que passou pela sua cabeça assim que você abriu os olhos hoje?',
+  'Bom dia! O que está nos seus planos pra hoje?',
+  'Como foi a virada da noite pro dia? Vale anotar essa sensação.',
+  'Bom dia! Teve algum sonho que ainda ecoa na sua mente?',
+  'O corpo descansou? E a mente, como acordou hoje?',
+  'Bom dia! Um novo dia começando — o que ele guarda pra você?',
 ];
 const MENSAGENS_NOITE = [
   'Cada dia é uma página que não se reescreve — essa também deixou sua marca.',
@@ -75,6 +84,18 @@ const MENSAGENS_NOITE = [
   'O que passou hoje não volta — mas também não se perde. Vira quem você é amanhã.',
   'Existe uma sabedoria simples em ter chegado até aqui, até esta noite.',
   'Debaixo da rotina de qualquer dia, sempre mora algo que vale guardar.',
+  'A vida se escreve em dias comuns — hoje foi mais um capítulo silencioso.',
+  'Ninguém vive o mesmo dia duas vezes. Esse aqui já foi só seu.',
+  'Há mais poesia no cotidiano do que se costuma perceber.',
+  'O fim de um dia é sempre um pequeno adeus — e um pequeno recomeço.',
+  'Nem tudo que vivemos precisa ser lembrado. Basta ter sido vivido.',
+  'Entre o barulho do dia e o silêncio da noite, mora um instante de paz.',
+  'A vida não espera — ela simplesmente acontece, um dia de cada vez.',
+  'Há beleza até nos dias mais comuns, se alguém parar pra olhar.',
+  'O que fica de um dia não são as horas, é o que elas tocaram em você.',
+  'Toda noite é um convite silencioso a soltar o que já passou.',
+  'A vida é feita de pequenas despedidas diárias — essa é mais uma.',
+  'Nem todo dia muda tudo. Mas todo dia muda alguma coisa.',
 ];
 const HORARIO_NOITE_MIN = 21 * 60; // 21h00 (horário de Brasília) — fixo pra todo mundo
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
