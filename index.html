@@ -935,10 +935,9 @@
         <div class="toggle-sw on" id="notifSwitch" onclick="toggleNotif()"><div class="dot"></div></div>
       </div>
 
-<div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
-  <div class="t">💛 Preferências do Match</div>
+<div class="settings-row" id="matchPrefRow" style="flex-direction:column; align-items:stretch; gap:10px;">
+  <div class="t">💛 Quer ver no Match:</div>
   <div>
-    <div class="s" style="margin-bottom:6px;">Quer ver no Match:</div>
     <div class="onboard-topic-grid" id="matchPrefGrid"></div>
   </div>
 </div>
@@ -3280,6 +3279,7 @@ window.abrirPerfilDoAmigo = async function (id) {
   document.getElementById('configOverlay').classList.add('open');
   renderMatchPrefGrid();
   renderEmojiStreakGrid();
+  atualizarVisibilidadeMatchPref();
 };
 
   window.closeConfig = function () { document.getElementById('configOverlay').classList.remove('open'); };
@@ -3383,10 +3383,16 @@ async function salvarOrdemTipos() {
   matchAtivado = !matchAtivado;
   document.getElementById('matchSwitch').classList.toggle('on', matchAtivado);
   document.getElementById('matchBtnTopo').style.display = matchAtivado ? 'flex' : 'none';
+  atualizarVisibilidadeMatchPref();
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
   await supabaseClient.from('usuarios').update({ match_ativado: matchAtivado }).eq('id', sessionData.session.user.id);
 };
+
+function atualizarVisibilidadeMatchPref() {
+  const row = document.getElementById('matchPrefRow');
+  if (row) row.style.display = matchAtivado ? '' : 'none';
+}
 
 let darkMode = false;
   window.toggleDarkMode = async function () {
@@ -3490,7 +3496,10 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         matchAtivado = false;
         document.getElementById('matchSwitch').classList.remove('on');
         document.getElementById('matchBtnTopo').style.display = 'none';
+      } else {
+        matchAtivado = true;
       }
+      atualizarVisibilidadeMatchPref();
       if (perfil.notif_ativado !== undefined) {
         notifAtivo = perfil.notif_ativado;
         document.getElementById('notifSwitch').classList.toggle('on', notifAtivo);
