@@ -7,3 +7,6 @@ node_modules/
 
 # backup local antigo, não faz parte do projeto
 bu-novo.html
+
+# pasta que o app do Claude usa pra salvar arquivos entregues no chat
+Claude outputs/
