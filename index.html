@@ -1107,6 +1107,19 @@
   }
   window.icone = icone;
 
+  // ---------- avatar (foto de perfil ou iniciais) ----------
+  window.avatarHtml = function (avatarUrl, iniciais, opts) {
+    opts = opts || {};
+    const classe = opts.classe || 'post-avatar';
+    const onclickAttr = opts.onclick ? ' onclick="' + opts.onclick + '"' : '';
+    let estilo = opts.onclick ? 'cursor:pointer;' : '';
+    if (avatarUrl) {
+      estilo += "background-image:url('" + avatarUrl + "');background-size:cover;background-position:center;color:transparent;";
+      return '<div class="' + classe + '"' + onclickAttr + ' style="' + estilo + '"></div>';
+    }
+    return '<div class="' + classe + '"' + onclickAttr + (estilo ? ' style="' + estilo + '"' : '') + '>' + (iniciais || '?').toUpperCase() + '</div>';
+  };
+
   const TIPOS = ['História', 'Arte', 'Poema', 'Música', 'Conto', 'Livro', 'Filme', 'Série', 'Jogo', 'Podcast', 'Assunto', 'Finanças'];
   let tipoSelecionado = null;
   let composerPrivado = false;
@@ -1155,7 +1168,7 @@ async function carregarPostsReais() {
 
   const { data, error } = await supabaseClient
     .from('posts')
-    .select('*, usuarios(handle)')
+    .select('*, usuarios(handle, avatar_url)')
     .eq('privado', false)
     .order('criado_em', { ascending: false });
 
@@ -1173,12 +1186,14 @@ async function carregarPostsReais() {
 
   feedPosts = data.filter(row => !idsBloqueados.includes(row.autor_id)).map(row => {
     const handle = row.usuarios ? row.usuarios.handle : 'alguem';
+    const avatarUrl = row.usuarios ? row.usuarios.avatar_url : null;
     const curtidasDessePost = (curtidas || []).filter(c => c.post_id === row.id);
       return {
       id: row.id,
       autor_id: row.autor_id,
       imagem_url: row.imagem_url,
       autor: handle,
+      avatarUrl: avatarUrl,
       iniciais: handle[0].toUpperCase(),
       tipo: row.tipo,
       texto: row.texto,
@@ -1463,7 +1478,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
       const conteudoPost = `
       <div class="post">
         <div class="post-head">
-          <div class="post-avatar" style="cursor:pointer;" onclick="abrirPerfilAlheio('${p.autor_id}')">${p.iniciais}</div>
+          ${avatarHtml(p.avatarUrl, p.iniciais, { onclick: "abrirPerfilAlheio('" + p.autor_id + "')" })}
           <div class="post-who" style="cursor:pointer;" onclick="abrirPerfilAlheio('${p.autor_id}')"><div class="n">@${p.autor}</div><div class="t">${p.tempo}</div></div>
           <span class="post-tag">${p.tipo}</span>
         </div>
@@ -1687,7 +1702,7 @@ window.swipeFinalizar = function (e, postId) {
   const p = feedPosts[i];
   document.getElementById('comentariosPostOriginal').innerHTML = `
     <div class="post-head">
-      <div class="post-avatar">${p.iniciais}</div>
+      ${avatarHtml(p.avatarUrl, p.iniciais)}
       <div class="post-who"><div class="n">@${p.autor}</div><div class="t">${p.tempo}</div></div>
       <span class="post-tag">${p.tipo}</span>
     </div>
@@ -1695,7 +1710,7 @@ window.swipeFinalizar = function (e, postId) {
 
   const { data, error } = await supabaseClient
     .from('comentarios')
-    .select('*, usuarios(handle)')
+    .select('*, usuarios(handle, avatar_url)')
     .eq('post_id', p.id)
     .order('criado_em', { ascending: true });
 
@@ -1704,8 +1719,9 @@ window.swipeFinalizar = function (e, postId) {
 
   function montarComentario(c, ehResposta) {
     const nome = c.usuarios ? c.usuarios.handle : 'alguem';
+    const avatarUrlComentario = c.usuarios ? c.usuarios.avatar_url : null;
     return `<div class="comment-item" style="${ehResposta ? 'margin-left:30px;' : ''}">
-      <div class="ic">${nome[0].toUpperCase()}</div>
+      ${avatarHtml(avatarUrlComentario, nome[0], { classe: 'ic' })}
       <div>
         <div class="cn">@${nome}</div>
         <div class="ct">${c.texto}</div>
@@ -2040,7 +2056,7 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
       ? resultados.map(p => `
         <div class="post" style="margin-bottom:10px;">
           <div class="post-head">
-            <div class="post-avatar">${p.iniciais}</div>
+            ${avatarHtml(p.avatarUrl, p.iniciais)}
             <div class="post-who"><div class="n">@${p.autor}</div><div class="t">${p.tempo}</div></div>
             <span class="post-tag">${p.tipo}</span>
           </div>
