@@ -29,6 +29,39 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// ---------- notificação push externa (manhã/noite) ----------
+self.addEventListener('push', (event) => {
+  let dados = { titulo: 'Átomo', corpo: 'Você tem uma novidade no seu diário.' };
+  try {
+    if (event.data) dados = event.data.json();
+  } catch (e) {
+    if (event.data) dados.corpo = event.data.text();
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(dados.titulo || 'Átomo', {
+      body: dados.corpo || '',
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-192.png',
+      vibrate: [80, 40, 80],
+      data: { url: './index.html' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || './index.html';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((janelas) => {
+      for (const janela of janelas) {
+        if ('focus' in janela) return janela.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    })
+  );
+});
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 

@@ -14,6 +14,145 @@ const supabase = createClient(
   'sb_publishable_Sqnu4JCusHeikELanoyPpQ_M0UCLEeP'
 );
 
+// ---------- notificação push externa (manhã/noite) ----------
+const webpush = require('web-push');
+
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails('mailto:alinemelanski10@gmail.com', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+} else {
+  console.log('push não configurado: faltam VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY no .env');
+}
+
+// cliente com a service role — só usado nas rotas de push, que precisam ler
+// e gravar dado de QUALQUER usuário (o RLS normal só deixa cada pessoa mexer
+// nos próprios dados, o que não serve pro servidor mandar notificação pra
+// todo mundo). NUNCA usar essa chave no front-end.
+const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient('https://wfhikucbygmjeawrfsfq.supabase.co', process.env.SUPABASE_SERVICE_ROLE_KEY)
+  : null;
+
+app.get('/api/push/chave-publica', (req, res) => {
+  res.json({ chave: VAPID_PUBLIC_KEY || null });
+});
+
+app.post('/api/push/inscrever', async (req, res) => {
+  const { usuarioId, subscription } = req.body || {};
+  if (!usuarioId || !subscription || !subscription.endpoint) {
+    return res.status(400).json({ erro: 'dados incompletos' });
+  }
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'push não configurado no servidor' });
+
+  const { error } = await supabaseAdmin.from('push_subscriptions').upsert({
+    usuario_id: usuarioId,
+    endpoint: subscription.endpoint,
+    p256dh: (subscription.keys && subscription.keys.p256dh) || '',
+    auth: (subscription.keys && subscription.keys.auth) || '',
+  }, { onConflict: 'endpoint' });
+
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ ok: true });
+});
+
+// mensagens variadas — a manhã sempre pergunta/convida (sono, sonho), a
+// noite é sempre uma frase de reflexão, nunca uma pergunta
+const MENSAGENS_MANHA = [
+  'Bom dia! Como foi seu sono essa noite? 🌙',
+  'Lembra do seu sonho de hoje? Anota antes que ele escape.',
+  'Dormiu bem essa noite? O Átomo tá esperando por você.',
+  'Que tal começar o dia registrando como você acordou?',
+  'Bom dia! Um minutinho pra escrever sobre a noite que passou.',
+  'Como foi acordar hoje? Guarda esse momento no seu diário.',
+];
+const MENSAGENS_NOITE = [
+  'O dia de hoje já virou história — vale guardar um pedacinho dele.',
+  'Antes de dormir, um instante pra registrar como foi seu dia.',
+  'Mais um dia se encerrando. Seu diário tá esperando por ele.',
+  'Hoje já é passado. Bom deixar um pouco dele guardado.',
+  'O dia acabou. Um registro rápido antes de fechar os olhos.',
+];
+const HORARIO_NOITE_MIN = 21 * 60; // 21h00 (horário de Brasília) — fixo pra todo mundo
+const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
+
+async function enviarPushParaUsuario(usuarioId, titulo, corpo) {
+  const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('*').eq('usuario_id', usuarioId);
+  let enviadas = 0;
+  for (const sub of subs || []) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        JSON.stringify({ titulo, corpo })
+      );
+      enviadas++;
+    } catch (erro) {
+      if (erro.statusCode === 404 || erro.statusCode === 410) {
+        // inscrição expirou/foi revogada do lado do navegador — limpa do banco
+        await supabaseAdmin.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      } else {
+        console.log('erro ao enviar push pra', usuarioId, ':', erro.message);
+      }
+    }
+  }
+  return enviadas;
+}
+
+// chamada por um agendador EXTERNO (o Render free não fica ligado sozinho o
+// tempo todo — ver README/instruções) a cada poucos minutos. Protegida por
+// segredo compartilhado (CRON_SECRET) pra ninguém de fora disparar notificação.
+app.post('/api/cron/notificacoes', async (req, res) => {
+  const segredo = req.query.segredo || req.headers['x-cron-secret'];
+  if (!process.env.CRON_SECRET || segredo !== process.env.CRON_SECRET) {
+    return res.status(401).json({ erro: 'não autorizado' });
+  }
+  if (!supabaseAdmin || !VAPID_PUBLIC_KEY) {
+    return res.status(500).json({ erro: 'push não configurado no servidor' });
+  }
+
+  try {
+    const agoraBrasiliaStr = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+    const agoraBrasilia = new Date(agoraBrasiliaStr);
+    const minutosAgora = agoraBrasilia.getHours() * 60 + agoraBrasilia.getMinutes();
+    const y = agoraBrasilia.getFullYear();
+    const m = String(agoraBrasilia.getMonth() + 1).padStart(2, '0');
+    const d = String(agoraBrasilia.getDate()).padStart(2, '0');
+    const hojeBrasilia = `${y}-${m}-${d}`;
+
+    const { data: candidatosManha } = await supabaseAdmin
+      .from('usuarios')
+      .select('id, horario_acordar_min, ultima_notif_manha_data')
+      .not('horario_acordar_min', 'is', null)
+      .gte('horario_acordar_min', minutosAgora)
+      .lt('horario_acordar_min', minutosAgora + JANELA_CRON_MIN);
+
+    const precisamManha = (candidatosManha || []).filter(u => u.ultima_notif_manha_data !== hojeBrasilia);
+
+    let precisamNoite = [];
+    const dentroJanelaNoite = minutosAgora >= HORARIO_NOITE_MIN && minutosAgora < HORARIO_NOITE_MIN + JANELA_CRON_MIN;
+    if (dentroJanelaNoite) {
+      const { data: todos } = await supabaseAdmin.from('usuarios').select('id, ultima_notif_noite_data');
+      precisamNoite = (todos || []).filter(u => u.ultima_notif_noite_data !== hojeBrasilia);
+    }
+
+    let totalEnviadas = 0;
+    for (const u of precisamManha) {
+      const msg = MENSAGENS_MANHA[Math.floor(Math.random() * MENSAGENS_MANHA.length)];
+      totalEnviadas += await enviarPushParaUsuario(u.id, 'Bom dia 🌙', msg);
+      await supabaseAdmin.from('usuarios').update({ ultima_notif_manha_data: hojeBrasilia }).eq('id', u.id);
+    }
+    for (const u of precisamNoite) {
+      const msg = MENSAGENS_NOITE[Math.floor(Math.random() * MENSAGENS_NOITE.length)];
+      totalEnviadas += await enviarPushParaUsuario(u.id, 'Reflexão do dia', msg);
+      await supabaseAdmin.from('usuarios').update({ ultima_notif_noite_data: hojeBrasilia }).eq('id', u.id);
+    }
+
+    res.json({ ok: true, manha: precisamManha.length, noite: precisamNoite.length, notificacoesEnviadas: totalEnviadas });
+  } catch (erro) {
+    console.log('erro no cron de notificações:', erro.message);
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
 app.post('/api/lista-espera', async (req, res) => {
   const email = (req.body?.email || '').trim().toLowerCase();
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
