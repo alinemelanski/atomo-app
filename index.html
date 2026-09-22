@@ -247,6 +247,11 @@
 .reordenar-seta { width: 26px; height: 22px; border-radius: 7px; background: var(--accent-soft); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
 .reordenar-seta:disabled { opacity: 0.3; cursor: default; }
+.guia-passo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; font-size: 13px; color: var(--ink); line-height: 1.45; }
+.guia-passo-n { flex: none; width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; }
+.guia-passo .icon-svg { display: inline-flex; vertical-align: -3px; }
   .skeleton-post { background: var(--card); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; margin-bottom: 6px; }
 .skeleton-linha { height: 12px; border-radius: 6px; margin-bottom: 8px;
   background: linear-gradient(90deg, var(--card-b) 25%, var(--accent-soft) 50%, var(--card-b) 75%);
@@ -917,6 +922,18 @@
         <div class="write-popup-foot" style="justify-content:flex-end;">
           <button class="post-btn" onclick="enviarPerguntaAnonima()">Enviar</button>
         </div>
+      </div>
+    </div>
+
+    <!-- POP-UP: GUIA DE INSTALAÇÃO (adicionar à tela inicial) -->
+    <div class="write-popup-bg" id="guiaInstalacaoPopupBg">
+      <div class="write-popup" style="position:relative;">
+        <button class="write-popup-close" onclick="fecharGuiaInstalacao()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe">📲</span><span class="write-popup-title">Adicione o Átomo à tela inicial</span></div>
+        <div class="write-popup-sub">Assim ele abre rapidinho, como um app de verdade — e é onde os lembretes de escrever vão te encontrar.</div>
+        <div id="guiaInstalacaoPassos"></div>
+        <button class="post-btn" id="guiaInstalacaoBtnInstalar" style="display:none; width:100%; margin-bottom:8px;" onclick="instalarAgoraPwa()">Instalar agora</button>
+        <button class="seguir-btn pendente" style="width:100%;" onclick="fecharGuiaInstalacao()">Entendi</button>
       </div>
     </div>
 
@@ -3727,6 +3744,76 @@ let notifAtivo = true;
     await supabaseClient.from('usuarios').update({ notif_ativado: notifAtivo }).eq('id', sessionData.session.user.id);
   };
 
+  // ---------- guia de instalação (adicionar à tela inicial) ----------
+  function isStandalonePwa() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  function isIOSDevice() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  window.DEFERRED_INSTALL_PROMPT = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    window.DEFERRED_INSTALL_PROMPT = e;
+  });
+
+  function montarPassosGuiaInstalacao() {
+    if (isIOSDevice()) {
+      return [
+        'Toque no ícone de compartilhar ' + icone('compartilhar', 15) + ' na barra do Safari (embaixo, no meio da tela)',
+        'Role a lista de opções e toque em "Adicionar à Tela de Início"',
+        'Toque em "Adicionar", no canto superior direito',
+      ];
+    }
+    if (window.DEFERRED_INSTALL_PROMPT) return [];
+    return [
+      'Toque no menu ⋮ do navegador (geralmente no canto superior direito)',
+      'Toque em "Instalar app" ou "Adicionar à tela inicial"',
+      'Confirme tocando em "Instalar"',
+    ];
+  }
+
+  window.abrirGuiaInstalacao = function () {
+    if (isStandalonePwa()) return;
+    const passos = montarPassosGuiaInstalacao();
+    document.getElementById('guiaInstalacaoPassos').innerHTML = passos.length
+      ? passos.map((p, i) => '<div class="guia-passo"><span class="guia-passo-n">' + (i + 1) + '</span><div>' + p + '</div></div>').join('')
+      : '<div class="visitor-lock-note" style="margin-bottom:10px;">Seu navegador já pode instalar o Átomo com um toque.</div>';
+    document.getElementById('guiaInstalacaoBtnInstalar').style.display = window.DEFERRED_INSTALL_PROMPT ? 'block' : 'none';
+    document.getElementById('guiaInstalacaoPopupBg').classList.add('show');
+  };
+
+  window.instalarAgoraPwa = async function () {
+    if (!window.DEFERRED_INSTALL_PROMPT) return;
+    window.DEFERRED_INSTALL_PROMPT.prompt();
+    await window.DEFERRED_INSTALL_PROMPT.userChoice;
+    window.DEFERRED_INSTALL_PROMPT = null;
+    fecharGuiaInstalacao();
+  };
+
+  window.fecharGuiaInstalacao = async function () {
+    document.getElementById('guiaInstalacaoPopupBg').classList.remove('show');
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData.session) {
+      await supabaseClient.from('usuarios').update({ viu_guia_instalacao: true }).eq('id', sessionData.session.user.id);
+    }
+  };
+
+  window.verificarGuiaInstalacao = async function (jaViu) {
+    if (isStandalonePwa()) {
+      if (!jaViu) {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        if (sessionData.session) {
+          await supabaseClient.from('usuarios').update({ viu_guia_instalacao: true }).eq('id', sessionData.session.user.id);
+        }
+      }
+      return;
+    }
+    if (jaViu) return;
+    setTimeout(() => abrirGuiaInstalacao(), 1800);
+  };
+
   function mostrarToast(msg) {
     const t = document.getElementById('toast2');
     t.textContent = msg;
@@ -3768,7 +3855,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       });
     }
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao').eq('id', session.user.id).maybeSingle();
     if (perfil) {
       if (perfil.streak_atual != null) {
         const streakAntigo = perfil.streak_atual;
@@ -3822,6 +3909,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     carregarPostsReais();
     atualizarBadgePerguntasPendentes();
     carregarPerguntasPublicasMinhas();
+    verificarGuiaInstalacao(perfil && perfil.viu_guia_instalacao === true);
 
     supabaseClient
       .channel('notificacoes-realtime')
