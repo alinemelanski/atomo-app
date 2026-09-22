@@ -243,6 +243,10 @@
   border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: var(--ink); touch-action: none; user-select: none; }
 .reordenar-item .alca { color: var(--ink-faint); font-size: 16px; }
 .reordenar-item.arrastando { opacity: 0.5; }
+.reordenar-setas { display: flex; flex-direction: column; gap: 4px; margin-left: auto; }
+.reordenar-seta { width: 26px; height: 22px; border-radius: 7px; background: var(--accent-soft); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
+.reordenar-seta:disabled { opacity: 0.3; cursor: default; }
   .skeleton-post { background: var(--card); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; margin-bottom: 6px; }
 .skeleton-linha { height: 12px; border-radius: 6px; margin-bottom: 8px;
   background: linear-gradient(90deg, var(--card-b) 25%, var(--accent-soft) 50%, var(--card-b) 75%);
@@ -1975,6 +1979,19 @@ if (p.autor_id !== sessionData.session.user.id) {
 
 let abaSeguirAtiva = 'seguindo';
 
+window.abrirNovaConversa = async function () {
+  await carregarAmigosEsugestoes();
+  document.getElementById('amigosOverlayTitulo').textContent = 'Nova conversa';
+  document.getElementById('sugestoesSecao').style.display = '';
+  document.getElementById('amigosOverlay').classList.add('open');
+  document.getElementById('buscaPessoasInput').value = '';
+  abaSeguirAtiva = 'seguindo';
+  document.getElementById('tabSeguindo').classList.add('on');
+  document.getElementById('tabSeguidores').classList.remove('on');
+  renderConexoesLista();
+  renderSugestoesLista();
+};
+
 window.openAmigos = async function () {
   await carregarAmigosEsugestoes();
   document.getElementById('amigosOverlayTitulo').textContent = 'Seguidores';
@@ -3615,8 +3632,21 @@ function renderReordenarLista() {
       ondragstart="arrastarInicio(event, ${i})" ondragover="arrastarSobre(event, ${i})" ondrop="arrastarSoltar(event, ${i})"
       ontouchstart="arrastarInicioTouch(event, ${i})" ontouchmove="arrastarMoverTouch(event)" ontouchend="arrastarFimTouch(event)">
       <span class="alca"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.8s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M5 12h14M5 17h14"/></svg></span></span> ${t}
+      <div class="reordenar-setas">
+        <button class="reordenar-seta" ${i === 0 ? 'disabled' : ''} onclick="event.stopPropagation(); moverTipoOrdem(${i}, -1)">${icone('setaCima', 13)}</button>
+        <button class="reordenar-seta" ${i === ordemTipos.length - 1 ? 'disabled' : ''} onclick="event.stopPropagation(); moverTipoOrdem(${i}, 1)">${icone('setaBaixo', 13)}</button>
+      </div>
     </div>`).join('');
 }
+
+window.moverTipoOrdem = async function (i, direcao) {
+  const destino = i + direcao;
+  if (destino < 0 || destino >= ordemTipos.length) return;
+  const [item] = ordemTipos.splice(i, 1);
+  ordemTipos.splice(destino, 0, item);
+  renderReordenarLista();
+  await salvarOrdemTipos();
+};
 
 window.arrastarInicio = function (e, i) { itemArrastando = i; };
 window.arrastarSobre = function (e, i) { e.preventDefault(); };

@@ -133,6 +133,30 @@ function limparHtmlTumblr(html) {
     .trim();
 }
 
+// heurística de idioma: português x espanhol compartilham muito acento e
+// vocabulário, então checar só "tem acento" não distingue os dois (era o bug
+// antigo). Aqui a gente pesa sinais que só existem num idioma ou no outro:
+// ã/õ/â/ê/ô/ç só existem em português; ñ só existe em espanhol. Depois some
+// um empurrãozinho de palavras típicas de cada lado.
+function pareceTextoEmPortugues(texto) {
+  if (!texto) return 0;
+  const t = ' ' + texto.toLowerCase() + ' ';
+  let pontos = 0;
+  if (/[ãõ]/.test(t)) pontos += 5;
+  if (/[âêô]/.test(t)) pontos += 2;
+  if (/ç/.test(t)) pontos += 2;
+  if (/ñ/.test(t)) pontos -= 6;
+  const sinaisPt = [' não ', ' então ', ' também ', ' ainda ', ' você ', ' vocês ', ' muito ',
+    ' coisa ', ' com ', ' uma ', ' um ', ' são ', ' isso ', ' fazer ', ' trabalho', ' história',
+    ' mãe', ' irmã', 'ção ', 'ções ', ' hoje ', ' aqui '];
+  sinaisPt.forEach(p => { if (t.includes(p)) pontos += 1; });
+  const sinaisEs = [' el ', ' los ', ' las ', ' una ', ' unos ', ' unas ', ' muy ', ' así ',
+    ' cómo ', ' qué ', ' años', ' hacer ', ' cosa ', ' trabajo', ' él ', ' ella ', ' usted',
+    ' entonces', ' pero ', ' más ', ' dónde', ' cuándo', ' señor', ' mujer', ' hijo ', ' hija '];
+  sinaisEs.forEach(p => { if (t.includes(p)) pontos -= 2; });
+  return pontos;
+}
+
 app.get('/api/tumblr-tag', async (req, res) => {
   const tag = (req.query.tag || '').trim();
   const variar = req.query.variar === 'true';
@@ -161,6 +185,20 @@ app.get('/api/tumblr-tag', async (req, res) => {
     );
     const dados = await resposta.json();
     let postsBrutos = Array.isArray(dados.response) ? dados.response : [];
+
+    // descarta o que claramente não é português (o texto ainda vai ser
+    // extraído de novo dentro do .map() abaixo, mas aqui já dá pra checar o
+    // texto cru/legendas pra tirar do páreo posts em espanhol etc. antes de
+    // decidir os 15 mais populares — senão um post espanhol popular podia
+    // ocupar a vaga de um post em português menos curtido)
+    postsBrutos = postsBrutos.filter(p => {
+      const pistaTexto = [
+        p.summary,
+        ...(Array.isArray(p.content) ? p.content.map(b => b.text || b.title || b.description || '') : []),
+        p.body, p.caption, p.title,
+      ].filter(Boolean).join(' ');
+      return pareceTextoEmPortugues(pistaTexto) > -4;
+    });
 
     // prioriza quem tem mais nota (curtida + reblog), e ainda embaralha um
     // pouco o topo pra não ficar sempre a mesma ordem nos posts mais populares
@@ -334,22 +372,12 @@ app.get('/api/livros-em-destaque', async (req, res) => {
 
   // reforça a prioridade de português: mesmo pedindo só PT nas 3 fontes,
   // o filtro de idioma de cada API (principalmente o langRestrict do
-  // Google Books) às vezes deixa passar item em outro idioma. Aqui a
-  // gente reordena pra deixar os que claramente parecem PT-BR primeiro,
-  // sem descartar os outros (o sort é estável, então dentro de cada grupo
-  // a ordem original das fontes continua igual).
-  function pareceTextoEmPortugues(texto) {
-    if (!texto) return 0;
-    const t = ' ' + texto.toLowerCase() + ' ';
-    let pontos = 0;
-    if (/[ãõáéíóúâêôçü]/.test(t)) pontos += 3;
-    ['de ', 'da ', 'do ', 'das ', 'dos ', 'que ', 'não ', 'uma ', 'um ', 'para ', 'com ',
-      'história', 'vida', 'amor', 'mundo', 'anos', 'sobre', 'mulher', 'homem', 'livro'
-    ].forEach(p => { if (t.includes(' ' + p) || t.includes(p + ' ')) pontos += 1; });
-    ['the ', 'and ', 'of the', 'with ', 'a novel', 'love ', 'world ', 'story of', 'life of'
-    ].forEach(p => { if (t.includes(p)) pontos -= 1; });
-    return pontos;
-  }
+  // Google Books) às vezes deixa passar item em outro idioma — inclusive
+  // espanhol, que compartilha muito acento com o português (por isso usa a
+  // mesma heurística pareceTextoEmPortugues() de cima, que já pesa isso).
+  // Reordena pra deixar os que claramente parecem PT-BR primeiro, sem
+  // descartar os outros (sort estável: dentro de cada grupo a ordem
+  // original das fontes continua igual).
   itens.sort((a, b) => {
     const scoreA = pareceTextoEmPortugues((a.volumeInfo.title || '') + ' ' + (a.volumeInfo.description || ''));
     const scoreB = pareceTextoEmPortugues((b.volumeInfo.title || '') + ' ' + (b.volumeInfo.description || ''));
