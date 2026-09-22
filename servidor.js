@@ -325,6 +325,30 @@ app.get('/api/livros-em-destaque', async (req, res) => {
     console.log('erro Gutendex (livros em destaque):', erro.message);
   }
 
+  // reforça a prioridade de português: mesmo pedindo só PT nas 3 fontes,
+  // o filtro de idioma de cada API (principalmente o langRestrict do
+  // Google Books) às vezes deixa passar item em outro idioma. Aqui a
+  // gente reordena pra deixar os que claramente parecem PT-BR primeiro,
+  // sem descartar os outros (o sort é estável, então dentro de cada grupo
+  // a ordem original das fontes continua igual).
+  function pareceTextoEmPortugues(texto) {
+    if (!texto) return 0;
+    const t = ' ' + texto.toLowerCase() + ' ';
+    let pontos = 0;
+    if (/[ãõáéíóúâêôçü]/.test(t)) pontos += 3;
+    ['de ', 'da ', 'do ', 'das ', 'dos ', 'que ', 'não ', 'uma ', 'um ', 'para ', 'com ',
+      'história', 'vida', 'amor', 'mundo', 'anos', 'sobre', 'mulher', 'homem', 'livro'
+    ].forEach(p => { if (t.includes(' ' + p) || t.includes(p + ' ')) pontos += 1; });
+    ['the ', 'and ', 'of the', 'with ', 'a novel', 'love ', 'world ', 'story of', 'life of'
+    ].forEach(p => { if (t.includes(p)) pontos -= 1; });
+    return pontos;
+  }
+  itens.sort((a, b) => {
+    const scoreA = pareceTextoEmPortugues((a.volumeInfo.title || '') + ' ' + (a.volumeInfo.description || ''));
+    const scoreB = pareceTextoEmPortugues((b.volumeInfo.title || '') + ' ' + (b.volumeInfo.description || ''));
+    return scoreB - scoreA;
+  });
+
   res.json({ items: itens });
 });
 

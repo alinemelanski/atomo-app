@@ -1648,13 +1648,28 @@ window.swipeFinalizar = function (e, postId) {
     }
   }
 
-  if (post.curtiu) {
-    await supabaseClient.from('curtidas').delete().eq('post_id', post.id).eq('usuario_id', meuId);
+  // atualiza local (otimista) e re-renderiza só a partir da lista já
+  // carregada em memória — evita recarregar o feed inteiro do zero
+  // (o que fazia a tela piscar/sumir e voltar a cada curtida)
+  const jaCurtia = post.curtiu;
+  post.curtiu = !jaCurtia;
+  post.likes = (post.likes || 0) + (jaCurtia ? -1 : 1);
+  renderFeed();
+
+  let erro;
+  if (jaCurtia) {
+    ({ error: erro } = await supabaseClient.from('curtidas').delete().eq('post_id', post.id).eq('usuario_id', meuId));
   } else {
-    await supabaseClient.from('curtidas').insert({ post_id: post.id, usuario_id: meuId });
+    ({ error: erro } = await supabaseClient.from('curtidas').insert({ post_id: post.id, usuario_id: meuId }));
   }
 
-  carregarPostsReais();
+  if (erro) {
+    // deu erro salvando no banco: desfaz a atualização otimista
+    post.curtiu = jaCurtia;
+    post.likes = (post.likes || 0) + (jaCurtia ? 1 : -1);
+    renderFeed();
+    mostrarToast('❌ erro ao curtir: ' + erro.message);
+  }
 };
 
   // ---------- comentários ----------
