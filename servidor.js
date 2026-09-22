@@ -61,6 +61,76 @@ app.post('/api/push/inscrever', async (req, res) => {
 app.post('/api/push/testar', async (req, res) => {
   const { usuarioId } = req.body || {};
   if (!usuarioId) return res.status(400).json({ erro: 'usuarioId obrigatório' });
+
+// painel de métricas privado — só pra você acompanhar quantos usuários o
+// Átomo tem, protegido por senha (ADMIN_SECRET), sem link em nenhum lugar
+// do app pros outros usuários
+app.get('/api/admin/metricas', async (req, res) => {
+  const segredo = req.query.segredo || req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || segredo !== process.env.ADMIN_SECRET) {
+    return res.status(401).json({ erro: 'não autorizado' });
+  }
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado no servidor' });
+
+  try {
+    const agora = new Date();
+    const seteDiasAtras = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const trintaDiasAtras = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).toISOString();
+
+    const contar = async (tabela, filtros) => {
+      let q = supabaseAdmin.from(tabela).select('*', { count: 'exact', head: true });
+      if (filtros) q = filtros(q);
+      const { count, error } = await q;
+      if (error) throw error;
+      return count || 0;
+    };
+
+    const [
+      totalUsuarios,
+      novosHoje,
+      novos7dias,
+      novos30dias,
+      totalPosts,
+      posts7dias,
+      inscricoesPush,
+      notifAtivada,
+    ] = await Promise.all([
+      contar('usuarios'),
+      contar('usuarios', q => q.gte('criado_em', inicioHoje)),
+      contar('usuarios', q => q.gte('criado_em', seteDiasAtras)),
+      contar('usuarios', q => q.gte('criado_em', trintaDiasAtras)),
+      contar('posts'),
+      contar('posts', q => q.gte('criado_em', seteDiasAtras)),
+      contar('push_subscriptions'),
+      contar('usuarios', q => q.eq('notif_ativado', true)),
+    ]);
+
+    // usuários ativos = quem postou algo nos últimos 7 dias (contagem de autores únicos)
+    const { data: autoresRecentes, error: erroAutores } = await supabaseAdmin
+      .from('posts')
+      .select('autor_id')
+      .gte('criado_em', seteDiasAtras);
+    if (erroAutores) throw erroAutores;
+    const usuariosAtivos7dias = new Set((autoresRecentes || []).map(p => p.autor_id)).size;
+
+    res.json({
+      ok: true,
+      geradoEm: agora.toISOString(),
+      totalUsuarios,
+      novosHoje,
+      novos7dias,
+      novos30dias,
+      usuariosAtivos7dias,
+      totalPosts,
+      posts7dias,
+      inscricoesPush,
+      notifAtivada,
+    });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
   if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return res.status(500).json({ erro: 'push não configurado no servidor' });
 
   try {

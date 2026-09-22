@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Métricas · Átomo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F1E6; --card:#FFFDF8; --card-b:#E8DAC3;
+    --ink:#3A2E22; --ink-dim:#8A7860; --ink-faint:#B7A78D;
+    --accent-a:#D9714A; --accent-b:#4A9B8E; --accent-soft:#F5E2D0;
+    --shadow:0 3px 14px rgba(90,60,30,.10);
+    --shadow-lg:0 20px 46px rgba(90,60,30,.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D0D0D; --card:#1A1A1A; --card-b:#2C2C2C;
+      --ink:#F2F2F2; --ink-dim:#A8A8A8; --ink-faint:#6E6E6E;
+      --accent-a:#E08A63; --accent-b:#5FB3A3; --accent-soft:#262626;
+      --shadow:0 3px 14px rgba(0,0,0,.5); --shadow-lg:0 20px 46px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"Karla",-apple-system,system-ui,sans-serif;
+    min-height:100vh; padding:20px 16px 60px; }
+  .page{ max-width:640px; margin:0 auto; }
+
+  h1{ font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:26px; margin:18px 0 2px; letter-spacing:-.01em; }
+  .sub{ font-size:13px; color:var(--ink-dim); margin:0 0 28px; }
+
+  /* ---------- tela de senha ---------- */
+  .gate{ background:var(--card); border:1px solid var(--card-b); border-radius:20px; padding:26px 22px;
+    box-shadow:var(--shadow); max-width:360px; margin:60px auto 0; text-align:center; }
+  .gate .ic{ width:42px; height:42px; border-radius:12px; background:var(--accent-soft); color:var(--accent-a);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+  .gate .ic svg{ width:22px; height:22px; }
+  .gate h2{ font-family:"Fraunces",serif; font-weight:600; font-size:18px; margin:0 0 6px; }
+  .gate p{ font-size:12.5px; color:var(--ink-dim); margin:0 0 18px; }
+  .gate input{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--card-b);
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:inherit; margin-bottom:12px; }
+  .gate input:focus{ outline:2px solid var(--accent-a); outline-offset:1px; }
+  .gate button{ width:100%; padding:12px; border:none; border-radius:12px; background:linear-gradient(135deg,var(--accent-a),var(--accent-b));
+    color:#fff; font-weight:800; font-size:14px; font-family:inherit; cursor:pointer; }
+  .gate button:active{ transform:scale(.98); }
+  .gate .erro{ color:var(--accent-a); font-size:12px; margin-top:10px; min-height:14px; }
+
+  /* ---------- dashboard ---------- */
+  .dash{ display:none; }
+  .dash.show{ display:block; }
+
+  .grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
+  .card{ background:var(--card); border:1px solid var(--card-b); border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+  .card .n{ font-family:"Fraunces",serif; font-weight:700; font-size:30px; line-height:1; color:var(--ink); }
+  .card .n small{ font-size:14px; font-weight:600; color:var(--ink-faint); }
+  .card .l{ font-size:11.5px; color:var(--ink-dim); margin-top:6px; }
+  .card.destaque{ grid-column:1 / -1; background:linear-gradient(135deg,var(--accent-a),var(--accent-b)); border:none; }
+  .card.destaque .n, .card.destaque .l{ color:#fff; }
+  .card.destaque .n small{ color:rgba(255,255,255,.75); }
+
+  .secao{ margin:26px 0 10px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+
+  .rodape{ display:flex; align-items:center; justify-content:space-between; margin-top:28px; font-size:11.5px; color:var(--ink-faint); }
+  .rodape button{ background:none; border:1px solid var(--card-b); color:var(--ink-dim); font-size:12px; font-family:inherit;
+    padding:8px 14px; border-radius:10px; cursor:pointer; }
+  .rodape button:active{ transform:scale(.96); }
+
+  .loading{ text-align:center; padding:60px 0; color:var(--ink-faint); font-size:13px; display:none; }
+  .loading.show{ display:block; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>📊 Métricas do Átomo</h1>
+  <p class="sub">Painel privado — só você vê essa página.</p>
+
+  <div class="gate" id="gate">
+    <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+    <h2>Área restrita</h2>
+    <p>Digita a senha do painel pra ver os números.</p>
+    <input type="password" id="senhaInput" placeholder="senha" autocomplete="off" />
+    <button onclick="entrar()">Ver métricas</button>
+    <div class="erro" id="erroMsg"></div>
+  </div>
+
+  <div class="loading" id="loading">carregando...</div>
+
+  <div class="dash" id="dash">
+    <div class="secao">Usuários</div>
+    <div class="grid">
+      <div class="card destaque">
+        <div class="n" id="mTotalUsuarios">–</div>
+        <div class="l">total de usuários cadastrados</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mNovosHoje">–</div>
+        <div class="l">novos cadastros hoje</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mNovos7">–</div>
+        <div class="l">novos nos últimos 7 dias</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mNovos30">–</div>
+        <div class="l">novos nos últimos 30 dias</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mAtivos7">–</div>
+        <div class="l">ativos (postaram) nos últimos 7 dias</div>
+      </div>
+    </div>
+
+    <div class="secao">Conteúdo</div>
+    <div class="grid">
+      <div class="card">
+        <div class="n" id="mTotalPosts">–</div>
+        <div class="l">posts no total</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mPosts7">–</div>
+        <div class="l">posts nos últimos 7 dias</div>
+      </div>
+    </div>
+
+    <div class="secao">Notificações push</div>
+    <div class="grid">
+      <div class="card">
+        <div class="n" id="mInscricoesPush">–</div>
+        <div class="l">aparelhos inscritos</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mNotifAtivada">–</div>
+        <div class="l">usuários com notificação ativada</div>
+      </div>
+    </div>
+
+    <div class="rodape">
+      <span id="geradoEm"></span>
+      <button onclick="atualizar()">↻ Atualizar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var API_BASE = 'https://atomo-app.onrender.com';
+  var senhaAtual = '';
+
+  function entrar(){
+    var senha = document.getElementById('senhaInput').value.trim();
+    if (!senha) return;
+    senhaAtual = senha;
+    carregarMetricas();
+  }
+
+  document.getElementById('senhaInput').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') entrar();
+  });
+
+  function atualizar(){
+    if (senhaAtual) carregarMetricas();
+  }
+
+  function carregarMetricas(){
+    document.getElementById('erroMsg').textContent = '';
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('dash').classList.remove('show');
+
+    fetch(API_BASE + '/api/admin/metricas?segredo=' + encodeURIComponent(senhaAtual))
+      .then(function(r){ return r.json().then(function(d){ return { status: r.status, dados: d }; }); })
+      .then(function(res){
+        document.getElementById('loading').classList.remove('show');
+        if (res.status === 401) {
+          document.getElementById('erroMsg').textContent = 'Senha errada.';
+          return;
+        }
+        if (!res.dados.ok) {
+          document.getElementById('erroMsg').textContent = 'Erro: ' + (res.dados.erro || 'desconhecido');
+          return;
+        }
+        var d = res.dados;
+        document.getElementById('mTotalUsuarios').textContent = d.totalUsuarios;
+        document.getElementById('mNovosHoje').textContent = d.novosHoje;
+        document.getElementById('mNovos7').textContent = d.novos7dias;
+        document.getElementById('mNovos30').textContent = d.novos30dias;
+        document.getElementById('mAtivos7').textContent = d.usuariosAtivos7dias;
+        document.getElementById('mTotalPosts').textContent = d.totalPosts;
+        document.getElementById('mPosts7').textContent = d.posts7dias;
+        document.getElementById('mInscricoesPush').textContent = d.inscricoesPush;
+        document.getElementById('mNotifAtivada').textContent = d.notifAtivada;
+
+        var gerado = new Date(d.geradoEm);
+        document.getElementById('geradoEm').textContent = 'atualizado às ' + gerado.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('dash').classList.add('show');
+      })
+      .catch(function(){
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('erroMsg').textContent = 'Não consegui conectar no servidor. Tenta de novo (o Render pode estar "acordando", leva uns 30-50s).';
+      });
+  }
+</script>
+</body>
+</html>
