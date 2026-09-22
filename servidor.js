@@ -55,6 +55,22 @@ app.post('/api/push/inscrever', async (req, res) => {
   res.json({ ok: true });
 });
 
+// dispara UMA notificação de teste na hora, pro próprio usuário logado conferir
+// se o push tá chegando no aparelho — não depende de horário nem passa pelas
+// checagens de "já mandou hoje" do cron
+app.post('/api/push/testar', async (req, res) => {
+  const { usuarioId } = req.body || {};
+  if (!usuarioId) return res.status(400).json({ erro: 'usuarioId obrigatório' });
+  if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return res.status(500).json({ erro: 'push não configurado no servidor' });
+
+  try {
+    const enviadas = await enviarPushParaUsuario(usuarioId, 'Teste 🔔', 'Se você tá vendo isso, as notificações push do Átomo estão funcionando!');
+    res.json({ ok: true, enviadas });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
 // mensagens variadas — a manhã sempre pergunta/convida (sono, sonho), a
 // noite é sempre uma reflexão filosófica curta sobre a vida/o dia — nunca
 // uma pergunta, nunca um convite pra escrever, só um pensamento pra levar
