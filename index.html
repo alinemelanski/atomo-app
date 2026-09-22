@@ -548,7 +548,6 @@
       <div class="composer">
         <textarea id="composerText" placeholder="O que você quer compartilhar hoje?"></textarea>
         <img id="composerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
-        <label for="composerFotoInput" class="upload-foto-icon">📷</label>
         <input type="file" id="composerFotoInput" accept="image/*" onchange="previewFotoComposer()" style="display:none;" />
         <div class="type-chip-wrap"><div class="type-chip-row" id="typeChipRow"></div></div>
         <div class="ref-form" id="refForm">
@@ -589,8 +588,11 @@
           <textarea id="refCitacao" placeholder="Trecho, citação ou o que te marcou (opcional)"></textarea>
         </div>
         <div class="composer-foot">
-          <div class="privacy-toggle-mini" onclick="toggleComposerPrivado()">
-            <span id="composerPrivIcon">🌍</span> <span id="composerPrivLabel">Compartilhável</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="composerFotoInput" class="upload-foto-icon">📷</label>
+            <div class="privacy-toggle-mini" onclick="toggleComposerPrivado()">
+              <span id="composerPrivIcon">🌍</span> <span id="composerPrivLabel">Compartilhável</span>
+            </div>
           </div>
       <button class="post-btn" onclick="publicarPost()">Postar</button>
         </div>
@@ -657,9 +659,14 @@
       <div class="selos-perfil-row" id="selosPerfilRow"></div>
       <div class="composer" style="margin:14px 0;">
         <textarea id="perfilComposerText" placeholder="Escreva uma anotação..."></textarea>
+        <img id="perfilComposerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
+        <input type="file" id="perfilComposerFotoInput" accept="image/*" onchange="previewFotoComposerPerfil()" style="display:none;" />
         <div class="composer-foot">
-          <div class="privacy-toggle-mini" onclick="togglePerfilPrivado()">
-            <span id="perfilPrivIcon">🌍</span> <span id="perfilPrivLabel">Compartilhável</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="perfilComposerFotoInput" class="upload-foto-icon">📷</label>
+            <div class="privacy-toggle-mini" onclick="togglePerfilPrivado()">
+              <span id="perfilPrivIcon">🌍</span> <span id="perfilPrivLabel">Compartilhável</span>
+            </div>
           </div>
           <button class="post-btn" onclick="publicarPostPerfil()">Postar</button>
         </div>
@@ -744,6 +751,11 @@
     <div class="profile-avatar" id="perfilAlheioAvatar" style="margin:0 auto 10px;">?</div>
     <h2 id="perfilAlheioNome" style="font-family:'Baloo 2',sans-serif;"></h2>
     <div class="handle" id="perfilAlheioHandle"></div>
+    <div style="margin-top:4px; font-size:12px; color:var(--ink-dim);">
+      <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguindo')"><span id="perfilAlheioSeguindoCount">0</span> seguindo</span>
+      &nbsp;&nbsp;
+      <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguidores')"><span id="perfilAlheioSeguidoresCount">0</span> seguidores</span>
+    </div>
     <div class="bio-box" id="perfilAlheioBio" style="margin-top:8px;"></div>
     <button class="seguir-btn" id="perfilAlheioSeguirBtn" style="margin-top:10px;" onclick="seguirDoOverlay()"></button>
   </div>
@@ -869,7 +881,7 @@
     <div class="dm-chat-overlay" id="amigosOverlay">
       <div class="dm-chat-header">
         <button class="back-btn" onclick="closeOverlay('amigosOverlay')">←</button>
-        <h2 style="font-size:16px;">Seguidores</h2>
+        <h2 style="font-size:16px;" id="amigosOverlayTitulo">Seguidores</h2>
       </div>
       <input type="text" id="buscaPessoasInput" class="busca-input" placeholder="🔍 Buscar por @usuário ou nome..." oninput="filtrarPessoas()" />
       <div class="diary-tabs">
@@ -877,8 +889,10 @@
         <div class="diary-tab" id="tabSeguidores" onclick="trocarAbaSeguir('seguidores')">Seguidores</div>
       </div>
       <div id="amigosList" style="overflow-y:auto;"></div>
-      <div class="sugestoes-label">Sugestões pra seguir</div>
-      <div id="sugestoesList" style="overflow-y:auto;"></div>
+      <div id="sugestoesSecao">
+        <div class="sugestoes-label">Sugestões pra seguir</div>
+        <div id="sugestoesList" style="overflow-y:auto;"></div>
+      </div>
     </div>
 
     <!-- OVERLAY: CHAT DE DM -->
@@ -1164,25 +1178,22 @@ window.togglePerfilPrivado = function () {
   document.getElementById('perfilPrivLabel').textContent = perfilComposerPrivado ? 'Só eu' : 'Compartilhável';
 };
 
-window.publicarPostPerfil = async function () {
-  const texto = document.getElementById('perfilComposerText').value.trim();
-  if (!texto) return;
+async function subirFotoParaStorage(usuarioId, arquivo) {
+  if (!arquivo) return null;
 
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  const { error } = await supabaseClient.from('posts').insert({
-    autor_id: sessionData.session.user.id,
-    texto: texto,
-    tipo: 'Assunto',
-    privado: perfilComposerPrivado,
-  });
+  const extensao = arquivo.name.split('.').pop();
+  const caminho = `${usuarioId}/${Date.now()}.${extensao}`;
 
-  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  const { error } = await supabaseClient.storage.from('midia-posts').upload(caminho, arquivo);
+  if (error) {
+    console.log('ERRO COMPLETO DO UPLOAD:', error);
+    mostrarToast('❌ erro no upload: ' + error.message);
+    return null;
+  }
 
-  document.getElementById('perfilComposerText').value = '';
-  mostrarToast(perfilComposerPrivado ? '🔒 Guardado só pra você' : '✨ Compartilhado no feed');
-  renderDiary();
-  carregarPostsReais();
-};
+  const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+  return data.publicUrl;
+}
 
 let arquivoFotoComposer = null;
 
@@ -1197,21 +1208,47 @@ window.previewFotoComposer = function () {
 };
 
 async function subirFotoPost(usuarioId) {
-  if (!arquivoFotoComposer) return null;
-
-  const extensao = arquivoFotoComposer.name.split('.').pop();
-  const caminho = `${usuarioId}/${Date.now()}.${extensao}`;
-
-  const { error } = await supabaseClient.storage.from('midia-posts').upload(caminho, arquivoFotoComposer);
-  if (error) {
-    console.log('ERRO COMPLETO DO UPLOAD:', error);
-    mostrarToast('❌ erro no upload: ' + error.message);
-    return null;
-  }
-
-  const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
-  return data.publicUrl;
+  return subirFotoParaStorage(usuarioId, arquivoFotoComposer);
 }
+
+let arquivoFotoComposerPerfil = null;
+
+window.previewFotoComposerPerfil = function () {
+  const input = document.getElementById('perfilComposerFotoInput');
+  if (!input.files || !input.files[0]) return;
+  arquivoFotoComposerPerfil = input.files[0];
+
+  const preview = document.getElementById('perfilComposerFotoPreview');
+  preview.src = URL.createObjectURL(arquivoFotoComposerPerfil);
+  preview.style.display = 'block';
+};
+
+window.publicarPostPerfil = async function () {
+  const texto = document.getElementById('perfilComposerText').value.trim();
+  if (!texto) return;
+
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const usuarioId = sessionData.session.user.id;
+  const fotoUrl = await subirFotoParaStorage(usuarioId, arquivoFotoComposerPerfil);
+
+  const { error } = await supabaseClient.from('posts').insert({
+    autor_id: usuarioId,
+    texto: texto,
+    tipo: 'Assunto',
+    privado: perfilComposerPrivado,
+    imagem_url: fotoUrl,
+  });
+
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+
+  document.getElementById('perfilComposerText').value = '';
+  document.getElementById('perfilComposerFotoPreview').style.display = 'none';
+  document.getElementById('perfilComposerFotoInput').value = '';
+  arquivoFotoComposerPerfil = null;
+  mostrarToast(perfilComposerPrivado ? '🔒 Guardado só pra você' : '✨ Compartilhado no feed');
+  renderDiary();
+  carregarPostsReais();
+};
 
 window.publicarPost = async function () {
 
@@ -1762,46 +1799,61 @@ if (p.autor_id !== sessionData.session.user.id) {
   let SEGUINDO = [];
   let SEGUIDORES = [];
 
-  async function carregarAmigosEsugestoes() {
+  window.PERFIL_LISTA_ALVO_ID = null;
+
+  async function carregarAmigosEsugestoes(alvoId) {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const meuId = sessionData.session.user.id;
+  window.PERFIL_LISTA_ALVO_ID = alvoId || null;
+  const idAlvo = alvoId || meuId;
 
   const { data: bloqueios } = await supabaseClient.from('bloqueios').select('bloqueado_id').eq('usuario_id', meuId);
   const idsBloqueados = (bloqueios || []).map(b => b.bloqueado_id);
 
   const { data: todosUsuariosRaw } = await supabaseClient
-    .from('usuarios').select('id, nome, handle, bio').neq('id', meuId);
+    .from('usuarios').select('id, nome, handle, bio').neq('id', idAlvo);
   const todosUsuarios = (todosUsuariosRaw || []).filter(u => !idsBloqueados.includes(u.id));
 
+  // pra saber se EU (quem tá olhando) sigo cada pessoa — o botão seguir/deixar
+  // de seguir de cada linha é sempre relativo a mim, não a quem tá sendo visto
   const { data: euSigo } = await supabaseClient
     .from('seguidores').select('seguido_id').eq('seguidor_id', meuId);
-  const idsQueSigo = (euSigo || []).map(r => r.seguido_id);
+  const idsQueEuSigo = (euSigo || []).map(r => r.seguido_id);
 
-  const { data: meSeguem } = await supabaseClient
-    .from('seguidores').select('seguidor_id').eq('seguido_id', meuId);
-  const idsQueMeSeguem = (meSeguem || []).map(r => r.seguidor_id);
+  // pra saber quem entra na lista "seguindo"/"seguidores" do alvo (que pode ser
+  // eu mesma ou outra pessoa, quando eu abro o perfil de alguém)
+  const { data: alvoSegue } = await supabaseClient
+    .from('seguidores').select('seguido_id').eq('seguidor_id', idAlvo);
+  const idsQueAlvoSegue = (alvoSegue || []).map(r => r.seguido_id);
+
+  const { data: seguemAlvo } = await supabaseClient
+    .from('seguidores').select('seguidor_id').eq('seguido_id', idAlvo);
+  const idsQueSeguemAlvo = (seguemAlvo || []).map(r => r.seguidor_id);
 
   SEGUINDO = [];
   SEGUIDORES = [];
   SUGESTOES = [];
 
   (todosUsuarios || []).forEach(u => {
-    const euSigoEle = idsQueSigo.includes(u.id);
-    const eleMeSegue = idsQueMeSeguem.includes(u.id);
+    const euSigoEle = idsQueEuSigo.includes(u.id);
     const item = { id: u.id, nome: u.handle, iniciais: (u.handle || '?')[0].toUpperCase(), bio: u.bio || 'sem bio ainda', seguindo: euSigoEle };
 
-    if (euSigoEle) SEGUINDO.push(item);
-    if (eleMeSegue) SEGUIDORES.push(item);
-    if (!euSigoEle && !eleMeSegue) SUGESTOES.push(item);
+    if (idsQueAlvoSegue.includes(u.id)) SEGUINDO.push(item);
+    if (idsQueSeguemAlvo.includes(u.id)) SEGUIDORES.push(item);
+    if (!alvoId && !euSigoEle && !idsQueSeguemAlvo.includes(u.id)) SUGESTOES.push(item);
   });
 
-  document.getElementById('amigosCount').textContent = SEGUIDORES.length;
+  if (!alvoId) {
+    document.getElementById('amigosCount').textContent = SEGUIDORES.length;
+  }
 }
 
 let abaSeguirAtiva = 'seguindo';
 
 window.openAmigos = async function () {
   await carregarAmigosEsugestoes();
+  document.getElementById('amigosOverlayTitulo').textContent = 'Seguidores';
+  document.getElementById('sugestoesSecao').style.display = '';
   document.getElementById('amigosOverlay').classList.add('open');
   document.getElementById('buscaPessoasInput').value = '';
   abaSeguirAtiva = 'seguindo';
@@ -1809,6 +1861,20 @@ window.openAmigos = async function () {
   document.getElementById('tabSeguidores').classList.remove('on');
   renderConexoesLista();
   renderSugestoesLista();
+};
+
+window.abrirSeguidoresDe = async function (autorId, abaInicial) {
+  if (!autorId) return;
+  await carregarAmigosEsugestoes(autorId);
+  const nomeAlvo = document.getElementById('perfilAlheioHandle') ? document.getElementById('perfilAlheioHandle').textContent : '';
+  document.getElementById('amigosOverlayTitulo').textContent = nomeAlvo || 'Perfil';
+  document.getElementById('sugestoesSecao').style.display = 'none';
+  document.getElementById('amigosOverlay').classList.add('open');
+  document.getElementById('buscaPessoasInput').value = '';
+  abaSeguirAtiva = abaInicial || 'seguidores';
+  document.getElementById('tabSeguindo').classList.toggle('on', abaSeguirAtiva === 'seguindo');
+  document.getElementById('tabSeguidores').classList.toggle('on', abaSeguirAtiva === 'seguidores');
+  renderConexoesLista();
 };
   window.trocarAbaSeguir = function (aba) {
     abaSeguirAtiva = aba;
@@ -1855,15 +1921,12 @@ window.openAmigos = async function () {
       const { error } = await supabaseClient.from('seguidores').insert({ seguidor_id: meuId, seguido_id: id });
       if (error) { mostrarToast('❌ erro: ' + error.message); return; }
       mostrarToast('💛 Agora você segue essa pessoa');
+      await notificarNovoSeguidor(id, meuId);
     }
 
     await carregarAmigosEsugestoes();
     renderConexoesLista(document.getElementById('buscaPessoasInput').value);
     renderSugestoesLista(document.getElementById('buscaPessoasInput').value);
-  };
-  window.abrirDmDireto = function (nome) {
-    closeOverlay('amigosOverlay');
-    abrirDm(nome);
   };
 
   window.abrirBuscaConteudo = function () {
@@ -2093,6 +2156,13 @@ window.abrirPerfilAlheio = async function (autorId) {
   btnSeguir.dataset.jaSigo = jaSigo ? 'sim' : 'nao';
   document.getElementById('perfilAlheioMenu').style.display = 'none';
 
+  const { count: countSeguidores } = await supabaseClient
+    .from('seguidores').select('id', { count: 'exact', head: true }).eq('seguido_id', autorId);
+  const { count: countSeguindo } = await supabaseClient
+    .from('seguidores').select('id', { count: 'exact', head: true }).eq('seguidor_id', autorId);
+  document.getElementById('perfilAlheioSeguidoresCount').textContent = countSeguidores || 0;
+  document.getElementById('perfilAlheioSeguindoCount').textContent = countSeguindo || 0;
+
   const { data: posts } = await supabaseClient
     .from('posts').select('*').eq('autor_id', autorId).eq('privado', false)
     .order('criado_em', { ascending: false });
@@ -2132,8 +2202,22 @@ window.seguirDoOverlay = async function () {
     btn.classList.add('pendente');
     btn.dataset.jaSigo = 'sim';
     mostrarToast('💛 Agora você segue essa pessoa');
+    await notificarNovoSeguidor(autorId, meuId);
   }
 };
+
+async function notificarNovoSeguidor(seguidoId, seguidorId) {
+  if (seguidoId === seguidorId) return;
+  const { data: dono } = await supabaseClient.from('usuarios').select('notif_ativado, handle').eq('id', seguidoId).maybeSingle();
+  if (dono && dono.notif_ativado === false) return;
+  const { data: euUsuario } = await supabaseClient.from('usuarios').select('handle').eq('id', seguidorId).maybeSingle();
+  await supabaseClient.from('notificacoes').insert({
+    usuario_id: seguidoId,
+    tipo: 'seguidor',
+    titulo: 'Novo seguidor',
+    subtitulo: euUsuario ? `@${euUsuario.handle} começou a te seguir` : 'Alguém começou a te seguir',
+  });
+}
 
 window.togglePerfilAlheioMenu = function () {
   const menu = document.getElementById('perfilAlheioMenu');
@@ -2243,11 +2327,16 @@ window.compartilharItemDescobrir = async function (i) {
   const item = window.ITENS_DESCOBRIR_ATUAIS[i];
   const { data: sessionData } = await supabaseClient.auth.getSession();
 
+  const textoCompleto = `↗ compartilhou de Descobrir — ${item.title}${item.desc ? `
+
+${item.desc}` : ''}`;
+
   await supabaseClient.from('posts').insert({
     autor_id: sessionData.session.user.id,
-    texto: `↗ compartilhou de Descobrir: "${item.title}"`,
+    texto: textoCompleto,
     tipo: 'Assunto',
     privado: false,
+    imagem_url: item.imagemUrl || null,
   });
 
   mostrarToast('↗ Compartilhado no seu feed');
@@ -2567,7 +2656,7 @@ function aplicarFotoPerfil(url) {
     renderDiscover();
   };
 
-  const TUMBLR_TAG_PADRAO = 'diario';
+  const TUMBLR_TAGS_PADRAO = ['diario', 'poesia', 'frases', 'leitura', 'reflexão', 'escrita', 'literatura brasileira', 'resenha'];
   let termoBuscaDescobrir = '';
   let debounceBuscaDescobrir = null;
   window.aoDigitarBuscaDescobrir = function () {
@@ -2596,19 +2685,27 @@ window.trocarModoDescobrir = function (modo) {
     }, 400);
   };
 
-  async function renderLivros() {
-    const lista = document.getElementById('livrosList');
-    lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+  function cardLivroHtml(d, i) {
+    return `
+        <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
+          <span class="discover-kind">${d.kind}</span>
+          <div class="discover-title">${d.title}</div>
+          <div class="discover-desc">${d.desc}</div>
+          <div class="post-actions" style="margin-top:10px;">
+            <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">💬 comentar</div>
+            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">↗ compartilhar</div>
+          </div>
+        </div>`;
+  }
 
+  async function buscarPaginaLivros(pagina) {
     const url = termoBuscaLivros
-      ? `${API_BASE}/api/livros-em-destaque?q=${encodeURIComponent(termoBuscaLivros)}`
-      : `${API_BASE}/api/livros-em-destaque`;
-
-    let itens = [];
+      ? `${API_BASE}/api/livros-em-destaque?q=${encodeURIComponent(termoBuscaLivros)}&pagina=${pagina}`
+      : `${API_BASE}/api/livros-em-destaque?pagina=${pagina}`;
     try {
       const resp = await fetch(url);
       const dados = await resp.json();
-      itens = (dados.items || []).map(l => {
+      return (dados.items || []).map(l => {
         const info = l.volumeInfo;
         return {
           kind: '📖 Livro',
@@ -2621,22 +2718,36 @@ window.trocarModoDescobrir = function (modo) {
           coverId: l.coverId || null,
         };
       });
-    } catch (e) { console.log('erro ao carregar livros:', e); }
+    } catch (e) { console.log('erro ao carregar livros:', e); return []; }
+  }
+
+  let livrosPagina = 1;
+  let livrosCarregandoMais = false;
+
+  async function renderLivros() {
+    const lista = document.getElementById('livrosList');
+    lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+    livrosPagina = 1;
+
+    const itens = await buscarPaginaLivros(1);
 
     window.ITENS_LIVROS_ATUAIS = itens;
     lista.innerHTML = itens.length
-      ? itens.map((d, i) => `
-        <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
-          <span class="discover-kind">${d.kind}</span>
-          <div class="discover-title">${d.title}</div>
-          <div class="discover-desc">${d.desc}</div>
-          <div class="post-actions" style="margin-top:10px;">
-            <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">💬 comentar</div>
-            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">↗ compartilhar</div>
-          </div>
-        </div>`).join('')
+      ? itens.map((d, i) => cardLivroHtml(d, i)).join('')
       : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
   }
+
+  window.carregarMaisLivros = async function () {
+    if (livrosCarregandoMais) return;
+    livrosCarregandoMais = true;
+    livrosPagina++;
+    const novos = await buscarPaginaLivros(livrosPagina);
+    window.ITENS_LIVROS_ATUAIS = [...(window.ITENS_LIVROS_ATUAIS || []), ...novos];
+    document.getElementById('livrosList').innerHTML = window.ITENS_LIVROS_ATUAIS.length
+      ? window.ITENS_LIVROS_ATUAIS.map((d, i) => cardLivroHtml(d, i)).join('')
+      : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
+    livrosCarregandoMais = false;
+  };
 
   window.abrirLivroPreview = async function (i) {
     const item = window.ITENS_LIVROS_ATUAIS[i];
@@ -2685,72 +2796,110 @@ window.trocarModoDescobrir = function (modo) {
     const item = window.ITENS_LIVROS_ATUAIS[i];
     const { data: sessionData } = await supabaseClient.auth.getSession();
 
+    const capaUrl = item.coverId ? `https://covers.openlibrary.org/b/id/${item.coverId}-L.jpg` : null;
+    const textoCompleto = `↗ compartilhou de Livros — ${item.title}${item.desc ? `
+
+${item.desc}` : ''}`;
+
     await supabaseClient.from('posts').insert({
       autor_id: sessionData.session.user.id,
-      texto: `↗ compartilhou de Livros: "${item.title}"`,
+      texto: textoCompleto,
       tipo: 'Livro',
       privado: false,
+      imagem_url: capaUrl,
     });
 
     mostrarToast('↗ Compartilhado no seu feed');
     carregarPostsReais();
   };
 
-async function renderDiscover() {
-  const lista = document.getElementById('discoverList');
-  lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
-
-  const itensReais = [];
-
-  try {
-    const respFilmes = await fetch(`${API_BASE}/api/filmes-em-cartaz`);
-    const dadosFilmes = await respFilmes.json();
-       (dadosFilmes.results || []).slice(0, 3).forEach(f => {
-      itensReais.push({ kind: '🍿 Filme', title: f.title, desc: f.overview || 'Sem sinopse disponível.', regiao: 'br', filmeId: f.id });
-    });
-  } catch (e) { console.log('erro filmes descobrir:', e); }
-
-  try {
-    const tag = termoBuscaDescobrir || TUMBLR_TAG_PADRAO;
-    const respTumblr = await fetch(`${API_BASE}/api/tumblr-tag?tag=${encodeURIComponent(tag)}`);
-    const dadosTumblr = await respTumblr.json();
-    (dadosTumblr.posts || []).slice(0, 8).forEach(p => {
-      itensReais.push({
-        kind: '🎨 Mural',
-        title: p.blogName ? `@${p.blogName}` : 'Achado por aí',
-        desc: p.texto || 'Sem descrição disponível.',
-        imagemUrl: p.imagemUrl,
-        postUrl: p.postUrl,
-        destaque: true,
-      });
-    });
-  } catch (e) { console.log('erro tumblr descobrir:', e); }
-
-     const itensFiltrados = modoDescobrirAtivo === 'relevante'
-    ? [...itensReais].sort((a, b) => {
-        const scoreA = (a.destaque ? 2 : 0) + (assuntosFavoritos.some(fav => a.kind.includes(fav)) ? 1 : 0);
-        const scoreB = (b.destaque ? 2 : 0) + (assuntosFavoritos.some(fav => b.kind.includes(fav)) ? 1 : 0);
-        return scoreB - scoreA;
-      })
-    : itensReais;
-
-  window.ITENS_DESCOBRIR_ATUAIS = itensFiltrados;
-  lista.innerHTML = itensFiltrados.length
-    ? itensFiltrados.map((d, i) => `
+function cardDescobrirHtml(d, i) {
+  return `
       <div class="discover-card ${d.destaque ? 'discover-card-destaque' : ''}">
         <span class="discover-kind">${d.kind}</span>
         ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; border-radius:12px; margin:8px 0; display:block;">` : ''}
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
-${d.postUrl ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="window.open('${d.postUrl}', '_blank')">🔗 ver original</div>` : ''}
             <div class="post-actions" style="margin-top:10px;">
           <div class="post-action" onclick="comentarItemDescobrir(${i})">💬 comentar</div>
           <div class="post-action" onclick="compartilharItemDescobrir(${i})">↗ compartilhar</div>
         </div>  
-       </div>`).join('')
+       </div>`;
+}
+
+function ordenarItensDescobrir(itens) {
+  return modoDescobrirAtivo === 'relevante'
+    ? [...itens].sort((a, b) => {
+        const scoreA = (a.destaque ? 2 : 0) + (assuntosFavoritos.some(fav => a.kind.includes(fav)) ? 1 : 0) + (a.notas ? Math.min(a.notas / 1000, 1) : 0);
+        const scoreB = (b.destaque ? 2 : 0) + (assuntosFavoritos.some(fav => b.kind.includes(fav)) ? 1 : 0) + (b.notas ? Math.min(b.notas / 1000, 1) : 0);
+        return scoreB - scoreA;
+      })
+    : itens;
+}
+
+async function buscarPaginaDescobrir(pagina) {
+  const itensPagina = [];
+
+  try {
+    const respFilmes = await fetch(`${API_BASE}/api/filmes-em-cartaz?pagina=${pagina}`);
+    const dadosFilmes = await respFilmes.json();
+       (dadosFilmes.results || []).slice(0, 6).forEach(f => {
+      itensPagina.push({ kind: '🍿 Filme', title: f.title, desc: f.overview || 'Sem sinopse disponível.', regiao: 'br', filmeId: f.id });
+    });
+  } catch (e) { console.log('erro filmes descobrir:', e); }
+
+  try {
+    const buscandoTag = !!termoBuscaDescobrir;
+    const tag = termoBuscaDescobrir || TUMBLR_TAGS_PADRAO[Math.floor(Math.random() * TUMBLR_TAGS_PADRAO.length)];
+    const variar = buscandoTag ? '' : '&variar=true';
+    const respTumblr = await fetch(`${API_BASE}/api/tumblr-tag?tag=${encodeURIComponent(tag)}${variar}`);
+    const dadosTumblr = await respTumblr.json();
+    (dadosTumblr.posts || []).forEach(p => {
+      itensPagina.push({
+        kind: '🎨 Mural',
+        title: p.blogName ? `@${p.blogName}` : 'Achado por aí',
+        desc: p.texto || 'Sem descrição disponível.',
+        imagemUrl: p.imagemUrl,
+        postUrl: p.postUrl,
+        notas: p.notas || 0,
+        destaque: true,
+      });
+    });
+  } catch (e) { console.log('erro tumblr descobrir:', e); }
+
+  return itensPagina;
+}
+
+let discoverPagina = 1;
+let discoverCarregandoMais = false;
+
+async function renderDiscover() {
+  const lista = document.getElementById('discoverList');
+  lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+  discoverPagina = 1;
+
+  const itensReais = await buscarPaginaDescobrir(1);
+  const itensFiltrados = ordenarItensDescobrir(itensReais);
+
+  window.ITENS_DESCOBRIR_ATUAIS = itensFiltrados;
+  lista.innerHTML = itensFiltrados.length
+    ? itensFiltrados.map((d, i) => cardDescobrirHtml(d, i)).join('')
     : `<div class="visitor-lock-note">Nada por aqui ainda.</div>`;
 }
+
+window.carregarMaisDescobrir = async function () {
+  if (discoverCarregandoMais) return;
+  discoverCarregandoMais = true;
+  discoverPagina++;
+  const novosItens = await buscarPaginaDescobrir(discoverPagina);
+  const todosItens = ordenarItensDescobrir([...(window.ITENS_DESCOBRIR_ATUAIS || []), ...novosItens]);
+  window.ITENS_DESCOBRIR_ATUAIS = todosItens;
+  document.getElementById('discoverList').innerHTML = todosItens.length
+    ? todosItens.map((d, i) => cardDescobrirHtml(d, i)).join('')
+    : `<div class="visitor-lock-note">Nada por aqui ainda.</div>`;
+  discoverCarregandoMais = false;
+};
 
   let discoverPendente = null;
   window.comentarDescobrir = function (i) {
@@ -3015,6 +3164,35 @@ window.abrirPerfilDoAmigo = async function (id) {
   };
 
   // ---------- puxar para atualizar ----------
+  // rolagem infinita: perto do fim da lista, carrega mais itens sozinho
+  (function initRolagemInfinita() {
+    const telaDescobrir = document.getElementById('screen-descobrir');
+    const telaLivros = document.getElementById('screen-livros');
+    if (telaDescobrir) {
+      telaDescobrir.addEventListener('scroll', function () {
+        if (this.scrollTop + this.clientHeight > this.scrollHeight - 400) {
+          carregarMaisDescobrir();
+        }
+      });
+    }
+    if (telaLivros) {
+      telaLivros.addEventListener('scroll', function () {
+        if (this.scrollTop + this.clientHeight > this.scrollHeight - 400) {
+          carregarMaisLivros();
+        }
+      });
+    }
+  })();
+
+  // atualiza o Descobrir sozinho de tempos em tempos, enquanto a pessoa
+  // estiver olhando essa tela, pra não ficar sempre com os mesmos posts
+  setInterval(() => {
+    const tela = document.querySelector('.screen.active');
+    if (tela && tela.id === 'screen-descobrir') {
+      renderDiscover();
+    }
+  }, 3 * 60 * 1000);
+
   (function initPuxarAtualizar() {
     const indicador = document.getElementById('pullRefreshIndicator');
     if (!indicador) return;
@@ -3460,7 +3638,7 @@ window.openNotifs = async function () {
   const lista = window.NOTIFICACOES_REAIS || [];
 
   document.getElementById('notifList').innerHTML = lista.length
-    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? '💬' : '🔔'}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
+    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? '💬' : n.tipo === 'seguidor' ? '👤' : '🔔'}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
     : `<div class="visitor-lock-note">Nenhuma notificação ainda 🌱</div>`;
 
   const { data: sessionData } = await supabaseClient.auth.getSession();

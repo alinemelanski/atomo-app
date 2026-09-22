@@ -98,8 +98,9 @@ app.get('/api/buscar-livro', async (req, res) => {
 
 app.get('/api/filmes-em-cartaz', async (req, res) => {
   try {
+    const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
     const resposta = await fetch(
-      `https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR`
+      `https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&page=${pagina}`
     );
     const dados = await resposta.json();
     res.json(dados);
@@ -134,6 +135,7 @@ function limparHtmlTumblr(html) {
 
 app.get('/api/tumblr-tag', async (req, res) => {
   const tag = (req.query.tag || '').trim();
+  const variar = req.query.variar === 'true';
   if (!tag) return res.status(400).json({ erro: 'faltou o parâmetro tag' });
 
   try {
@@ -141,11 +143,35 @@ app.get('/api/tumblr-tag', async (req, res) => {
     // conteúdo), que é o que a gente sabe ler abaixo — sem isso, a API manda
     // o formato clássico (campos como "body"/"caption"/"photos"), que ficava
     // de fora do parser e por isso vinha tudo "sem texto"/sem imagem.
+    //
+    // quando "variar" está ligado (a tela do Descobrir sem busca do usuário),
+    // pula pra um ponto aleatório dos últimos 3 dias da tag em vez de sempre
+    // pegar o topo — assim a atualização automática/puxar-pra-atualizar não
+    // fica sempre mostrando os mesmos posts "congelados".
+    let paramBefore = '';
+    if (variar) {
+      const agora = Math.floor(Date.now() / 1000);
+      const janela = 60 * 60 * 24 * 3;
+      const before = agora - Math.floor(Math.random() * janela);
+      paramBefore = `&before=${before}`;
+    }
+
     const resposta = await fetch(
-      `https://api.tumblr.com/v2/tagged?tag=${encodeURIComponent(tag)}&api_key=${process.env.TUMBLR_API_KEY}&limit=20&npf=true`
+      `https://api.tumblr.com/v2/tagged?tag=${encodeURIComponent(tag)}&api_key=${process.env.TUMBLR_API_KEY}&limit=30&npf=true${paramBefore}`
     );
     const dados = await resposta.json();
-    const postsBrutos = Array.isArray(dados.response) ? dados.response : [];
+    let postsBrutos = Array.isArray(dados.response) ? dados.response : [];
+
+    // prioriza quem tem mais nota (curtida + reblog), e ainda embaralha um
+    // pouco o topo pra não ficar sempre a mesma ordem nos posts mais populares
+    postsBrutos = postsBrutos
+      .slice()
+      .sort((a, b) => (b.note_count || 0) - (a.note_count || 0))
+      .slice(0, 15);
+    for (let i = postsBrutos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [postsBrutos[i], postsBrutos[j]] = [postsBrutos[j], postsBrutos[i]];
+    }
 
     const posts = postsBrutos.map(p => {
       let texto = '';
@@ -200,6 +226,7 @@ app.get('/api/tumblr-tag', async (req, res) => {
         imagemUrl,
         tags: p.tags || [],
         postUrl: p.post_url || null,
+        notas: p.note_count || 0,
       };
     });
 
@@ -223,13 +250,15 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   const termo = (req.query.q || '').trim();
   const buscando = termo.length > 0;
   const limite = buscando ? 10 : 5;
+  const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
   const itens = [];
 
   // Google Books
   try {
     const queryGoogle = buscando ? `q=${encodeURIComponent(termo)}` : 'q=subject:fiction&orderBy=newest';
+    const startIndex = (pagina - 1) * limite;
     const resposta = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?${queryGoogle}&langRestrict=pt&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=${limite}`
+      `https://www.googleapis.com/books/v1/volumes?${queryGoogle}&langRestrict=pt&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=${limite}&startIndex=${startIndex}`
     );
     const dados = await resposta.json();
     (dados.items || []).forEach(l => {
@@ -251,7 +280,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   try {
     const queryOpenLibrary = buscando ? `q=${encodeURIComponent(termo)}` : 'q=subject:fiction';
     const resposta = await fetch(
-      `https://openlibrary.org/search.json?${queryOpenLibrary}&language=por&limit=${limite}`,
+      `https://openlibrary.org/search.json?${queryOpenLibrary}&language=por&limit=${limite}&page=${pagina}`,
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
     );
     const dados = await resposta.json();
@@ -276,7 +305,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   try {
     const queryGutendex = buscando ? `search=${encodeURIComponent(termo)}` : 'sort=popular';
     const resposta = await fetch(
-      `https://gutendex.com/books/?languages=pt&${queryGutendex}`,
+      `https://gutendex.com/books/?languages=pt&${queryGutendex}&page=${pagina}`,
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
     );
     const dados = await resposta.json();
