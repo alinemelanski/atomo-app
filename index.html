@@ -773,26 +773,28 @@
     <button class="back-btn" onclick="closeOverlay('perfilAlheioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px; flex:1;" id="perfilAlheioTitulo">Perfil</h2>
     <button class="back-btn" onclick="event.stopPropagation(); togglePerfilAlheioMenu()">⋮</button>
-    <div id="perfilAlheioMenu" style="display:none; position:absolute; top:42px; right:0; background:var(--card); border:1px solid var(--card-b); border-radius:12px; box-shadow:var(--shadow); z-index:5; overflow:hidden; min-width:150px;">
-      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Bloquear</div>
+    <div id="perfilAlheioMenu" style="display:none; position:absolute; top:42px; right:0; background:var(--card); border:1px solid var(--card-b); border-radius:12px; box-shadow:var(--shadow); z-index:5; overflow:hidden; min-width:170px;">
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px;" onclick="fecharPerfilAlheioMenu(); enviarDmDoPerfilAlheio();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.65s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/></svg></span> Enviar DM</div>
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Bloquear</div>
     </div>
   </div>
-  <div style="text-align:center; margin-bottom:14px;">
-    <div class="profile-avatar" id="perfilAlheioAvatar" style="margin:0 auto 10px;">?</div>
-    <h2 id="perfilAlheioNome" style="font-family:'Baloo 2',sans-serif;"></h2>
-    <div class="handle" id="perfilAlheioHandle"></div>
-    <div style="margin-top:4px; font-size:12px; color:var(--ink-dim);">
-      <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguindo')"><span id="perfilAlheioSeguindoCount">0</span> seguindo</span>
-      &nbsp;&nbsp;
-      <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguidores')"><span id="perfilAlheioSeguidoresCount">0</span> seguidores</span>
-    </div>
-    <div class="bio-box" id="perfilAlheioBio" style="margin-top:8px;"></div>
-    <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
-      <button class="seguir-btn" id="perfilAlheioSeguirBtn" onclick="seguirDoOverlay()"></button>
-      <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> pergunta anônima</button>
+  <div class="profile-head">
+    <div class="profile-avatar" id="perfilAlheioAvatar">?</div>
+    <div class="profile-name">
+      <h2 id="perfilAlheioNome"></h2>
+      <div class="handle" id="perfilAlheioHandle"></div>
+      <div class="mini-stats-row">
+        <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguindo')"><span id="perfilAlheioSeguindoCount">0</span> seguindo</span>
+        <span class="amigos-inline" onclick="abrirSeguidoresDe(window.PERFIL_ALHEIO_ATUAL_ID, 'seguidores')"><span id="perfilAlheioSeguidoresCount">0</span> seguidores</span>
+      </div>
     </div>
   </div>
-  <div id="perfilAlheioPosts"></div>
+  <div class="bio-box" id="perfilAlheioBio"></div>
+  <div style="display:flex; gap:8px; margin-top:10px;">
+    <button class="seguir-btn" id="perfilAlheioSeguirBtn" onclick="seguirDoOverlay()" style="flex:1; padding:9px 12px;"></button>
+    <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()" style="flex:1; padding:9px 12px;"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> pergunta anônima</button>
+  </div>
+  <div id="perfilAlheioPosts" style="margin-top:18px;"></div>
   <div id="perfilAlheioPerguntasArea" style="margin-top:16px;"></div>
 </div>
 
@@ -2302,6 +2304,14 @@ window.abrirPerfilAlheio = async function (autorId) {
   await renderPerguntasPublicas(autorId, 'perfilAlheioPerguntasArea');
 
   document.getElementById('perfilAlheioOverlay').classList.add('open');
+};
+
+window.enviarDmDoPerfilAlheio = async function () {
+  const autorId = window.PERFIL_ALHEIO_ATUAL_ID;
+  if (!autorId) return;
+  const nome = document.getElementById('perfilAlheioNome').textContent || 'alguém';
+  closeOverlay('perfilAlheioOverlay');
+  await abrirDm(autorId, nome);
 };
 
 window.seguirDoOverlay = async function () {
