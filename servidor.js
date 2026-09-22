@@ -61,6 +61,15 @@ app.post('/api/push/inscrever', async (req, res) => {
 app.post('/api/push/testar', async (req, res) => {
   const { usuarioId } = req.body || {};
   if (!usuarioId) return res.status(400).json({ erro: 'usuarioId obrigatório' });
+  if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return res.status(500).json({ erro: 'push não configurado no servidor' });
+
+  try {
+    const enviadas = await enviarPushParaUsuario(usuarioId, 'Teste 🔔', 'Se você tá vendo isso, as notificações push do Átomo estão funcionando!');
+    res.json({ ok: true, enviadas });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
 
 // painel de métricas privado — só pra você acompanhar quantos usuários o
 // Átomo tem, protegido por senha (ADMIN_SECRET), sem link em nenhum lugar
@@ -127,15 +136,6 @@ app.get('/api/admin/metricas', async (req, res) => {
       inscricoesPush,
       notifAtivada,
     });
-  } catch (erro) {
-    res.status(500).json({ erro: erro.message });
-  }
-});
-  if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return res.status(500).json({ erro: 'push não configurado no servidor' });
-
-  try {
-    const enviadas = await enviarPushParaUsuario(usuarioId, 'Teste 🔔', 'Se você tá vendo isso, as notificações push do Átomo estão funcionando!');
-    res.json({ ok: true, enviadas });
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
   }
