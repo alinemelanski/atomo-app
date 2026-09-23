@@ -505,83 +505,6 @@
   .livro-link-externo { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px;
     background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 12.5px; font-weight: 800;
     cursor: pointer; margin: 10px auto 0; }
-
-  /* ===== Tema dinâmico (Céu do Átomo) ===== */
-  .td-banner{ position:relative; width:100%; height:132px; border-radius:20px; overflow:hidden;
-    margin-bottom:14px; box-shadow:var(--shadow); }
-  .td-cena{ position:absolute; inset:0; overflow:hidden; }
-  .td-astro{ position:absolute; border-radius:50%; }
-  .td-raio{ position:absolute; top:0; left:0; transform-origin:top center; filter:blur(3px); mix-blend-mode:screen; opacity:.5; }
-  .td-nuvem{ position:absolute; border-radius:50%; filter:blur(16px); }
-  .td-vinheta{ position:absolute; inset:0; background:radial-gradient(120% 90% at 50% 20%, rgba(0,0,0,0) 40%, rgba(0,0,0,.3) 100%); }
-  .td-legenda{ position:absolute; bottom:10px; left:10px; font-size:10px; font-weight:800; color:#fff;
-    background:rgba(255,255,255,.16); backdrop-filter:blur(8px) saturate(150%); border:1px solid rgba(255,255,255,.25);
-    padding:4px 10px; border-radius:20px; text-shadow:0 1px 3px rgba(0,0,0,.3); z-index:2; }
-
-  .td-cena-sol{ background:
-      radial-gradient(80% 60% at 72% 8%, rgba(255,244,214,.9) 0%, rgba(255,244,214,0) 55%),
-      linear-gradient(175deg, #F3E4BE 0%, #DFCB93 30%, #B9C79A 62%, #7FA07C 100%); }
-  .td-cena-sol .td-astro{ top:14%; right:15%; width:38px; height:38px;
-      background:radial-gradient(circle,#FFFBEA 0%,#FFE9A8 55%,rgba(255,233,168,0) 76%);
-      box-shadow:0 0 36px 12px rgba(255,229,160,.5); }
-  .td-cena-sol .td-raio{ top:14%; right:22%; width:2px; height:120px; background:linear-gradient(#FFF6DC,rgba(255,246,220,0)); }
-  .td-cena-sol .td-nuvem.n1{ width:90px; height:50px; top:8%; left:-6%; background:rgba(255,251,238,.55); }
-  .td-cena-sol .td-nuvem.n2{ width:70px; height:40px; top:30%; left:50%; opacity:.7; background:rgba(255,251,238,.55); }
-
-  .td-cena-nublado{ background:
-      radial-gradient(90% 70% at 50% 0%, rgba(230,228,214,.7) 0%, rgba(230,228,214,0) 60%),
-      linear-gradient(175deg, #C9CBBB 0%, #A9ACA0 34%, #848778 68%, #5C6156 100%); }
-  .td-cena-nublado .td-nuvem.n1{ width:110px; height:60px; top:2%; left:-8%; background:rgba(238,238,228,.6); }
-  .td-cena-nublado .td-nuvem.n2{ width:80px; height:46px; top:34%; left:46%; opacity:.75; background:rgba(238,238,228,.6); }
-  .td-cena-nublado .td-nuvem.n3{ width:70px; height:40px; top:56%; left:8%; opacity:.5; background:rgba(238,238,228,.6); }
-
-  .td-cena-chuva{ background:
-      radial-gradient(90% 60% at 50% 0%, rgba(120,138,132,.35) 0%, rgba(120,138,132,0) 60%),
-      linear-gradient(175deg, #56655F 0%, #414E49 36%, #2E3733 68%, #1C2320 100%); }
-  .td-cena-chuva .td-nuvem.n1{ width:130px; height:70px; top:-4%; left:-10%; background:rgba(90,105,100,.45); }
-  .td-cena-chuva .td-nuvem.n2{ width:90px; height:56px; top:12%; left:50%; opacity:.7; background:rgba(90,105,100,.45); }
-  .td-gotas{ position:absolute; inset:0; overflow:hidden; transform:rotate(8deg) scale(1.05); }
-  .td-gota{ position:absolute; top:-12%; width:1.3px; border-radius:3px; mix-blend-mode:screen;
-      background:linear-gradient(180deg, rgba(222,234,230,0) 0%, rgba(222,234,230,.8) 55%, rgba(222,234,230,.15) 100%);
-      animation:tdQueda linear infinite; }
-  @keyframes tdQueda{ from{ top:-12%; } to{ top:118%; } }
-
-  .td-cena-entardecer{ background:
-      radial-gradient(72% 50% at 50% 42%, rgba(255,215,175,.22) 0%, rgba(255,175,120,.10) 38%, rgba(120,60,60,0) 70%),
-      linear-gradient(180deg, #6F4448 0%, #A2564A 28%, #C57E49 52%, #D19F5C 72%, #B8724A 100%); }
-  .td-cena-entardecer .td-astro{ top:34%; left:50%; transform:translateX(-50%); width:40px; height:40px; filter:blur(2px);
-      background:radial-gradient(circle,rgba(255,236,208,.5) 0%,rgba(250,188,120,.34) 55%,rgba(253,190,110,0) 78%);
-      box-shadow:0 0 20px 6px rgba(240,170,100,.12); }
-  .td-cena-entardecer .td-raio{ top:34%; left:50%; width:2px; height:100px; background:linear-gradient(rgba(255,233,190,.28),rgba(255,233,190,0)); opacity:.1; filter:blur(5px); }
-  .td-cena-entardecer .td-nuvem.n1{ width:110px; height:46px; top:6%; left:-8%; background:rgba(120,60,52,.4); }
-  .td-cena-entardecer .td-nuvem.n2{ width:80px; height:36px; top:16%; left:56%; opacity:.65; background:rgba(120,60,52,.4); }
-
-  .td-cena-noite{ background:
-      radial-gradient(60% 45% at 22% 14%, rgba(210,200,175,.13) 0%, rgba(210,200,175,0) 60%),
-      linear-gradient(175deg, #0D0F1E 0%, #090B18 40%, #0D0A16 74%, #120E17 100%); }
-  .td-estrelas{ position:absolute; inset:0; overflow:hidden; }
-  .td-estrela{ position:absolute; border-radius:50%; background:#fff; animation:tdPiscar ease-in-out infinite; }
-  @keyframes tdPiscar{ 0%,100%{ opacity:.15; transform:scale(.65); } 50%{ opacity:1; transform:scale(1); } }
-  .td-cena-noite .td-astro{ bottom:10%; right:-6%; width:52px; height:52px; opacity:.5; filter:blur(1.2px);
-      background:radial-gradient(circle at 38% 35%, #EFE7C9 0%, #D9CB9C 55%, #C3B181 100%);
-      box-shadow:0 0 18px 5px rgba(216,197,140,.18); animation:tdLuaRespirar 9s ease-in-out infinite; z-index:1; }
-  @keyframes tdLuaRespirar{ 0%,100%{ opacity:.38; transform:translateY(0); } 50%{ opacity:.58; transform:translateY(-4px); } }
-  .td-brilho{ position:absolute; border-radius:50%; background:#F3E9C9; z-index:1;
-      box-shadow:0 0 5px 2px rgba(240,225,180,.5); animation:tdSubirBrilho ease-in-out infinite; }
-  @keyframes tdSubirBrilho{ 0%{ transform:translateY(0) scale(.7); opacity:0; } 18%{ opacity:.8; } 55%{ opacity:.5; } 100%{ transform:translateY(-30px) scale(1); opacity:0; } }
-
-  /* miniatura nas configurações + seletor de modo */
-  .td-mini{ position:relative; width:100%; height:56px; border-radius:14px; overflow:hidden; }
-  .td-modo-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-  .td-modo-chip{ font-size:11px; font-weight:800; padding:7px 13px; border-radius:999px; border:1px solid var(--card-b);
-      background:var(--card); color:var(--ink-dim); cursor:pointer; }
-  .td-modo-chip.on{ background:linear-gradient(135deg,var(--accent-a),var(--accent-b)); color:#fff; border-color:transparent; }
-  .td-cena-chips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-  .td-cena-chip{ font-size:10.5px; font-weight:700; padding:6px 10px; border-radius:999px; border:1px solid var(--card-b);
-      background:var(--card); color:var(--ink-dim); cursor:pointer; }
-  .td-cena-chip.on{ background:var(--accent-soft); color:var(--accent-a); border-color:var(--accent-a); }
-  .td-explic{ font-size:10.5px; color:var(--ink-faint); line-height:1.5; margin-top:8px; }
-
   </style>
 </head>
 <body>
@@ -762,11 +685,6 @@
         <button class="top-icon-btn" onclick="openConfig()">
           <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M12,9.3 C13.7,9 15.1,10.5 14.8,12.2 C15.1,13.9 13.6,15.2 12,14.9 C10.4,15.2 9,13.8 9.3,12.1 C9,10.4 10.4,9.1 12,9.3 Z" stroke="currentColor" stroke-width="1.5" style="color:var(--ink-dim)"/><path d="M12,3.6 L12,6M12,18 L12,20.4M20.4,12 L18,12M6,12 L3.6,12M18,6 L16.2,7.8M7.8,16.2 L6,18M18,18 L16.2,16.2M7.8,7.8 L6,6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="color:var(--ink-dim)"/></svg>
         </button>
-      </div>
-
-      <div class="td-banner" id="tdBannerPerfil" style="display:none;">
-        <div class="td-cena" id="tdCenaPerfil"></div>
-        <div class="td-legenda" id="tdLegendaPerfil"></div>
       </div>
 
       <div class="profile-head">
@@ -1095,31 +1013,6 @@
   <div class="settings-row">
     <div><div class="t">💛 Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
     <div class="toggle-sw on" id="matchSwitch" onclick="toggleMatch()"><div class="dot"></div></div>
-  </div>
-  <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div><div class="t">🌦️ Tema dinâmico</div><div class="s">o fundo do seu perfil muda com o clima e a hora do dia</div></div>
-      <div class="toggle-sw" id="temaDinamicoSwitch" onclick="toggleTemaDinamico()"><div class="dot"></div></div>
-    </div>
-    <div class="td-mini" id="tdMiniConfigWrap">
-      <div class="td-cena" id="tdMiniConfigCena"></div>
-    </div>
-    <div id="temaDinamicoOpcoes" style="display:none;">
-      <div class="td-modo-chips">
-        <div class="td-modo-chip on" data-modo="auto" onclick="definirModoTema('auto')">☁️ Automático (clima real)</div>
-        <div class="td-modo-chip" data-modo="manual" onclick="definirModoTema('manual')">🎨 Escolher manualmente</div>
-      </div>
-      <div id="tdCenaManualArea" style="display:none;">
-        <div class="td-cena-chips">
-          <div class="td-cena-chip on" data-cena="sol" onclick="escolherCenaManual('sol')">☀️ Sol</div>
-          <div class="td-cena-chip" data-cena="nublado" onclick="escolherCenaManual('nublado')">☁️ Nublado</div>
-          <div class="td-cena-chip" data-cena="chuva" onclick="escolherCenaManual('chuva')">🌧️ Chuva</div>
-          <div class="td-cena-chip" data-cena="entardecer" onclick="escolherCenaManual('entardecer')">🌇 Entardecer</div>
-          <div class="td-cena-chip" data-cena="noite" onclick="escolherCenaManual('noite')">🌙 Noite</div>
-        </div>
-      </div>
-      <div class="td-explic">No automático, usamos sua localização (só pra consultar o clima — a gente não guarda isso) junto com o horário do seu aparelho pra decidir entre sol, nuvem, chuva, entardecer ou noite lá no topo do seu perfil.</div>
-    </div>
   </div>
 
       <div class="settings-row">
@@ -4111,7 +4004,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       });
     }
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, tema_dinamico_ativo, tema_dinamico_modo, tema_dinamico_cena_manual').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min').eq('id', session.user.id).maybeSingle();
     if (perfil) {
       if (perfil.streak_atual != null) {
         const streakAntigo = perfil.streak_atual;
@@ -4157,21 +4050,6 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         document.getElementById('notifSwitch').classList.toggle('on', notifAtivo);
       }
       if (perfil.horario_acordar_min != null) horarioAcordarMin = perfil.horario_acordar_min;
-      if (perfil.tema_dinamico_modo) temaDinamicoModo = perfil.tema_dinamico_modo;
-      if (perfil.tema_dinamico_cena_manual) temaDinamicoManual = perfil.tema_dinamico_cena_manual;
-      document.querySelectorAll('.td-modo-chip').forEach(function(b){ b.classList.toggle('on', b.dataset.modo === temaDinamicoModo); });
-      document.querySelectorAll('.td-cena-chip').forEach(function(b){ b.classList.toggle('on', b.dataset.cena === temaDinamicoManual); });
-      const tdManualArea = document.getElementById('tdCenaManualArea');
-      if (tdManualArea) tdManualArea.style.display = temaDinamicoModo === 'manual' ? '' : 'none';
-      if (perfil.tema_dinamico_ativo) {
-        temaDinamicoAtivo = true;
-        const tdSwitch = document.getElementById('temaDinamicoSwitch');
-        if (tdSwitch) tdSwitch.classList.add('on');
-        const tdOpcoes = document.getElementById('temaDinamicoOpcoes');
-        if (tdOpcoes) tdOpcoes.style.display = '';
-        aplicarVisibilidadeBannerTema();
-        atualizarCenaDinamica();
-      }
     }
     window.MEU_USUARIO_ID = session.user.id;
            mostrarToast('✨ Bem-vinda de volta, ' + session.user.email);
@@ -4409,181 +4287,6 @@ window.openNotifs = async function () {
   renderFeed();
   renderDiary();
   renderDiscover();
-
-  // ===== Tema dinâmico (Céu do Átomo) =====
-  let temaDinamicoAtivo = false;
-  let temaDinamicoModo = 'auto'; // 'auto' | 'manual'
-  let temaDinamicoManual = 'sol';
-  let tdCoords = null;
-  let tdClimaCache = null;
-  let tdIntervalo = null;
-
-  const TD_NOMES = { sol: '☀️ Ensolarado', nublado: '☁️ Nublado', chuva: '🌧️ Chuva', entardecer: '🌇 Entardecer', noite: '🌙 Noite estrelada' };
-  const TD_TEMPLATES = {
-    sol: '<div class="td-nuvem n1"></div><div class="td-nuvem n2"></div><div class="td-raio"></div><div class="td-astro"></div><div class="td-vinheta"></div>',
-    nublado: '<div class="td-nuvem n1"></div><div class="td-nuvem n2"></div><div class="td-nuvem n3"></div><div class="td-vinheta"></div>',
-    chuva: '<div class="td-nuvem n1"></div><div class="td-nuvem n2"></div><div class="td-gotas"></div><div class="td-vinheta"></div>',
-    entardecer: '<div class="td-nuvem n1"></div><div class="td-nuvem n2"></div><div class="td-raio"></div><div class="td-astro"></div><div class="td-vinheta"></div>',
-    noite: '<div class="td-estrelas"></div><div class="td-astro"></div><div class="td-brilho" style="width:2px;height:2px;bottom:16%;right:10%;animation-duration:7s;"></div><div class="td-brilho" style="width:1.5px;height:1.5px;bottom:22%;right:20%;animation-duration:8.5s;animation-delay:1.8s;"></div><div class="td-brilho" style="width:2px;height:2px;bottom:10%;right:24%;animation-duration:6.5s;animation-delay:3.2s;"></div><div class="td-vinheta"></div>'
-  };
-
-  window.toggleTemaDinamico = async function () {
-    temaDinamicoAtivo = !temaDinamicoAtivo;
-    const sw = document.getElementById('temaDinamicoSwitch');
-    if (sw) sw.classList.toggle('on', temaDinamicoAtivo);
-    const opcoes = document.getElementById('temaDinamicoOpcoes');
-    if (opcoes) opcoes.style.display = temaDinamicoAtivo ? '' : 'none';
-    aplicarVisibilidadeBannerTema();
-    if (temaDinamicoAtivo) {
-      await atualizarCenaDinamica();
-    } else {
-      pararCicloTemaDinamico();
-    }
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    await supabaseClient.from('usuarios').update({ tema_dinamico_ativo: temaDinamicoAtivo }).eq('id', sessionData.session.user.id);
-  };
-
-  window.definirModoTema = async function (modo) {
-    temaDinamicoModo = modo;
-    document.querySelectorAll('.td-modo-chip').forEach(function (b) { b.classList.toggle('on', b.dataset.modo === modo); });
-    const area = document.getElementById('tdCenaManualArea');
-    if (area) area.style.display = modo === 'manual' ? '' : 'none';
-    await atualizarCenaDinamica();
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    await supabaseClient.from('usuarios').update({ tema_dinamico_modo: modo }).eq('id', sessionData.session.user.id);
-  };
-
-  window.escolherCenaManual = async function (id) {
-    temaDinamicoManual = id;
-    document.querySelectorAll('.td-cena-chip').forEach(function (b) { b.classList.toggle('on', b.dataset.cena === id); });
-    await atualizarCenaDinamica();
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    await supabaseClient.from('usuarios').update({ tema_dinamico_cena_manual: id }).eq('id', sessionData.session.user.id);
-  };
-
-  function aplicarVisibilidadeBannerTema() {
-    const banner = document.getElementById('tdBannerPerfil');
-    if (banner) banner.style.display = temaDinamicoAtivo ? '' : 'none';
-  }
-
-  function calcularCenaPorHorario() {
-    const h = new Date().getHours();
-    if (h >= 17 && h < 19) return 'entardecer';
-    if (h >= 19 || h < 6) return 'noite';
-    return 'sol';
-  }
-
-  function obterCoordenadasTD() {
-    return new Promise(function (resolve) {
-      if (tdCoords) return resolve(tdCoords);
-      if (!navigator.geolocation) return resolve(null);
-      navigator.geolocation.getCurrentPosition(
-        function (pos) { tdCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude }; resolve(tdCoords); },
-        function () { resolve(null); },
-        { timeout: 6000, maximumAge: 30 * 60 * 1000 }
-      );
-    });
-  }
-
-  async function obterClimaAtualTD() {
-    const agora = Date.now();
-    if (tdClimaCache && (agora - tdClimaCache.quando) < 20 * 60 * 1000) return tdClimaCache.codigo;
-    const coords = await obterCoordenadasTD();
-    if (!coords) return null;
-    try {
-      const resp = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + coords.lat + '&longitude=' + coords.lon + '&current=weather_code');
-      const dados = await resp.json();
-      const codigo = dados && dados.current ? dados.current.weather_code : null;
-      tdClimaCache = { codigo: codigo, quando: agora };
-      return codigo;
-    } catch (erro) {
-      return null;
-    }
-  }
-
-  function climaParaCenaTD(codigo) {
-    if (codigo == null) return null;
-    if (codigo === 0 || codigo === 1) return null;
-    if (codigo === 2 || codigo === 3 || (codigo >= 45 && codigo <= 48)) return 'nublado';
-    return 'chuva';
-  }
-
-  async function calcularCenaAtualTD() {
-    if (temaDinamicoModo === 'manual') return temaDinamicoManual;
-    const cenaHorario = calcularCenaPorHorario();
-    const codigo = await obterClimaAtualTD();
-    const cenaClima = climaParaCenaTD(codigo);
-    return cenaClima || cenaHorario;
-  }
-
-  function gerarGotasTD(alvo) {
-    if (!alvo || alvo.childElementCount) return;
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < 40; i++) {
-      const g = document.createElement('div');
-      g.className = 'td-gota';
-      const altura = 8 + Math.random() * 16;
-      const duracao = 0.5 + Math.random() * 0.55;
-      g.style.left = (Math.random() * 104 - 2).toFixed(1) + '%';
-      g.style.height = altura.toFixed(0) + 'px';
-      g.style.width = (1 + Math.random() * 0.6).toFixed(1) + 'px';
-      g.style.opacity = (0.2 + Math.random() * 0.35).toFixed(2);
-      g.style.animationDuration = duracao.toFixed(2) + 's';
-      g.style.animationDelay = '-' + (Math.random() * duracao).toFixed(2) + 's';
-      frag.appendChild(g);
-    }
-    alvo.appendChild(frag);
-  }
-
-  function gerarEstrelasTD(alvo) {
-    if (!alvo || alvo.childElementCount) return;
-    const cores = ['#fff', '#fff', '#fff', '#F3E7C4'];
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < 18; i++) {
-      const e = document.createElement('div');
-      e.className = 'td-estrela';
-      const tam = 1 + Math.random() * 1.2;
-      const duracao = 2.2 + Math.random() * 3.2;
-      e.style.top = (2 + Math.random() * 55).toFixed(1) + '%';
-      e.style.left = (3 + Math.random() * 94).toFixed(1) + '%';
-      e.style.width = tam.toFixed(1) + 'px';
-      e.style.height = tam.toFixed(1) + 'px';
-      e.style.background = cores[Math.floor(Math.random() * cores.length)];
-      e.style.animationDuration = duracao.toFixed(2) + 's';
-      e.style.animationDelay = '-' + (Math.random() * duracao).toFixed(2) + 's';
-      frag.appendChild(e);
-    }
-    alvo.appendChild(frag);
-  }
-
-  function renderCenaEmTD(idAlvo, cena) {
-    const alvo = document.getElementById(idAlvo);
-    if (!alvo) return;
-    alvo.className = 'td-cena td-cena-' + cena;
-    alvo.innerHTML = TD_TEMPLATES[cena] || '';
-    if (cena === 'chuva') gerarGotasTD(alvo.querySelector('.td-gotas'));
-    if (cena === 'noite') gerarEstrelasTD(alvo.querySelector('.td-estrelas'));
-  }
-
-  async function atualizarCenaDinamica() {
-    if (!temaDinamicoAtivo) return;
-    const cena = await calcularCenaAtualTD();
-    renderCenaEmTD('tdCenaPerfil', cena);
-    renderCenaEmTD('tdMiniConfigCena', cena);
-    const legenda = document.getElementById('tdLegendaPerfil');
-    if (legenda) legenda.textContent = TD_NOMES[cena] || '';
-    iniciarCicloTemaDinamico();
-  }
-
-  function iniciarCicloTemaDinamico() {
-    if (tdIntervalo) return;
-    tdIntervalo = setInterval(function () { if (temaDinamicoAtivo) atualizarCenaDinamica(); }, 10 * 60 * 1000);
-  }
-
-  function pararCicloTemaDinamico() {
-    if (tdIntervalo) { clearInterval(tdIntervalo); tdIntervalo = null; }
-  }
-
   renderLivros();
   renderDmList();
 })();
