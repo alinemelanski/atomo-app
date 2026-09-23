@@ -577,11 +577,18 @@ app.get('/api/livros-em-destaque', async (req, res) => {
     const dados = await resposta.json();
     (dados.items || []).forEach(l => {
       const capaGoogle = l.volumeInfo?.imageLinks?.thumbnail || l.volumeInfo?.imageLinks?.smallThumbnail || null;
+      // a API do Google Books quase sempre só libera uma amostra do livro —
+      // só dá pra ler o livro inteiro por lá quando é domínio público ou a
+      // editora liberou visualização completa. Marca isso pra avisar a
+      // pessoa antes dela clicar, em vez de deixar ela descobrir sozinha
+      // depois de abrir o Google Play Livros.
+      const leituraCompleta = l.accessInfo?.viewability === 'ALL_PAGES' || l.accessInfo?.publicDomain === true;
       itens.push({
         fonte: 'Google Books',
         googleId: l.id || null,
         capa: capaGoogle ? capaGoogle.replace('http://', 'https://') : null,
         autor: (l.volumeInfo?.authors || []).join(', '),
+        leituraCompleta,
         volumeInfo: {
           title: l.volumeInfo?.title || 'Sem título',
           description: l.volumeInfo?.description || 'Sem descrição disponível.',

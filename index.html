@@ -3089,9 +3089,12 @@ window.trocarModoDescobrir = function (modo) {
   }
 
   function cardLivroHtml(d, i) {
+    const selinhoAmostra = d.fonte === 'Google Books' && !d.leituraCompleta
+      ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">apenas amostra</span>`
+      : '';
     return `
         <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
-          <span class="discover-kind">${d.kind}</span>
+          <span class="discover-kind">${d.kind}</span>${selinhoAmostra}
           <div class="discover-title">${d.title}</div>
           <div class="discover-desc">${d.desc}</div>
           <div class="post-actions" style="margin-top:10px;">
@@ -3121,6 +3124,7 @@ window.trocarModoDescobrir = function (modo) {
           coverId: l.coverId || null,
           capa: l.capa || null,
           autor: l.autor || '',
+          leituraCompleta: l.leituraCompleta === true,
         };
       });
     } catch (e) { console.log('erro ao carregar livros:', e); return []; }
@@ -3194,10 +3198,17 @@ window.trocarModoDescobrir = function (modo) {
     // Google Books e Open Library não dão o texto completo pela API — em vez
     // de abrir o visualizador feio deles dentro do app, mostra a capa/sinopse
     // no estilo do Átomo e deixa um botão bonito pra continuar lendo fora
+    const avisoAmostra = item.fonte === 'Google Books' && !item.leituraCompleta
+      ? `<div class="bio-box" style="margin-bottom:10px;">👀 o Google só libera uma amostra desse livro — pra ler ele inteiro é preciso comprar por lá.</div>`
+      : '';
+    const textoBotaoLink = item.fonte === 'Google Books'
+      ? (item.leituraCompleta ? 'ler completo no Google Livros' : 'ver amostra no Google Livros')
+      : 'abrir no site de origem';
     corpo.innerHTML = heroHtml + `
+      ${avisoAmostra}
       <div class="discover-desc" style="margin-bottom:14px;">${item.desc}</div>
       ${item.link
-        ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ${item.fonte === 'Google Books' ? 'ler no Google Livros' : 'abrir no site de origem'}</div></div>`
+        ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ${textoBotaoLink}</div></div>`
         : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
     `;
   };
