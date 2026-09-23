@@ -539,6 +539,17 @@ app.get('/api/tumblr-tag', async (req, res) => {
   }
 });
 
+// autores brasileiros consagrados, usados como vitrine padrão da aba Livros
+// (busca por autor é muito mais confiável pra vir em português do que um
+// termo genérico tipo "subject:fiction", que nas APIs de livro devolve
+// sobretudo clássicos em inglês mesmo com o filtro de idioma ligado)
+const AUTORES_BRASILEIROS_DESTAQUE = [
+  'Machado de Assis', 'Clarice Lispector', 'Jorge Amado', 'Guimarães Rosa',
+  'Carolina Maria de Jesus', 'Graciliano Ramos', 'Cecília Meireles',
+  'Lima Barreto', 'Rachel de Queiroz', 'Conceição Evaristo',
+  'Ariano Suassuna', 'Raduan Nassar', 'Chico Buarque', 'Paulo Coelho',
+];
+
 app.get('/api/livros-em-destaque', async (req, res) => {
   // junta 3 fontes de livro numa lista só, cada uma no seu try/catch — se uma
   // cair, as outras continuam aparecendo normal. Todo item vira o mesmo
@@ -554,10 +565,11 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   const limite = buscando ? 10 : 5;
   const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
   const itens = [];
+  const autorVitrine = AUTORES_BRASILEIROS_DESTAQUE[(pagina - 1) % AUTORES_BRASILEIROS_DESTAQUE.length];
 
   // Google Books
   try {
-    const queryGoogle = buscando ? `q=${encodeURIComponent(termo)}` : 'q=subject:fiction&orderBy=newest';
+    const queryGoogle = buscando ? `q=${encodeURIComponent(termo)}` : `q=${encodeURIComponent('inauthor:"' + autorVitrine + '"')}`;
     const startIndex = (pagina - 1) * limite;
     const resposta = await fetch(
       `https://www.googleapis.com/books/v1/volumes?${queryGoogle}&langRestrict=pt&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=${limite}&startIndex=${startIndex}`
@@ -583,7 +595,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
 
   // Open Library — sem chave, sem limite de cota, catálogo enorme
   try {
-    const queryOpenLibrary = buscando ? `q=${encodeURIComponent(termo)}` : 'q=subject:fiction';
+    const queryOpenLibrary = buscando ? `q=${encodeURIComponent(termo)}` : `author=${encodeURIComponent(autorVitrine)}`;
     const resposta = await fetch(
       `https://openlibrary.org/search.json?${queryOpenLibrary}&language=por&limit=${limite}&page=${pagina}`,
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
@@ -610,7 +622,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
 
   // Gutendex — Projeto Gutenberg, clássicos de domínio público (a obra continua viva!)
   try {
-    const queryGutendex = buscando ? `search=${encodeURIComponent(termo)}` : 'sort=popular';
+    const queryGutendex = buscando ? `search=${encodeURIComponent(termo)}` : `search=${encodeURIComponent(autorVitrine)}`;
     const resposta = await fetch(
       `https://gutendex.com/books/?languages=pt&${queryGutendex}&page=${pagina}`,
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
