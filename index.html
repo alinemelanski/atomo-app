@@ -877,7 +877,7 @@
       <textarea id="editBioInput" class="edit-bio-textarea"></textarea>
       <div class="edit-field-label">Seu gênero <span style="font-weight:400; color:var(--ink-faint);">(usado só pro Match)</span></div>
       <div id="generoGrid" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;"></div>
-      <button class="post-btn" style="width:100%; margin-top:14px; padding:12px;" onclick="salvarPerfil()">Salvar</button>
+      <button class="post-btn" id="btnSalvarPerfil" style="width:100%; margin-top:14px; padding:12px;" onclick="salvarPerfil()">Salvar</button>
     </div>
 
     <!-- OVERLAY: COMENTÁRIOS -->
@@ -2994,12 +2994,23 @@ window.salvarPerfil = async function () {
   const nome = document.getElementById('editNomeInput').value.trim();
   const handle = document.getElementById('editHandleInput').value.trim().replace('@', '');
   const bio = document.getElementById('editBioInput').value.trim();
-  if (!nome || !handle) return;
+  if (!nome || !handle) {
+    mostrarToast('❌ preenche nome e @usuário');
+    return;
+  }
+
+  const btnSalvar = document.getElementById('btnSalvarPerfil');
+  if (btnSalvar) { btnSalvar.disabled = true; btnSalvar.textContent = 'Salvando...'; }
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
 
   const novoAvatarUrl = await subirAvatar(usuarioId);
+  if (arquivoAvatarEscolhido && !novoAvatarUrl) {
+    // subirAvatar ja mostrou o toast de erro especifico do upload
+    if (btnSalvar) { btnSalvar.disabled = false; btnSalvar.textContent = 'Salvar'; }
+    return;
+  }
 
   const dadosParaSalvar = { nome, handle, bio, genero: meuGenero };
   if (novoAvatarUrl) dadosParaSalvar.avatar_url = novoAvatarUrl;
@@ -3009,6 +3020,7 @@ window.salvarPerfil = async function () {
     .update(dadosParaSalvar)
     .eq('id', usuarioId);
 
+  if (btnSalvar) { btnSalvar.disabled = false; btnSalvar.textContent = 'Salvar'; }
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
 
   document.getElementById('profNome').textContent = nome;
