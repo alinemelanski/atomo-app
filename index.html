@@ -63,11 +63,13 @@
   ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
   .card, .post, .diary-entry, .discover-card, .stat-box, .friend-row, .dm-list-row, .visitor-row,
   .type-chip, .period-chip, .post-btn, .confirm-btn, .top-icon-btn, .toggle-sw,
-  .views-hero, .diary-tab, .privacy-toggle-mini, .post-action, .settings-nav-row { transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
+  .views-hero, .diary-tab, .privacy-toggle-mini, .post-action, .settings-nav-row,
+  .seguir-btn, .onboard-btn, .onboard-topic-chip, .modo-chip, .google-btn, .onboard-skip { transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease; }
   .card:active, .post:active, .diary-entry:active, .discover-card:active, .stat-box:active,
   .friend-row:active, .dm-list-row:active, .visitor-row:active,
   .type-chip:active, .period-chip:active, .post-btn:active, .top-icon-btn:active,
-  .views-hero:active, .diary-tab:active, .post-action:active, .settings-nav-row:active { transform: scale(0.97); }
+  .views-hero:active, .diary-tab:active, .post-action:active, .settings-nav-row:active,
+  .seguir-btn:active, .onboard-btn:active, .onboard-topic-chip:active, .modo-chip:active, .google-btn:active, .onboard-skip:active { transform: scale(0.96); }
   .post, .diary-entry, .discover-card { border-radius: 20px; }
 
   /* ---------- onboarding: pergunta do horário de acordar ---------- */
@@ -129,7 +131,7 @@
   @media (max-width: 480px), (display-mode: standalone) {
     html, body { height: 100%; overflow: hidden; }
     body { display: block; background: var(--bg); }
-    .device { width: 100vw; height: 100dvh; height: 100vh; max-width: none; margin: 0;
+    .device { width: 100vw; height: 100vh; height: 100dvh; max-width: none; margin: 0;
       border: none; border-radius: 0; box-shadow: none; }
   }
 
@@ -330,6 +332,13 @@
   .estado-vazio .sub { font-size: 12px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 16px; }
   /* ---------- descobrir (@) ---------- */
   .discover-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .skeleton-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .skeleton-bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-b) 25%, var(--bg) 50%, var(--card-b) 75%);
+    background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease-in-out infinite; }
+  .skeleton-bar.sk-w40 { width: 40%; height: 10px; margin-bottom: 10px; }
+  .skeleton-bar.sk-w90 { width: 90%; margin-bottom: 8px; }
+  .skeleton-bar.sk-w60 { width: 60%; }
+  @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
   .discover-card-destaque { border: 1.5px solid var(--accent-a); background: linear-gradient(180deg, var(--accent-soft) 0%, var(--card) 40%); }
   .discover-kind { display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 800; padding: 4px 10px;
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); margin-bottom: 8px; }
@@ -381,7 +390,7 @@
   .config-version { font-size: 10px; color: var(--ink-faint); }
 
   .world-toast2 { position: absolute; left: 50%; bottom: 100px; transform: translate(-50%, 10px); background: var(--ink); color: var(--bg);
-    border-radius: 12px; padding: 10px 18px; font-size: 12px; font-weight: 700; opacity: 0; transition: all .3s ease; pointer-events: none; z-index: 40; white-space: nowrap; }
+    border-radius: 12px; padding: 10px 18px; font-size: 12px; font-weight: 700; opacity: 0; transition: all .3s ease; pointer-events: none; z-index: 97; white-space: nowrap; }
   .world-toast2.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* ---------- pop-up de escrita rápida ---------- */
@@ -536,8 +545,25 @@
 <div class="onboard-skip" onclick="mostrarCamposEmail()" id="linkCriarEmail">criar conta com e-mail</div>
 <div id="camposEmailArea" style="display:none; width:100%; margin-top:12px;">
   <input type="email" id="emailCadastroInput" placeholder="seu e-mail" style="width:100%; margin-bottom:8px; padding:12px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif;" />
-  <input type="password" id="senhaCadastroInput" placeholder="crie uma senha" style="width:100%; margin-bottom:8px; padding:12px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif;" />
+  <div style="position:relative; margin-bottom:8px;">
+    <input type="password" id="senhaCadastroInput" placeholder="crie uma senha" style="width:100%; padding:12px; padding-right:42px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
+    <button type="button" onclick="alternarVisibilidadeSenha('senhaCadastroInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:17px; cursor:pointer; padding:4px; line-height:1;">👁️</button>
+  </div>
+  <div style="position:relative; margin-bottom:8px;">
+    <input type="password" id="confirmarSenhaCadastroInput" placeholder="confirme a senha" style="width:100%; padding:12px; padding-right:42px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
+    <button type="button" onclick="alternarVisibilidadeSenha('confirmarSenhaCadastroInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:17px; cursor:pointer; padding:4px; line-height:1;">👁️</button>
+  </div>
   <button class="onboard-btn" onclick="cadastrarComEmail()">Criar conta</button>
+</div>
+<div class="onboard-skip" onclick="mostrarCamposLogin()" id="linkJaTenhoConta">já tem conta? entrar</div>
+<div id="camposLoginArea" style="display:none; width:100%; margin-top:12px;">
+  <input type="email" id="emailLoginInput" placeholder="seu e-mail" style="width:100%; margin-bottom:8px; padding:12px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
+  <div style="position:relative; margin-bottom:8px;">
+    <input type="password" id="senhaLoginInput" placeholder="sua senha" style="width:100%; padding:12px; padding-right:42px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
+    <button type="button" onclick="alternarVisibilidadeSenha('senhaLoginInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:17px; cursor:pointer; padding:4px; line-height:1;">👁️</button>
+  </div>
+  <button class="onboard-btn" onclick="entrarComEmail()">Entrar</button>
+  <div class="onboard-skip" onclick="esqueciMinhaSenha()" style="margin-top:10px; font-size:12px;">esqueci minha senha</div>
 </div>
       </div>
 
@@ -637,7 +663,7 @@
               <span id="composerPrivIcon">🌍</span> <span id="composerPrivLabel">Compartilhável</span>
             </div>
           </div>
-      <button class="post-btn" onclick="publicarPost()">Postar</button>
+      <button class="post-btn" id="btnPostarFeed" onclick="publicarPost()">Postar</button>
         </div>
       </div>
 
@@ -712,7 +738,7 @@
               <span id="perfilPrivIcon">🌍</span> <span id="perfilPrivLabel">Compartilhável</span>
             </div>
           </div>
-          <button class="post-btn" onclick="publicarPostPerfil()">Postar</button>
+          <button class="post-btn" id="btnPostarPerfil" onclick="publicarPostPerfil()">Postar</button>
         </div>
       </div>
       <div class="diary-tabs" id="diaryTabsSection">
@@ -849,6 +875,8 @@
       <input type="text" id="editHandleInput" class="busca-input" />
       <div class="edit-field-label">Bio</div>
       <textarea id="editBioInput" class="edit-bio-textarea"></textarea>
+      <div class="edit-field-label">Seu gênero <span style="font-weight:400; color:var(--ink-faint);">(usado só pro Match)</span></div>
+      <div id="generoGrid" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;"></div>
       <button class="post-btn" style="width:100%; margin-top:14px; padding:12px;" onclick="salvarPerfil()">Salvar</button>
     </div>
 
@@ -1383,6 +1411,9 @@ window.publicarPostPerfil = async function () {
   const texto = document.getElementById('perfilComposerText').value.trim();
   if (!texto) return;
 
+  const btnPostar = document.getElementById('btnPostarPerfil');
+  if (btnPostar) { btnPostar.disabled = true; btnPostar.textContent = 'Enviando...'; }
+
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
   const fotoUrl = await subirFotoParaStorage(usuarioId, arquivoFotoComposerPerfil);
@@ -1395,8 +1426,12 @@ window.publicarPostPerfil = async function () {
     imagem_url: fotoUrl,
   });
 
-  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  if (error) {
+    if (btnPostar) { btnPostar.disabled = false; btnPostar.textContent = 'Postar'; }
+    mostrarToast('❌ erro: ' + error.message); return;
+  }
 
+  if (btnPostar) { btnPostar.disabled = false; btnPostar.textContent = 'Postar'; }
   document.getElementById('perfilComposerText').value = '';
   document.getElementById('perfilComposerFotoPreview').style.display = 'none';
   document.getElementById('perfilComposerFotoInput').value = '';
@@ -1412,6 +1447,9 @@ window.publicarPost = async function () {
   const texto = document.getElementById('composerText').value.trim();
   if (!texto) return;
   const tipo = tipoSelecionado || 'Assunto';
+
+  const btnPostarFeed = document.getElementById('btnPostarFeed');
+  if (btnPostarFeed) { btnPostarFeed.disabled = true; btnPostarFeed.textContent = 'Enviando...'; }
 
     let refTitulo = null, refAutor = null, refCitacao = null, refTrailer = null, refLivroId = null;
   if (TIPOS_COM_REF[tipo]) {
@@ -1459,10 +1497,12 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
   });
 
   if (error) {
+    if (btnPostarFeed) { btnPostarFeed.disabled = false; btnPostarFeed.textContent = 'Postar'; }
     mostrarToast('❌ erro ao postar: ' + error.message);
     return;
   }
 
+  if (btnPostarFeed) { btnPostarFeed.disabled = false; btnPostarFeed.textContent = 'Postar'; }
   document.getElementById('composerText').value = '';
   document.getElementById('refTitulo').value = '';
   document.getElementById('refAutor').value = '';
@@ -2075,7 +2115,7 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
       <div class="friend-row" onclick="abrirPerfilDoAmigo('${a.id}')">
         <div class="friend-avatar">${a.iniciais}</div>
         <div class="friend-info"><div class="n">@${a.nome}</div><div class="s">${a.bio}</div></div>
-        <button class="seguir-btn ${a.seguindo ? 'pendente' : ''}" style="flex:none;" onclick="event.stopPropagation(); toggleSeguir('${a.id}', ${a.seguindo})">${a.seguindo ? 'Seguindo' : 'Seguir'}</button>
+        <button class="seguir-btn ${a.seguindo ? 'pendente' : ''}" style="flex:none;" onclick="event.stopPropagation(); toggleSeguir('${a.id}', ${a.seguindo}, this)">${a.seguindo ? 'Seguindo' : 'Seguir'}</button>
         <div class="post-action" style="flex:none;" onclick="event.stopPropagation(); abrirDmDireto('${a.id}')">${icone('comentar',14)}</div>
       </div>`).join('') || `<div class="visitor-lock-note">${abaSeguirAtiva === 'seguindo' ? 'Você ainda não segue ninguém.' : 'Ninguém te segue ainda.'}</div>`;
   }
@@ -2086,7 +2126,7 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
       <div class="friend-row" onclick="abrirPerfilDoAmigo('${s.id}')">
         <div class="friend-avatar">${s.iniciais}</div>
         <div class="friend-info"><div class="n">@${s.nome}</div><div class="s">${s.bio}</div></div>
-        <button class="seguir-btn ${s.seguindo ? 'pendente' : ''}" onclick="event.stopPropagation(); toggleSeguir('${s.id}', ${s.seguindo})">${s.seguindo ? 'Seguindo' : 'Seguir'}</button>
+        <button class="seguir-btn ${s.seguindo ? 'pendente' : ''}" onclick="event.stopPropagation(); toggleSeguir('${s.id}', ${s.seguindo}, this)">${s.seguindo ? 'Seguindo' : 'Seguir'}</button>
       </div>`).join('') || `<div class="visitor-lock-note">Ninguém encontrado.</div>`;
   }
   window.filtrarPessoas = function () {
@@ -2094,17 +2134,30 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
     renderConexoesLista(termo);
     renderSugestoesLista(termo);
   };
-  window.toggleSeguir = async function (id, seguindoAtualmente) {
+  window.toggleSeguir = async function (id, seguindoAtualmente, btn) {
+    if (navigator.vibrate) navigator.vibrate(10);
+    // UI otimista: o botão já muda na hora do toque, antes de esperar o Supabase
+    if (btn) {
+      btn.textContent = seguindoAtualmente ? 'Seguir' : 'Seguindo';
+      btn.classList.toggle('pendente', !seguindoAtualmente);
+    }
+
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const meuId = sessionData.session.user.id;
 
     if (seguindoAtualmente) {
       const { error } = await supabaseClient.from('seguidores').delete().eq('seguidor_id', meuId).eq('seguido_id', id);
-      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      if (error) {
+        if (btn) { btn.textContent = 'Seguindo'; btn.classList.add('pendente'); }
+        mostrarToast('❌ erro: ' + error.message); return;
+      }
       mostrarToast('Deixou de seguir');
     } else {
       const { error } = await supabaseClient.from('seguidores').insert({ seguidor_id: meuId, seguido_id: id });
-      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      if (error) {
+        if (btn) { btn.textContent = 'Seguir'; btn.classList.remove('pendente'); }
+        mostrarToast('❌ erro: ' + error.message); return;
+      }
       mostrarToast('💛 Agora você segue essa pessoa');
       await notificarNovoSeguidor(id, meuId);
     }
@@ -2901,6 +2954,7 @@ window.sairDaConta = async function () {
     document.getElementById('editNomeInput').value = document.getElementById('profNome').textContent;
     document.getElementById('editHandleInput').value = document.getElementById('profHandle').textContent.replace('@', '');
     document.getElementById('editBioInput').value = document.getElementById('profBio').textContent;
+    renderGeneroGrid();
     document.getElementById('editarPerfilOverlay').classList.add('open');
   };
   let arquivoAvatarEscolhido = null;
@@ -2947,7 +3001,7 @@ window.salvarPerfil = async function () {
 
   const novoAvatarUrl = await subirAvatar(usuarioId);
 
-  const dadosParaSalvar = { nome, handle, bio };
+  const dadosParaSalvar = { nome, handle, bio, genero: meuGenero };
   if (novoAvatarUrl) dadosParaSalvar.avatar_url = novoAvatarUrl;
 
   const { error } = await supabaseClient
@@ -3011,6 +3065,15 @@ window.trocarModoDescobrir = function (modo) {
     }, 400);
   };
 
+  function skeletonCardsHtml(n) {
+    return Array.from({ length: n }).map(() => `
+      <div class="skeleton-card">
+        <div class="skeleton-bar sk-w40"></div>
+        <div class="skeleton-bar sk-w90"></div>
+        <div class="skeleton-bar sk-w60"></div>
+      </div>`).join('');
+  }
+
   function cardLivroHtml(d, i) {
     return `
         <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
@@ -3054,7 +3117,7 @@ window.trocarModoDescobrir = function (modo) {
 
   async function renderLivros() {
     const lista = document.getElementById('livrosList');
-    lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+    lista.innerHTML = skeletonCardsHtml(4);
     livrosPagina = 1;
 
     const itens = await buscarPaginaLivros(1);
@@ -3214,7 +3277,7 @@ let discoverCarregandoMais = false;
 
 async function renderDiscover() {
   const lista = document.getElementById('discoverList');
-  lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+  lista.innerHTML = skeletonCardsHtml(4);
   discoverPagina = 1;
 
   const itensReais = await buscarPaginaDescobrir(1);
@@ -3626,6 +3689,19 @@ window.abrirPerfilDoAmigo = async function (id) {
 let matchAtivado = true;
 const MATCH_PREFS = ['Mulher', 'Homem', 'Não-binário', 'Todos'];
 let minhaMatchPref = [];
+const GENERO_OPCOES = ['Mulher', 'Homem', 'Não-binário'];
+let meuGenero = null;
+
+function renderGeneroGrid() {
+  document.getElementById('generoGrid').innerHTML = GENERO_OPCOES.map(g =>
+    `<div class="onboard-topic-chip ${meuGenero === g ? 'on' : ''}" onclick="selecionarGenero('${g}')">${g}</div>`
+  ).join('');
+}
+
+window.selecionarGenero = function (g) {
+  meuGenero = (meuGenero === g) ? null : g;
+  renderGeneroGrid();
+};
 
 function renderMatchPrefGrid() {
   document.getElementById('matchPrefGrid').innerHTML = MATCH_PREFS.map(p =>
@@ -4032,6 +4108,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       if (perfil.modo_escuro) toggleDarkMode();
       if (perfil.assuntos_favoritos) assuntosFavoritos = perfil.assuntos_favoritos;
       if (perfil.match_preferencia) minhaMatchPref = perfil.match_preferencia;
+      if (perfil.genero) meuGenero = perfil.genero;
       if (perfil.ordem_tipos && perfil.ordem_tipos.length === TIPOS.length) ordemTipos = perfil.ordem_tipos;
       if (perfil.emoji_streak) {
         meuEmojiStreak = perfil.emoji_streak;
@@ -4080,24 +4157,89 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
 
 window.mostrarCamposEmail = function () {
   document.getElementById('linkCriarEmail').style.display = 'none';
+  document.getElementById('linkJaTenhoConta').style.display = 'none';
+  document.getElementById('camposLoginArea').style.display = 'none';
   document.getElementById('camposEmailArea').style.display = 'block';
+};
+
+window.mostrarCamposLogin = function () {
+  document.getElementById('linkCriarEmail').style.display = 'none';
+  document.getElementById('linkJaTenhoConta').style.display = 'none';
+  document.getElementById('camposEmailArea').style.display = 'none';
+  document.getElementById('camposLoginArea').style.display = 'block';
+};
+
+window.alternarVisibilidadeSenha = function (inputId, btn) {
+  const el = document.getElementById(inputId);
+  if (el.type === 'password') {
+    el.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    el.type = 'password';
+    btn.textContent = '👁️';
+  }
 };
 
 window.cadastrarComEmail = async function () {
   const email = document.getElementById('emailCadastroInput').value.trim();
   const senha = document.getElementById('senhaCadastroInput').value;
+  const confirmarSenha = document.getElementById('confirmarSenhaCadastroInput').value;
   if (!email || senha.length < 6) {
     mostrarToast('❌ preenche e-mail e uma senha com 6+ caracteres');
     return;
   }
+  if (senha !== confirmarSenha) {
+    mostrarToast('❌ as senhas não são iguais');
+    return;
+  }
 
-  const { data, error } = await supabaseClient.auth.signUp({ email, password: senha });
+  const { data, error } = await supabaseClient.auth.signUp({ email, password: senha, options: { emailRedirectTo: window.location.origin } });
   if (error) {
     mostrarToast('❌ erro: ' + error.message);
     return;
   }
 
   mostrarToast('✨ Conta criada! Confirma seu e-mail pra poder entrar.');
+};
+
+window.entrarComEmail = async function () {
+  const email = document.getElementById('emailLoginInput').value.trim();
+  const senha = document.getElementById('senhaLoginInput').value;
+  if (!email || !senha) {
+    mostrarToast('❌ preenche e-mail e senha');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+      mostrarToast('❌ confirma seu e-mail antes de entrar');
+    } else if (error.message && error.message.toLowerCase().includes('invalid login credentials')) {
+      mostrarToast('❌ e-mail ou senha errados');
+    } else {
+      mostrarToast('❌ erro: ' + error.message);
+    }
+    return;
+  }
+
+  mostrarToast('✨ Entrando...');
+  location.reload();
+};
+
+window.esqueciMinhaSenha = async function () {
+  const email = document.getElementById('emailLoginInput').value.trim();
+  if (!email) {
+    mostrarToast('❌ digita seu e-mail no campo acima primeiro');
+    return;
+  }
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+  });
+  if (error) {
+    mostrarToast('❌ erro: ' + error.message);
+    return;
+  }
+  mostrarToast('✨ Te mandamos um e-mail pra redefinir a senha');
 };
 
 window.loginComGoogle = async function () {
