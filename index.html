@@ -581,50 +581,6 @@
       background:var(--card); color:var(--ink-dim); cursor:pointer; }
   .td-cena-chip.on{ background:var(--accent-soft); color:var(--accent-a); border-color:var(--accent-a); }
   .td-explic{ font-size:10.5px; color:var(--ink-faint); line-height:1.5; margin-top:8px; }
-  /* ===== modo vidro no Perfil (tela cheia) ===== */
-  .td-fundo-perfil{ position:fixed; inset:0; z-index:0; }
-  .td-fundo-perfil .td-cena{ position:absolute; inset:0; }
-  .td-scrim-perfil{ position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:linear-gradient(180deg, rgba(10,8,10,.4) 0%, rgba(10,8,10,0) 24%, rgba(10,8,10,0) 66%, rgba(10,8,10,.48) 100%); }
-  .td-legenda{ position:fixed; top:calc(18px + env(safe-area-inset-top) + 46px); right:16px; z-index:1; font-size:10px; font-weight:800; color:#fff;
-    background:rgba(255,255,255,.16); backdrop-filter:blur(10px) saturate(160%); border:1px solid rgba(255,255,255,.25);
-    padding:4px 10px; border-radius:20px; text-shadow:0 1px 3px rgba(0,0,0,.3); }
-  .td-perfil-conteudo{ position:relative; z-index:1; }
-
-  #screen-perfil.td-vidro > .top-row{ position:relative; z-index:1; }
-  #screen-perfil.td-vidro > .top-row h1{ color:#fff; text-shadow:0 1px 8px rgba(0,0,0,.45); }
-  #screen-perfil.td-vidro > .top-row .top-icon-btn{ background:rgba(255,255,255,.16); backdrop-filter:blur(10px) saturate(160%);
-    border:1px solid rgba(255,255,255,.25); border-radius:12px; }
-  #screen-perfil.td-vidro > .top-row .top-icon-btn svg path{ color:#fff !important; }
-
-  #screen-perfil.td-vidro .profile-name h2, #screen-perfil.td-vidro .profile-name .handle{ color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.4); }
-  #screen-perfil.td-vidro .mini-stats-row .amigos-inline{ color:rgba(255,255,255,.9); text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  #screen-perfil.td-vidro .mini-stats-row .amigos-inline span{ color:#fff; }
-  #screen-perfil.td-vidro .edit-profile-btn{ background:rgba(255,255,255,.2); backdrop-filter:blur(10px) saturate(160%);
-    border:1px solid rgba(255,255,255,.28); color:#fff; }
-  #screen-perfil.td-vidro .bio-box{ color:rgba(255,255,255,.92); text-shadow:0 1px 5px rgba(0,0,0,.4); }
-  #screen-perfil.td-vidro .streak-chip{ background:rgba(255,255,255,.16); backdrop-filter:blur(10px) saturate(160%);
-    border:1px solid rgba(255,255,255,.25); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.3); }
-
-  #screen-perfil.td-vidro .composer{ background:rgba(255,255,255,.14); backdrop-filter:blur(16px) saturate(160%);
-    border:1px solid rgba(255,255,255,.22); box-shadow:0 10px 30px rgba(0,0,0,.18); }
-  #screen-perfil.td-vidro .composer textarea{ color:#fff; }
-  #screen-perfil.td-vidro .composer textarea::placeholder{ color:rgba(255,255,255,.6); }
-  #screen-perfil.td-vidro .privacy-toggle-mini{ color:rgba(255,255,255,.85); }
-  #screen-perfil.td-vidro .upload-foto-icon{ background:rgba(255,255,255,.2); color:#fff; }
-
-  #screen-perfil.td-vidro .diary-tab{ background:rgba(255,255,255,.14); backdrop-filter:blur(10px) saturate(160%);
-    border:1px solid rgba(255,255,255,.22); color:rgba(255,255,255,.75); }
-  #screen-perfil.td-vidro .diary-tab.on{ background:linear-gradient(135deg,var(--accent-a),var(--accent-b)); color:#fff; border-color:transparent; }
-
-  #screen-perfil.td-vidro .diary-entry{ background:rgba(255,255,255,.14); backdrop-filter:blur(16px) saturate(160%);
-    border:1px solid rgba(255,255,255,.22); box-shadow:0 10px 30px rgba(0,0,0,.18); }
-  #screen-perfil.td-vidro .diary-entry.fixado{ border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.2); }
-  #screen-perfil.td-vidro .diary-entry .tag{ color:rgba(255,235,215,.9); }
-  #screen-perfil.td-vidro .diary-entry .body{ color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.3); }
-  #screen-perfil.td-vidro .diary-entry .foot{ color:rgba(255,255,255,.65); }
-  #screen-perfil.td-vidro .post-action{ color:rgba(255,255,255,.75); }
-
 
   </style>
 </head>
@@ -808,13 +764,11 @@
         </button>
       </div>
 
-      <div class="td-fundo-perfil" id="tdFundoPerfilFull" style="display:none;">
+      <div class="td-banner" id="tdBannerPerfil" style="display:none;">
         <div class="td-cena" id="tdCenaPerfil"></div>
+        <div class="td-legenda" id="tdLegendaPerfil"></div>
       </div>
-      <div class="td-scrim-perfil" id="tdScrimPerfil" style="display:none;"></div>
-      <div class="td-legenda" id="tdLegendaPerfil" style="display:none;"></div>
 
-      <div class="td-perfil-conteudo" id="tdPerfilConteudo">
       <div class="profile-head">
         <div class="profile-avatar">A</div>
         <div class="profile-name"><h2 id="profNome">ana_art</h2><div class="handle" id="profHandle">@ana_art</div>
@@ -849,7 +803,6 @@
       </div>
       <div id="diaryList"></div>
       <div id="meuPerguntasArea" style="margin-top:16px;"></div>
-      </div>
     </div>
 
     <!-- OVERLAY: PERGUNTAS ANÔNIMAS PENDENTES -->
@@ -4509,13 +4462,8 @@ window.openNotifs = async function () {
   };
 
   function aplicarVisibilidadeBannerTema() {
-    const ativo = temaDinamicoAtivo;
-    ['tdFundoPerfilFull', 'tdScrimPerfil', 'tdLegendaPerfil'].forEach(function (id) {
-      const el = document.getElementById(id);
-      if (el) el.style.display = ativo ? '' : 'none';
-    });
-    const tela = document.getElementById('screen-perfil');
-    if (tela) tela.classList.toggle('td-vidro', ativo);
+    const banner = document.getElementById('tdBannerPerfil');
+    if (banner) banner.style.display = temaDinamicoAtivo ? '' : 'none';
   }
 
   function calcularCenaPorHorario() {
