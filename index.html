@@ -41,12 +41,12 @@
     --ink: #F2F2F2;
     --ink-dim: #A8A8A8;
     --ink-faint: #6E6E6E;
-    --accent-a: #5A5A5A;
-    --accent-b: #3A3A3A;
-    --accent-soft: #262626;
-    --pink: #B5B5B5;
-    --pink-soft: #242424;
-    --yellow: #C9C9C9;
+    --accent-a: #E08657;
+    --accent-b: #5CB3A4;
+    --accent-soft: #2E2418;
+    --pink: #E68686;
+    --pink-soft: #3A2624;
+    --yellow: #E0A83D;
     --shadow: 0 3px 14px rgba(0,0,0,0.5);
   }
 
@@ -160,9 +160,12 @@
   /* ---------- barra de navegação ---------- */
   .tabbar { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + 6px); left: 14px; right: 14px; background: var(--card); border: 1px solid var(--card-b);
     border-radius: 24px; display: flex; padding: 8px; gap: 4px; box-shadow: var(--shadow); z-index: 20; }
-  .tab-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  .tab-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative;
     padding: 9px 2px; border-radius: 18px; cursor: pointer; color: var(--ink-faint); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 10px;
     transition: background .25s ease, transform .15s ease, color .25s ease; }
+  .tab-badge { position: absolute; top: 5px; right: calc(50% - 19px); width: 9px; height: 9px; border-radius: 50%;
+    background: var(--pink); box-shadow: 0 0 0 2px var(--card); display: none; }
+  .tab-badge.on { display: block; }
   .tab-btn.active { background: linear-gradient(135deg, var(--accent-soft), var(--pink-soft)); color: var(--accent-a); }
   .tab-btn.active svg { color: var(--accent-a); }
   .tab-btn:active { transform: scale(0.9); }
@@ -173,6 +176,8 @@
   .card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; box-shadow: var(--shadow); }
 
   /* ---------- composer do feed ---------- */
+  .clima-chip { display: none; align-items: center; gap: 6px; width: fit-content; margin: 0 0 10px; padding: 6px 12px 6px 10px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-size: 12px; font-weight: 700; }
   .composer { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .composer textarea { width: 100%; border: none; background: none; resize: none; font-family: 'Nunito', sans-serif; font-size: 14px;
     color: var(--ink); min-height: 46px; outline: none; }
@@ -225,6 +230,16 @@
 .player-track { flex: 1; height: 6px; background: var(--card-b); border-radius: 999px; cursor: pointer; position: relative; overflow: hidden; }
 .player-track-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-a), var(--accent-b)); border-radius: 999px; }
 .player-time { font-size: 10px; color: var(--ink-dim); font-weight: 800; flex: none; }
+.voice-bubble-player { display: flex; align-items: center; gap: 8px; min-width: 150px; }
+.voice-bubble-player .player-play-btn { width: 28px; height: 28px; font-size: 10px; }
+.voice-bubble-player .player-track { height: 4px; }
+.dm-bubble.own .voice-bubble-player .player-play-btn { background: #fff; color: var(--accent-a); }
+.dm-bubble.own .voice-bubble-player .player-track { background: rgba(255,255,255,0.35); }
+.dm-bubble.own .voice-bubble-player .player-track-fill { background: #fff; }
+.dm-bubble.own .voice-bubble-player .player-time { color: rgba(255,255,255,0.85); }
+.sticker-bubble { font-size: 46px; line-height: 1; background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+.post-share-bubble { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; max-width: 220px !important; }
+.sticker-bubble .icon-svg { width: 46px; height: 46px; }
 
   /* ---------- posts no feed ---------- */
   .post { background: var(--card); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; margin-bottom: 6px; box-shadow: var(--shadow); }
@@ -326,6 +341,14 @@
   .visitor-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--card-b); }
   .visitor-row:last-child { border-bottom: none; }
   .visitor-lock-note { font-size: 10.5px; color: var(--ink-faint); text-align: center; margin-top: 10px; line-height: 1.5; }
+  .dm-empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; text-align: center; }
+  .dm-empty-state .icon-svg { opacity: 0.55; }
+  .dm-empty-state .titulo { font-weight: 800; font-size: 14px; color: var(--ink-dim); }
+  .dm-empty-state .sub { font-size: 11.5px; color: var(--ink-faint); line-height: 1.5; max-width: 220px; }
+  .dm-post-share { display: flex; flex-direction: column; gap: 6px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; max-width: 210px; }
+  .dm-post-share .autor { font-size: 11px; font-weight: 800; color: var(--accent-a); }
+  .dm-post-share .trecho { font-size: 12.5px; color: var(--ink); line-height: 1.4; }
+  .dm-post-share img { width: 100%; border-radius: 10px; display: block; margin-top: 2px; }
   .estado-vazio { text-align: center; padding: 40px 20px; }
   .estado-vazio svg { width: 70px; height: 70px; margin-bottom: 14px; opacity: 0.7; }
   .estado-vazio .titulo { font-family: 'Baloo 2', sans-serif; font-size: 15px; color: var(--ink); margin-bottom: 6px; }
@@ -511,6 +534,8 @@
     justify-content: center; font-size: 34px; }
   .livro-hero .titulo-livro { font-family: 'Baloo 2', sans-serif; font-size: 19px; color: var(--ink); line-height: 1.25; padding: 0 8px; }
   .livro-hero .autor-livro { font-size: 12px; color: var(--ink-faint); margin-top: 5px; font-weight: 700; }
+  .capa-vazia-mini { border-radius: 8px; box-shadow: var(--shadow); background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
   .livro-link-externo { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px;
     background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 12.5px; font-weight: 800;
     cursor: pointer; margin: 10px auto 0; }
@@ -616,10 +641,12 @@
         </div>
       </div>
 
+      <div id="climaWidget" class="clima-chip"></div>
       <div class="composer">
         <textarea id="composerText" placeholder="O que você quer compartilhar hoje?"></textarea>
         <img id="composerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
-        <input type="file" id="composerFotoInput" accept="image/*" onchange="previewFotoComposer()" style="display:none;" />
+        <input type="file" id="composerFotoInput" accept="image/*" onchange="previewFotoComposer(this)" style="display:none;" />
+        <input type="file" id="composerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposer(this)" style="display:none;" />
         <div class="type-chip-wrap"><div class="type-chip-row" id="typeChipRow"></div></div>
         <div class="ref-form" id="refForm">
           <div class="rf-label" id="refFormLabel">📎 anexar referência</div>
@@ -660,7 +687,7 @@
         </div>
         <div class="composer-foot">
           <div style="display:flex; align-items:center; gap:8px;">
-            <label for="composerFotoInput" class="upload-foto-icon"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
+            <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('composer')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
             <div class="privacy-toggle-mini" onclick="toggleComposerPrivado()">
               <span id="composerPrivIcon">🌍</span> <span id="composerPrivLabel">Compartilhável</span>
             </div>
@@ -691,7 +718,12 @@
     <!-- LIVROS -->
     <div class="screen" id="screen-livros">
       <div class="top-row"><h1>📖 Livros</h1></div>
-      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaLivrosInput" class="busca-input" placeholder="Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" /></div>
+      <div class="feed-modo-row" style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+        <div class="feed-modo-chip on" data-modo-livros="clube" onclick="trocarModoLivros('clube')">👥 clube do livro</div>
+        <div class="feed-modo-chip" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')">📚 livros gratuitos</div>
+        <div class="feed-modo-chip" data-modo-livros="estante" onclick="trocarModoLivros('estante')">🗂️ minha estante</div>
+      </div>
+      <div class="busca-wrap" id="buscaLivrosWrap" style="display:none;"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaLivrosInput" class="busca-input" placeholder="Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" /></div>
       <div id="livrosList"></div>
     </div>
 
@@ -732,10 +764,11 @@
       <div class="composer" style="margin:14px 0;">
         <textarea id="perfilComposerText" placeholder="Escreva uma anotação..."></textarea>
         <img id="perfilComposerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
-        <input type="file" id="perfilComposerFotoInput" accept="image/*" onchange="previewFotoComposerPerfil()" style="display:none;" />
+        <input type="file" id="perfilComposerFotoInput" accept="image/*" onchange="previewFotoComposerPerfil(this)" style="display:none;" />
+        <input type="file" id="perfilComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerPerfil(this)" style="display:none;" />
         <div class="composer-foot">
           <div style="display:flex; align-items:center; gap:8px;">
-            <label for="perfilComposerFotoInput" class="upload-foto-icon"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
+            <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('perfil')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
             <div class="privacy-toggle-mini" onclick="togglePerfilPrivado()">
               <span id="perfilPrivIcon">🌍</span> <span id="perfilPrivLabel">Compartilhável</span>
             </div>
@@ -868,8 +901,9 @@
       </div>
             <div style="text-align:center; margin:10px 0;">
         <img id="editAvatarPreview" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:none; margin-bottom:8px;" />
-        <label for="editAvatarInput" class="upload-foto-icon" style="margin:0 auto; display:flex;"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
-      <input type="file" id="editAvatarInput" accept="image/*" onchange="previewAvatarEscolhido()" style="display:none;" />
+        <span class="upload-foto-icon" style="margin:0 auto; display:flex; cursor:pointer;" onclick="abrirEscolherFoto('avatar')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
+      <input type="file" id="editAvatarInput" accept="image/*" onchange="previewAvatarEscolhido(this)" style="display:none;" />
+      <input type="file" id="editAvatarInputCamera" accept="image/*" capture="environment" onchange="previewAvatarEscolhido(this)" style="display:none;" />
       </div>
       <div class="edit-field-label">Nome</div>
       <input type="text" id="editNomeInput" class="busca-input" />
@@ -880,6 +914,143 @@
       <div class="edit-field-label">Seu gênero <span style="font-weight:400; color:var(--ink-faint);">(usado só pro Match)</span></div>
       <div id="generoGrid" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;"></div>
       <button class="post-btn" id="btnSalvarPerfil" style="width:100%; margin-top:14px; padding:12px;" onclick="salvarPerfil()">Salvar</button>
+    </div>
+
+    <!-- OVERLAY: CRIAR CLUBE DO LIVRO -->
+    <div class="dm-chat-overlay" id="criarClubeOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('criarClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Criar clube do livro</h2>
+      </div>
+      <div class="edit-field-label">Nome do clube</div>
+      <input type="text" id="criarClubeNome" class="busca-input" placeholder="ex: Clube das Quintas" />
+      <div class="edit-field-label">Descrição (opcional)</div>
+      <textarea id="criarClubeDesc" class="edit-bio-textarea" placeholder="sobre o que é esse clube..."></textarea>
+      <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim);">
+        <input type="checkbox" id="criarClubePrivado" /> clube privado (só quem você convidar)
+      </label>
+      <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovoClube()">Criar clube</button>
+    </div>
+
+    <!-- OVERLAY: DETALHE DO CLUBE -->
+    <div class="dm-chat-overlay" id="clubeDetalheOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="fecharClubeDetalhe()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;" id="clubeDetalheTitulo">Clube</h2>
+      </div>
+      <div id="clubeDetalheLivroAtual" style="display:flex; gap:12px; align-items:center; margin-bottom:10px;"></div>
+      <div id="clubeDetalheMeta" style="margin-bottom:10px;"></div>
+      <div id="clubeDetalheAcoes" style="margin-bottom:16px;"></div>
+
+      <div id="clubeDetalheFerramentas" style="margin-bottom:16px;"></div>
+
+      <div class="edit-field-label">Discussão</div>
+      <div id="clubeDetalheComposerWrap" style="margin-bottom:10px;">
+        <textarea id="clubeComposerText" class="edit-bio-textarea" placeholder="o que você achou até aqui?" style="min-height:60px;"></textarea>
+        <input type="text" id="clubeComposerCapitulo" class="busca-input" placeholder="até onde você leu? (opcional, ex: cap. 5)" style="margin-top:8px;" />
+        <label style="display:flex; align-items:center; gap:8px; margin:10px 0 0; cursor:pointer; font-size:12.5px; color:var(--ink-dim);">
+          <input type="checkbox" id="clubeComposerSpoiler" /> ⚠️ esse post tem spoiler
+        </label>
+        <button class="post-btn" style="width:100%; padding:10px; margin-top:8px;" onclick="publicarNoMuralClube()">Publicar</button>
+      </div>
+      <div id="clubeDetalheMural" style="overflow-y:auto; flex:1;"></div>
+    </div>
+
+    <!-- OVERLAY: BUSCAR LIVRO GUIA (GOOGLE) PRO CLUBE -->
+    <div class="dm-chat-overlay" id="buscaLivroClubeOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('buscaLivroClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;" id="buscaLivroClubeTitulo">Definir livro atual</h2>
+      </div>
+      <input type="text" id="buscaGuiaClubeInput" class="busca-input" placeholder="Buscar por título ou autor..." oninput="aoDigitarGuiaClube()" style="margin-bottom:12px;" />
+      <div id="guiaClubeResultados" style="overflow-y:auto; flex:1;"></div>
+    </div>
+
+    <!-- OVERLAY: CONVIDAR PRO CLUBE -->
+    <div class="dm-chat-overlay" id="compartilharClubeOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('compartilharClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Convidar pro clube</h2>
+      </div>
+      <div class="bio-box" id="compartilharClubeResumo" style="margin-bottom:16px;"></div>
+      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharClubeWhatsapp()">📱 WhatsApp</button>
+      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharClubeTelegram()">✈️ Telegram</button>
+      <button class="post-btn" style="width:100%;" onclick="compartilharClubeCopiar()">🔗 Copiar link</button>
+      <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
+    </div>
+
+    <!-- OVERLAY: ENVIAR EPUB PRA ESTANTE -->
+    <div class="dm-chat-overlay" id="uploadEpubOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('uploadEpubOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Enviar epub pra estante</h2>
+      </div>
+      <div class="edit-field-label">Arquivo (.epub)</div>
+      <input type="file" id="uploadEpubInput" accept=".epub" onchange="escolherArquivoEpub()" class="busca-input" />
+      <div class="edit-field-label">Título</div>
+      <input type="text" id="uploadEpubTitulo" class="busca-input" />
+      <div class="edit-field-label">Autor (opcional)</div>
+      <input type="text" id="uploadEpubAutor" class="busca-input" />
+      <button class="post-btn" id="btnEnviarEpub" style="width:100%; padding:12px; margin-top:14px;" onclick="enviarEpub()">Enviar</button>
+      <div class="discover-desc" style="margin-top:10px; opacity:.7;">seus arquivos ficam privados — só você consegue ler.</div>
+    </div>
+
+    <!-- OVERLAY: LEITOR DE EPUB -->
+    <div class="dm-chat-overlay" id="leitorEpubOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="fecharLeitorEpub()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;" id="leitorEpubTitulo">Lendo</h2>
+        <span id="leitorEpubProgresso" style="margin-left:auto; font-size:12px; color:var(--ink-faint);">0%</span>
+      </div>
+      <div id="epubViewerContainer" style="flex:1; overflow:hidden; position:relative;"></div>
+      <div id="grifarBarra" style="display:none; align-items:center; justify-content:center; gap:8px; padding:8px 4px;">
+        <button class="livro-link-externo" style="margin:0;" onclick="grifarSelecaoAtual()">🖍️ grifar esse trecho</button>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px 4px; gap:10px;">
+        <button class="post-btn" style="flex:1;" onclick="paginaAnteriorEpub()">← anterior</button>
+        <button class="post-btn" style="flex:1;" onclick="proximaPaginaEpub()">próxima →</button>
+      </div>
+    </div>
+
+    <!-- OVERLAY: CARTÃO DE CITAÇÃO -->
+    <div class="dm-chat-overlay" id="citacaoCartaoOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('citacaoCartaoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Cartão de citação</h2>
+      </div>
+      <div class="edit-field-label">Trecho do livro</div>
+      <textarea id="citacaoTextoInput" class="edit-bio-textarea" placeholder="cole ou escreva o trecho que você quer guardar..." style="min-height:90px;"></textarea>
+      <div class="edit-field-label">Título do livro</div>
+      <input type="text" id="citacaoTituloInput" class="busca-input" />
+      <div class="edit-field-label">Autor</div>
+      <input type="text" id="citacaoAutorInput" class="busca-input" />
+      <button class="post-btn" style="width:100%; padding:12px; margin-top:10px;" onclick="gerarCartaoCitacao()">Gerar cartão</button>
+      <canvas id="citacaoCanvas" width="600" height="750" style="display:none; width:100%; border-radius:14px; margin-top:14px; box-shadow:var(--shadow);"></canvas>
+      <div id="citacaoAcoes" style="display:none; flex-direction:column; gap:10px; margin-top:12px;">
+        <div style="display:flex; gap:10px;">
+          <button class="post-btn" style="flex:1; padding:11px;" onclick="baixarCartaoCitacao()">baixar</button>
+          <button class="post-btn" style="flex:1; padding:11px;" onclick="compartilharCartaoCitacaoExterno()">compartilhar fora</button>
+        </div>
+        <button class="livro-link-externo" style="margin:0; justify-content:center;" onclick="compartilharCartaoCitacaoFeed()">postar pros amigos no feed</button>
+      </div>
+    </div>
+
+    <!-- OVERLAY: RESUMO DE LEITURA (estilo "wrapped") -->
+    <div class="dm-chat-overlay" id="resumoLeituraOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('resumoLeituraOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Resumo de leitura</h2>
+      </div>
+      <div class="feed-modo-row" style="margin-bottom:12px;">
+        <div class="feed-modo-chip on" data-periodo-resumo="mes" onclick="trocarPeriodoResumoLeitura('mes')">este mês</div>
+        <div class="feed-modo-chip" data-periodo-resumo="ano" onclick="trocarPeriodoResumoLeitura('ano')">este ano</div>
+      </div>
+      <button class="post-btn" style="width:100%; padding:12px;" onclick="gerarResumoLeitura()">Gerar resumo</button>
+      <canvas id="resumoLeituraCanvas" width="600" height="750" style="display:none; width:100%; border-radius:14px; margin-top:14px; box-shadow:var(--shadow);"></canvas>
+      <div id="resumoLeituraAcoes" style="display:none; gap:10px; margin-top:12px;">
+        <button class="post-btn" style="flex:1; padding:11px;" onclick="baixarResumoLeitura()">baixar</button>
+        <button class="post-btn" style="flex:1; padding:11px;" onclick="compartilharResumoLeituraFeed()">postar no feed</button>
+      </div>
     </div>
 
     <!-- OVERLAY: COMENTÁRIOS -->
@@ -952,8 +1123,25 @@
       <div class="write-popup" style="position:relative;">
         <button class="write-popup-close" onclick="fecharCompartilhar()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 16 8"/><path d="M9.5 8H16v6.5"/></svg></span></span><span class="write-popup-title">Compartilhar</span></div>
-        <div class="share-option" onclick="repostarNoFeed()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/></svg></span> Repostar no meu feed</div>
-        <div class="share-option" onclick="copiarLink()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/></svg></span> Copiar link</div>
+        <div id="compartilharOpcoesPrincipais">
+          <div class="share-option" onclick="repostarNoFeed()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/></svg></span> Repostar no meu feed</div>
+          <div class="share-option" onclick="abrirEnviarParaAmigo()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.3s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/></svg></span> Enviar pra um amigo</div>
+          <div class="share-option" onclick="copiarLink()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/></svg></span> Compartilhar fora do app</div>
+        </div>
+        <div id="compartilharAmigosPicker" style="display:none;">
+          <div class="share-option" onclick="fecharPickerAmigos()" style="margin-bottom:8px;"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span> Voltar</div>
+          <div id="compartilharAmigosLista" style="max-height:260px; overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POP-UP: ESCOLHER FOTO (câmera x galeria) — reusado em todo lugar que tem o ícone de câmera -->
+    <div class="write-popup-bg" id="escolherFotoPopupBg">
+      <div class="write-popup" style="position:relative;">
+        <button class="write-popup-close" onclick="fecharEscolherFoto()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span><span class="write-popup-title">Adicionar foto</span></div>
+        <div class="share-option" onclick="dispararFotoGlobal('camera')">📷 Tirar foto</div>
+        <div class="share-option" onclick="dispararFotoGlobal('galeria')">🖼️ Escolher da galeria</div>
       </div>
     </div>
 
@@ -1020,10 +1208,16 @@
       <div id="gifPickerArea" style="display:none; padding:8px 0;">
         <div id="resultadosGif" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; max-height:220px; overflow-y:auto;" onscroll="checarScrollGif(this)"></div>
       </div>
-            <div class="dm-input-row">
+            <div id="stickerPickerArea" style="display:none; padding:8px 0;">
+        <div id="resultadosSticker" style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-height:160px; overflow-y:auto;"></div>
+      </div>
+      <div class="dm-input-row">
         <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleGifPicker()">GIF</button>
-        <label for="dmFotoInput" class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></label>
-        <input type="file" id="dmFotoInput" accept="image/*" onchange="enviarFotoDm()" style="display:none;" />
+        <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleStickerPicker()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.2s;animation-delay:0.4s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 8.2c-.6-2.5 1.3-4.4 3.8-3.9 2.6-1.7 5.9-.7 6.7 2 2.7.3 4 3.3 2.2 5.5-.4 2.7-3.3 4-5.5 2.7-2.6 1.1-5.3-.9-5.1-3.7-2.4-.7-3.4-3.4-1.5-5.2Z"/><path d="M14.6 14.1c.2 1.8 1.7 2.9 3.4 2.5"/></svg></span></button>
+        <span class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="abrirEscolherFoto('dm')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
+        <input type="file" id="dmFotoInput" accept="image/*" onchange="enviarFotoDm(this)" style="display:none;" />
+        <input type="file" id="dmFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoDm(this)" style="display:none;" />
+        <button class="dm-send-btn" id="btnGravarAudio" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudio()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.4s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
         <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" />
         <button class="dm-send-btn" onclick="enviarDmMsg()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
       </div>
@@ -1133,6 +1327,7 @@
         Livros
       </button>
       <button class="tab-btn" data-screen="mensagens" onclick="showScreen2('mensagens')">
+        <span class="tab-badge" id="msgTabBadge"></span>
         <svg viewBox="0 0 24 24" fill="none"><path d="M4.2,6.3 C7.5,5.3 16.8,5.6 19,7 C20,9.6 19.6,13.3 18.8,15.3 C15,16.2 10.3,15.8 8.2,15.6 L4.3,19.4 L5.2,15.2 C4.1,12 4.4,8.6 4.2,6.3 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         Mensagens
       </button>
@@ -1150,6 +1345,20 @@
   const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:3001'
     : 'https://atomo-app.onrender.com'; // servidor.js rodando no Render
+
+  // ---------- convite de clube por link (?clube=<id> na URL) ----------
+  // guarda no localStorage (sobrevive a reload e a trocar de aba, ex: confirmar
+  // e-mail de cadastro) e limpa a URL pra ficar bonitinha
+  (function guardarConviteClubeDaUrl() {
+    const params = new URLSearchParams(location.search);
+    const idConvite = params.get('clube');
+    if (idConvite) {
+      localStorage.setItem('atomoConviteClube', JSON.stringify({ id: idConvite, quando: Date.now() }));
+      params.delete('clube');
+      const novaUrl = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
+      history.replaceState(null, '', novaUrl);
+    }
+  })();
 
   // ---------- paleta de icones (thin-line, com flutuacao lenta) ----------
   const ICONE_SVG = {
@@ -1179,7 +1388,17 @@
     setaCima: '<path d="M12 20V7"/><path d="M8 11l4-4 4 4"/>',
     atualizando: '<path d="M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.2 4.2v3.3h-3.3"/><path d="M6.8 19.8v-3.3h3.3"/>',
     curtir: '<path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/>',
-    comentar: '<path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/>'
+    comentar: '<path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/>',
+    livro: '<path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/>',
+    pessoas: '<circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/>',
+    microfone: '<path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/>',
+    sticker: '<path d="M4.4 8.2c-.6-2.5 1.3-4.4 3.8-3.9 2.6-1.7 5.9-.7 6.7 2 2.7.3 4 3.3 2.2 5.5-.4 2.7-3.3 4-5.5 2.7-2.6 1.1-5.3-.9-5.1-3.7-2.4-.7-3.4-3.4-1.5-5.2Z"/><path d="M14.6 14.1c.2 1.8 1.7 2.9 3.4 2.5"/>',
+    sol: '<circle cx="12" cy="12.2" r="4.1"/><path d="M12 3.6v2.3M12 18.3v2.3M4.8 12h2.3M16.9 12h2.3M6.9 6.9l1.6 1.6M15.5 15.5l1.6 1.6M6.9 17.3l1.6-1.6M15.5 8.7l1.6-1.6"/>',
+    nublado: '<path d="M7.4 17.3a4 4 0 0 1-.4-8 5.3 5.3 0 0 1 10.2-1.5A4.1 4.1 0 0 1 17 17.3Z"/>',
+    chuva: '<path d="M7 13.6a3.7 3.7 0 0 1-.4-7.3A5 5 0 0 1 16 4.5a3.8 3.8 0 0 1-.6 7.6Z"/><path d="M8.3 16.8l-1 2.3M11.8 16.8l-1 2.3M15.3 16.8l-1 2.3"/>',
+    tempestade: '<path d="M7 12.6a3.7 3.7 0 0 1-.4-7.3A5 5 0 0 1 16 3.5a3.8 3.8 0 0 1-.6 7.6Z"/><path d="M12.3 12.4l-2.6 4.3h2.6L9.9 20.9"/>',
+    neve: '<path d="M7 13.6a3.7 3.7 0 0 1-.4-7.3A5 5 0 0 1 16 4.5a3.8 3.8 0 0 1-.6 7.6Z"/><path d="M9 17.3v.01M12.2 18.7v.01M15.4 17.3v.01M9 20.4v.01M15.4 20.4v.01"/>',
+    nevoeiro: '<path d="M4.5 9.5h15M4.5 13h10.5M4.5 16.5h15"/>'
   };
   function icone(nome, tamanho, seed, cor) {
     tamanho = tamanho || 16;
@@ -1260,6 +1479,7 @@ async function carregarPostsReais() {
     .from('posts')
     .select('*, usuarios(handle, avatar_url)')
     .eq('privado', false)
+    .is('clube_id', null)
     .order('criado_em', { ascending: false });
 
   if (error) { console.log('erro ao carregar posts:', error.message); return; }
@@ -1296,10 +1516,21 @@ async function carregarPostsReais() {
   });
 
   renderFeed();
+
+  // feed com poucos posts de amigos: completa os espaços com conteúdo curado do Descobrir (busca só 1x)
+  if (feedPosts.length < LIMIAR_PREENCHIMENTO_FEED && !itensPreenchimentoFeed.length) {
+    try {
+      const itens = await buscarPaginaDescobrir(1);
+      itensPreenchimentoFeed = ordenarItensDescobrir(itens);
+      if (itensPreenchimentoFeed.length) renderFeed();
+    } catch (e) { console.log('erro ao preencher feed com descobrir:', e.message); }
+  }
 }
 // feed posts // 
 
  let feedPosts = [];
+ let itensPreenchimentoFeed = [];
+ const LIMIAR_PREENCHIMENTO_FEED = 6; // abaixo disso, o feed passa a completar os espaços com conteúdo do Descobrir
 
   let diaryEntries = {
     publico: [
@@ -1381,10 +1612,39 @@ async function subirFotoParaStorage(usuarioId, arquivo) {
   return data.publicUrl;
 }
 
+// ---------- escolher foto: câmera ou galeria ----------
+// no Android moderno, um <input type=file accept="image/*"> simples abre direto
+// o seletor de fotos do sistema (photo picker) SEM opção de câmera — diferente do
+// iOS, que já mostra "Tirar foto" e "Biblioteca de fotos" nativamente. Por isso
+// cada ponto do app que tem o ícone de câmera oferece essa escolha explícita, com
+// dois inputs escondidos (um normal, um com capture="environment").
+const MAPA_FOTO_INPUTS = {
+  composer: { galeria: 'composerFotoInput', camera: 'composerFotoInputCamera' },
+  perfil: { galeria: 'perfilComposerFotoInput', camera: 'perfilComposerFotoInputCamera' },
+  avatar: { galeria: 'editAvatarInput', camera: 'editAvatarInputCamera' },
+  dm: { galeria: 'dmFotoInput', camera: 'dmFotoInputCamera' },
+};
+let fotoOrigemAtual = null;
+
+window.abrirEscolherFoto = function (origem) {
+  fotoOrigemAtual = origem;
+  document.getElementById('escolherFotoPopupBg').classList.add('show');
+};
+window.fecharEscolherFoto = function () {
+  document.getElementById('escolherFotoPopupBg').classList.remove('show');
+};
+window.dispararFotoGlobal = function (tipo) {
+  fecharEscolherFoto();
+  const mapa = MAPA_FOTO_INPUTS[fotoOrigemAtual];
+  if (!mapa) return;
+  const input = document.getElementById(tipo === 'camera' ? mapa.camera : mapa.galeria);
+  if (input) { input.value = ''; input.click(); }
+};
+
 let arquivoFotoComposer = null;
 
-window.previewFotoComposer = function () {
-  const input = document.getElementById('composerFotoInput');
+window.previewFotoComposer = function (el) {
+  const input = el || document.getElementById('composerFotoInput');
   if (!input.files || !input.files[0]) return;
   arquivoFotoComposer = input.files[0];
 
@@ -1399,8 +1659,8 @@ async function subirFotoPost(usuarioId) {
 
 let arquivoFotoComposerPerfil = null;
 
-window.previewFotoComposerPerfil = function () {
-  const input = document.getElementById('perfilComposerFotoInput');
+window.previewFotoComposerPerfil = function (el) {
+  const input = el || document.getElementById('perfilComposerFotoInput');
   if (!input.files || !input.files[0]) return;
   arquivoFotoComposerPerfil = input.files[0];
 
@@ -1575,7 +1835,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         .sort((a, b) => b.score - a.score);
     }
 
-   document.getElementById('feedList').innerHTML = lista.map(({ post: p, i, relevante }) => {
+    const postsHtml = lista.map(({ post: p, i, relevante }) => {
       const ehMeu = p.autor_id === window.MEU_USUARIO_ID;
       const conteudoPost = `
       <div class="post">
@@ -1604,7 +1864,47 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
             ${conteudoPost}
           </div>`
         : conteudoPost;
-    }).join('');
+    });
+
+    const deveCompletar = feedPosts.length < LIMIAR_PREENCHIMENTO_FEED && itensPreenchimentoFeed.length > 0;
+    // não despeja tudo que o Descobrir trouxe — só o suficiente pra chegar num feed de tamanho normal
+    const qtdCurados = Math.max(0, LIMIAR_PREENCHIMENTO_FEED - feedPosts.length);
+    const curadosParaMostrar = itensPreenchimentoFeed.slice(0, qtdCurados);
+    const listaFinal = deveCompletar
+      ? intercalarPreenchimentoFeed(postsHtml, curadosParaMostrar.map((d, i) => cardPreenchimentoFeedHtml(d, i)))
+      : postsHtml;
+
+    document.getElementById('feedList').innerHTML = listaFinal.join('');
+  }
+
+  // intercala conteúdo curado do Descobrir entre os posts de amigos, pra o feed nunca ficar vazio
+  function intercalarPreenchimentoFeed(postsHtml, curadosHtml) {
+    if (!curadosHtml.length) return postsHtml;
+    if (!postsHtml.length) return curadosHtml;
+    const resultado = [];
+    const A_CADA = 2; // 1 item curado a cada 2 posts de amigo
+    let cIdx = 0;
+    postsHtml.forEach((html, i) => {
+      resultado.push(html);
+      if ((i + 1) % A_CADA === 0 && cIdx < curadosHtml.length) { resultado.push(curadosHtml[cIdx]); cIdx++; }
+    });
+    while (cIdx < curadosHtml.length) { resultado.push(curadosHtml[cIdx]); cIdx++; }
+    return resultado;
+  }
+
+  function cardPreenchimentoFeedHtml(d, i) {
+    return `
+      <div class="discover-card ${d.destaque ? 'discover-card-destaque' : ''}">
+        <span class="discover-kind">${d.kind}</span>
+        ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; border-radius:12px; margin:8px 0; display:block;">` : ''}
+        <div class="discover-title">${d.title}</div>
+        <div class="discover-desc">${d.desc}</div>
+        ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewPreenchimentoFeed(${i})">▶ prévia</div>` : ''}
+        <div class="post-actions" style="margin-top:10px;">
+          <div class="post-action" onclick="comentarPreenchimentoFeed(${i})">💬 comentar</div>
+          <div class="post-action" onclick="compartilharPreenchimentoFeed(${i})">${icone('compartilhar',14,i)} compartilhar</div>
+        </div>
+      </div>`;
   }
 
   let denunciaPendente = null;
@@ -1741,6 +2041,17 @@ window.swipeFinalizar = function (e, postId) {
   renderDiary();
 };
 
+  // dispara push pro evento (curtida/comentário/seguidor/mensagem) chamando o
+  // servidor — silencioso se falhar (nunca pode travar a ação principal do usuário)
+  function notificarPushEvento(destinatarioId, tipo, dados) {
+    if (!destinatarioId || destinatarioId === window.MEU_USUARIO_ID) return;
+    fetch(`${API_BASE}/api/push/notificar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId: destinatarioId, tipo, dados: Object.assign({ de: window.MEU_HANDLE || 'alguém' }, dados || {}) }),
+    }).catch(() => {});
+  }
+
   window.curtirPost = async function (i, evt) {
   
     if (navigator.vibrate) navigator.vibrate(15); 
@@ -1786,6 +2097,8 @@ window.swipeFinalizar = function (e, postId) {
     post.likes = (post.likes || 0) + (jaCurtia ? 1 : -1);
     renderFeed();
     mostrarToast('❌ erro ao curtir: ' + erro.message);
+  } else if (!jaCurtia) {
+    notificarPushEvento(post.autor_id, 'curtida', {});
   }
 };
 
@@ -1874,6 +2187,7 @@ if (p.autor_id !== sessionData.session.user.id) {
         subtitulo: texto.slice(0, 60),
         post_id: p.id,
       });
+      notificarPushEvento(p.autor_id, 'comentario', { texto });
     }
   }
 
@@ -1888,17 +2202,63 @@ if (p.autor_id !== sessionData.session.user.id) {
   let compartilharPostIdx = null;
   window.abrirCompartilhar = function (i) {
     compartilharPostIdx = i;
+    document.getElementById('compartilharOpcoesPrincipais').style.display = 'block';
+    document.getElementById('compartilharAmigosPicker').style.display = 'none';
     document.getElementById('compartilharPopupBg').classList.add('show');
   };
   window.fecharCompartilhar = function () {
     document.getElementById('compartilharPopupBg').classList.remove('show');
   };
-  window.repostarNoFeed = function () {
-    const original = feedPosts[compartilharPostIdx];
-    feedPosts.unshift({ autor: 'ana_art', iniciais: 'A', tipo: original.tipo, texto: `🔁 repostou de @${original.autor}: "${original.texto}"`, tempo: 'agora', likes: 0, curtiu: false, comentarios: [], ref: original.ref || null });
-    renderFeed();
+  window.fecharPickerAmigos = function () {
+    document.getElementById('compartilharAmigosPicker').style.display = 'none';
+    document.getElementById('compartilharOpcoesPrincipais').style.display = 'block';
+  };
+  window.abrirEnviarParaAmigo = function () {
+    const lista = (SEGUINDO || []);
+    document.getElementById('compartilharOpcoesPrincipais').style.display = 'none';
+    document.getElementById('compartilharAmigosPicker').style.display = 'block';
+    const wrap = document.getElementById('compartilharAmigosLista');
+    wrap.innerHTML = lista.length
+      ? lista.map(a => `<div class="dm-list-row" onclick="enviarPostParaAmigo('${a.id}')"><div class="friend-avatar">${a.iniciais}</div><div class="dm-preview"><div class="n">@${a.nome}</div></div></div>`).join('')
+      : `<div class="visitor-lock-note">Você ainda não segue ninguém — segue alguém primeiro pra poder mandar posts 💬</div>`;
+  };
+  window.enviarPostParaAmigo = async function (amigoId) {
+    const post = feedPosts[compartilharPostIdx];
+    if (!post) return;
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session.user.id;
+    const conversaId = await encontrarOuCriarConversa(amigoId, meuId);
+    if (!conversaId) { mostrarToast('❌ erro ao enviar'); return; }
+    const payload = JSON.stringify({ texto: post.texto, autor: post.autor, tipo: post.tipo, imagem_url: post.imagem_url || null });
+    const { error } = await supabaseClient.from('mensagens').insert({ conversa_id: conversaId, autor_id: meuId, texto: payload, tipo_conteudo: 'post' });
+    if (error) { mostrarToast('❌ erro ao enviar: ' + error.message); return; }
     fecharCompartilhar();
+    mostrarToast('📤 Post enviado!');
+    notificarPushEvento(amigoId, 'mensagem', {});
+  };
+  window.repostarNoFeed = async function () {
+    const original = feedPosts[compartilharPostIdx];
+    if (!original) return;
+    fecharCompartilhar();
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session.user.id;
+    const { error } = await supabaseClient.from('posts').insert({
+      autor_id: meuId,
+      texto: `🔁 repostou de @${original.autor}: "${original.texto}"`,
+      tipo: original.tipo,
+      privado: false,
+      imagem_url: original.imagem_url || null,
+      ref_titulo: original.ref ? original.ref.titulo : null,
+      ref_autor: original.ref ? original.ref.autor : null,
+      ref_citacao: original.ref ? original.ref.citacao : null,
+      ref_trailer: original.ref ? original.ref.trailer : null,
+      ref_livro_id: original.ref ? original.ref.livroId : null,
+      ref_filme_id: original.ref ? original.ref.filmeId : null,
+      ref_capa: original.ref ? original.ref.capa : null,
+    });
+    if (error) { mostrarToast('❌ erro ao repostar: ' + error.message); return; }
     mostrarToast('🔁 Repostado no seu feed');
+    carregarPostsReais();
   };
   window.copiarLink = async function () {
     const post = feedPosts[compartilharPostIdx];
@@ -1941,6 +2301,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     .select('*')
     .eq('autor_id', sessionData.session.user.id)
     .eq('privado', diaryTabAtiva === 'privado')
+    .is('clube_id', null)
     .order('fixado', { ascending: false })
     .order('criado_em', { ascending: false });
 
@@ -2404,7 +2765,7 @@ window.abrirPerfilAlheio = async function (autorId) {
   document.getElementById('perfilAlheioSeguindoCount').textContent = countSeguindo || 0;
 
   const { data: posts } = await supabaseClient
-    .from('posts').select('*').eq('autor_id', autorId).eq('privado', false)
+    .from('posts').select('*').eq('autor_id', autorId).eq('privado', false).is('clube_id', null)
     .order('criado_em', { ascending: false });
 
   document.getElementById('perfilAlheioPosts').innerHTML = (posts && posts.length)
@@ -2466,6 +2827,7 @@ async function notificarNovoSeguidor(seguidoId, seguidorId) {
     titulo: 'Novo seguidor',
     subtitulo: euUsuario ? `@${euUsuario.handle} começou a te seguir` : 'Alguém começou a te seguir',
   });
+  notificarPushEvento(seguidoId, 'seguidor', {});
 }
 
 // ---------- perguntas anônimas ----------
@@ -2739,6 +3101,48 @@ window.tocarPreviewDescobrir = async function (i) {
   }
 };
 
+// ---------- mesmas ações, mas pros itens curados usados pra preencher o Feed (array separado do Descobrir) ----------
+window.comentarPreenchimentoFeed = function (i) {
+  discoverPendenteReal = itensPreenchimentoFeed[i];
+  abrirWritePopup('💬', 'O que você achou?', discoverPendenteReal.title + ' — seu comentário vai pro feed');
+};
+
+window.compartilharPreenchimentoFeed = async function (i) {
+  const item = itensPreenchimentoFeed[i];
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+
+  const textoCompleto = `↗ compartilhou de Descobrir — ${item.title}${item.desc ? `
+
+${item.desc}` : ''}`;
+
+  await supabaseClient.from('posts').insert({
+    autor_id: sessionData.session.user.id,
+    texto: textoCompleto,
+    tipo: 'Assunto',
+    privado: false,
+    imagem_url: item.imagemUrl || null,
+  });
+
+  mostrarToast('↗ Compartilhado no seu feed');
+  carregarPostsReais();
+};
+
+window.tocarPreviewPreenchimentoFeed = async function (i) {
+  const item = itensPreenchimentoFeed[i];
+  if (item.previewUrl) {
+    abrirTrailerPopup(item.previewUrl, 'Música');
+  } else if (item.filmeId) {
+    const resp = await fetch(`${API_BASE}/api/filme-trailer?id=${item.filmeId}`);
+    const dados = await resp.json();
+    if (dados.url) abrirTrailerPopup(dados.url, 'Filme');
+  } else if (item.collectionId) {
+    const resp = await fetch(`${API_BASE}/api/podcast-episodio?id=${item.collectionId}`);
+    const dados = await resp.json();
+    if (dados.url) abrirTrailerPopup(dados.url, 'Podcast');
+  }
+};
+
+
 window.buscarPreviaFilmePost = async function (filmeId, tipo) {
   const resp = await fetch(`${API_BASE}/api/filme-trailer?id=${filmeId}`);
   const dados = await resp.json();
@@ -2961,8 +3365,8 @@ window.sairDaConta = async function () {
   };
   let arquivoAvatarEscolhido = null;
 
-window.previewAvatarEscolhido = function () {
-  const input = document.getElementById('editAvatarInput');
+window.previewAvatarEscolhido = function (el) {
+  const input = el || document.getElementById('editAvatarInput');
   if (!input.files || !input.files[0]) return;
   arquivoAvatarEscolhido = input.files[0];
 
@@ -3069,6 +3473,20 @@ window.trocarModoDescobrir = function (modo) {
 };
 
   // ---------- aba própria: livros ----------
+  let modoLivrosAtivo = 'clube';
+  window.trocarModoLivros = function (modo) {
+    modoLivrosAtivo = modo;
+    document.querySelectorAll('.feed-modo-chip[data-modo-livros]').forEach(c => c.classList.toggle('on', c.dataset.modoLivros === modo));
+    document.getElementById('buscaLivrosWrap').style.display = modo === 'gratuitos' ? 'flex' : 'none';
+    renderLivrosAtual();
+  };
+
+  window.renderLivrosAtual = function () {
+    if (modoLivrosAtivo === 'clube') return renderClubes();
+    if (modoLivrosAtivo === 'estante') return renderEstante();
+    return renderLivros();
+  };
+
   let termoBuscaLivros = '';
   let debounceBuscaLivros = null;
   window.aoDigitarBuscaLivros = function () {
@@ -3077,6 +3495,489 @@ window.trocarModoDescobrir = function (modo) {
       termoBuscaLivros = document.getElementById('buscaLivrosInput').value.trim();
       renderLivros();
     }, 400);
+  };
+
+  // ---------- clube do livro ----------
+  window.ITENS_CLUBES_ATUAIS = [];
+
+  async function renderClubes() {
+    const lista = document.getElementById('livrosList');
+    lista.innerHTML = skeletonCardsHtml(3);
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const { data: clubes, error } = await supabaseClient
+      .from('clubes_livro')
+      .select('*, clube_membros(usuario_id)')
+      .order('criado_em', { ascending: false });
+
+    if (error) {
+      lista.innerHTML = `<div class="visitor-lock-note">Não consegui carregar os clubes agora${error.message.includes('clubes_livro') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
+      return;
+    }
+
+    window.ITENS_CLUBES_ATUAIS = clubes || [];
+    lista.innerHTML = `<button class="post-btn" style="width:100%; margin-bottom:14px; padding:11px;" onclick="abrirCriarClube()">+ criar clube do livro</button>` +
+      (clubes && clubes.length
+        ? clubes.map((c, i) => cardClubeHtml(c, i, meuId)).join('')
+        : estadoVazio('nenhum clube ainda', 'crie o primeiro e chame gente pra discutir livro junto'));
+  }
+
+  function cardClubeHtml(c, i, meuId) {
+    const membros = c.clube_membros || [];
+    const souMembro = membros.some(m => m.usuario_id === meuId);
+    return `
+      <div class="discover-card" onclick="abrirClube(${i})" style="cursor:pointer; display:flex; gap:12px; align-items:center;">
+        ${c.livro_capa_url
+          ? `<img src="${c.livro_capa_url}" alt="" style="width:52px; height:76px; object-fit:cover; border-radius:6px; flex-shrink:0;">`
+          : `<div class="capa-vazia-mini" style="width:52px; height:76px;">${icone('pessoas',24,i,'#fff')}</div>`}
+        <div style="min-width:0;">
+          <div class="discover-title">${c.nome}${c.privado ? ' 🔒' : ''}</div>
+          <div class="discover-desc">${c.livro_titulo ? `lendo agora: ${c.livro_titulo}` : 'sem livro definido ainda'}</div>
+          <div class="discover-desc" style="opacity:.7;">${membros.length} membro${membros.length === 1 ? '' : 's'}${souMembro ? ' · você é membro' : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  window.abrirCriarClube = function () {
+    document.getElementById('criarClubeNome').value = '';
+    document.getElementById('criarClubeDesc').value = '';
+    document.getElementById('criarClubePrivado').checked = false;
+    document.getElementById('criarClubeOverlay').classList.add('open');
+  };
+
+  window.salvarNovoClube = async function () {
+    const nome = document.getElementById('criarClubeNome').value.trim();
+    if (!nome) { mostrarToast('❌ dá um nome pro clube'); return; }
+    const descricao = document.getElementById('criarClubeDesc').value.trim();
+    const privado = document.getElementById('criarClubePrivado').checked;
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+
+    const { data, error } = await supabaseClient.from('clubes_livro').insert({
+      nome, descricao: descricao || null, privado, criador_id: usuarioId,
+    }).select().single();
+
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+
+    await supabaseClient.from('clube_membros').insert({ clube_id: data.id, usuario_id: usuarioId, papel: 'admin' });
+
+    mostrarToast('✨ Clube criado!');
+    closeOverlay('criarClubeOverlay');
+    renderClubes();
+  };
+
+  let clubeAtualId = null;
+  let clubeLivroAtualCitacao = { titulo: '', autor: '' };
+  let modoBuscaLivroClube = 'trocar'; // 'trocar' (define o livro atual) | 'sugerir' (roleta)
+  window.SUGESTOES_CLUBE_ATUAIS = [];
+  window.abrirClube = async function (i) {
+    const c = window.ITENS_CLUBES_ATUAIS[i];
+    if (!c) return;
+    clubeAtualId = c.id;
+    document.getElementById('clubeDetalheOverlay').classList.add('open');
+    await renderClubeDetalhe();
+  };
+
+  async function renderClubeDetalhe() {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const { data: c, error } = await supabaseClient
+      .from('clubes_livro')
+      .select('*, clube_membros(usuario_id, papel)')
+      .eq('id', clubeAtualId)
+      .single();
+
+    if (error || !c) { mostrarToast('❌ não consegui abrir o clube'); closeOverlay('clubeDetalheOverlay'); return; }
+
+    const membros = c.clube_membros || [];
+    const souMembro = membros.some(m => m.usuario_id === meuId);
+    const souAdmin = c.criador_id === meuId || membros.some(m => m.usuario_id === meuId && m.papel === 'admin');
+
+    document.getElementById('clubeDetalheTitulo').textContent = c.nome;
+
+    clubeLivroAtualCitacao = { titulo: c.livro_titulo || '', autor: c.livro_autor || '' };
+
+    document.getElementById('clubeDetalheLivroAtual').innerHTML = `
+      ${c.livro_capa_url ? `<img src="${c.livro_capa_url}" alt="" style="width:70px; height:100px; object-fit:cover; border-radius:6px;">` : ''}
+      <div style="min-width:0;">
+        <div class="discover-title">${c.livro_titulo || 'nenhum livro definido ainda'}</div>
+        ${c.livro_autor ? `<div class="discover-desc">${c.livro_autor}</div>` : ''}
+        ${c.livro_titulo ? `<div class="livro-link-externo" style="margin-top:6px;" onclick="abrirCartaoCitacaoClubeAtual()">${icone('compartilhar',12)} criar cartão de citação</div>` : ''}
+      </div>`;
+
+    document.getElementById('clubeDetalheMeta').innerHTML = `
+      ${c.descricao ? `<div class="discover-desc" style="margin-bottom:8px;">${c.descricao}</div>` : ''}
+      <div class="discover-desc" style="opacity:.7;">${membros.length} membro${membros.length === 1 ? '' : 's'}${c.privado ? ' · clube privado' : ''}</div>`;
+
+    document.getElementById('clubeDetalheAcoes').innerHTML = souMembro
+      ? `<button class="post-btn" style="width:100%;" onclick="mudarLivroAtualClube()">📖 mudar livro atual</button>
+         ${!c.privado ? `<div class="livro-link-externo" style="justify-content:center; margin-top:10px;" onclick="abrirCompartilharClube()">${icone('compartilhar',13)} convidar pro clube</div>` : ''}
+         <div class="livro-link-externo" style="text-align:center; margin-top:8px;" onclick="sairDoClube()">sair do clube</div>`
+      : `<button class="post-btn" style="width:100%;" onclick="entrarNoClube()">entrar no clube</button>`;
+
+    document.getElementById('clubeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
+
+    await renderFerramentasClube(c, souMembro, souAdmin, meuId);
+    await renderMuralClube();
+  }
+
+  window.fecharClubeDetalhe = function () {
+    closeOverlay('clubeDetalheOverlay');
+  };
+
+  // abre um clube direto pelo id (usado pelo link de convite), sem depender
+  // do índice da lista já carregada na tela
+  window.abrirClubePorId = async function (id) {
+    clubeAtualId = id;
+    document.getElementById('clubeDetalheOverlay').classList.add('open');
+    await renderClubeDetalhe();
+  };
+
+  let compartilharClubeContexto = { texto: '', link: '' };
+
+  window.abrirCompartilharClube = async function () {
+    const { data: c } = await supabaseClient.from('clubes_livro').select('nome, livro_titulo, privado').eq('id', clubeAtualId).single();
+    if (!c) { mostrarToast('❌ não consegui montar o convite'); return; }
+    if (c.privado) { mostrarToast('🔒 clubes privados ainda não têm link de convite — chama a pessoa por DM'); return; }
+
+    const link = `${window.location.origin}${window.location.pathname}?clube=${clubeAtualId}`;
+    const texto = `📖 bora ler junto? entra no clube "${c.nome}"${c.livro_titulo ? ` — tamo lendo "${c.livro_titulo}"` : ''} no Átomo:`;
+    compartilharClubeContexto = { texto, link };
+
+    if (navigator.share) {
+      try { await navigator.share({ title: c.nome, text: texto, url: link }); } catch (e) { /* cancelou, sem problema */ }
+      return;
+    }
+
+    document.getElementById('compartilharClubeResumo').textContent = texto + ' ' + link;
+    document.getElementById('compartilharClubeOverlay').classList.add('open');
+  };
+
+  window.compartilharClubeWhatsapp = function () {
+    const { texto, link } = compartilharClubeContexto;
+    window.open('https://wa.me/?text=' + encodeURIComponent(texto + ' ' + link), '_blank');
+  };
+
+  window.compartilharClubeTelegram = function () {
+    const { texto, link } = compartilharClubeContexto;
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(texto), '_blank');
+  };
+
+  window.compartilharClubeCopiar = async function () {
+    const { texto, link } = compartilharClubeContexto;
+    try {
+      await navigator.clipboard.writeText(texto + ' ' + link);
+      mostrarToast('✨ link copiado! cola onde quiser');
+    } catch (e) {
+      mostrarToast('não consegui copiar sozinho — copia esse link: ' + link);
+    }
+    closeOverlay('compartilharClubeOverlay');
+  };
+
+  // se a pessoa chegou aqui por um link de convite de clube (guardado no
+  // localStorage lá em cima), abre esse clube assim que ela estiver logada
+  window.verificarConviteClubePendente = async function () {
+    const bruto = localStorage.getItem('atomoConviteClube');
+    if (!bruto) return;
+    let convite;
+    try { convite = JSON.parse(bruto); } catch (e) { localStorage.removeItem('atomoConviteClube'); return; }
+    const UM_DIA = 24 * 60 * 60 * 1000;
+    if (!convite || !convite.id || Date.now() - convite.quando > UM_DIA) { localStorage.removeItem('atomoConviteClube'); return; }
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return; // ainda não logou — deixa guardado pra tentar de novo depois
+
+    localStorage.removeItem('atomoConviteClube');
+    showScreen2('livros');
+    trocarModoLivros('clube');
+    await abrirClubePorId(convite.id);
+  };
+
+  function sugestaoClubeHtml(s, i, meuId, souAdmin) {
+    const podeRemover = souAdmin || s.sugerido_por === meuId;
+    return `
+      <div class="discover-card" style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+        ${s.capa_url
+          ? `<img src="${s.capa_url}" alt="" style="width:40px; height:58px; object-fit:cover; border-radius:4px; flex-shrink:0;">`
+          : `<div class="capa-vazia-mini" style="width:40px; height:58px;">${icone('livro',18,i,'#fff')}</div>`}
+        <div style="min-width:0; flex:1;">
+          <div class="discover-title" style="font-size:14px;">${s.titulo}</div>
+          ${s.autor ? `<div class="discover-desc">${s.autor}</div>` : ''}
+        </div>
+        ${podeRemover ? `<div class="post-action" onclick="removerSugestaoClube(${i})">${icone('lixeira',14)}</div>` : ''}
+      </div>`;
+  }
+
+  // ---------- ferramentas do clube: roleta do próximo livro ----------
+  async function renderFerramentasClube(c, souMembro, souAdmin, meuId) {
+    const wrap = document.getElementById('clubeDetalheFerramentas');
+    if (!souMembro) { wrap.innerHTML = ''; return; }
+
+    const { data: sugestoesData } = await supabaseClient
+      .from('clube_sugestoes_livro')
+      .select('*')
+      .eq('clube_id', clubeAtualId)
+      .order('criado_em', { ascending: true });
+    const sugestoes = sugestoesData || [];
+    window.SUGESTOES_CLUBE_ATUAIS = sugestoes;
+
+    wrap.innerHTML = `
+      <div class="edit-field-label">🎲 roleta do próximo livro</div>
+      <div class="bio-box">
+        <div id="roletaResultadoTexto" class="discover-desc" style="margin-bottom:8px; min-height:18px;"></div>
+        ${sugestoes.length
+          ? sugestoes.map((s, i) => sugestaoClubeHtml(s, i, meuId, souAdmin)).join('')
+          : `<div class="discover-desc" style="margin-bottom:8px;">ninguém sugeriu um livro ainda</div>`}
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <div class="livro-link-externo" style="flex:1; justify-content:center; margin:0; padding:9px 18px;" onclick="abrirSugerirLivroRoleta()">${icone('livro',13)} sugerir livro</div>
+          ${souAdmin ? `<button class="post-btn" id="btnGirarRoleta" style="flex:1;" onclick="girarRoletaClube()" ${sugestoes.length ? '' : 'disabled'}>girar roleta</button>` : ''}
+        </div>
+      </div>`;
+  }
+
+  window.removerSugestaoClube = async function (i) {
+    const s = (window.SUGESTOES_CLUBE_ATUAIS || [])[i];
+    if (!s) return;
+    await supabaseClient.from('clube_sugestoes_livro').delete().eq('id', s.id);
+    renderClubeDetalhe();
+  };
+
+  window.girarRoletaClube = async function () {
+    const lista = window.SUGESTOES_CLUBE_ATUAIS || [];
+    if (lista.length < 1) { mostrarToast('❌ precisa de pelo menos 1 sugestão pra girar'); return; }
+    const elResultado = document.getElementById('roletaResultadoTexto');
+    const btn = document.getElementById('btnGirarRoleta');
+    if (btn) btn.disabled = true;
+
+    const vencedorIdx = Math.floor(Math.random() * lista.length);
+    const totalPassos = 14 + vencedorIdx + Math.floor(Math.random() * lista.length);
+
+    await new Promise(resolve => {
+      let passo = 0;
+      let atraso = 55;
+      function girar() {
+        const idx = passo % lista.length;
+        if (elResultado) elResultado.textContent = `🎲 ${lista[idx].titulo}`;
+        passo++;
+        atraso += 14; // desacelera a cada passo, como uma roleta de verdade
+        if (passo < totalPassos) setTimeout(girar, atraso);
+        else {
+          if (elResultado) elResultado.textContent = `🎉 sorteado: ${lista[vencedorIdx].titulo}`;
+          resolve();
+        }
+      }
+      girar();
+    });
+
+    const vencedor = lista[vencedorIdx];
+    const { error } = await supabaseClient.from('clubes_livro').update({
+      livro_titulo: vencedor.titulo,
+      livro_autor: vencedor.autor || null,
+      livro_capa_url: vencedor.capa_url || null,
+      livro_google_id: vencedor.google_id || null,
+    }).eq('id', clubeAtualId);
+    if (error) { mostrarToast('❌ erro ao definir o livro: ' + error.message); if (btn) btn.disabled = false; return; }
+
+    await supabaseClient.from('clube_sugestoes_livro').delete().eq('clube_id', clubeAtualId);
+    mostrarToast(`📖 o clube vai ler: ${vencedor.titulo}`);
+    renderClubeDetalhe();
+  };
+
+  window.abrirSugerirLivroRoleta = function () {
+    modoBuscaLivroClube = 'sugerir';
+    document.getElementById('buscaLivroClubeTitulo').textContent = 'Sugerir livro pra roleta';
+    document.getElementById('buscaGuiaClubeInput').value = '';
+    document.getElementById('guiaClubeResultados').innerHTML = '';
+    document.getElementById('buscaLivroClubeOverlay').classList.add('open');
+  };
+
+  window.entrarNoClube = async function () {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    const { error } = await supabaseClient.from('clube_membros').insert({ clube_id: clubeAtualId, usuario_id: usuarioId, papel: 'membro' });
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('🎉 você entrou no clube');
+    renderClubeDetalhe();
+  };
+
+  window.sairDoClube = async function () {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    await supabaseClient.from('clube_membros').delete().eq('clube_id', clubeAtualId).eq('usuario_id', usuarioId);
+    mostrarToast('você saiu do clube');
+    fecharClubeDetalhe();
+    renderClubes();
+  };
+
+  window.mudarLivroAtualClube = function () {
+    modoBuscaLivroClube = 'trocar';
+    document.getElementById('buscaLivroClubeTitulo').textContent = 'Definir livro atual';
+    document.getElementById('buscaGuiaClubeInput').value = '';
+    document.getElementById('guiaClubeResultados').innerHTML = '';
+    document.getElementById('buscaLivroClubeOverlay').classList.add('open');
+  };
+
+  let debounceGuiaClube = null;
+  window.aoDigitarGuiaClube = function () {
+    clearTimeout(debounceGuiaClube);
+    debounceGuiaClube = setTimeout(async () => {
+      const termo = document.getElementById('buscaGuiaClubeInput').value.trim();
+      const resultadosEl = document.getElementById('guiaClubeResultados');
+      if (!termo) { resultadosEl.innerHTML = ''; return; }
+      resultadosEl.innerHTML = skeletonCardsHtml(3);
+      try {
+        const resp = await fetch(`${API_BASE}/api/livros-em-destaque?q=${encodeURIComponent(termo)}`);
+        const dados = await resp.json();
+        const itensGoogle = (dados.items || []).filter(l => l.fonte === 'Google Books');
+        window.GUIA_CLUBE_ATUAL = itensGoogle;
+        resultadosEl.innerHTML = itensGoogle.length
+          ? itensGoogle.map((l, i) => `
+              <div class="discover-card" style="cursor:pointer; display:flex; gap:10px; align-items:center;" onclick="escolherLivroClube(${i})">
+                ${l.capa ? `<img src="${l.capa}" alt="" style="width:40px; height:58px; object-fit:cover; border-radius:4px;">` : ''}
+                <div style="min-width:0;"><div class="discover-title" style="font-size:14px;">${l.volumeInfo.title}</div><div class="discover-desc">${l.autor || ''}</div></div>
+              </div>`).join('')
+          : `<div class="visitor-lock-note">Nada encontrado.</div>`;
+      } catch (e) {
+        resultadosEl.innerHTML = `<div class="visitor-lock-note">Erro na busca.</div>`;
+      }
+    }, 400);
+  };
+
+  window.escolherLivroClube = async function (i) {
+    const l = window.GUIA_CLUBE_ATUAL[i];
+    if (!l) return;
+
+    if (modoBuscaLivroClube === 'sugerir') {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const meuId = sessionData.session.user.id;
+      const { error } = await supabaseClient.from('clube_sugestoes_livro').insert({
+        clube_id: clubeAtualId,
+        sugerido_por: meuId,
+        titulo: l.volumeInfo.title,
+        autor: l.autor || null,
+        capa_url: l.capa || null,
+        google_id: l.googleId || null,
+      });
+      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      mostrarToast('🎲 sugestão adicionada pra roleta');
+      closeOverlay('buscaLivroClubeOverlay');
+      renderClubeDetalhe();
+      return;
+    }
+
+    const { error } = await supabaseClient.from('clubes_livro').update({
+      livro_titulo: l.volumeInfo.title,
+      livro_autor: l.autor || null,
+      livro_capa_url: l.capa || null,
+      livro_google_id: l.googleId || null,
+    }).eq('id', clubeAtualId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('📖 livro do clube atualizado');
+    closeOverlay('buscaLivroClubeOverlay');
+    renderClubeDetalhe();
+  };
+
+  // salas por capítulo (spoiler-free): filtra a discussão pelo trecho marcado
+  // em cada post, e esconde posts marcados como spoiler até a pessoa tocar
+  let postsMuralClubeAtuais = [];
+  let filtroCapituloMuralClube = 'geral';
+  let spoilersRevelados = new Set();
+
+  window.trocarFiltroMuralClube = function (valor) {
+    filtroCapituloMuralClube = valor;
+    renderizarListaMuralClube();
+  };
+
+  window.revelarSpoilerMural = function (postId) {
+    spoilersRevelados.add(postId);
+    renderizarListaMuralClube();
+  };
+
+  function capituloChipsHtml(posts, ativo) {
+    const vistos = new Set();
+    const capitulos = [];
+    posts.forEach(p => { if (p.capitulo_livro && !vistos.has(p.capitulo_livro)) { vistos.add(p.capitulo_livro); capitulos.push(p.capitulo_livro); } });
+    const chips = [`<div class="feed-modo-chip${ativo === 'geral' ? ' on' : ''}" onclick="trocarFiltroMuralClube('geral')">geral</div>`]
+      .concat(capitulos.map(c => `<div class="feed-modo-chip${ativo === c ? ' on' : ''}" onclick="trocarFiltroMuralClube(${JSON.stringify(c).replace(/"/g, "'")})">${c}</div>`))
+      .concat([`<div class="feed-modo-chip${ativo === 'tudo' ? ' on' : ''}" onclick="trocarFiltroMuralClube('tudo')">tudo</div>`]);
+    return `<div class="feed-modo-row" style="margin-bottom:8px; flex-wrap:wrap;">${chips.join('')}</div>`;
+  }
+
+  function postClubeHtml(p) {
+    const handle = p.usuarios ? p.usuarios.handle : 'alguem';
+    const corpo = (p.texto || '').replace(/</g, '&lt;');
+    const revelado = spoilersRevelados.has(p.id);
+    return `
+      <div class="post" style="margin-bottom:10px;">
+        <div class="post-head">
+          ${avatarHtml(p.usuarios ? p.usuarios.avatar_url : null, handle[0].toUpperCase())}
+          <div class="post-who"><div class="n">@${handle}</div><div class="t">${formatarTempoRelativo(p.criado_em)}${p.capitulo_livro ? ` · ${p.capitulo_livro}` : ''}</div></div>
+        </div>
+        ${p.tem_spoiler && !revelado
+          ? `<div class="visitor-lock-note" style="text-align:left; cursor:pointer;" onclick="revelarSpoilerMural('${p.id}')">⚠️ esse post tem spoiler — toca pra ver</div>`
+          : `<div class="post-body">${corpo}</div>`}
+      </div>`;
+  }
+
+  function renderizarListaMuralClube() {
+    const wrap = document.getElementById('clubeDetalheMural');
+    const posts = postsMuralClubeAtuais;
+    const temCapitulos = posts.some(p => p.capitulo_livro);
+
+    const filtrados = filtroCapituloMuralClube === 'tudo' ? posts
+      : filtroCapituloMuralClube === 'geral' ? posts.filter(p => !p.capitulo_livro)
+      : posts.filter(p => p.capitulo_livro === filtroCapituloMuralClube);
+
+    const chipsHtml = temCapitulos ? capituloChipsHtml(posts, filtroCapituloMuralClube) : '';
+    wrap.innerHTML = chipsHtml + (filtrados.length
+      ? filtrados.map(p => postClubeHtml(p)).join('')
+      : `<div class="visitor-lock-note">${temCapitulos && filtroCapituloMuralClube !== 'tudo' ? 'Nada por aqui ainda nesse trecho.' : 'Nenhuma discussão ainda — comece você!'}</div>`);
+  }
+
+  async function renderMuralClube() {
+    const wrap = document.getElementById('clubeDetalheMural');
+    wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+    const { data, error } = await supabaseClient
+      .from('posts')
+      .select('*, usuarios(handle, avatar_url)')
+      .eq('clube_id', clubeAtualId)
+      .order('criado_em', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="visitor-lock-note">Não consegui carregar o mural.</div>`; return; }
+
+    postsMuralClubeAtuais = data || [];
+    filtroCapituloMuralClube = 'geral';
+    spoilersRevelados = new Set();
+    renderizarListaMuralClube();
+  }
+
+  window.publicarNoMuralClube = async function () {
+    const texto = document.getElementById('clubeComposerText').value.trim();
+    if (!texto) return;
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    const capitulo = document.getElementById('clubeComposerCapitulo').value.trim();
+    const temSpoiler = document.getElementById('clubeComposerSpoiler').checked;
+
+    const { error } = await supabaseClient.from('posts').insert({
+      autor_id: usuarioId,
+      texto,
+      tipo: 'Clube',
+      privado: false,
+      clube_id: clubeAtualId,
+      capitulo_livro: capitulo || null,
+      tem_spoiler: temSpoiler,
+    });
+
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    document.getElementById('clubeComposerText').value = '';
+    document.getElementById('clubeComposerCapitulo').value = '';
+    document.getElementById('clubeComposerSpoiler').checked = false;
+    renderMuralClube();
   };
 
   function skeletonCardsHtml(n) {
@@ -3147,6 +4048,7 @@ window.trocarModoDescobrir = function (modo) {
   }
 
   window.carregarMaisLivros = async function () {
+    if (modoLivrosAtivo !== 'gratuitos') return;
     if (livrosCarregandoMais) return;
     livrosCarregandoMais = true;
     livrosPagina++;
@@ -3156,6 +4058,672 @@ window.trocarModoDescobrir = function (modo) {
       ? window.ITENS_LIVROS_ATUAIS.map((d, i) => cardLivroHtml(d, i)).join('')
       : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
     livrosCarregandoMais = false;
+  };
+
+  // ---------- minha estante (upload de epub, leitura privada) ----------
+  window.ITENS_ESTANTE_ATUAIS = [];
+
+  // ---------- sequência de leitura (streak), inspirado no calendário do Fable ----------
+  function fmtDataISO(d) { return d.toISOString().slice(0, 10); }
+
+  async function registrarLeituraHoje() {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return;
+    await supabaseClient.from('logs_leitura').upsert(
+      { usuario_id: sessionData.session.user.id, data: fmtDataISO(new Date()) },
+      { onConflict: 'usuario_id,data', ignoreDuplicates: true }
+    );
+  }
+
+  async function streakLeituraHtml(usuarioId) {
+    const hoje = new Date();
+    const hojeChave = fmtDataISO(hoje);
+    const inicio = new Date(hoje);
+    inicio.setDate(inicio.getDate() - 41); // 42 dias = 6 semanas, como um calendário de streak
+
+    const { data } = await supabaseClient
+      .from('logs_leitura')
+      .select('data')
+      .eq('usuario_id', usuarioId)
+      .gte('data', fmtDataISO(inicio));
+    const datasLidas = new Set((data || []).map(d => d.data));
+
+    let streak = 0;
+    let cursor = new Date(hoje);
+    if (!datasLidas.has(fmtDataISO(cursor))) cursor.setDate(cursor.getDate() - 1);
+    while (datasLidas.has(fmtDataISO(cursor))) { streak++; cursor.setDate(cursor.getDate() - 1); }
+
+    // marca quais dias fazem parte da sequência atual (pra dar um "brilho" a mais nelas)
+    const diasDaSequenciaAtual = new Set();
+    let cursorSeq = new Date(hoje);
+    if (!datasLidas.has(fmtDataISO(cursorSeq))) cursorSeq.setDate(cursorSeq.getDate() - 1);
+    while (datasLidas.has(fmtDataISO(cursorSeq))) { diasDaSequenciaAtual.add(fmtDataISO(cursorSeq)); cursorSeq.setDate(cursorSeq.getDate() - 1); }
+
+    const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    let cabecalho = diasSemana.map(d => `<div style="text-align:center; font-size:10px; font-weight:700; color:var(--ink-faint); letter-spacing:0.5px;">${d}</div>`).join('');
+
+    let celulas = '';
+    for (let i = 41; i >= 0; i--) {
+      const d = new Date(hoje);
+      d.setDate(d.getDate() - i);
+      const chave = fmtDataISO(d);
+      const lido = datasLidas.has(chave);
+      const naSequenciaAtual = diasDaSequenciaAtual.has(chave);
+      const ehHoje = chave === hojeChave;
+      const numeroDia = d.getDate();
+
+      let fundo, corTexto, sombra = 'none', borda = 'none', animacao = '';
+      if (lido && naSequenciaAtual) {
+        fundo = 'linear-gradient(135deg, var(--accent-a), var(--accent-b))';
+        corTexto = '#fff';
+        sombra = '0 2px 6px rgba(217,113,74,0.35)';
+      } else if (lido) {
+        fundo = 'var(--accent-a)';
+        corTexto = '#fff';
+        sombra = '0 1px 3px rgba(0,0,0,0.12)';
+      } else {
+        fundo = 'var(--card-b)';
+        corTexto = 'var(--ink-faint)';
+      }
+      if (ehHoje) {
+        borda = lido ? '2px solid var(--ink)' : '2px dashed var(--accent-a)';
+        if (!lido) animacao = 'animation:pulse-glow 2s ease-in-out infinite;';
+      }
+
+      celulas += `<div title="${chave}" style="width:100%; aspect-ratio:1; border-radius:8px; background:${fundo}; color:${corTexto}; box-shadow:${sombra}; border:${borda}; ${animacao} display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; font-family:'Nunito', sans-serif;">${numeroDia}</div>`;
+    }
+
+    return `
+      <div class="bio-box" style="margin-bottom:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div class="discover-title" style="margin:0;">🔥 sequência de leitura</div>
+          <div style="font-family:'Baloo 2'; font-size:18px; background:linear-gradient(135deg, var(--accent-a), var(--accent-b)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800;">${streak} dia${streak === 1 ? '' : 's'}</div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; margin-bottom:4px;">${cabecalho}</div>
+        <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">${celulas}</div>
+        <div class="livro-link-externo" style="justify-content:center; margin-top:10px;" onclick="abrirResumoLeitura()">${icone('compartilhar',13)} criar resumo de leitura</div>
+      </div>`;
+  }
+
+  // ---------- estatísticas de leitura: páginas lidas e horas, acumulado vitalício ----------
+  async function estatisticasLeituraHtml(usuarioId) {
+    const { data } = await supabaseClient.from('estatisticas_leitura').select('*').eq('usuario_id', usuarioId).maybeSingle();
+    const paginas = data ? data.paginas_lidas : 0;
+    const minutos = data ? data.minutos_leitura : 0;
+    const horas = Math.floor(minutos / 60);
+    const minutosRestantes = minutos % 60;
+    const horasTexto = horas > 0 ? `${horas}h${minutosRestantes ? ' ' + minutosRestantes + 'min' : ''}` : `${minutosRestantes}min`;
+
+    return `
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <div class="bio-box" style="flex:1; margin-bottom:0; text-align:center;">
+          <div style="font-family:'Baloo 2'; font-size:20px; color:var(--accent-a); font-weight:800;">${paginas.toLocaleString('pt-BR')}</div>
+          <div style="font-size:10.5px; color:var(--ink-faint); font-weight:700;">📖 páginas lidas</div>
+        </div>
+        <div class="bio-box" style="flex:1; margin-bottom:0; text-align:center;">
+          <div style="font-family:'Baloo 2'; font-size:20px; color:var(--accent-b); font-weight:800;">${horasTexto}</div>
+          <div style="font-size:10.5px; color:var(--ink-faint); font-weight:700;">⏱️ tempo de leitura</div>
+        </div>
+      </div>`;
+  }
+
+  async function renderEstante() {
+    const lista = document.getElementById('livrosList');
+    lista.innerHTML = skeletonCardsHtml(3);
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) {
+      lista.innerHTML = `<div class="visitor-lock-note">Entra na sua conta pra ver sua estante.</div>`;
+      return;
+    }
+    const usuarioId = sessionData.session.user.id;
+
+    const [streakHtml, estatisticasHtml, { data, error }] = await Promise.all([
+      streakLeituraHtml(usuarioId),
+      estatisticasLeituraHtml(usuarioId),
+      supabaseClient.from('estante_pessoal').select('*').eq('usuario_id', usuarioId).order('adicionado_em', { ascending: false }),
+    ]);
+
+    if (error) {
+      lista.innerHTML = estatisticasHtml + streakHtml + `<div class="visitor-lock-note">Não consegui carregar sua estante agora${error.message.includes('estante_pessoal') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
+      return;
+    }
+
+    window.ITENS_ESTANTE_ATUAIS = data || [];
+    lista.innerHTML = estatisticasHtml + streakHtml + `<button class="post-btn" style="width:100%; margin-bottom:14px; padding:11px;" onclick="abrirUploadEpub()">+ enviar um epub</button>` +
+      (data && data.length
+        ? data.map((d, i) => cardEstanteHtml(d, i)).join('')
+        : estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho'));
+  }
+
+  function cardEstanteHtml(d, i) {
+    const pct = Math.round(d.progresso_percentual || 0);
+    return `
+      <div class="discover-card" style="display:flex; gap:12px; align-items:center;">
+        <div onclick="abrirLeitorEpub(${i})" style="cursor:pointer; display:flex; gap:12px; align-items:center; flex:1; min-width:0;">
+          ${d.capa_url
+            ? `<img src="${d.capa_url}" alt="" style="width:52px; height:76px; object-fit:cover; border-radius:6px; flex-shrink:0;">`
+            : `<div class="capa-vazia-mini" style="width:52px; height:76px;">${icone('livro',24,i,'#fff')}</div>`}
+          <div style="min-width:0;">
+            <div class="discover-title">${d.titulo}</div>
+            ${d.autor ? `<div class="discover-desc">${d.autor}</div>` : ''}
+            <div style="background:var(--card-b); height:5px; border-radius:3px; margin-top:6px; overflow:hidden;"><div style="width:${pct}%; height:100%; background:var(--accent-a);"></div></div>
+            <div class="discover-desc" style="opacity:.7; margin-top:2px;">${pct}% lido</div>
+          </div>
+        </div>
+        <div class="post-action" onclick="event.stopPropagation(); excluirDoEstante(${i})">${icone('lixeira',14)}</div>
+      </div>`;
+  }
+
+  let arquivoEpubEscolhido = null;
+  window.abrirUploadEpub = function () {
+    document.getElementById('uploadEpubTitulo').value = '';
+    document.getElementById('uploadEpubAutor').value = '';
+    document.getElementById('uploadEpubInput').value = '';
+    arquivoEpubEscolhido = null;
+    document.getElementById('uploadEpubOverlay').classList.add('open');
+  };
+
+  window.escolherArquivoEpub = function () {
+    const input = document.getElementById('uploadEpubInput');
+    if (!input.files || !input.files[0]) return;
+    arquivoEpubEscolhido = input.files[0];
+    const tituloInput = document.getElementById('uploadEpubTitulo');
+    if (!tituloInput.value) tituloInput.value = arquivoEpubEscolhido.name.replace(/\.epub$/i, '');
+  };
+
+  window.enviarEpub = async function () {
+    if (!arquivoEpubEscolhido) { mostrarToast('❌ escolhe um arquivo .epub'); return; }
+    const titulo = document.getElementById('uploadEpubTitulo').value.trim();
+    if (!titulo) { mostrarToast('❌ dá um título pro livro'); return; }
+    const autor = document.getElementById('uploadEpubAutor').value.trim();
+
+    const btn = document.getElementById('btnEnviarEpub');
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    const caminho = `${usuarioId}/${Date.now()}-${arquivoEpubEscolhido.name}`;
+
+    const { error: erroUpload } = await supabaseClient.storage.from('estante-epubs').upload(caminho, arquivoEpubEscolhido);
+
+    if (erroUpload) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Enviar'; }
+      mostrarToast('❌ erro no upload: ' + erroUpload.message);
+      return;
+    }
+
+    const { error } = await supabaseClient.from('estante_pessoal').insert({
+      usuario_id: usuarioId,
+      titulo,
+      autor: autor || null,
+      arquivo_path: caminho,
+      formato: 'epub',
+    });
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar'; }
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+
+    mostrarToast('📘 livro enviado pra sua estante');
+    closeOverlay('uploadEpubOverlay');
+    renderEstante();
+  };
+
+  window.excluirDoEstante = async function (i) {
+    const item = window.ITENS_ESTANTE_ATUAIS[i];
+    if (!item) return;
+    await supabaseClient.storage.from('estante-epubs').remove([item.arquivo_path]);
+    await supabaseClient.from('estante_pessoal').delete().eq('id', item.id);
+    mostrarToast('removido da estante');
+    renderEstante();
+  };
+
+  // ---------- cartão de citação (gerado em canvas, no visual do Átomo) ----------
+  window.abrirCartaoCitacao = function (titulo, autor) {
+    document.getElementById('citacaoTextoInput').value = '';
+    document.getElementById('citacaoTituloInput').value = titulo || '';
+    document.getElementById('citacaoAutorInput').value = autor || '';
+    document.getElementById('citacaoCanvas').style.display = 'none';
+    document.getElementById('citacaoAcoes').style.display = 'none';
+    document.getElementById('citacaoCartaoOverlay').classList.add('open');
+  };
+
+  // dispara o cartão a partir de um livro da lista atual (prévia/gratuitos/estante)
+  window.abrirCartaoCitacaoDoLivro = function (i) {
+    const item = window.ITENS_LIVROS_ATUAIS[i];
+    if (!item) return;
+    abrirCartaoCitacao(item.title, item.autor);
+  };
+
+  // dispara o cartão a partir do livro atual de um clube (ver clubeLivroAtualCitacao)
+  window.abrirCartaoCitacaoClubeAtual = function () {
+    if (!clubeLivroAtualCitacao.titulo) { mostrarToast('❌ esse clube ainda não tem um livro definido'); return; }
+    abrirCartaoCitacao(clubeLivroAtualCitacao.titulo, clubeLivroAtualCitacao.autor);
+  };
+
+  function quebrarLinhasCanvas(ctx, texto, larguraMax) {
+    const palavras = texto.split(/\s+/);
+    const linhas = [];
+    let atual = '';
+    palavras.forEach(p => {
+      const teste = atual ? atual + ' ' + p : p;
+      if (ctx.measureText(teste).width > larguraMax && atual) { linhas.push(atual); atual = p; }
+      else { atual = teste; }
+    });
+    if (atual) linhas.push(atual);
+    return linhas.slice(0, 11);
+  }
+
+  window.gerarCartaoCitacao = async function () {
+    const texto = document.getElementById('citacaoTextoInput').value.trim();
+    if (!texto) { mostrarToast('❌ cola ou escreve um trecho primeiro'); return; }
+    const titulo = document.getElementById('citacaoTituloInput').value.trim();
+    const autor = document.getElementById('citacaoAutorInput').value.trim();
+
+    try {
+      await document.fonts.load('800 40px "Baloo 2"');
+      await document.fonts.load('italic 400 32px "Nunito"');
+      await document.fonts.load('700 18px "Nunito"');
+    } catch (e) {}
+
+    const canvas = document.getElementById('citacaoCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const estilo = getComputedStyle(document.documentElement);
+    const corBg = estilo.getPropertyValue('--bg').trim() || '#F7F1E6';
+    const corInk = estilo.getPropertyValue('--ink').trim() || '#3A2E22';
+    const corAccentA = estilo.getPropertyValue('--accent-a').trim() || '#D9714A';
+    const corFaint = estilo.getPropertyValue('--ink-faint').trim() || '#B7A78D';
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = corBg;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = corAccentA;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(36, 48); ctx.lineTo(W - 42, 38); ctx.lineTo(W - 38, H - 46); ctx.lineTo(42, H - 36); ctx.closePath();
+    ctx.stroke();
+
+    ctx.fillStyle = corAccentA;
+    ctx.textAlign = 'left';
+    ctx.font = '800 100px "Baloo 2"';
+    ctx.fillText('“', 62, 178);
+
+    ctx.fillStyle = corInk;
+    ctx.font = 'italic 400 32px "Nunito"';
+    ctx.textAlign = 'center';
+    const linhas = quebrarLinhasCanvas(ctx, texto, W - 150);
+    let y = H / 2 - (linhas.length * 42) / 2;
+    linhas.forEach(linha => { ctx.fillText(linha, W / 2, y); y += 42; });
+
+    if (titulo) {
+      ctx.font = '800 27px "Baloo 2"';
+      ctx.fillStyle = corInk;
+      ctx.fillText(titulo, W / 2, H - 132);
+    }
+    if (autor) {
+      ctx.font = '700 18px "Nunito"';
+      ctx.fillStyle = corFaint;
+      ctx.fillText(autor, W / 2, H - 102);
+    }
+
+    ctx.font = '700 15px "Nunito"';
+    ctx.fillStyle = corFaint;
+    ctx.fillText('🧶 Átomo · seu diário tem visitas.', W / 2, H - 50);
+
+    canvas.style.display = 'block';
+    document.getElementById('citacaoAcoes').style.display = 'flex';
+  };
+
+  window.baixarCartaoCitacao = function () {
+    const canvas = document.getElementById('citacaoCanvas');
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'citacao-atomo.png'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }, 'image/png');
+  };
+
+  // compartilha a imagem do cartão pra fora do app (WhatsApp, Instagram, Twitter, o que a pessoa escolher
+  // no menu nativo de compartilhamento) — usa a Web Share API com o arquivo de verdade quando o navegador suporta
+  window.compartilharCartaoCitacaoExterno = function () {
+    const canvas = document.getElementById('citacaoCanvas');
+    canvas.toBlob(async blob => {
+      const arquivo = new File([blob], 'citacao-atomo.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+        try {
+          await navigator.share({ files: [arquivo], title: 'Átomo', text: 'meu diário tem visitas — Átomo' });
+          return;
+        } catch (e) { if (e && e.name === 'AbortError') return; /* pessoa cancelou o compartilhamento, tudo bem */ }
+      }
+      // navegador sem suporte a compartilhar arquivo — baixa a imagem pra pessoa anexar onde quiser
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'citacao-atomo.png'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      mostrarToast('💾 imagem salva — agora é só anexar onde quiser compartilhar');
+    }, 'image/png');
+  };
+
+  window.compartilharCartaoCitacaoFeed = function () {
+    const canvas = document.getElementById('citacaoCanvas');
+    canvas.toBlob(async blob => {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const usuarioId = sessionData.session.user.id;
+      const caminho = `${usuarioId}/citacao-${Date.now()}.png`;
+      const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, blob, { contentType: 'image/png' });
+      if (erroUpload) { mostrarToast('❌ erro no upload: ' + erroUpload.message); return; }
+      const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+      const titulo = document.getElementById('citacaoTituloInput').value.trim();
+      const { error } = await supabaseClient.from('posts').insert({
+        autor_id: usuarioId,
+        texto: titulo ? `📖 uma citação de ${titulo}` : '📖 uma citação',
+        tipo: 'Livro',
+        privado: false,
+        imagem_url: data.publicUrl,
+      });
+      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      mostrarToast('✨ postado no feed!');
+      closeOverlay('citacaoCartaoOverlay');
+      carregarPostsReais();
+    }, 'image/png');
+  };
+
+  // ---------- resumo de leitura compartilhável (estilo "wrapped"), inspirado no Fable ----------
+  let periodoResumoLeitura = 'mes';
+  window.trocarPeriodoResumoLeitura = function (periodo) {
+    periodoResumoLeitura = periodo;
+    document.querySelectorAll('.feed-modo-chip[data-periodo-resumo]').forEach(c => c.classList.toggle('on', c.dataset.periodoResumo === periodo));
+  };
+
+  window.abrirResumoLeitura = function () {
+    periodoResumoLeitura = 'mes';
+    document.querySelectorAll('.feed-modo-chip[data-periodo-resumo]').forEach(c => c.classList.toggle('on', c.dataset.periodoResumo === 'mes'));
+    document.getElementById('resumoLeituraCanvas').style.display = 'none';
+    document.getElementById('resumoLeituraAcoes').style.display = 'none';
+    document.getElementById('resumoLeituraOverlay').classList.add('open');
+  };
+
+  window.gerarResumoLeitura = async function () {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) { mostrarToast('❌ entra na sua conta primeiro'); return; }
+    const usuarioId = sessionData.session.user.id;
+    const hoje = new Date();
+    const inicioPeriodo = periodoResumoLeitura === 'ano'
+      ? new Date(hoje.getFullYear(), 0, 1)
+      : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+    const { data: livros } = await supabaseClient
+      .from('estante_pessoal')
+      .select('titulo, autor, finalizado_em')
+      .eq('usuario_id', usuarioId)
+      .gte('finalizado_em', inicioPeriodo.toISOString())
+      .order('finalizado_em', { ascending: false });
+    const lista = livros || [];
+
+    const { data: logs } = await supabaseClient
+      .from('logs_leitura')
+      .select('data')
+      .eq('usuario_id', usuarioId)
+      .gte('data', fmtDataISO(inicioPeriodo));
+    const datasLidas = new Set((logs || []).map(d => d.data));
+    let streak = 0;
+    let cursor = new Date(hoje);
+    if (!datasLidas.has(fmtDataISO(cursor))) cursor.setDate(cursor.getDate() - 1);
+    while (datasLidas.has(fmtDataISO(cursor))) { streak++; cursor.setDate(cursor.getDate() - 1); }
+
+    try {
+      await document.fonts.load('800 40px "Baloo 2"');
+      await document.fonts.load('700 20px "Nunito"');
+      await document.fonts.load('700 15px "Nunito"');
+    } catch (e) {}
+
+    const canvas = document.getElementById('resumoLeituraCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const estilo = getComputedStyle(document.documentElement);
+    const corBg = estilo.getPropertyValue('--bg').trim() || '#F7F1E6';
+    const corInk = estilo.getPropertyValue('--ink').trim() || '#3A2E22';
+    const corAccentA = estilo.getPropertyValue('--accent-a').trim() || '#D9714A';
+    const corAccentB = estilo.getPropertyValue('--accent-b').trim() || '#4A9B8E';
+    const corFaint = estilo.getPropertyValue('--ink-faint').trim() || '#B7A78D';
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = corBg; ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = corAccentB; ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(36, 48); ctx.lineTo(W - 42, 38); ctx.lineTo(W - 38, H - 46); ctx.lineTo(42, H - 36); ctx.closePath();
+    ctx.stroke();
+
+    ctx.fillStyle = corInk; ctx.textAlign = 'center'; ctx.font = '700 18px "Nunito"';
+    ctx.fillText(periodoResumoLeitura === 'ano' ? `meu ${hoje.getFullYear()} de leitura` : 'meu mês de leitura', W / 2, 110);
+
+    if (lista.length > 0) {
+      ctx.fillStyle = corAccentA; ctx.font = '800 90px "Baloo 2"';
+      ctx.fillText(String(lista.length), W / 2, 230);
+      ctx.fillStyle = corInk; ctx.font = '700 20px "Nunito"';
+      ctx.fillText(lista.length === 1 ? 'livro terminado' : 'livros terminados', W / 2, 265);
+    } else {
+      ctx.fillStyle = corFaint; ctx.font = '700 22px "Nunito"';
+      ctx.fillText('nenhum livro terminado', W / 2, 215);
+      ctx.fillText(periodoResumoLeitura === 'ano' ? 'ainda esse ano' : 'ainda esse mês', W / 2, 245);
+    }
+
+    ctx.font = '700 16px "Nunito"'; ctx.fillStyle = corFaint;
+    ctx.fillText(`🔥 sequência atual: ${streak} dia${streak === 1 ? '' : 's'}`, W / 2, 305);
+
+    ctx.textAlign = 'center';
+    let y = 370;
+    lista.slice(0, 6).forEach(l => {
+      ctx.font = '700 17px "Nunito"'; ctx.fillStyle = corInk;
+      const linha = l.autor ? `${l.titulo} — ${l.autor}` : l.titulo;
+      const linhas = quebrarLinhasCanvas(ctx, linha, W - 140);
+      linhas.slice(0, 1).forEach(t => { ctx.fillText(t, W / 2, y); y += 34; });
+    });
+    if (lista.length > 6) {
+      ctx.font = '700 14px "Nunito"'; ctx.fillStyle = corFaint;
+      ctx.fillText(`+ ${lista.length - 6} outro${lista.length - 6 === 1 ? '' : 's'}`, W / 2, y + 4);
+    }
+
+    ctx.font = '700 15px "Nunito"'; ctx.fillStyle = corFaint;
+    ctx.fillText('🧶 Átomo · seu diário tem visitas.', W / 2, H - 50);
+
+    canvas.style.display = 'block';
+    document.getElementById('resumoLeituraAcoes').style.display = 'flex';
+  };
+
+  window.baixarResumoLeitura = function () {
+    const canvas = document.getElementById('resumoLeituraCanvas');
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'resumo-leitura-atomo.png'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }, 'image/png');
+  };
+
+  window.compartilharResumoLeituraFeed = function () {
+    const canvas = document.getElementById('resumoLeituraCanvas');
+    canvas.toBlob(async blob => {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const usuarioId = sessionData.session.user.id;
+      const caminho = `${usuarioId}/resumo-leitura-${Date.now()}.png`;
+      const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, blob, { contentType: 'image/png' });
+      if (erroUpload) { mostrarToast('❌ erro no upload: ' + erroUpload.message); return; }
+      const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+      const { error } = await supabaseClient.from('posts').insert({
+        autor_id: usuarioId,
+        texto: periodoResumoLeitura === 'ano' ? '📚 meu resumo de leitura do ano' : '📚 meu resumo de leitura do mês',
+        tipo: 'Livro',
+        privado: false,
+        imagem_url: data.publicUrl,
+      });
+      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+      mostrarToast('✨ postado no feed!');
+      closeOverlay('resumoLeituraOverlay');
+      carregarPostsReais();
+    }, 'image/png');
+  };
+
+  // ---------- leitor de epub (epub.js, carregado sob demanda) ----------
+  let epubJsCarregado = null;
+  function carregarEpubJs() {
+    if (epubJsCarregado) return epubJsCarregado;
+    epubJsCarregado = new Promise((resolve, reject) => {
+      const jszip = document.createElement('script');
+      jszip.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+      jszip.onload = () => {
+        const epub = document.createElement('script');
+        epub.src = 'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js';
+        epub.onload = resolve;
+        epub.onerror = reject;
+        document.head.appendChild(epub);
+      };
+      jszip.onerror = reject;
+      document.head.appendChild(jszip);
+    });
+    return epubJsCarregado;
+  }
+
+  let leitorEpubAtual = null;
+  window.abrirLeitorEpub = async function (i) {
+    const item = window.ITENS_ESTANTE_ATUAIS[i];
+    if (!item) return;
+
+    document.getElementById('leitorEpubTitulo').textContent = item.titulo;
+    document.getElementById('leitorEpubProgresso').textContent = Math.round(item.progresso_percentual || 0) + '%';
+    document.getElementById('leitorEpubOverlay').classList.add('open');
+    document.getElementById('epubViewerContainer').innerHTML = `<div class="visitor-lock-note">Abrindo...</div>`;
+    document.getElementById('grifarBarra').style.display = 'none';
+
+    try {
+      await carregarEpubJs();
+      const { data, error } = await supabaseClient.storage.from('estante-epubs').createSignedUrl(item.arquivo_path, 3600);
+      if (error) throw error;
+
+      document.getElementById('epubViewerContainer').innerHTML = '';
+      const book = ePub(data.signedUrl);
+      const rendition = book.renderTo('epubViewerContainer', { width: '100%', height: '100%' });
+      await rendition.display(item.ultima_posicao || undefined);
+
+      leitorEpubAtual = { book, rendition, item, inicioSessao: Date.now(), selecaoAtual: null };
+
+      rendition.on('relocated', (loc) => {
+        const temLocations = book.locations && book.locations.length();
+        const pct = temLocations
+          ? Math.round(book.locations.percentageFromCfi(loc.start.cfi) * 100)
+          : Math.round(item.progresso_percentual || 0);
+        document.getElementById('leitorEpubProgresso').textContent = pct + '%';
+        salvarProgressoEpub(loc.start.cfi, pct);
+        if (temLocations) {
+          const paginaAtual = book.locations.locationFromCfi(loc.start.cfi) + 1;
+          registrarProgressoPaginas(paginaAtual);
+        }
+      });
+
+      // seleção de texto na página — mostra a barrinha de "grifar"
+      rendition.on('selected', (cfiRange, contents) => {
+        const textoSelecionado = (contents.window.getSelection ? contents.window.getSelection().toString() : '').trim();
+        const barra = document.getElementById('grifarBarra');
+        if (textoSelecionado && textoSelecionado.length > 3) {
+          leitorEpubAtual.selecaoAtual = textoSelecionado;
+          barra.style.display = 'flex';
+        } else {
+          barra.style.display = 'none';
+        }
+      });
+
+      book.ready.then(() => book.locations.generate(1000)).catch(() => {});
+    } catch (e) {
+      document.getElementById('epubViewerContainer').innerHTML = `<div class="visitor-lock-note">Não consegui abrir esse epub agora.</div>`;
+    }
+  };
+
+  let debounceProgressoEpub = null;
+  function salvarProgressoEpub(cfi, pct) {
+    clearTimeout(debounceProgressoEpub);
+    debounceProgressoEpub = setTimeout(async () => {
+      if (!leitorEpubAtual) return;
+      const patch = { progresso_percentual: pct, ultima_posicao: cfi };
+      // primeira vez que passa de 95%, marca a data de conclusão (usada no resumo de leitura)
+      if (pct >= 95 && !leitorEpubAtual.item.finalizado_em) {
+        patch.finalizado_em = new Date().toISOString();
+        leitorEpubAtual.item.finalizado_em = patch.finalizado_em;
+      }
+      await supabaseClient.from('estante_pessoal').update(patch).eq('id', leitorEpubAtual.item.id);
+      registrarLeituraHoje();
+    }, 1500);
+  }
+
+  // ---------- contador de páginas lidas (acumulado, não conta 2x ao voltar/reler) ----------
+  let debounceProgressoPaginas = null;
+  function registrarProgressoPaginas(paginaAtual) {
+    clearTimeout(debounceProgressoPaginas);
+    debounceProgressoPaginas = setTimeout(async () => {
+      if (!leitorEpubAtual) return;
+      const item = leitorEpubAtual.item;
+      const maxAnterior = item.pagina_max_alcancada || 0;
+      if (paginaAtual <= maxAnterior) return; // já tinha chegado ali antes (voltou pra reler)
+      const delta = paginaAtual - maxAnterior;
+      item.pagina_max_alcancada = paginaAtual;
+      await supabaseClient.from('estante_pessoal').update({ pagina_max_alcancada: paginaAtual }).eq('id', item.id);
+      await incrementarEstatisticaLeitura({ paginas_lidas: delta });
+    }, 1200);
+  }
+
+  // soma páginas/minutos na estatística de leitura vitalícia do usuário (cria a linha se não existir)
+  async function incrementarEstatisticaLeitura(delta) {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return;
+    const usuarioId = sessionData.session.user.id;
+    const { data: atual } = await supabaseClient.from('estatisticas_leitura').select('*').eq('usuario_id', usuarioId).maybeSingle();
+    const paginas = (atual ? atual.paginas_lidas : 0) + (delta.paginas_lidas || 0);
+    const minutos = (atual ? atual.minutos_leitura : 0) + (delta.minutos_leitura || 0);
+    await supabaseClient.from('estatisticas_leitura').upsert({ usuario_id: usuarioId, paginas_lidas: paginas, minutos_leitura: minutos, atualizado_em: new Date().toISOString() });
+  }
+
+  // ---------- grifar: marca o trecho selecionado e abre o cartão de citação já preenchido ----------
+  window.grifarSelecaoAtual = async function () {
+    if (!leitorEpubAtual || !leitorEpubAtual.selecaoAtual) return;
+    const texto = leitorEpubAtual.selecaoAtual;
+    const item = leitorEpubAtual.item;
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData.session) {
+      await supabaseClient.from('grifos_livro').insert({
+        usuario_id: sessionData.session.user.id,
+        estante_id: item.id,
+        livro_titulo: item.titulo,
+        livro_autor: item.autor || null,
+        texto,
+      });
+    }
+
+    document.getElementById('grifarBarra').style.display = 'none';
+    document.getElementById('citacaoTextoInput').value = texto;
+    document.getElementById('citacaoTituloInput').value = item.titulo || '';
+    document.getElementById('citacaoAutorInput').value = item.autor || '';
+    document.getElementById('citacaoCanvas').style.display = 'none';
+    document.getElementById('citacaoAcoes').style.display = 'none';
+    document.getElementById('citacaoCartaoOverlay').classList.add('open');
+    mostrarToast('🖍️ grifado — agora é só gerar o cartão');
+  };
+
+  window.paginaAnteriorEpub = function () { if (leitorEpubAtual) leitorEpubAtual.rendition.prev(); };
+  window.proximaPaginaEpub = function () { if (leitorEpubAtual) leitorEpubAtual.rendition.next(); };
+
+  window.fecharLeitorEpub = function () {
+    closeOverlay('leitorEpubOverlay');
+    if (leitorEpubAtual) {
+      const minutosLidos = Math.round((Date.now() - leitorEpubAtual.inicioSessao) / 60000);
+      if (minutosLidos > 0) incrementarEstatisticaLeitura({ minutos_leitura: minutosLidos });
+      leitorEpubAtual.book.destroy();
+      leitorEpubAtual = null;
+    }
+    renderEstante();
   };
 
   window.abrirLivroPreview = async function (i) {
@@ -3187,31 +4755,84 @@ window.trocarModoDescobrir = function (modo) {
         corpo.innerHTML = heroHtml + `
           <div class="bio-box" style="margin-bottom:10px;">📖 clássico de domínio público — trecho do texto integral</div>
           <div style="white-space:pre-wrap; line-height:1.6; font-size:13.5px; padding:2px 2px 20px;">${(dados.texto || 'Prévia não disponível.').replace(/</g, '&lt;')}</div>
+          <div style="text-align:center; margin-bottom:8px;"><div class="livro-link-externo" onclick="abrirCartaoCitacaoDoLivro(${i})">${icone('compartilhar',13)} criar cartão de citação</div></div>
           ${item.link ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ler o livro completo</div></div>` : ''}
         `;
+        registrarLeituraHoje();
       } catch (e) {
         corpo.innerHTML = heroHtml + `<div class="visitor-lock-note">Não consegui carregar a prévia agora.</div>`;
       }
       return;
     }
 
-    // Google Books e Open Library não dão o texto completo pela API — em vez
-    // de abrir o visualizador feio deles dentro do app, mostra a capa/sinopse
-    // no estilo do Átomo e deixa um botão bonito pra continuar lendo fora
-    const avisoAmostra = item.fonte === 'Google Books' && !item.leituraCompleta
-      ? `<div class="bio-box" style="margin-bottom:10px;">👀 o Google só libera uma amostra desse livro — pra ler ele inteiro é preciso comprar por lá.</div>`
-      : '';
-    const textoBotaoLink = item.fonte === 'Google Books'
-      ? (item.leituraCompleta ? 'ler completo no Google Livros' : 'ver amostra no Google Livros')
-      : 'abrir no site de origem';
+    // Google Books: lê a prévia (ou o livro inteiro, quando liberado) direto
+    // aqui dentro, com o visualizador incorporado do próprio Google — sem
+    // precisar sair do app. Open Library não tem visualizador embutido, aí
+    // continua abrindo o site de origem.
+    if (item.fonte === 'Google Books' && item.googleId) {
+      const avisoAmostra = !item.leituraCompleta
+        ? `<div class="bio-box" style="margin-bottom:10px;">👀 o Google só libera uma amostra desse livro pra ler por aqui — pra ler ele inteiro é preciso comprar.</div>`
+        : '';
+      corpo.innerHTML = heroHtml + avisoAmostra + `
+        <div class="discover-desc" style="margin-bottom:10px;">${item.desc}</div>
+        <div id="googleLivroViewer" style="width:100%; height:420px; border-radius:12px; overflow:hidden; background:var(--accent-soft); margin-bottom:10px;"></div>
+        <div style="text-align:center;"><div class="livro-link-externo" onclick="abrirCartaoCitacaoDoLivro(${i})">${icone('compartilhar',13)} criar cartão de citação</div></div>
+      `;
+      carregarPreviaGoogleLivro(item.googleId);
+      return;
+    }
+
     corpo.innerHTML = heroHtml + `
-      ${avisoAmostra}
       <div class="discover-desc" style="margin-bottom:14px;">${item.desc}</div>
+      <div style="text-align:center; margin-bottom:8px;"><div class="livro-link-externo" onclick="abrirCartaoCitacaoDoLivro(${i})">${icone('compartilhar',13)} criar cartão de citação</div></div>
       ${item.link
-        ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ${textoBotaoLink}</div></div>`
+        ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} abrir no site de origem</div></div>`
         : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
     `;
   };
+
+  // ---------- visualizador incorporado do Google Books (lê dentro do app) ----------
+  let googleBooksApiPronta = false;
+  (function prepararGoogleBooksApi() {
+    function aoCarregar() { googleBooksApiPronta = true; }
+    function tentarRegistrar() {
+      if (window.google && window.google.books && window.google.books.load) {
+        try { google.books.setOnLoadCallback(aoCarregar); } catch (e) {}
+        return true;
+      }
+      return false;
+    }
+    if (!tentarRegistrar()) {
+      let tentativas = 0;
+      const intervalo = setInterval(() => {
+        tentativas++;
+        if (tentarRegistrar() || tentativas > 40) clearInterval(intervalo);
+      }, 250);
+    }
+  })();
+
+  async function carregarPreviaGoogleLivro(googleId) {
+    const container = document.getElementById('googleLivroViewer');
+    if (!container) return;
+    container.innerHTML = `<div class="visitor-lock-note" style="padding-top:30px;">Carregando prévia...</div>`;
+
+    const tempoLimite = Date.now() + 6000;
+    while (!googleBooksApiPronta && Date.now() < tempoLimite) {
+      await new Promise(r => setTimeout(r, 150));
+    }
+    if (!document.getElementById('googleLivroViewer')) return; // fechou o overlay enquanto esperava
+    if (!googleBooksApiPronta || !window.google || !google.books) {
+      container.innerHTML = `<div class="visitor-lock-note" style="padding-top:30px;">Não consegui carregar a prévia agora.</div>`;
+      return;
+    }
+    try {
+      container.innerHTML = '';
+      const viewer = new google.books.DefaultViewer(container);
+      viewer.load(googleId);
+    } catch (e) {
+      container.innerHTML = `<div class="visitor-lock-note" style="padding-top:30px;">Não consegui carregar a prévia agora.</div>`;
+    }
+  }
 
   window.comentarItemLivro = function (i) {
     discoverPendenteReal = window.ITENS_LIVROS_ATUAIS[i];
@@ -3352,6 +4973,7 @@ window.carregarMaisDescobrir = async function () {
 
     if (error) { console.log('erro ao carregar conversas:', error.message); return; }
 
+    let totalNaoLidas = 0;
     const linhas = await Promise.all((conversas || []).map(async (c) => {
       const outroId = c.usuario1_id === meuId ? c.usuario2_id : c.usuario1_id;
 
@@ -3362,17 +4984,29 @@ window.carregarMaisDescobrir = async function () {
         .from('mensagens').select('texto').eq('conversa_id', c.id)
         .order('criado_em', { ascending: false }).limit(1).maybeSingle();
 
+      const { count: naoLidas } = await supabaseClient
+        .from('mensagens').select('id', { count: 'exact', head: true })
+        .eq('conversa_id', c.id).eq('autor_id', outroId).eq('lida', false);
+      const qtdNaoLidas = naoLidas || 0;
+      totalNaoLidas += qtdNaoLidas;
+
       const nome = outroUsuario ? outroUsuario.handle : 'alguém';
-      return `<div class="dm-list-row" onclick="abrirDm('${outroId}', '${nome}')">
+      return `<div class="dm-list-row" onclick="abrirDm('${outroId}', '${nome}')" style="position:relative;">
         <div class="friend-avatar">${nome[0].toUpperCase()}</div>
         <div class="dm-preview"><div class="n">@${nome}</div><div class="msg">${ultimaMsg ? ultimaMsg.texto : 'nenhuma mensagem ainda'}</div></div>
+        ${qtdNaoLidas ? `<span class="tab-badge on" style="position:static; margin-left:auto; width:8px; height:8px; box-shadow:none;"></span>` : ''}
       </div>`;
     }));
 
     document.getElementById('dmListWrap').innerHTML = linhas.length
       ? linhas.join('')
       : `<div class="visitor-lock-note">Nenhuma conversa ainda — vai em "amigos" no Perfil pra começar uma 💬</div>`;
+
+    const badge = document.getElementById('msgTabBadge');
+    if (badge) badge.classList.toggle('on', totalNaoLidas > 0);
   }
+
+  window.atualizarBadgeMensagens = renderDmList;
   async function encontrarOuCriarConversa(outroId, meuId) {
   const { data: existente } = await supabaseClient
     .from('conversas')
@@ -3404,6 +5038,12 @@ window.abrirDm = async function (outroId, outroNome) {
   document.getElementById('dmChatName').textContent = '@' + outroNome;
   document.getElementById('dmChatOverlay').classList.add('open');
   await renderDmMsgs();
+  // pequeno delay pra deixar o overlay terminar de aparecer antes de focar —
+  // focar antes do tempo faz o teclado empurrar a tela no meio da transição
+  setTimeout(() => {
+    const input = document.getElementById('dmChatInput');
+    if (input) input.focus();
+  }, 150);
 };
 
 
@@ -3421,15 +5061,49 @@ async function renderDmMsgs() {
 
   document.getElementById('dmMessages').innerHTML = (data && data.length)
     ? data.map(m => {
-        const conteudo = (m.tipo_conteudo === 'gif' || m.tipo_conteudo === 'foto')
-          ? `<img src="${m.texto}" style="max-width:160px; border-radius:12px; display:block;" />`
-          : m.texto;
-        return `<div class="dm-bubble ${m.autor_id === meuId ? 'own' : 'other'}">${conteudo}</div>`;
+        let conteudo;
+        let classeExtra = '';
+        if (m.tipo_conteudo === 'audio') {
+          conteudo = vozBubbleHtml(m);
+        } else if (m.tipo_conteudo === 'sticker') {
+          conteudo = STICKERS_ATOMO[m.texto] ? icone(STICKERS_ATOMO[m.texto], 46) : '🎨';
+          classeExtra = ' sticker-bubble';
+        } else if (m.tipo_conteudo === 'gif' || m.tipo_conteudo === 'foto') {
+          conteudo = `<img src="${m.texto}" style="max-width:160px; border-radius:12px; display:block;" />`;
+        } else if (m.tipo_conteudo === 'post') {
+          conteudo = dmPostCompartilhadoHtml(m.texto);
+          classeExtra = ' post-share-bubble';
+        } else {
+          conteudo = m.texto;
+        }
+        return `<div class="dm-bubble ${m.autor_id === meuId ? 'own' : 'other'}${classeExtra}">${conteudo}</div>`;
       }).join('')
-    : `<div class="visitor-lock-note">Comece a conversa 💬</div>`;
+    : `<div class="dm-empty-state">${icone('comentar',34)}<div class="titulo">Comece a conversa</div><div class="sub">Manda um oi, um GIF ou um sticker — a conversa começa aqui 💬</div></div>`;
 
   const wrap = document.getElementById('dmMessages');
   wrap.scrollTop = wrap.scrollHeight;
+
+  // marca como lidas as mensagens da outra pessoa que eu acabei de ver
+  const idsNaoLidas = (data || []).filter(m => m.autor_id !== meuId && m.lida === false).map(m => m.id);
+  if (idsNaoLidas.length) {
+    await supabaseClient.from('mensagens').update({ lida: true }).in('id', idsNaoLidas);
+    atualizarBadgeMensagens();
+  }
+}
+
+// renderiza a bolha de "post compartilhado" dentro da DM — se o texto não for
+// o JSON esperado (mensagem antiga/de outro tipo), cai pro texto puro
+function dmPostCompartilhadoHtml(textoBruto) {
+  try {
+    const p = JSON.parse(textoBruto);
+    return `<div class="dm-post-share">
+      <div class="autor">@${p.autor || 'alguém'}</div>
+      <div class="trecho">${(p.texto || '').slice(0, 140)}</div>
+      ${p.imagem_url ? `<img src="${p.imagem_url}" />` : ''}
+    </div>`;
+  } catch (e) {
+    return textoBruto;
+  }
 }
 
 let paginaGifAtual = 1;
@@ -3491,8 +5165,8 @@ window.buscarGifReal = async function () {
     : `<div class="visitor-lock-note">Nenhum GIF encontrado.</div>`;
 };
 
-window.enviarFotoDm = async function () {
-  const input = document.getElementById('dmFotoInput');
+window.enviarFotoDm = async function (el) {
+  const input = el || document.getElementById('dmFotoInput');
   if (!input.files || !input.files[0]) return;
   const arquivo = input.files[0];
 
@@ -3537,6 +5211,172 @@ window.enviarGif = async function (url) {
   await renderDmMsgs();
 };
 
+// ---------- figurinhas desenhadas no estilo do app ----------
+// reaproveita o mesmo jeito de ícone torto (ICONE_SVG/icone()) do resto do
+// Átomo, em vez de figurinha genérica — cada chave é um nome de ícone novo
+// desenhado só pra reação em conversa
+const STICKERS_ATOMO = {
+  coracao: 'stickerCoracao', risada: 'stickerRisada', uau: 'stickerUau',
+  chorando: 'stickerChorando', fogo: 'stickerFogo', aplausos: 'stickerAplausos',
+  pensando: 'stickerPensando', livro: 'stickerLivro',
+};
+Object.assign(ICONE_SVG, {
+  stickerCoracao: '<path d="M12 19.5s-6.8-4.2-9-8.2C1.4 8 2.3 4.6 5.6 3.6c1.9-.6 3.9.1 5 1.7l1.4 2 1.4-2c1.1-1.6 3.1-2.3 5-1.7 3.3 1 4.2 4.4 2.6 7.7-2.2 4-9 8.2-9 8.2Z"/>',
+  stickerRisada: '<circle cx="12" cy="12" r="8.4"/><path d="M7.6 13.2c1 2.3 2.8 3.6 4.4 3.6s3.4-1.3 4.4-3.6c-1.7.6-3 .8-4.4.8s-2.7-.2-4.4-.8Z"/><path d="M8.4 9.3h.1M15.5 9.3h.1"/>',
+  stickerUau: '<circle cx="12" cy="12" r="8.4"/><circle cx="8.7" cy="10.4" r="1"/><circle cx="15.3" cy="10.4" r="1"/><path d="M9.4 15c.9.9 1.3 1.3 2.6 1.3s1.7-.4 2.6-1.3"/>',
+  stickerChorando: '<circle cx="12" cy="11.4" r="8"/><path d="M8.3 9.6h.1M15.6 9.6h.1"/><path d="M8.6 14.6c1 .9 2.1 1.3 3.4 1.3s2.4-.4 3.4-1.3"/><path d="M9.1 15.8c-.3 1.6-1 2.7-2.2 3.6M14.9 15.8c.3 1.6 1 2.7 2.2 3.6"/>',
+  stickerFogo: '<path d="M12 3.8c1 2.4-.4 3.6-1.4 4.9-1.3 1.7-1.9 3.4-.6 5.2-1.9-.5-3-2-2.9-3.9-1.6 1.6-2.2 3.7-1.5 5.9.9 2.8 3.6 4.5 6.6 4.1 3.2-.4 5.4-3 5.2-6.1-.2-3.4-2.8-5.3-5.4-10.1Z"/>',
+  stickerAplausos: '<path d="M7 13.5 4.2 10a2 2 0 0 1 2.9-2.7l2.6 2.8"/><path d="M9.2 10.6 6.6 7.7a2 2 0 0 1 2.9-2.7l3.3 3.6"/><path d="M12.2 8.6 10 6.2a1.9 1.9 0 0 1 2.8-2.6l4.6 5c1.8 2 2 5 .4 7.2l-.7 1c-1.8 2.5-5.2 3.2-7.9 1.5l-4.5-2.8"/>',
+  stickerPensando: '<circle cx="11.5" cy="10.5" r="7.3"/><path d="M9 9.7a2.4 2.4 0 1 1 3.4 2.2c-.8.4-1.2.9-1.2 1.9"/><circle cx="11.5" cy="15.2" r=".15" fill="currentColor" stroke="none"/><circle cx="17.5" cy="18" r="1.6"/><circle cx="20.3" cy="21" r=".9"/>',
+  stickerLivro: '<path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/>',
+});
+
+window.toggleStickerPicker = function () {
+  const area = document.getElementById('stickerPickerArea');
+  const abrindo = area.style.display === 'none';
+  document.getElementById('gifPickerArea').style.display = 'none';
+  area.style.display = abrindo ? 'block' : 'none';
+  if (abrindo) {
+    document.getElementById('resultadosSticker').innerHTML = Object.keys(STICKERS_ATOMO).map(chave => `
+      <div onclick="enviarSticker('${chave}')" style="cursor:pointer; text-align:center; padding:6px; border-radius:12px; background:var(--card); border:1px solid var(--card-b);">
+        ${icone(STICKERS_ATOMO[chave], 30)}
+      </div>`).join('');
+  }
+};
+
+window.enviarSticker = async function (chave) {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const { error } = await supabaseClient.from('mensagens').insert({
+    conversa_id: conversaAbertaId,
+    autor_id: sessionData.session.user.id,
+    texto: chave,
+    tipo_conteudo: 'sticker',
+  });
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  document.getElementById('stickerPickerArea').style.display = 'none';
+  await renderDmMsgs();
+};
+
+// ---------- mensagem de voz (gravação e player por mensagem) ----------
+let mediaRecorderAtomo = null;
+let chunksAudioAtomo = [];
+let gravandoAudio = false;
+let inicioGravacaoTs = null;
+let intervaloGravacaoUi = null;
+
+window.alternarGravacaoAudio = async function () {
+  if (gravandoAudio) { pararGravacaoAudio(); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    mostrarToast('❌ esse navegador não permite gravar áudio');
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chunksAudioAtomo = [];
+    mediaRecorderAtomo = new MediaRecorder(stream);
+    mediaRecorderAtomo.ondataavailable = e => { if (e.data.size > 0) chunksAudioAtomo.push(e.data); };
+    mediaRecorderAtomo.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunksAudioAtomo, { type: 'audio/webm' });
+      if (blob.size > 0) enviarAudioGravado(blob);
+    };
+    mediaRecorderAtomo.start();
+    gravandoAudio = true;
+    inicioGravacaoTs = Date.now();
+    atualizarBotaoGravacao();
+    intervaloGravacaoUi = setInterval(atualizarBotaoGravacao, 500);
+  } catch (e) {
+    mostrarToast('❌ não consegui acessar o microfone');
+  }
+};
+
+function pararGravacaoAudio() {
+  if (mediaRecorderAtomo && gravandoAudio) mediaRecorderAtomo.stop();
+  gravandoAudio = false;
+  clearInterval(intervaloGravacaoUi);
+  atualizarBotaoGravacao();
+}
+
+function atualizarBotaoGravacao() {
+  const btn = document.getElementById('btnGravarAudio');
+  if (!btn) return;
+  if (gravandoAudio) {
+    const seg = Math.floor((Date.now() - inicioGravacaoTs) / 1000);
+    const m = Math.floor(seg / 60);
+    const s = (seg % 60).toString().padStart(2, '0');
+    btn.innerHTML = `⏺ ${m}:${s}`;
+    btn.style.background = 'var(--pink)';
+    btn.style.color = '#fff';
+  } else {
+    btn.innerHTML = '<span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span>';
+    btn.style.background = 'var(--accent-soft)';
+    btn.style.color = 'var(--accent-a)';
+  }
+}
+
+async function enviarAudioGravado(blob) {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session.user.id;
+  const caminho = `${meuId}/audio-dm-${Date.now()}.webm`;
+
+  mostrarToast('🎙️ enviando áudio...');
+  const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, blob, { contentType: 'audio/webm' });
+  if (erroUpload) { mostrarToast('❌ erro no envio: ' + erroUpload.message); return; }
+
+  const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+
+  const { error } = await supabaseClient.from('mensagens').insert({
+    conversa_id: conversaAbertaId,
+    autor_id: meuId,
+    texto: data.publicUrl,
+    tipo_conteudo: 'audio',
+  });
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  await renderDmMsgs();
+}
+
+function vozBubbleHtml(m) {
+  const id = 'voice-' + m.id;
+  return `
+    <div class="voice-bubble-player">
+      <audio id="${id}-audio" src="${m.texto}" preload="metadata" style="display:none;"></audio>
+      <button class="player-play-btn" onclick="alternarPlayVoz(this,'${id}')">▶</button>
+      <div class="player-track" onclick="pularParaPontoVoz(event,'${id}')"><div class="player-track-fill" id="${id}-fill"></div></div>
+      <div class="player-time" id="${id}-time">0:00</div>
+    </div>`;
+}
+
+window.alternarPlayVoz = function (btn, id) {
+  const audio = document.getElementById(id + '-audio');
+  if (!audio) return;
+  if (audio.paused) {
+    document.querySelectorAll('#dmMessages audio').forEach(a => { if (a !== audio) a.pause(); });
+    document.querySelectorAll('.voice-bubble-player .player-play-btn').forEach(b => { if (b !== btn) b.textContent = '▶'; });
+    audio.play();
+    btn.textContent = '⏸';
+  } else {
+    audio.pause();
+    btn.textContent = '▶';
+  }
+  audio.ontimeupdate = () => {
+    const pct = (audio.currentTime / audio.duration) * 100 || 0;
+    const fill = document.getElementById(id + '-fill');
+    if (fill) fill.style.width = pct + '%';
+    const min = Math.floor(audio.currentTime / 60);
+    const seg = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+    const timeEl = document.getElementById(id + '-time');
+    if (timeEl) timeEl.textContent = `${min}:${seg}`;
+  };
+  audio.onended = () => { btn.textContent = '▶'; };
+};
+
+window.pularParaPontoVoz = function (e, id) {
+  const audio = document.getElementById(id + '-audio');
+  const track = e.currentTarget;
+  const pct = (e.clientX - track.getBoundingClientRect().left) / track.offsetWidth;
+  if (audio && audio.duration) audio.currentTime = pct * audio.duration;
+};
+
 window.enviarDmMsg = async function () {
   const input = document.getElementById('dmChatInput');
   const val = input.value.trim();
@@ -3569,6 +5409,7 @@ window.enviarDmMsg = async function () {
 
   input.value = '';
   await renderDmMsgs();
+  notificarPushEvento(outroId, 'mensagem', {});
 };
 
 window.abrirDmDireto = async function (id) {
@@ -3627,7 +5468,7 @@ window.abrirPerfilDoAmigo = async function (id) {
     const ATUALIZAR_POR_TELA = {
       feed: () => carregarPostsReais(),
       descobrir: () => renderDiscover(),
-      livros: () => renderLivros(),
+      livros: () => renderLivrosAtual(),
       mensagens: () => renderDmList(),
     };
 
@@ -4154,6 +5995,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       if (perfil.horario_acordar_min != null) horarioAcordarMin = perfil.horario_acordar_min;
     }
     window.MEU_USUARIO_ID = session.user.id;
+    window.MEU_HANDLE = (perfil && perfil.handle) || '';
            mostrarToast('✨ Bem-vinda de volta, ' + session.user.email);
     await carregarAmigosEsugestoes();
     await atualizarContadorVisitas();
@@ -4175,6 +6017,29 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         carregarNotificacoes();
         atualizarBadgePerguntasPendentes();
         mostrarToast('🔔 Nova notificação chegou!');
+      })
+      .subscribe();
+
+    // mesma lógica pro chat: sem isso, uma DM nova só aparecia quando a pessoa
+    // reabria a conversa manualmente. O RLS da tabela 'mensagens' já garante que
+    // só chegam aqui linhas que essa sessão tem permissão de ver.
+    supabaseClient
+      .channel('mensagens-realtime')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'mensagens',
+      }, (payload) => {
+        const nova = payload.new;
+        if (!nova || nova.autor_id === session.user.id) return;
+        const overlayAberto = document.getElementById('dmChatOverlay').classList.contains('open');
+        if (overlayAberto && conversaAbertaId === nova.conversa_id) {
+          renderDmMsgs();
+          supabaseClient.from('mensagens').update({ lida: true }).eq('id', nova.id);
+        } else {
+          renderDmList();
+          mostrarToast('💬 Nova mensagem!');
+        }
       })
       .subscribe();
   }    
@@ -4331,6 +6196,55 @@ window.loginComGoogle = async function () {
     setTimeout(() => mostrarBannerNotificacao(), 1200);
   };
 
+  // ---------- clima real do dia, mostrado no topo da tela de escrever ----------
+  const CLIMA_WMO = {
+    0: { ic: 'sol', txt: 'céu limpo' }, 1: { ic: 'sol', txt: 'poucas nuvens' },
+    2: { ic: 'nublado', txt: 'parcialmente nublado' }, 3: { ic: 'nublado', txt: 'nublado' },
+    45: { ic: 'nevoeiro', txt: 'nevoeiro' }, 48: { ic: 'nevoeiro', txt: 'nevoeiro' },
+    51: { ic: 'chuva', txt: 'garoa fraca' }, 53: { ic: 'chuva', txt: 'garoa' }, 55: { ic: 'chuva', txt: 'garoa forte' },
+    56: { ic: 'chuva', txt: 'garoa congelante' }, 57: { ic: 'chuva', txt: 'garoa congelante' },
+    61: { ic: 'chuva', txt: 'chuva fraca' }, 63: { ic: 'chuva', txt: 'chuva' }, 65: { ic: 'chuva', txt: 'chuva forte' },
+    66: { ic: 'chuva', txt: 'chuva congelante' }, 67: { ic: 'chuva', txt: 'chuva congelante' },
+    71: { ic: 'neve', txt: 'neve fraca' }, 73: { ic: 'neve', txt: 'neve' }, 75: { ic: 'neve', txt: 'neve forte' },
+    77: { ic: 'neve', txt: 'grãos de neve' },
+    80: { ic: 'chuva', txt: 'pancadas de chuva' }, 81: { ic: 'chuva', txt: 'pancadas de chuva' }, 82: { ic: 'chuva', txt: 'pancadas fortes' },
+    85: { ic: 'neve', txt: 'pancadas de neve' }, 86: { ic: 'neve', txt: 'pancadas de neve' },
+    95: { ic: 'tempestade', txt: 'trovoada' }, 96: { ic: 'tempestade', txt: 'trovoada com granizo' }, 99: { ic: 'tempestade', txt: 'trovoada com granizo' }
+  };
+
+  function renderClimaWidget(temp, codigo) {
+    const wrap = document.getElementById('climaWidget');
+    if (!wrap) return;
+    const info = CLIMA_WMO[codigo] || { ic: 'nublado', txt: 'tempo variável' };
+    wrap.innerHTML = icone(info.ic, 15) + ' <span>' + temp + '°C · ' + info.txt + '</span>';
+    wrap.style.display = 'flex';
+  }
+
+  function carregarClimaWidget() {
+    try {
+      const hojeChave = fmtDataISO(new Date());
+      const cacheBruto = localStorage.getItem('atomoClimaCache');
+      const cache = cacheBruto ? JSON.parse(cacheBruto) : null;
+      if (cache && cache.data === hojeChave) { renderClimaWidget(cache.temp, cache.codigo); return; }
+    } catch (e) { /* localStorage pode falhar em aba anônima — segue sem cache */ }
+
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      const lat = pos.coords.latitude, lon = pos.coords.longitude;
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,weather_code')
+        .then(function (r) { return r.json(); })
+        .then(function (json) {
+          const temp = Math.round(json.current.temperature_2m);
+          const codigo = json.current.weather_code;
+          try {
+            localStorage.setItem('atomoClimaCache', JSON.stringify({ data: fmtDataISO(new Date()), temp: temp, codigo: codigo }));
+          } catch (e) { /* segue sem cache */ }
+          renderClimaWidget(temp, codigo);
+        })
+        .catch(function () { /* clima é só um detalhe a mais, falha silenciosa */ });
+    }, function () { /* permissão negada — widget fica escondido */ }, { timeout: 8000 });
+  }
+
   // ---------- prompt do composer muda pelo horário, dá cara de ritual diário ----------
   function aplicarPromptDoMomento() {
     const h = new Date().getHours();
@@ -4458,13 +6372,15 @@ window.openNotifs = async function () {
   }, 1400);
   atualizarHorarioSlider();
   aplicarPromptDoMomento();
+  carregarClimaWidget();
   renderSelosPerfil();
   renderTypeChips();
   renderFeed();
   renderDiary();
   renderDiscover();
-  renderLivros();
+  renderLivrosAtual();
   renderDmList();
+  verificarConviteClubePendente();
 })();
 </script>
 <script>
@@ -4474,6 +6390,42 @@ window.openNotifs = async function () {
       navigator.serviceWorker.register('sw.js').catch(err => console.log('service worker não registrou:', err.message));
     });
   }
+</script>
+<script>
+  // ---------- gesto de arrastar da borda pra voltar (igual Threads/iOS) ----------
+  // não substitui a setinha de voltar — os dois convivem. Genérico de propósito:
+  // acha o overlay/tela aberta no momento (quase tudo no app usa .dm-chat-overlay
+  // ou .config-overlay com um .back-btn dentro) e clica no próprio botão de voltar
+  // dele, em vez de duplicar a lógica de fechar em cada tela.
+  (function initGestoVoltarBorda() {
+    const LIMIAR_BORDA = 26;     // só conta se o toque começar perto da borda esquerda
+    const LIMIAR_ARRASTO = 70;   // distância mínima arrastada pra valer como "voltar"
+    const LIMIAR_VERTICAL = 60;  // se desviar demais na vertical, não conta (provável scroll)
+    let inicioX = 0, inicioY = 0, seguindoGesto = false;
+
+    document.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) { seguindoGesto = false; return; }
+      const t = e.touches[0];
+      seguindoGesto = t.clientX <= LIMIAR_BORDA;
+      inicioX = t.clientX;
+      inicioY = t.clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (!seguindoGesto) return;
+      seguindoGesto = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - inicioX;
+      const dy = Math.abs(t.clientY - inicioY);
+      if (dx < LIMIAR_ARRASTO || dy > LIMIAR_VERTICAL) return;
+
+      const abertos = document.querySelectorAll('.dm-chat-overlay.open, .config-overlay.open');
+      if (!abertos.length) return;
+      const telaAtual = abertos[abertos.length - 1]; // a mais recente no DOM = a de cima
+      const botaoVoltar = telaAtual.querySelector('.back-btn');
+      if (botaoVoltar) botaoVoltar.click();
+    }, { passive: true });
+  })();
 </script>
 </body>
 </html>

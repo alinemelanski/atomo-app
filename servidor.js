@@ -22,7 +22,7 @@ const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
 if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails('mailto:alinemelanski10@gmail.com', VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 } else {
-  console.log('push não configurado: faltam VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY no .env');
+  console.log('push não configurado: faltam VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY no servidor.env');
 }
 
 // cliente com a service role — só usado nas rotas de push, que precisam ler
@@ -65,6 +65,32 @@ app.post('/api/push/testar', async (req, res) => {
 
   try {
     const enviadas = await enviarPushParaUsuario(usuarioId, 'Teste 🔔', 'Se você tá vendo isso, as notificações push do Átomo estão funcionando!');
+    res.json({ ok: true, enviadas });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
+// dispara push pros eventos do dia a dia (curtida, comentário, novo seguidor,
+// mensagem nova). O client chama essa rota logo depois de gravar o evento real
+// no Supabase — o título/corpo da notificação sempre vêm de um modelo fixo aqui,
+// nunca de texto livre do client, então não dá pra usar isso pra mandar spam.
+const MODELOS_NOTIFICACAO_PUSH = {
+  curtida: (d) => ({ titulo: '❤️ Nova curtida', corpo: `@${d.de || 'alguém'} curtiu seu post` }),
+  comentario: (d) => ({ titulo: '💬 Novo comentário', corpo: `@${d.de || 'alguém'} comentou: "${String(d.texto || '').slice(0, 80)}"` }),
+  seguidor: (d) => ({ titulo: '➕ Novo seguidor', corpo: `@${d.de || 'alguém'} começou a te seguir` }),
+  mensagem: (d) => ({ titulo: '✉️ Nova mensagem', corpo: `@${d.de || 'alguém'} te mandou uma mensagem` }),
+};
+
+app.post('/api/push/notificar', async (req, res) => {
+  const { usuarioId, tipo, dados } = req.body || {};
+  if (!usuarioId || !tipo) return res.status(400).json({ erro: 'dados incompletos' });
+  const modelo = MODELOS_NOTIFICACAO_PUSH[tipo];
+  if (!modelo) return res.status(400).json({ erro: 'tipo inválido' });
+
+  try {
+    const { titulo, corpo } = modelo(dados || {});
+    const enviadas = await enviarPushParaUsuario(usuarioId, titulo, corpo);
     res.json({ ok: true, enviadas });
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
@@ -196,6 +222,9 @@ function indiceRotativoDoDia(dataYyyyMmDd, tamanho) {
 }
 
 async function enviarPushParaUsuario(usuarioId, titulo, corpo) {
+  // push ainda não configurado no servidor (faltam segredos no .env) — sai sem
+  // quebrar quem chamou, pra dar pra chamar essa função de qualquer lugar sem medo
+  if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return 0;
   const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('*').eq('usuario_id', usuarioId);
   let enviadas = 0;
   for (const sub of subs || []) {
