@@ -14,9 +14,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Átomo">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://www.google.com/books/jsapi.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
   :root {
     /* ---------- modo claro (padrão) — quente, papel kraft ---------- */
@@ -257,13 +256,16 @@
 .post-swipe-fundo { position: absolute; inset: 0; background: #E06B6B; border-radius: 14px; display: flex; align-items: center; justify-content: flex-end;
   padding-right: 20px; color: #fff; font-size: 18px; opacity: 0; transition: opacity .2s ease; pointer-events: none; }
 .reordenar-item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--card-b);
-  border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: var(--ink); touch-action: none; user-select: none; }
+  border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: var(--ink); }
+.reordenar-item.oculto { opacity: 0.45; }
 .reordenar-item .alca { color: var(--ink-faint); font-size: 16px; }
-.reordenar-item.arrastando { opacity: 0.5; }
-.reordenar-setas { display: flex; flex-direction: column; gap: 4px; margin-left: auto; }
+.reordenar-setas { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: none; }
 .reordenar-seta { width: 26px; height: 22px; border-radius: 7px; background: var(--accent-soft); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
 .reordenar-seta:disabled { opacity: 0.3; cursor: default; }
+.reordenar-ocultar { width: 26px; height: 22px; border-radius: 7px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; background: var(--accent-soft); color: var(--ink-dim); }
+.reordenar-ocultar.on { background: var(--pink-soft); color: var(--pink); }
 .guia-passo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; font-size: 13px; color: var(--ink); line-height: 1.45; }
 .guia-passo-n { flex: none; width: 22px; height: 22px; border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 11px; font-weight: 800;
@@ -391,6 +393,15 @@
   .back-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--card-b); cursor: pointer;
     display: flex; align-items: center; justify-content: center; }
 
+  /* ---------- leitor de livro (Gutendex, texto integral, folheável tipo Kindle) ---------- */
+  .leitor-livro-barra { height: 3px; border-radius: 999px; background: var(--card-b); margin-bottom: 10px; overflow: hidden; flex: none; }
+  .leitor-livro-barra-preenchida { height: 100%; background: linear-gradient(90deg, var(--accent-a), var(--accent-b)); border-radius: 999px;
+    transition: width .25s ease; width: 0%; }
+  .leitor-livro-area { position: relative; flex: 1; overflow: hidden; }
+  .leitor-livro-pagina { position: absolute; inset: 0; overflow-y: auto; padding: 6px 4px 20px;
+    font-family: Georgia, 'Times New Roman', serif; font-size: 15.5px; line-height: 1.75; color: var(--ink);
+    white-space: pre-wrap; animation: leitorLivroFade .2s ease; }
+  @keyframes leitorLivroFade { from { opacity: 0; } to { opacity: 1; } }
   /* ---------- configurações ---------- */
   .config-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: none;
     padding: calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; }
@@ -492,6 +503,12 @@
   .edit-profile-btn { margin-left: auto; align-self: flex-start; font-size: 10.5px; font-weight: 800; color: var(--accent-a);
     background: var(--accent-soft); border: none; padding: 6px 11px; border-radius: 999px; cursor: pointer; }
   .edit-field-label { font-size: 10.5px; font-weight: 800; color: var(--ink-faint); margin: 12px 0 5px; }
+  /* estilo padrão pra QUALQUER textarea do app que não tenha classe própria —
+     sem isso, cai no visual cru do navegador (fundo branco, borda quadrada),
+     que destoa muito no modo escuro */
+  textarea { width: 100%; min-height: 70px; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 14px;
+    padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); resize: none; outline: none; box-sizing: border-box; }
+  textarea::placeholder { color: var(--ink-faint); }
   .edit-bio-textarea { width: 100%; min-height: 70px; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 14px;
     padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); resize: none; outline: none; }
   .pulse-highlight { animation: pulse-glow 0.9s ease; border-radius: 14px; }
@@ -515,8 +532,9 @@
     transform: translateX(-50%) translateY(-60px) scale(0.8);
     transition: opacity .12s ease;
   }
+  .pull-refresh-papel { width: 22px; height: 22px; flex: none; }
   .pull-refresh-indicator.spinning { transition: transform .2s ease, opacity .12s ease; }
-  .pull-refresh-indicator.spinning span { display: inline-block; animation: pull-spin .7s linear infinite; }
+  .pull-refresh-indicator.spinning .pull-refresh-papel { display: inline-block; animation: pull-spin .8s linear infinite; }
   @keyframes pull-spin { to { transform: rotate(360deg); } }
   /* ---------- icones (paleta thin-line) ---------- */
   .icon-svg { display: inline-flex; align-items: center; justify-content: center; flex: none;
@@ -539,11 +557,71 @@
   .livro-link-externo { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px;
     background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 12.5px; font-weight: 800;
     cursor: pointer; margin: 10px auto 0; }
+
+  /* ---------- clube do livro: vidro, marca d'agua do atomo, cards grandes ---------- */
+  .clube-lista-wrap { position: relative; overflow: hidden; padding-top: 4px; }
+  .clube-watermark { position: absolute; top: -52px; right: -60px; width: 210px; height: 210px;
+    animation: clubeSpinLento 60s linear infinite; pointer-events: none; z-index: 0; color: var(--ink); }
+  @keyframes clubeSpinLento { to { transform: rotate(360deg); } }
+  .clube-watermark path:first-child { fill: currentColor; fill-opacity: .05; stroke: currentColor; stroke-opacity: .15; }
+  .clube-watermark .scribble-marca { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .12; }
+
+  .clube-kicker { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--accent-a); margin-bottom: 6px; }
+  .clube-titulo-grande { position: relative; z-index: 1; font-family: 'Fraunces', serif; font-weight: 800;
+    font-size: 31px; line-height: 1.05; color: var(--ink); margin: 2px 0 4px; letter-spacing: -.01em; }
+  .clube-sub-grande { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-dim); margin-bottom: 16px; }
+
+  .clube-criar-btn { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; padding: 13px; margin-bottom: 16px; border: none; border-radius: 999px; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b)); color: #fff; font-size: 13.5px; font-weight: 800;
+    font-family: 'DM Sans', sans-serif; box-shadow: var(--shadow); transition: transform .15s ease; }
+  .clube-criar-btn:active { transform: scale(.97); }
+
+  .clube-card-grande { position: relative; z-index: 1; aspect-ratio: 16 / 10; border-radius: 24px; overflow: hidden;
+    margin-bottom: 16px; box-shadow: var(--shadow); cursor: pointer; background: var(--card-b);
+    animation: clubeCardEntra .5s cubic-bezier(.2,.8,.2,1) backwards; transition: transform .15s ease; }
+  .clube-card-grande:active { transform: scale(.98); }
+  @keyframes clubeCardEntra { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .clube-card-capa { position: absolute; inset: 0; background-size: cover; background-position: center 22%; }
+  .clube-card-capa.sem-capa { background: linear-gradient(150deg, var(--accent-a), var(--accent-b)); display: flex; align-items: center; justify-content: center; }
+  .clube-card-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,8,6,.78) 0%, rgba(10,8,6,.2) 46%, transparent 70%); }
+  .clube-card-pill { position: absolute; top: 12px; display: flex; align-items: center; gap: 5px; padding: 6px 11px;
+    border-radius: 999px; background: rgba(20,16,12,.4); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+    border: 1px solid rgba(255,255,255,.2); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; z-index: 2; }
+  .clube-card-pill.membros { left: 12px; }
+  .clube-card-pill.lock { right: 12px; padding: 6px; }
+  .clube-card-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px; z-index: 2; }
+  .clube-card-nome { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; text-shadow: 0 1px 10px rgba(0,0,0,.35); letter-spacing: -.01em; }
+  .clube-card-livro { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: rgba(255,255,255,.92); display: flex; align-items: center; gap: 6px; }
+
+  .clube-hero-glass { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden;
+    background-size: cover; background-position: center 25%; box-shadow: var(--shadow); }
+  .clube-hero-glass.sem-livro { aspect-ratio: auto; padding: 22px; background: var(--card); border: 1px dashed var(--card-b);
+    display: flex; align-items: center; justify-content: center; }
+  .clube-hero-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,8,6,.75) 0%, rgba(10,8,6,.12) 55%, transparent 75%); }
+  .clube-hero-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px; z-index: 1; }
+  .clube-hero-titulo { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: #fff; line-height: 1.15; text-shadow: 0 1px 10px rgba(0,0,0,.35); letter-spacing: -.01em; }
+  .clube-hero-autor { font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,.88); margin-top: 3px; }
+  .clube-meta-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .clube-meta-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--ink-dim); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; }
+  #clubeDetalheMural .post { animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }
+  #clubeDetalheMural .post-body { animation: clubeFadeIn .3s ease; }
+  @keyframes clubeFadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
 <body>
   <div class="device" id="device">
-    <div class="pull-refresh-indicator" id="pullRefreshIndicator"><span>↓</span></div>
+    <div class="pull-refresh-indicator" id="pullRefreshIndicator">
+      <svg class="pull-refresh-papel" viewBox="0 0 100 100">
+        <path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z" fill="#EDE4D3" stroke="#CBBFA0" stroke-width="1.2"/>
+        <path class="scribble-line" d="M3,52 C7,39 27,32 51,37 C73,31 98,43 94,52 C99,61 77,68 48,62 C21,69 1,58 3,52 Z" transform="rotate(15 50 50)"/>
+        <path class="scribble-line" d="M6,47 C3,37 29,34 53,36 C71,29 95,44 91,54 C97,57 73,67 47,60 C25,72 2,55 6,47 Z" transform="rotate(55 50 50)"/>
+        <path class="scribble-line" d="M4,53 C9,40 24,34 49,38 C76,33 96,42 93,49 C98,60 76,64 52,59 C22,66 0,57 4,53 Z" transform="rotate(95 50 50)"/>
+        <path class="scribble-line" d="M5,49 C2,41 28,33 50,37 C74,32 97,44 93,53 C96,58 78,67 49,61 C20,65 3,56 5,49 Z" transform="rotate(135 50 50)"/>
+      </svg>
+    </div>
 
     <!-- SPLASH: papel amassando na entrada -->
     <div class="splash-screen" id="splashScreen">
@@ -719,7 +797,7 @@
     <div class="screen" id="screen-livros">
       <div class="top-row"><h1>📖 Livros</h1></div>
       <div class="feed-modo-row" style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-        <div class="feed-modo-chip on" data-modo-livros="clube" onclick="trocarModoLivros('clube')">👥 clube do livro</div>
+        <div class="feed-modo-chip on" data-modo-livros="clube" onclick="trocarModoLivros('clube')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/></svg></span> clube do livro</div>
         <div class="feed-modo-chip" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')">📚 livros gratuitos</div>
         <div class="feed-modo-chip" data-modo-livros="estante" onclick="trocarModoLivros('estante')">🗂️ minha estante</div>
       </div>
@@ -820,7 +898,7 @@
     <button class="back-btn" onclick="closeOverlay('reordenarTiposOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px;">Reordenar tipos</h2>
   </div>
-  <div class="visitor-lock-note" style="margin-bottom:10px;">Segure e arraste pra reordenar</div>
+  <div class="visitor-lock-note" style="margin-bottom:10px;">Use as setas pra reordenar. Toque no ✕ pra esconder um tipo do composer.</div>
   <div id="reordenarTiposList" style="display:flex; flex-direction:column; gap:8px;"></div>
 </div>
 
@@ -863,6 +941,7 @@
       <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Bloquear</div>
     </div>
   </div>
+  <div style="flex:1; overflow-y:auto;">
   <div class="profile-head">
     <div class="profile-avatar" id="perfilAlheioAvatar">?</div>
     <div class="profile-name">
@@ -881,6 +960,7 @@
   </div>
   <div id="perfilAlheioPosts" style="margin-top:18px;"></div>
   <div id="perfilAlheioPerguntasArea" style="margin-top:16px;"></div>
+  </div>
 </div>
 
 <!-- OVERLAY: PRÉVIA DE LIVRO -->
@@ -938,7 +1018,7 @@
         <button class="back-btn" onclick="fecharClubeDetalhe()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;" id="clubeDetalheTitulo">Clube</h2>
       </div>
-      <div id="clubeDetalheLivroAtual" style="display:flex; gap:12px; align-items:center; margin-bottom:10px;"></div>
+      <div id="clubeDetalheLivroAtual" style="margin-bottom:10px;"></div>
       <div id="clubeDetalheMeta" style="margin-bottom:10px;"></div>
       <div id="clubeDetalheAcoes" style="margin-bottom:16px;"></div>
 
@@ -1009,6 +1089,23 @@
       <div style="display:flex; justify-content:space-between; padding:10px 4px; gap:10px;">
         <button class="post-btn" style="flex:1;" onclick="paginaAnteriorEpub()">← anterior</button>
         <button class="post-btn" style="flex:1;" onclick="proximaPaginaEpub()">próxima →</button>
+      </div>
+    </div>
+
+    <!-- OVERLAY: LEITOR DE LIVRO (Gutendex, texto integral, folheável) -->
+    <div class="dm-chat-overlay" id="leitorLivroOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="fecharLeitorLivro()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;" id="leitorLivroTitulo">Lendo</h2>
+        <span id="leitorLivroProgresso" style="margin-left:auto; font-size:12px; color:var(--ink-faint);"></span>
+      </div>
+      <div class="leitor-livro-barra"><div class="leitor-livro-barra-preenchida" id="leitorLivroBarra"></div></div>
+      <div class="leitor-livro-area" id="leitorLivroArea">
+        <div class="leitor-livro-pagina" id="leitorLivroPagina"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px 4px; gap:10px;">
+        <button class="post-btn" style="flex:1;" onclick="paginaAnteriorLivro()">← anterior</button>
+        <button class="post-btn" style="flex:1;" onclick="proximaPaginaLivro()">próxima →</button>
       </div>
     </div>
 
@@ -1205,14 +1302,14 @@
         <h2 id="dmChatName" style="font-size:16px;">@pedro_geek</h2>
       </div>
       <div class="dm-messages" id="dmMessages"></div>
-      <div id="gifPickerArea" style="display:none; padding:8px 0;">
-        <div id="resultadosGif" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; max-height:220px; overflow-y:auto;" onscroll="checarScrollGif(this)"></div>
-      </div>
             <div id="stickerPickerArea" style="display:none; padding:8px 0;">
-        <div id="resultadosSticker" style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px; max-height:160px; overflow-y:auto;"></div>
+        <div class="busca-wrap" style="margin-bottom:6px;">
+          <span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span>
+          <input type="text" id="buscaStickerInput" class="busca-input" placeholder="Buscar figurinha (ex: anime, fofo, gato)..." onkeydown="if(event.key==='Enter') buscarStickerReal()" />
+        </div>
+        <div id="resultadosSticker" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-height:220px; overflow-y:auto;"></div>
       </div>
       <div class="dm-input-row">
-        <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleGifPicker()">GIF</button>
         <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleStickerPicker()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.2s;animation-delay:0.4s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 8.2c-.6-2.5 1.3-4.4 3.8-3.9 2.6-1.7 5.9-.7 6.7 2 2.7.3 4 3.3 2.2 5.5-.4 2.7-3.3 4-5.5 2.7-2.6 1.1-5.3-.9-5.1-3.7-2.4-.7-3.4-3.4-1.5-5.2Z"/><path d="M14.6 14.1c.2 1.8 1.7 2.9 3.4 2.5"/></svg></span></button>
         <span class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="abrirEscolherFoto('dm')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
         <input type="file" id="dmFotoInput" accept="image/*" onchange="enviarFotoDm(this)" style="display:none;" />
@@ -1234,21 +1331,21 @@
     <div><div class="t">🌙 Modo escuro</div><div class="s">troca a paleta clara pela escura</div></div>
     <div class="toggle-sw" id="darkSwitch" onclick="toggleDarkMode()"><div class="dot"></div></div>
   </div>
-  <div class="settings-row">
-    <div><div class="t">💛 Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
-    <div class="toggle-sw on" id="matchSwitch" onclick="toggleMatch()"><div class="dot"></div></div>
+  <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div><div class="t">💛 Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
+      <div class="toggle-sw on" id="matchSwitch" onclick="toggleMatch()"><div class="dot"></div></div>
+    </div>
+    <div id="matchPrefRow">
+      <div class="t" style="margin-bottom:8px;">Quer ver no Match:</div>
+      <div class="onboard-topic-grid" id="matchPrefGrid"></div>
+    </div>
   </div>
 
       <div class="settings-row">
         <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.22s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2a5 5 0 0 0-5 5v3.3c0 .8-.3 1.6-.9 2.2L5 16h14l-1.1-1.3a3 3 0 0 1-.9-2.2V9.2a5 5 0 0 0-5-5Z"/><path d="M10.1 19a1.9 1.9 0 0 0 3.8 0"/></svg></span> Notificações de amigos</div><div class="s">avisa quando um amigo posta ou comenta</div></div>
         <div class="toggle-sw on" id="notifSwitch" onclick="toggleNotif()"><div class="dot"></div></div>
       </div>
-<div class="settings-row" id="matchPrefRow" style="flex-direction:column; align-items:stretch; gap:10px;">
-  <div class="t">💛 Quer ver no Match:</div>
-  <div>
-    <div class="onboard-topic-grid" id="matchPrefGrid"></div>
-  </div>
-</div>
       <div class="settings-row settings-nav-row" onclick="abrirBloqueados()">
         <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Pessoas bloqueadas</div>
         <div class="nav-chevron">›</div>
@@ -1560,7 +1657,7 @@ async function carregarPostsReais() {
 
   // ---------- render: chips de tipo no composer ----------
   function renderTypeChips() {
-    document.getElementById('typeChipRow').innerHTML = ordemTipos.map(t =>
+    document.getElementById('typeChipRow').innerHTML = ordemTipos.filter(t => !tiposOcultos.includes(t)).map(t =>
       `<div class="type-chip ${tipoSelecionado === t ? 'on' : ''}" onclick="selecionarTipo('${t}')">${t}</div>`
     ).join('');
   }
@@ -2097,13 +2194,29 @@ window.swipeFinalizar = function (e, postId) {
     post.likes = (post.likes || 0) + (jaCurtia ? 1 : -1);
     renderFeed();
     mostrarToast('❌ erro ao curtir: ' + erro.message);
-  } else if (!jaCurtia) {
-    notificarPushEvento(post.autor_id, 'curtida', {});
+  } else if (!jaCurtia && post.autor_id !== meuId) {
+    // notificação in-app (funciona mesmo sem push configurado/permitido) +
+    // push de verdade (quando disponível)
+    const { data: donoDoPost } = await supabaseClient.from('usuarios').select('notif_ativado').eq('id', post.autor_id).maybeSingle();
+    if (!donoDoPost || donoDoPost.notif_ativado !== false) {
+      const { error: erroNotif } = await supabaseClient.from('notificacoes').insert({
+        usuario_id: post.autor_id,
+        tipo: 'curtida',
+        titulo: 'Nova curtida',
+        subtitulo: `@${window.MEU_HANDLE || 'alguém'} curtiu seu post`,
+        post_id: post.id,
+        ator_id: meuId,
+      });
+      if (erroNotif) console.log('erro ao criar notificação de curtida:', erroNotif.message);
+    }
+    notificarPushEvento(post.autor_id, 'curtida', { post_id: post.id, ator_id: meuId });
   }
 };
 
   // ---------- comentários ----------
   let comentarioPostIdx = null;
+  let comentarioPostArray = null; // qual array o índice acima se refere — feedPosts por padrão,
+                                   // mas pode ser outro (ex: posts de um perfil de outra pessoa)
   let respostaPendenteId = null;
 
   window.responderComentario = function (comentarioId, nome) {
@@ -2112,9 +2225,10 @@ window.swipeFinalizar = function (e, postId) {
     input.placeholder = `Respondendo @${nome}...`;
     input.focus();
   };
-  window.abrirComentarios = async function (i) {
+  window.abrirComentarios = async function (i, arr) {
   comentarioPostIdx = i;
-  const p = feedPosts[i];
+  comentarioPostArray = arr || feedPosts;
+  const p = comentarioPostArray[i];
   document.getElementById('comentariosPostOriginal').innerHTML = `
     <div class="post-head">
       ${avatarHtml(p.avatarUrl, p.iniciais)}
@@ -2155,7 +2269,7 @@ window.swipeFinalizar = function (e, postId) {
 };
 
   function renderComentarios() {
-    const lista = feedPosts[comentarioPostIdx].comentarios;
+    const lista = (comentarioPostArray || feedPosts)[comentarioPostIdx].comentarios;
     document.getElementById('comentariosList').innerHTML = lista.length
       ? lista.map(c => `<div class="comment-item"><div class="ic">${c.autor[0].toUpperCase()}</div><div><div class="cn">@${c.autor}</div><div class="ct">${c.texto}</div></div></div>`).join('')
       : `<div class="visitor-lock-note">Seja a primeira pessoa a comentar 💬</div>`;
@@ -2165,7 +2279,7 @@ window.swipeFinalizar = function (e, postId) {
   const texto = input.value.trim();
   if (!texto) return;
 
-  const p = feedPosts[comentarioPostIdx];
+  const p = (comentarioPostArray || feedPosts)[comentarioPostIdx];
   const { data: sessionData } = await supabaseClient.auth.getSession();
 
   const { error } = await supabaseClient.from('comentarios').insert({
@@ -2186,16 +2300,18 @@ if (p.autor_id !== sessionData.session.user.id) {
         titulo: 'Novo comentário no seu post',
         subtitulo: texto.slice(0, 60),
         post_id: p.id,
+        ator_id: sessionData.session.user.id,
       });
-      notificarPushEvento(p.autor_id, 'comentario', { texto });
+      notificarPushEvento(p.autor_id, 'comentario', { texto, post_id: p.id, ator_id: sessionData.session.user.id });
     }
   }
 
   input.value = '';
   input.placeholder = 'Escreva um comentário...';
   respostaPendenteId = null;
-  abrirComentarios(comentarioPostIdx);
-  carregarPostsReais();
+  const arrayAtual = comentarioPostArray;
+  abrirComentarios(comentarioPostIdx, arrayAtual);
+  if (arrayAtual === feedPosts || !arrayAtual) carregarPostsReais();
 };
 
   // ---------- compartilhar ----------
@@ -2234,7 +2350,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     if (error) { mostrarToast('❌ erro ao enviar: ' + error.message); return; }
     fecharCompartilhar();
     mostrarToast('📤 Post enviado!');
-    notificarPushEvento(amigoId, 'mensagem', {});
+    notificarPushEvento(amigoId, 'mensagem', { ator_id: meuId });
   };
   window.repostarNoFeed = async function () {
     const original = feedPosts[compartilharPostIdx];
@@ -2715,6 +2831,63 @@ window.fecharSeloCelebracao = function () {
 
 };
 
+let perfilAlheioPostsAtuais = [];
+
+function renderPerfilAlheioPosts() {
+  const lista = perfilAlheioPostsAtuais;
+  document.getElementById('perfilAlheioPosts').innerHTML = lista.length
+    ? lista.map((p, i) => `
+        <div class="post">
+          <div class="post-body">${p.texto}</div>
+          <div style="font-size:10px; color:var(--ink-faint); margin-top:6px; margin-bottom:8px;">${p.tipo} · ${p.tempo}</div>
+          <div class="post-actions">
+            <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPostAlheio(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
+            <div class="post-action" onclick="abrirComentarios(${i}, perfilAlheioPostsAtuais)">${icone('comentar',14,i)} ${p.comentarios.length ? p.comentarios.length + ' comentários' : 'comentar'}</div>
+          </div>
+        </div>`).join('')
+    : `<div class="visitor-lock-note">Nada compartilhado ainda.</div>`;
+}
+
+window.curtirPostAlheio = async function (i, evt) {
+  if (navigator.vibrate) navigator.vibrate(15);
+  const post = perfilAlheioPostsAtuais[i];
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session.user.id;
+
+  const jaCurtia = post.curtiu;
+  post.curtiu = !jaCurtia;
+  post.likes = (post.likes || 0) + (jaCurtia ? -1 : 1);
+  renderPerfilAlheioPosts();
+
+  let erro;
+  if (jaCurtia) {
+    ({ error: erro } = await supabaseClient.from('curtidas').delete().eq('post_id', post.id).eq('usuario_id', meuId));
+  } else {
+    ({ error: erro } = await supabaseClient.from('curtidas').insert({ post_id: post.id, usuario_id: meuId }));
+  }
+
+  if (erro) {
+    post.curtiu = jaCurtia;
+    post.likes = (post.likes || 0) + (jaCurtia ? 1 : -1);
+    renderPerfilAlheioPosts();
+    mostrarToast('❌ erro ao curtir: ' + erro.message);
+  } else if (!jaCurtia && post.autor_id !== meuId) {
+    const { data: donoDoPost } = await supabaseClient.from('usuarios').select('notif_ativado').eq('id', post.autor_id).maybeSingle();
+    if (!donoDoPost || donoDoPost.notif_ativado !== false) {
+      const { error: erroNotif } = await supabaseClient.from('notificacoes').insert({
+        usuario_id: post.autor_id,
+        tipo: 'curtida',
+        titulo: 'Nova curtida',
+        subtitulo: `@${window.MEU_HANDLE || 'alguém'} curtiu seu post`,
+        post_id: post.id,
+        ator_id: meuId,
+      });
+      if (erroNotif) console.log('erro ao criar notificação de curtida:', erroNotif.message);
+    }
+    notificarPushEvento(post.autor_id, 'curtida', { post_id: post.id, ator_id: meuId });
+  }
+};
+
 window.abrirPerfilAlheio = async function (autorId) {
   window.PERFIL_ALHEIO_ATUAL_ID = autorId;
   
@@ -2768,13 +2941,27 @@ window.abrirPerfilAlheio = async function (autorId) {
     .from('posts').select('*').eq('autor_id', autorId).eq('privado', false).is('clube_id', null)
     .order('criado_em', { ascending: false });
 
-  document.getElementById('perfilAlheioPosts').innerHTML = (posts && posts.length)
-    ? posts.map(p => `
-        <div class="post">
-          <div class="post-body">${p.texto}</div>
-          <div style="font-size:10px; color:var(--ink-faint); margin-top:6px;">${p.tipo} · ${formatarTempoRelativo(p.criado_em)}</div>
-        </div>`).join('')
-    : `<div class="visitor-lock-note">Nada compartilhado ainda.</div>`;
+  const idsPosts = (posts || []).map(p => p.id);
+  const { data: curtidasPerfil } = await supabaseClient
+    .from('curtidas').select('post_id, usuario_id').in('post_id', idsPosts.length ? idsPosts : [0]);
+  const { data: comentariosPerfil } = await supabaseClient
+    .from('comentarios').select('post_id').in('post_id', idsPosts.length ? idsPosts : [0]);
+
+  perfilAlheioPostsAtuais = (posts || []).map(p => {
+    const curtidasDesse = (curtidasPerfil || []).filter(c => c.post_id === p.id);
+    return {
+      id: p.id,
+      autor_id: p.autor_id,
+      autor: usuario.handle,
+      texto: p.texto,
+      tipo: p.tipo,
+      tempo: formatarTempoRelativo(p.criado_em),
+      likes: curtidasDesse.length,
+      curtiu: curtidasDesse.some(c => c.usuario_id === meuId),
+      comentarios: (comentariosPerfil || []).filter(c => c.post_id === p.id),
+    };
+  });
+  renderPerfilAlheioPosts();
 
   await supabaseClient.from('visitas').insert({ visitante_id: meuId, visitado_id: autorId });
   await renderPerguntasPublicas(autorId, 'perfilAlheioPerguntasArea');
@@ -2826,8 +3013,9 @@ async function notificarNovoSeguidor(seguidoId, seguidorId) {
     tipo: 'seguidor',
     titulo: 'Novo seguidor',
     subtitulo: euUsuario ? `@${euUsuario.handle} começou a te seguir` : 'Alguém começou a te seguir',
+    ator_id: seguidorId,
   });
-  notificarPushEvento(seguidoId, 'seguidor', {});
+  notificarPushEvento(seguidoId, 'seguidor', { ator_id: seguidorId });
 }
 
 // ---------- perguntas anônimas ----------
@@ -3395,6 +3583,12 @@ async function subirAvatar(usuarioId) {
 }
 window.closeOverlay = function (id) {
   document.getElementById(id).classList.remove('open');
+  // sair da conversa de DM sempre resincroniza a lista/bolinha de não lida —
+  // rede de segurança pro caso da marcação de "lida" lá dentro ter atrasado
+  // ou falhado por algum motivo (RLS, corrida com o realtime, etc.)
+  if (id === 'dmChatOverlay' && typeof atualizarBadgeMensagens === 'function') {
+    atualizarBadgeMensagens();
+  }
 };
 window.salvarPerfil = async function () {
   const nome = document.getElementById('editNomeInput').value.trim();
@@ -3455,6 +3649,13 @@ function aplicarFotoPerfil(url) {
   };
 
   const TUMBLR_TAGS_PADRAO = ['diario', 'poesia', 'frases', 'leitura', 'reflexão', 'escrita', 'literatura brasileira', 'resenha'];
+  function embaralhar(lista) {
+    for (let i = lista.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
+    return lista;
+  }
   let termoBuscaDescobrir = '';
   let debounceBuscaDescobrir = null;
   window.aoDigitarBuscaDescobrir = function () {
@@ -3518,24 +3719,40 @@ window.trocarModoDescobrir = function (modo) {
     }
 
     window.ITENS_CLUBES_ATUAIS = clubes || [];
-    lista.innerHTML = `<button class="post-btn" style="width:100%; margin-bottom:14px; padding:11px;" onclick="abrirCriarClube()">+ criar clube do livro</button>` +
-      (clubes && clubes.length
-        ? clubes.map((c, i) => cardClubeHtml(c, i, meuId)).join('')
-        : estadoVazio('nenhum clube ainda', 'crie o primeiro e chame gente pra discutir livro junto'));
+    const totalClubes = (clubes || []).length;
+    const meusClubes = (clubes || []).filter(c => (c.clube_membros || []).some(m => m.usuario_id === meuId)).length;
+
+    lista.innerHTML = `
+      <div class="clube-lista-wrap">
+        <svg class="clube-watermark" viewBox="0 0 100 100">
+          <path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z" stroke-width="1.2"/>
+          <path class="scribble-marca" d="M3,52 C7,39 27,32 51,37 C73,31 98,43 94,52 C99,61 77,68 48,62 C21,69 1,58 3,52 Z" transform="rotate(15 50 50)"/>
+          <path class="scribble-marca" d="M6,47 C3,37 29,34 53,36 C71,29 95,44 91,54 C97,57 73,67 47,60 C25,72 2,55 6,47 Z" transform="rotate(95 50 50)"/>
+        </svg>
+        <div class="clube-kicker">encontre sua próxima conversa</div>
+        <div class="clube-titulo-grande">Clube do<br>Livro</div>
+        <div class="clube-sub-grande">${totalClubes} clube${totalClubes === 1 ? '' : 's'}${meusClubes ? ` · você participa de ${meusClubes}` : ''}</div>
+        <button class="clube-criar-btn" onclick="abrirCriarClube()">+ criar clube do livro</button>
+        ${clubes && clubes.length
+          ? clubes.map((c, i) => cardClubeHtml(c, i, meuId)).join('')
+          : estadoVazio('nenhum clube ainda', 'crie o primeiro e chame gente pra discutir livro junto')}
+      </div>`;
   }
 
   function cardClubeHtml(c, i, meuId) {
     const membros = c.clube_membros || [];
     const souMembro = membros.some(m => m.usuario_id === meuId);
     return `
-      <div class="discover-card" onclick="abrirClube(${i})" style="cursor:pointer; display:flex; gap:12px; align-items:center;">
-        ${c.livro_capa_url
-          ? `<img src="${c.livro_capa_url}" alt="" style="width:52px; height:76px; object-fit:cover; border-radius:6px; flex-shrink:0;">`
-          : `<div class="capa-vazia-mini" style="width:52px; height:76px;">${icone('pessoas',24,i,'#fff')}</div>`}
-        <div style="min-width:0;">
-          <div class="discover-title">${c.nome}${c.privado ? ' 🔒' : ''}</div>
-          <div class="discover-desc">${c.livro_titulo ? `lendo agora: ${c.livro_titulo}` : 'sem livro definido ainda'}</div>
-          <div class="discover-desc" style="opacity:.7;">${membros.length} membro${membros.length === 1 ? '' : 's'}${souMembro ? ' · você é membro' : ''}</div>
+      <div class="clube-card-grande" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirClube(${i})">
+        <div class="clube-card-capa${c.livro_capa_url ? '' : ' sem-capa'}"${c.livro_capa_url ? ` style="background-image:url('${c.livro_capa_url}');"` : ''}>
+          ${!c.livro_capa_url ? icone('pessoas', 34, i, '#fff') : ''}
+        </div>
+        <div class="clube-card-scrim"></div>
+        <div class="clube-card-pill membros">${icone('pessoas', 12, i)} ${membros.length}${souMembro ? ' · você' : ''}</div>
+        ${c.privado ? `<div class="clube-card-pill lock">${icone('cadeado', 13, i)}</div>` : ''}
+        <div class="clube-card-info">
+          <div class="clube-card-nome">${c.nome}</div>
+          <div class="clube-card-livro">${c.livro_titulo ? `${icone('livro', 13, i)} lendo agora: ${c.livro_titulo}` : 'sem livro definido ainda'}</div>
         </div>
       </div>`;
   }
@@ -3601,20 +3818,30 @@ window.trocarModoDescobrir = function (modo) {
 
     clubeLivroAtualCitacao = { titulo: c.livro_titulo || '', autor: c.livro_autor || '' };
 
-    document.getElementById('clubeDetalheLivroAtual').innerHTML = `
-      ${c.livro_capa_url ? `<img src="${c.livro_capa_url}" alt="" style="width:70px; height:100px; object-fit:cover; border-radius:6px;">` : ''}
-      <div style="min-width:0;">
-        <div class="discover-title">${c.livro_titulo || 'nenhum livro definido ainda'}</div>
-        ${c.livro_autor ? `<div class="discover-desc">${c.livro_autor}</div>` : ''}
-        ${c.livro_titulo ? `<div class="livro-link-externo" style="margin-top:6px;" onclick="abrirCartaoCitacaoClubeAtual()">${icone('compartilhar',12)} criar cartão de citação</div>` : ''}
-      </div>`;
+    document.getElementById('clubeDetalheLivroAtual').innerHTML = c.livro_titulo ? `
+      <div class="clube-hero-glass"${c.livro_capa_url ? ` style="background-image:url('${c.livro_capa_url}');"` : ' style="background:linear-gradient(150deg, var(--accent-a), var(--accent-b));"'}>
+        <div class="clube-hero-scrim"></div>
+        <div class="clube-hero-info">
+          <div class="clube-hero-titulo">${c.livro_titulo}</div>
+          ${c.livro_autor ? `<div class="clube-hero-autor">${c.livro_autor}</div>` : ''}
+        </div>
+      </div>
+      <div class="livro-link-externo" style="margin-top:10px;" onclick="abrirCartaoCitacaoClubeAtual()">${icone('compartilhar',12)} criar cartão de citação</div>
+    ` : `
+      <div class="clube-hero-glass sem-livro">
+        <div class="discover-desc" style="text-align:center;">nenhum livro definido ainda</div>
+      </div>
+    `;
 
     document.getElementById('clubeDetalheMeta').innerHTML = `
       ${c.descricao ? `<div class="discover-desc" style="margin-bottom:8px;">${c.descricao}</div>` : ''}
-      <div class="discover-desc" style="opacity:.7;">${membros.length} membro${membros.length === 1 ? '' : 's'}${c.privado ? ' · clube privado' : ''}</div>`;
+      <div class="clube-meta-pills">
+        <span class="clube-meta-pill">${icone('pessoas',12)} ${membros.length} membro${membros.length === 1 ? '' : 's'}</span>
+        ${c.privado ? `<span class="clube-meta-pill">${icone('cadeado',12)} privado</span>` : ''}
+      </div>`;
 
     document.getElementById('clubeDetalheAcoes').innerHTML = souMembro
-      ? `<button class="post-btn" style="width:100%;" onclick="mudarLivroAtualClube()">📖 mudar livro atual</button>
+      ? `<button class="post-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="mudarLivroAtualClube()">${icone('livro',14)} mudar livro atual</button>
          ${!c.privado ? `<div class="livro-link-externo" style="justify-content:center; margin-top:10px;" onclick="abrirCompartilharClube()">${icone('compartilhar',13)} convidar pro clube</div>` : ''}
          <div class="livro-link-externo" style="text-align:center; margin-top:8px;" onclick="sairDoClube()">sair do clube</div>`
       : `<button class="post-btn" style="width:100%;" onclick="entrarNoClube()">entrar no clube</button>`;
@@ -3992,7 +4219,9 @@ window.trocarModoDescobrir = function (modo) {
   function cardLivroHtml(d, i) {
     const selinhoAmostra = d.fonte === 'Google Books' && !d.leituraCompleta
       ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">apenas amostra</span>`
-      : '';
+      : (d.fonte === 'Open Library' && d.leituraCompleta
+        ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">📗 leitura completa</span>`
+        : '');
     return `
         <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
           <span class="discover-kind">${d.kind}</span>${selinhoAmostra}
@@ -4023,6 +4252,7 @@ window.trocarModoDescobrir = function (modo) {
           googleId: l.googleId || null,
           gutendexId: l.gutendexId || null,
           coverId: l.coverId || null,
+          iaId: l.iaId || null,
           capa: l.capa || null,
           autor: l.autor || '',
           leituraCompleta: l.leituraCompleta === true,
@@ -4286,13 +4516,6 @@ window.trocarModoDescobrir = function (modo) {
     document.getElementById('citacaoCanvas').style.display = 'none';
     document.getElementById('citacaoAcoes').style.display = 'none';
     document.getElementById('citacaoCartaoOverlay').classList.add('open');
-  };
-
-  // dispara o cartão a partir de um livro da lista atual (prévia/gratuitos/estante)
-  window.abrirCartaoCitacaoDoLivro = function (i) {
-    const item = window.ITENS_LIVROS_ATUAIS[i];
-    if (!item) return;
-    abrirCartaoCitacao(item.title, item.autor);
   };
 
   // dispara o cartão a partir do livro atual de um clube (ver clubeLivroAtualCitacao)
@@ -4726,6 +4949,130 @@ window.trocarModoDescobrir = function (modo) {
     renderEstante();
   };
 
+  // ---------- leitor de livro do Gutendex (texto integral, folheável tipo Kindle) ----------
+  let leitorLivroAtual = null; // { paginas, paginaIdx, item, inicioSessao }
+
+  // divide o texto em "páginas" respeitando parágrafo inteiro sempre que dá
+  // (só quebra um parágrafo no meio quando ele sozinho já estoura o budget
+  // de caracteres da página) — não é medição de pixel real como um e-reader
+  // nativo, mas fica com cara de página de verdade em vez de rolagem infinita
+  function paginarTextoLivro(texto, charsPorPagina) {
+    charsPorPagina = charsPorPagina || 1100;
+    const paragrafos = texto.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    const paginas = [];
+    let atual = '';
+
+    function fecharPagina() {
+      if (atual.trim()) paginas.push(atual.trim());
+      atual = '';
+    }
+
+    paragrafos.forEach(paragrafo => {
+      if (paragrafo.length > charsPorPagina) {
+        fecharPagina();
+        let resto = paragrafo;
+        while (resto.length > charsPorPagina) {
+          let corte = resto.lastIndexOf(' ', charsPorPagina);
+          if (corte < charsPorPagina * 0.5) corte = charsPorPagina;
+          paginas.push(resto.slice(0, corte).trim());
+          resto = resto.slice(corte).trim();
+        }
+        atual = resto;
+        return;
+      }
+      if (atual && (atual.length + 2 + paragrafo.length) > charsPorPagina) fecharPagina();
+      atual = atual ? atual + '\n\n' + paragrafo : paragrafo;
+    });
+    fecharPagina();
+
+    return paginas.length ? paginas : [texto];
+  }
+
+  window.abrirLeitorLivroGutendex = async function (i) {
+    const item = window.ITENS_LIVROS_ATUAIS[i];
+    if (!item) return;
+
+    document.getElementById('leitorLivroTitulo').textContent = item.title;
+    document.getElementById('leitorLivroProgresso').textContent = '';
+    document.getElementById('leitorLivroBarra').style.width = '0%';
+    document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Carregando o livro...</div>`;
+    document.getElementById('leitorLivroOverlay').classList.add('open');
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/livro-texto?id=${item.gutendexId}`);
+      const dados = await resp.json();
+      if (!dados.texto) {
+        document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">${dados.erro || 'Não consegui carregar esse livro agora.'}</div>`;
+        return;
+      }
+      leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now() };
+      renderPaginaLivroAtual();
+      registrarLeituraHoje();
+    } catch (e) {
+      document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Não consegui carregar esse livro agora — tenta de novo em instantes.</div>`;
+    }
+  };
+
+  function renderPaginaLivroAtual() {
+    if (!leitorLivroAtual) return;
+    const { paginas, paginaIdx } = leitorLivroAtual;
+    const pagEl = document.getElementById('leitorLivroPagina');
+    pagEl.textContent = paginas[paginaIdx] || '';
+    pagEl.scrollTop = 0;
+    pagEl.style.animation = 'none';
+    void pagEl.offsetWidth;
+    pagEl.style.animation = '';
+    document.getElementById('leitorLivroProgresso').textContent = `pág. ${paginaIdx + 1} de ${paginas.length}`;
+    document.getElementById('leitorLivroBarra').style.width = Math.round(((paginaIdx + 1) / paginas.length) * 100) + '%';
+  }
+
+  window.proximaPaginaLivro = function () {
+    if (!leitorLivroAtual) return;
+    if (leitorLivroAtual.paginaIdx < leitorLivroAtual.paginas.length - 1) {
+      leitorLivroAtual.paginaIdx++;
+      renderPaginaLivroAtual();
+    }
+  };
+
+  window.paginaAnteriorLivro = function () {
+    if (!leitorLivroAtual) return;
+    if (leitorLivroAtual.paginaIdx > 0) {
+      leitorLivroAtual.paginaIdx--;
+      renderPaginaLivroAtual();
+    }
+  };
+
+  window.fecharLeitorLivro = function () {
+    closeOverlay('leitorLivroOverlay');
+    if (leitorLivroAtual) {
+      const minutosLidos = Math.round((Date.now() - leitorLivroAtual.inicioSessao) / 60000);
+      if (minutosLidos > 0) incrementarEstatisticaLeitura({ minutos_leitura: minutosLidos });
+      leitorLivroAtual = null;
+    }
+  };
+
+  // arrasta o dedo (ou o mouse, pra testar no navegador) pra trocar de página
+  (function configurarSwipeLeitorLivro() {
+    const area = document.getElementById('leitorLivroArea');
+    if (!area) return;
+    let xInicio = null;
+    let yInicio = null;
+
+    area.addEventListener('touchstart', e => {
+      xInicio = e.touches[0].clientX;
+      yInicio = e.touches[0].clientY;
+    }, { passive: true });
+
+    area.addEventListener('touchend', e => {
+      if (xInicio === null) return;
+      const dx = e.changedTouches[0].clientX - xInicio;
+      const dy = e.changedTouches[0].clientY - yInicio;
+      xInicio = null;
+      if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)) return; // gesto mais vertical que horizontal — ignora
+      if (dx < 0) proximaPaginaLivro(); else paginaAnteriorLivro();
+    }, { passive: true });
+  })();
+
   window.abrirLivroPreview = async function (i) {
     const item = window.ITENS_LIVROS_ATUAIS[i];
     if (!item) return;
@@ -4748,91 +5095,43 @@ window.trocarModoDescobrir = function (modo) {
       </div>`;
 
     if (item.fonte === 'Gutendex' && item.gutendexId) {
-      corpo.innerHTML = heroHtml + `<div class="visitor-lock-note">Carregando prévia...</div>`;
-      try {
-        const resp = await fetch(`${API_BASE}/api/livro-texto?id=${item.gutendexId}`);
-        const dados = await resp.json();
-        corpo.innerHTML = heroHtml + `
-          <div class="bio-box" style="margin-bottom:10px;">📖 clássico de domínio público — trecho do texto integral</div>
-          <div style="white-space:pre-wrap; line-height:1.6; font-size:13.5px; padding:2px 2px 20px;">${(dados.texto || 'Prévia não disponível.').replace(/</g, '&lt;')}</div>
-          <div style="text-align:center; margin-bottom:8px;"><div class="livro-link-externo" onclick="abrirCartaoCitacaoDoLivro(${i})">${icone('compartilhar',13)} criar cartão de citação</div></div>
-          ${item.link ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ler o livro completo</div></div>` : ''}
-        `;
-        registrarLeituraHoje();
-      } catch (e) {
-        corpo.innerHTML = heroHtml + `<div class="visitor-lock-note">Não consegui carregar a prévia agora.</div>`;
-      }
-      return;
-    }
-
-    // Google Books: lê a prévia (ou o livro inteiro, quando liberado) direto
-    // aqui dentro, com o visualizador incorporado do próprio Google — sem
-    // precisar sair do app. Open Library não tem visualizador embutido, aí
-    // continua abrindo o site de origem.
-    if (item.fonte === 'Google Books' && item.googleId) {
-      const avisoAmostra = !item.leituraCompleta
-        ? `<div class="bio-box" style="margin-bottom:10px;">👀 o Google só libera uma amostra desse livro pra ler por aqui — pra ler ele inteiro é preciso comprar.</div>`
-        : '';
-      corpo.innerHTML = heroHtml + avisoAmostra + `
-        <div class="discover-desc" style="margin-bottom:10px;">${item.desc}</div>
-        <div id="googleLivroViewer" style="width:100%; height:420px; border-radius:12px; overflow:hidden; background:var(--accent-soft); margin-bottom:10px;"></div>
-        <div style="text-align:center;"><div class="livro-link-externo" onclick="abrirCartaoCitacaoDoLivro(${i})">${icone('compartilhar',13)} criar cartão de citação</div></div>
+      corpo.innerHTML = heroHtml + `
+        <div class="bio-box" style="margin-bottom:14px;">📖 clássico de domínio público — dá pra ler o livro inteiro, direto por aqui</div>
+        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroGutendex(${i})">📖 começar a ler</button>
+        ${item.link ? `<div style="text-align:center; margin-top:10px;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ver na página do Gutenberg</div></div>` : ''}
       `;
-      carregarPreviaGoogleLivro(item.googleId);
       return;
     }
 
-    corpo.innerHTML = heroHtml + `
+    // Open Library: quando o Internet Archive tem uma cópia digitalizada de
+    // acesso público, o livro dá pra ler de verdade aqui dentro, com o
+    // visualizador do próprio archive.org (leitor real, confiável, nada de
+    // API antiga do Google que parou de funcionar).
+    if (item.fonte === 'Open Library' && item.leituraCompleta && item.iaId) {
+      corpo.innerHTML = heroHtml + `
+        <div class="bio-box" style="margin-bottom:10px;">📗 esse aqui dá pra ler completo, direto por aqui</div>
+        <div style="width:100%; height:460px; border-radius:12px; overflow:hidden; background:var(--accent-soft); margin-bottom:10px;">
+          <iframe src="https://archive.org/embed/${item.iaId}" width="100%" height="100%" frameborder="0" allowfullscreen style="border:0;"></iframe>
+        </div>
+      `;
+      registrarLeituraHoje();
+      return;
+    }
+
+    // Google Books só libera consulta de metadados pela API (o visualizador
+    // incorporado antigo do Google foi descontinuado e parou de funcionar) —
+    // então aqui é só descrição + link pra abrir a amostra no site deles.
+    const avisoAmostraGoogle = item.fonte === 'Google Books' && !item.leituraCompleta
+      ? `<div class="bio-box" style="margin-bottom:10px;">👀 o Google só libera uma amostra desse livro pra ler — pra ler ele inteiro é preciso comprar ou pegar emprestado no site deles.</div>`
+      : '';
+
+    corpo.innerHTML = heroHtml + avisoAmostraGoogle + `
       <div class="discover-desc" style="margin-bottom:14px;">${item.desc}</div>
-      <div style="text-align:center; margin-bottom:8px;"><div class="livro-link-externo" onclick="abrirCartaoCitacaoDoLivro(${i})">${icone('compartilhar',13)} criar cartão de citação</div></div>
       ${item.link
         ? `<div style="text-align:center;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} abrir no site de origem</div></div>`
         : `<div class="visitor-lock-note">Prévia não disponível pra este livro.</div>`}
     `;
   };
-
-  // ---------- visualizador incorporado do Google Books (lê dentro do app) ----------
-  let googleBooksApiPronta = false;
-  (function prepararGoogleBooksApi() {
-    function aoCarregar() { googleBooksApiPronta = true; }
-    function tentarRegistrar() {
-      if (window.google && window.google.books && window.google.books.load) {
-        try { google.books.setOnLoadCallback(aoCarregar); } catch (e) {}
-        return true;
-      }
-      return false;
-    }
-    if (!tentarRegistrar()) {
-      let tentativas = 0;
-      const intervalo = setInterval(() => {
-        tentativas++;
-        if (tentarRegistrar() || tentativas > 40) clearInterval(intervalo);
-      }, 250);
-    }
-  })();
-
-  async function carregarPreviaGoogleLivro(googleId) {
-    const container = document.getElementById('googleLivroViewer');
-    if (!container) return;
-    container.innerHTML = `<div class="visitor-lock-note" style="padding-top:30px;">Carregando prévia...</div>`;
-
-    const tempoLimite = Date.now() + 6000;
-    while (!googleBooksApiPronta && Date.now() < tempoLimite) {
-      await new Promise(r => setTimeout(r, 150));
-    }
-    if (!document.getElementById('googleLivroViewer')) return; // fechou o overlay enquanto esperava
-    if (!googleBooksApiPronta || !window.google || !google.books) {
-      container.innerHTML = `<div class="visitor-lock-note" style="padding-top:30px;">Não consegui carregar a prévia agora.</div>`;
-      return;
-    }
-    try {
-      container.innerHTML = '';
-      const viewer = new google.books.DefaultViewer(container);
-      viewer.load(googleId);
-    } catch (e) {
-      container.innerHTML = `<div class="visitor-lock-note" style="padding-top:30px;">Não consegui carregar a prévia agora.</div>`;
-    }
-  }
 
   window.comentarItemLivro = function (i) {
     discoverPendenteReal = window.ITENS_LIVROS_ATUAIS[i];
@@ -4898,21 +5197,33 @@ async function buscarPaginaDescobrir(pagina) {
 
   try {
     const buscandoTag = !!termoBuscaDescobrir;
-    const tag = termoBuscaDescobrir || TUMBLR_TAGS_PADRAO[Math.floor(Math.random() * TUMBLR_TAGS_PADRAO.length)];
+    // uma tag aleatória de vez em quando não tem nada de PT recente — tenta
+    // até 3 tags diferentes antes de desistir, pra não deixar o Mural vazio
+    // à toa (a busca por termo do usuário não varia, só a vitrine padrão)
+    const tagsPraTentar = buscandoTag
+      ? [termoBuscaDescobrir]
+      : embaralhar([...TUMBLR_TAGS_PADRAO]).slice(0, 3);
     const variar = buscandoTag ? '' : '&variar=true';
-    const respTumblr = await fetch(`${API_BASE}/api/tumblr-tag?tag=${encodeURIComponent(tag)}${variar}`);
-    const dadosTumblr = await respTumblr.json();
-    (dadosTumblr.posts || []).forEach(p => {
-      itensPagina.push({
-        kind: '🎨 Mural',
-        title: p.blogName ? `@${p.blogName}` : 'Achado por aí',
-        desc: p.texto || 'Sem descrição disponível.',
-        imagemUrl: p.imagemUrl,
-        postUrl: p.postUrl,
-        notas: p.notas || 0,
-        destaque: true,
-      });
-    });
+
+    for (const tag of tagsPraTentar) {
+      const respTumblr = await fetch(`${API_BASE}/api/tumblr-tag?tag=${encodeURIComponent(tag)}${variar}`);
+      const dadosTumblr = await respTumblr.json();
+      const posts = dadosTumblr.posts || [];
+      if (posts.length) {
+        posts.forEach(p => {
+          itensPagina.push({
+            kind: '🎨 Mural',
+            title: p.blogName ? `@${p.blogName}` : 'Achado por aí',
+            desc: p.texto || 'Sem descrição disponível.',
+            imagemUrl: p.imagemUrl,
+            postUrl: p.postUrl,
+            notas: p.notas || 0,
+            destaque: true,
+          });
+        });
+        break;
+      }
+    }
   } catch (e) { console.log('erro tumblr descobrir:', e); }
 
   return itensPagina;
@@ -5066,7 +5377,7 @@ async function renderDmMsgs() {
         if (m.tipo_conteudo === 'audio') {
           conteudo = vozBubbleHtml(m);
         } else if (m.tipo_conteudo === 'sticker') {
-          conteudo = STICKERS_ATOMO[m.texto] ? icone(STICKERS_ATOMO[m.texto], 46) : '🎨';
+          conteudo = stickerHtml(m.texto, 56);
           classeExtra = ' sticker-bubble';
         } else if (m.tipo_conteudo === 'gif' || m.tipo_conteudo === 'foto') {
           conteudo = `<img src="${m.texto}" style="max-width:160px; border-radius:12px; display:block;" />`;
@@ -5086,7 +5397,8 @@ async function renderDmMsgs() {
   // marca como lidas as mensagens da outra pessoa que eu acabei de ver
   const idsNaoLidas = (data || []).filter(m => m.autor_id !== meuId && m.lida === false).map(m => m.id);
   if (idsNaoLidas.length) {
-    await supabaseClient.from('mensagens').update({ lida: true }).in('id', idsNaoLidas);
+    const { error: erroLida } = await supabaseClient.from('mensagens').update({ lida: true }).in('id', idsNaoLidas);
+    if (erroLida) console.log('erro ao marcar mensagem como lida:', erroLida.message);
     atualizarBadgeMensagens();
   }
 }
@@ -5105,65 +5417,6 @@ function dmPostCompartilhadoHtml(textoBruto) {
     return textoBruto;
   }
 }
-
-let paginaGifAtual = 1;
-let carregandoMaisGifs = false;
-
-window.toggleGifPicker = async function () {
-  const area = document.getElementById('gifPickerArea');
-  const abrindo = area.style.display === 'none';
-  area.style.display = abrindo ? 'block' : 'none';
-
-  if (abrindo) {
-    paginaGifAtual = 1;
-    document.getElementById('resultadosGif').innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
-    await carregarGifsEmAlta(1, false);
-  }
-};
-
-async function carregarGifsEmAlta(pagina, adicionar) {
-  const resposta = await fetch(`${API_BASE}/api/gifs-em-alta?page=${pagina}`);
-  const dados = await resposta.json();
-  const resultados = (dados.data?.data || []).slice(0, 12);
-
-  const html = resultados.map(g => {
-    const url = g.file?.md?.gif?.url || '';
-    return url ? `<img src="${url}" style="width:100%; border-radius:8px; cursor:pointer;" onclick="enviarGif('${url}')" />` : '';
-  }).join('');
-
-  const container = document.getElementById('resultadosGif');
-  if (adicionar) {
-    container.insertAdjacentHTML('beforeend', html);
-  } else {
-    container.innerHTML = html || `<div class="visitor-lock-note">Nenhum GIF encontrado.</div>`;
-  }
-}
-
-window.checarScrollGif = function (el) {
-  if (carregandoMaisGifs) return;
-  const chegouPertoDoFim = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
-  if (chegouPertoDoFim) {
-    carregandoMaisGifs = true;
-    paginaGifAtual++;
-    carregarGifsEmAlta(paginaGifAtual, true).finally(() => { carregandoMaisGifs = false; });
-  }
-};
-
-window.buscarGifReal = async function () {
-  const termo = document.getElementById('buscaGifInput').value.trim();
-  if (!termo) return;
-
-  const resposta = await fetch(`${API_BASE}/api/buscar-gif?q=${encodeURIComponent(termo)}`);
-  const dados = await resposta.json();
-  const resultados = (dados.data || dados.results || []).slice(0, 9);
-
-  document.getElementById('resultadosGif').innerHTML = resultados.length
-    ? resultados.map(g => {
-        const url = g.file?.md?.gif?.url || g.file?.sm?.gif?.url || g.url || g.images?.original?.url || '';
-        return url ? `<img src="${url}" style="width:100%; border-radius:8px; cursor:pointer;" onclick="enviarGif('${url}')" />` : '';
-      }).join('')
-    : `<div class="visitor-lock-note">Nenhum GIF encontrado.</div>`;
-};
 
 window.enviarFotoDm = async function (el) {
   const input = el || document.getElementById('dmFotoInput');
@@ -5194,54 +5447,223 @@ window.enviarFotoDm = async function (el) {
   await renderDmMsgs();
 };
 
-window.enviarGif = async function (url) {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
+// ---------- figurinhas coloridas do Átomo (desenhadas do zero) ----------
+// antes reaproveitava o ícone de linha única (ICONE_SVG/icone()), que ficava
+// genérico demais numa bolha de mensagem. Agora cada figurinha é um SVG
+// colorido próprio, com contorno preto (não marrom) — mesmas 8 chaves de
+// sempre (mensagem antiga continua abrindo normal) + 8 novas.
+const STICKERS_ATOMO = {
+  coracao: 1, risada: 1, uau: 1, chorando: 1, fogo: 1, aplausos: 1, pensando: 1, livro: 1,
+  gato: 1, cafe: 1, estrela: 1, zzz: 1, festa: 1, joinha: 1, flor: 1, cobertorzinho: 1,
+};
+const INK_STICKER = '#221F1C';
+const STICKERS_ATOMO_SVG = {
+  coracao: `
+    <path d="M32 54 C10 40 4 23 16 13 C24 6 32 13 32 20 C32 13 40 6 48 13 C60 23 54 40 32 54 Z" fill="#E8607A" stroke="${INK_STICKER}" stroke-width="2.5" stroke-linejoin="round"/>
+    <ellipse cx="20" cy="17" rx="4" ry="6" fill="#fff" opacity="0.3"/>
+    <circle cx="24" cy="27" r="2.2" fill="${INK_STICKER}"/><circle cx="40" cy="27" r="2.2" fill="${INK_STICKER}"/>
+    <ellipse cx="20" cy="33" rx="4" ry="2.3" fill="#F5A9B8" opacity="0.8"/><ellipse cx="44" cy="33" rx="4" ry="2.3" fill="#F5A9B8" opacity="0.8"/>
+    <path d="M26 34 Q32 39 38 34" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+  risada: `
+    <circle cx="32" cy="32" r="26" fill="#F6C445" stroke="${INK_STICKER}" stroke-width="2.5"/>
+    <path d="M18 27 Q23 19 28 27" stroke="${INK_STICKER}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M36 27 Q41 19 46 27" stroke="${INK_STICKER}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M18 38 Q32 54 46 38 Q32 47 18 38 Z" fill="#8A5A2E" stroke="${INK_STICKER}" stroke-width="1.5" stroke-linejoin="round"/>
+    <ellipse cx="15" cy="38" rx="4.5" ry="2.5" fill="#F5A9B8" opacity="0.8"/><ellipse cx="49" cy="38" rx="4.5" ry="2.5" fill="#F5A9B8" opacity="0.8"/>`,
+  uau: `
+    <circle cx="32" cy="32" r="26" fill="#A9C9E8" stroke="${INK_STICKER}" stroke-width="2.5"/>
+    <path d="M18 22 Q22 18 26 21" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M38 21 Q42 18 46 22" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="23" cy="29" r="5" fill="#fff" stroke="${INK_STICKER}" stroke-width="1.5"/><circle cx="41" cy="29" r="5" fill="#fff" stroke="${INK_STICKER}" stroke-width="1.5"/>
+    <circle cx="24.5" cy="28" r="2.2" fill="${INK_STICKER}"/><circle cx="42.5" cy="28" r="2.2" fill="${INK_STICKER}"/>
+    <circle cx="32" cy="42" r="3.5" fill="${INK_STICKER}"/>`,
+  chorando: `
+    <circle cx="32" cy="32" r="26" fill="#BFE3DE" stroke="${INK_STICKER}" stroke-width="2.5"/>
+    <path d="M20 26 Q24 29 28 26" stroke="${INK_STICKER}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M36 26 Q40 29 44 26" stroke="${INK_STICKER}" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M22 30 C22 38 16 40 18 48 C19.5 52 25 51 24 45 C23.5 41 22 38 22 30 Z" fill="#4FA8D8" stroke="${INK_STICKER}" stroke-width="1.2"/>
+    <path d="M42 30 C42 38 48 40 46 48 C44.5 52 39 51 40 45 C40.5 41 42 38 42 30 Z" fill="#4FA8D8" stroke="${INK_STICKER}" stroke-width="1.2"/>
+    <path d="M25 40 Q32 35 39 40" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="19" cy="35" rx="3.5" ry="2" fill="#F5A9B8" opacity="0.7"/><ellipse cx="45" cy="35" rx="3.5" ry="2" fill="#F5A9B8" opacity="0.7"/>`,
+  fogo: `
+    <path d="M32 5 C41 16 47 25 40 35 C47 31 50 40 46 48 C40 60 20 60 16 45 C13 35 19 28 23 32 C18 22 24 9 32 5 Z" fill="#F0793C" stroke="${INK_STICKER}" stroke-width="2.3" stroke-linejoin="round"/>
+    <path d="M32 28 C36 33 38 37 35 43 C38 41 40 45 38 50 C34 57 24 57 22 48 C20 42 24 40 26 42 C24 35 28 31 32 28 Z" fill="#FBD24C"/>
+    <circle cx="27" cy="43" r="2" fill="${INK_STICKER}"/><circle cx="37" cy="43" r="2" fill="${INK_STICKER}"/>
+    <path d="M27 48 Q32 51 37 48" stroke="${INK_STICKER}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="24" cy="46" rx="2.5" ry="1.5" fill="#F5A9B8" opacity="0.6"/><ellipse cx="40" cy="46" rx="2.5" ry="1.5" fill="#F5A9B8" opacity="0.6"/>`,
+  aplausos: `
+    <path d="M18 30 C10 26 8 16 14 12 C20 8 28 12 30 20 C32 28 26 34 18 30 Z" fill="#E7A97B" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M46 30 C54 26 56 16 50 12 C44 8 36 12 34 20 C32 28 38 34 46 30 Z" fill="#E7A97B" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M22 27 L26 23 M26 30 L30 25 M14 24 L18 19" stroke="${INK_STICKER}" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M42 27 L38 23 M38 30 L34 25 M50 24 L46 19" stroke="${INK_STICKER}" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M32 8 L33.5 12 L37.5 12 L34.5 14.6 L35.6 18.6 L32 16.2 L28.4 18.6 L29.5 14.6 L26.5 12 L30.5 12 Z" fill="#F0B429"/>
+    <circle cx="14" cy="40" r="1.6" fill="#F0B429"/><circle cx="50" cy="40" r="1.6" fill="#F0B429"/>
+    <circle cx="10" cy="34" r="1.2" fill="#F0B429"/><circle cx="54" cy="34" r="1.2" fill="#F0B429"/>`,
+  pensando: `
+    <circle cx="30" cy="34" r="22" fill="#D9CBEA" stroke="${INK_STICKER}" stroke-width="2.3"/>
+    <path d="M20 30 Q24 27 28 30" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="38" cy="27" r="1.8" fill="${INK_STICKER}"/>
+    <path d="M22 40 Q30 45 36 39" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="19" cy="38" rx="3.5" ry="2" fill="#F5A9B8" opacity="0.7"/>
+    <circle cx="46" cy="16" r="3" fill="#D9CBEA" stroke="${INK_STICKER}" stroke-width="1.5"/>
+    <circle cx="52" cy="10" r="2" fill="#D9CBEA" stroke="${INK_STICKER}" stroke-width="1.3"/>
+    <circle cx="56" cy="6" r="1.3" fill="#D9CBEA" stroke="${INK_STICKER}" stroke-width="1"/>`,
+  livro: `
+    <path d="M8 14 C18 8 26 10 30 15 V50 C26 45 18 43 8 48 Z" fill="#F6EDE1" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M56 14 C46 8 38 10 34 15 V50 C38 45 46 43 56 48 Z" fill="#F6EDE1" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M32 15 V50" stroke="#C1694F" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M13 22 L24 22 M13 27 L22 27" stroke="#C9B79A" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M40 22 L51 22 M42 27 L51 27" stroke="#C9B79A" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M22 34 C22 31 26 31 26 34 C26 31 30 31 30 34 C30 38 26 41 26 41 C26 41 22 38 22 34 Z" fill="#E8607A"/>`,
+  gato: `
+    <path d="M16 20 L22 8 L28 20 Z" fill="#FBEEDD" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M48 20 L42 8 L36 20 Z" fill="#FBEEDD" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M18 18 L22 12 L25 18 Z" fill="#F5A9B8"/><path d="M46 18 L42 12 L39 18 Z" fill="#F5A9B8"/>
+    <circle cx="32" cy="34" r="22" fill="#FBEEDD" stroke="${INK_STICKER}" stroke-width="2.3"/>
+    <path d="M22 32 Q25 28 28 32" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M36 32 Q39 28 42 32" stroke="${INK_STICKER}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M30 38 L34 38 L32 41 Z" fill="#F5A9B8"/>
+    <path d="M32 41 Q32 44 28 45 M32 41 Q32 44 36 45" stroke="${INK_STICKER}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M10 36 L20 34 M10 40 L20 39" stroke="${INK_STICKER}" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M54 36 L44 34 M54 40 L44 39" stroke="${INK_STICKER}" stroke-width="1.3" stroke-linecap="round"/>
+    <ellipse cx="20" cy="40" rx="3.5" ry="2" fill="#F5A9B8" opacity="0.75"/><ellipse cx="44" cy="40" rx="3.5" ry="2" fill="#F5A9B8" opacity="0.75"/>`,
+  cafe: `
+    <path d="M14 24 H42 V44 C42 50 37 54 28 54 C19 54 14 50 14 44 Z" fill="#fff" stroke="${INK_STICKER}" stroke-width="2.3" stroke-linejoin="round"/>
+    <path d="M42 28 C50 28 50 42 42 42" stroke="${INK_STICKER}" stroke-width="2.3" fill="none"/>
+    <path d="M20 20 Q22 15 19 11 M28 20 Q30 15 27 11 M36 20 Q38 15 35 11" stroke="#C1694F" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="22" cy="36" r="2" fill="${INK_STICKER}"/><circle cx="34" cy="36" r="2" fill="${INK_STICKER}"/>
+    <path d="M22 42 Q28 46 34 42" stroke="${INK_STICKER}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="19" cy="40" rx="3" ry="1.8" fill="#F5A9B8" opacity="0.7"/><ellipse cx="37" cy="40" rx="3" ry="1.8" fill="#F5A9B8" opacity="0.7"/>
+    <rect x="14" y="24" width="28" height="4" fill="#C1694F"/>`,
+  estrela: `
+    <path d="M32 6 L38.5 24 L58 24 L42.5 35.5 L48 54 L32 43 L16 54 L21.5 35.5 L6 24 L25.5 24 Z" fill="#F0B429" stroke="${INK_STICKER}" stroke-width="2.3" stroke-linejoin="round"/>
+    <circle cx="26" cy="30" r="2" fill="${INK_STICKER}"/><circle cx="38" cy="30" r="2" fill="${INK_STICKER}"/>
+    <path d="M26 36 Q32 40 38 36" stroke="${INK_STICKER}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="22" cy="33" rx="2.5" ry="1.6" fill="#E8607A" opacity="0.6"/><ellipse cx="42" cy="33" rx="2.5" ry="1.6" fill="#E8607A" opacity="0.6"/>`,
+  zzz: `
+    <path d="M40 8 C28 8 18 18 18 30 C18 42 28 52 40 52 C32 52 25 44 25 30 C25 16 32 8 40 8 Z" fill="#C9B8E0" stroke="${INK_STICKER}" stroke-width="2.3" stroke-linejoin="round"/>
+    <path d="M27 26 Q29 23 32 25" stroke="${INK_STICKER}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M28 33 Q31 36 34 33" stroke="${INK_STICKER}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <text x="42" y="16" font-family="sans-serif" font-weight="700" font-size="9" fill="${INK_STICKER}">Z</text>
+    <text x="48" y="24" font-family="sans-serif" font-weight="700" font-size="7" fill="${INK_STICKER}">z</text>
+    <text x="52" y="30" font-family="sans-serif" font-weight="700" font-size="5" fill="${INK_STICKER}">z</text>`,
+  festa: `
+    <path d="M14 50 L26 18 L42 34 Z" fill="#F0793C" stroke="${INK_STICKER}" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M18 40 L34 26 M20 45 L37 31" stroke="#F6EDE1" stroke-width="1.6"/>
+    <circle cx="42" cy="14" r="2" fill="#E8607A"/><circle cx="50" cy="20" r="1.6" fill="#4F8C82"/><circle cx="48" cy="10" r="1.4" fill="#F0B429"/>
+    <rect x="44" y="26" width="3" height="3" fill="#4F8C82" transform="rotate(20 45.5 27.5)"/>
+    <rect x="52" y="34" width="3" height="3" fill="#E8607A" transform="rotate(-15 53.5 35.5)"/>
+    <circle cx="38" cy="6" r="1.4" fill="#4F8C82"/>
+    <rect x="30" y="10" width="2.6" height="2.6" fill="#F0B429" transform="rotate(30 31 11)"/>`,
+  joinha: `
+    <path d="M20 30 H16 C13 30 11 32 11 35 V48 C11 51 13 53 16 53 H20 Z" fill="#E7A97B" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M20 30 L26 12 C27 9 31 9 31 13 C31 16 29 20 29 20 H44 C48 20 50 23 48 27 C50 28 51 31 49 34 C51 36 51 39 48 41 C50 43 49 47 45 47 H24 V30" fill="#E7A97B" stroke="${INK_STICKER}" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="16" cy="40" r="1.6" fill="${INK_STICKER}" opacity="0.5"/>
+    <path d="M34 6 L35.5 10 L39.5 10 L36.5 12.6 L37.6 16.6 L34 14.2 L30.4 16.6 L31.5 12.6 L28.5 10 L32.5 10 Z" fill="#F0B429"/>`,
+  flor: `
+    <ellipse cx="32" cy="16" rx="9" ry="12" fill="#F3B4C0" stroke="${INK_STICKER}" stroke-width="1.6"/>
+    <ellipse cx="32" cy="48" rx="9" ry="12" fill="#F3B4C0" stroke="${INK_STICKER}" stroke-width="1.6"/>
+    <ellipse cx="16" cy="32" rx="12" ry="9" fill="#F3B4C0" stroke="${INK_STICKER}" stroke-width="1.6"/>
+    <ellipse cx="48" cy="32" rx="12" ry="9" fill="#F3B4C0" stroke="${INK_STICKER}" stroke-width="1.6"/>
+    <ellipse cx="20.5" cy="20.5" rx="10" ry="7" fill="#F3B4C0" stroke="${INK_STICKER}" stroke-width="1.6" transform="rotate(45 20.5 20.5)"/>
+    <ellipse cx="43.5" cy="43.5" rx="10" ry="7" fill="#F3B4C0" stroke="${INK_STICKER}" stroke-width="1.6" transform="rotate(45 43.5 43.5)"/>
+    <circle cx="32" cy="32" r="11" fill="#F0B429" stroke="${INK_STICKER}" stroke-width="2"/>
+    <circle cx="28" cy="30" r="1.6" fill="${INK_STICKER}"/><circle cx="36" cy="30" r="1.6" fill="${INK_STICKER}"/>
+    <path d="M28 35 Q32 38 36 35" stroke="${INK_STICKER}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M32 54 V60" stroke="#4F8C82" stroke-width="3" stroke-linecap="round"/>
+    <path d="M32 57 C 26 55 24 59 27 62" fill="#4F8C82"/>`,
+  cobertorzinho: `
+    <path d="M32 14 C42 14 50 24 50 36 C50 46 48 56 32 56 C16 56 14 46 14 36 C14 24 22 14 32 14 Z" fill="#C1694F" stroke="${INK_STICKER}" stroke-width="2.3" stroke-linejoin="round"/>
+    <path d="M18 30 L46 30 M20 40 L44 40 M22 48 L42 48" stroke="#F6EDE1" stroke-width="1.6" opacity="0.55"/>
+    <circle cx="32" cy="20" r="10" fill="#FBEEDD" stroke="${INK_STICKER}" stroke-width="2"/>
+    <path d="M27 19 Q28.5 17 30 19" stroke="${INK_STICKER}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M34 19 Q35.5 17 37 19" stroke="${INK_STICKER}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M28 24 Q32 27 36 24" stroke="${INK_STICKER}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="26" cy="22" rx="2.2" ry="1.4" fill="#F5A9B8" opacity="0.75"/><ellipse cx="38" cy="22" rx="2.2" ry="1.4" fill="#F5A9B8" opacity="0.75"/>
+    <rect x="26" y="42" width="12" height="10" rx="3" fill="#fff" stroke="${INK_STICKER}" stroke-width="1.8"/>
+    <path d="M38 44 C43 44 43 50 38 50" stroke="${INK_STICKER}" stroke-width="1.6" fill="none"/>
+    <path d="M29 40 Q30 37 28 34 M33 40 Q34 37 32 34" stroke="#C9B8E0" stroke-width="1.4" fill="none" stroke-linecap="round"/>`,
+};
+// devolve o HTML pronto de uma figurinha (ou um emoji de fallback se a chave
+// for de uma versão futura que essa aba ainda não conhece)
+function stickerHtml(chave, tamanho) {
+  tamanho = tamanho || 46;
+  const miolo = STICKERS_ATOMO_SVG[chave];
+  if (!miolo) return '🎨';
+  return '<span style="display:inline-block;width:' + tamanho + 'px;height:' + tamanho + 'px;">' +
+    '<svg viewBox="0 0 64 64" width="100%" height="100%">' + miolo + '</svg></span>';
+}
+window.stickerHtml = stickerHtml;
 
+window.toggleStickerPicker = async function () {
+  const area = document.getElementById('stickerPickerArea');
+  const abrindo = area.style.display === 'none';
+  area.style.display = abrindo ? 'block' : 'none';
+  if (abrindo) {
+    document.getElementById('resultadosSticker').innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+    await carregarStickersEmAlta();
+  }
+};
+
+// extrai a URL da imagem da resposta do Klipy — tenta os campos mais prováveis
+// (webp/png/gif, tamanho médio ou pequeno) porque não achei a doc pública com
+// o formato exato de figurinha; se vier vazio, é sinal de ajustar esse trecho
+function urlDaFigurinha(item) {
+  return item.images?.fixed_width?.url || item.images?.original?.url ||
+    item.images?.downsized?.url || item.images?.fixed_width_small?.url ||
+    item.url || '';
+}
+
+async function carregarStickersEmAlta() {
+  try {
+    const resposta = await fetch(`${API_BASE}/api/stickers-em-alta`);
+    const dados = await resposta.json();
+    const resultados = (dados.data?.data || dados.data || []).slice(0, 24);
+    if (!resultados.length) console.log('resposta de stickers-em-alta sem resultado usável:', dados);
+    document.getElementById('resultadosSticker').innerHTML = resultados.length
+      ? resultados.map(s => {
+          const url = urlDaFigurinha(s);
+          return url ? `<img src="${url}" style="width:100%; border-radius:10px; cursor:pointer; background:var(--card); border:1px solid var(--card-b);" onclick="enviarStickerEscolhida('${url}')" />` : '';
+        }).join('')
+      : `<div class="visitor-lock-note">Não consegui carregar figurinhas agora.</div>`;
+  } catch (e) {
+    console.log('erro ao carregar stickers em alta:', e.message);
+    document.getElementById('resultadosSticker').innerHTML = `<div class="visitor-lock-note">Não consegui carregar figurinhas agora.</div>`;
+  }
+}
+
+window.buscarStickerReal = async function () {
+  const termo = document.getElementById('buscaStickerInput').value.trim();
+  if (!termo) { await carregarStickersEmAlta(); return; }
+  document.getElementById('resultadosSticker').innerHTML = `<div class="visitor-lock-note">Buscando...</div>`;
+  try {
+    const resposta = await fetch(`${API_BASE}/api/buscar-sticker?q=${encodeURIComponent(termo)}`);
+    const dados = await resposta.json();
+    const resultados = (dados.data?.data || dados.data || []).slice(0, 16);
+    document.getElementById('resultadosSticker').innerHTML = resultados.length
+      ? resultados.map(s => {
+          const url = urlDaFigurinha(s);
+          return url ? `<img src="${url}" style="width:100%; border-radius:10px; cursor:pointer; background:var(--card); border:1px solid var(--card-b);" onclick="enviarStickerEscolhida('${url}')" />` : '';
+        }).join('')
+      : `<div class="visitor-lock-note">Nenhuma figurinha encontrada.</div>`;
+  } catch (e) {
+    document.getElementById('resultadosSticker').innerHTML = `<div class="visitor-lock-note">Não consegui buscar agora.</div>`;
+  }
+};
+
+// manda a figurinha do Klipy como imagem — reaproveita o mesmo tipo_conteudo
+// 'gif' que a bolha de mensagem já sabe renderizar, sem precisar de nada novo
+window.enviarStickerEscolhida = async function (url) {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
   const { error } = await supabaseClient.from('mensagens').insert({
     conversa_id: conversaAbertaId,
     autor_id: sessionData.session.user.id,
     texto: url,
     tipo_conteudo: 'gif',
   });
-
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
-
-  document.getElementById('gifPickerArea').style.display = 'none';
-  document.getElementById('resultadosGif').innerHTML = '';
+  document.getElementById('stickerPickerArea').style.display = 'none';
   await renderDmMsgs();
-};
-
-// ---------- figurinhas desenhadas no estilo do app ----------
-// reaproveita o mesmo jeito de ícone torto (ICONE_SVG/icone()) do resto do
-// Átomo, em vez de figurinha genérica — cada chave é um nome de ícone novo
-// desenhado só pra reação em conversa
-const STICKERS_ATOMO = {
-  coracao: 'stickerCoracao', risada: 'stickerRisada', uau: 'stickerUau',
-  chorando: 'stickerChorando', fogo: 'stickerFogo', aplausos: 'stickerAplausos',
-  pensando: 'stickerPensando', livro: 'stickerLivro',
-};
-Object.assign(ICONE_SVG, {
-  stickerCoracao: '<path d="M12 19.5s-6.8-4.2-9-8.2C1.4 8 2.3 4.6 5.6 3.6c1.9-.6 3.9.1 5 1.7l1.4 2 1.4-2c1.1-1.6 3.1-2.3 5-1.7 3.3 1 4.2 4.4 2.6 7.7-2.2 4-9 8.2-9 8.2Z"/>',
-  stickerRisada: '<circle cx="12" cy="12" r="8.4"/><path d="M7.6 13.2c1 2.3 2.8 3.6 4.4 3.6s3.4-1.3 4.4-3.6c-1.7.6-3 .8-4.4.8s-2.7-.2-4.4-.8Z"/><path d="M8.4 9.3h.1M15.5 9.3h.1"/>',
-  stickerUau: '<circle cx="12" cy="12" r="8.4"/><circle cx="8.7" cy="10.4" r="1"/><circle cx="15.3" cy="10.4" r="1"/><path d="M9.4 15c.9.9 1.3 1.3 2.6 1.3s1.7-.4 2.6-1.3"/>',
-  stickerChorando: '<circle cx="12" cy="11.4" r="8"/><path d="M8.3 9.6h.1M15.6 9.6h.1"/><path d="M8.6 14.6c1 .9 2.1 1.3 3.4 1.3s2.4-.4 3.4-1.3"/><path d="M9.1 15.8c-.3 1.6-1 2.7-2.2 3.6M14.9 15.8c.3 1.6 1 2.7 2.2 3.6"/>',
-  stickerFogo: '<path d="M12 3.8c1 2.4-.4 3.6-1.4 4.9-1.3 1.7-1.9 3.4-.6 5.2-1.9-.5-3-2-2.9-3.9-1.6 1.6-2.2 3.7-1.5 5.9.9 2.8 3.6 4.5 6.6 4.1 3.2-.4 5.4-3 5.2-6.1-.2-3.4-2.8-5.3-5.4-10.1Z"/>',
-  stickerAplausos: '<path d="M7 13.5 4.2 10a2 2 0 0 1 2.9-2.7l2.6 2.8"/><path d="M9.2 10.6 6.6 7.7a2 2 0 0 1 2.9-2.7l3.3 3.6"/><path d="M12.2 8.6 10 6.2a1.9 1.9 0 0 1 2.8-2.6l4.6 5c1.8 2 2 5 .4 7.2l-.7 1c-1.8 2.5-5.2 3.2-7.9 1.5l-4.5-2.8"/>',
-  stickerPensando: '<circle cx="11.5" cy="10.5" r="7.3"/><path d="M9 9.7a2.4 2.4 0 1 1 3.4 2.2c-.8.4-1.2.9-1.2 1.9"/><circle cx="11.5" cy="15.2" r=".15" fill="currentColor" stroke="none"/><circle cx="17.5" cy="18" r="1.6"/><circle cx="20.3" cy="21" r=".9"/>',
-  stickerLivro: '<path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/>',
-});
-
-window.toggleStickerPicker = function () {
-  const area = document.getElementById('stickerPickerArea');
-  const abrindo = area.style.display === 'none';
-  document.getElementById('gifPickerArea').style.display = 'none';
-  area.style.display = abrindo ? 'block' : 'none';
-  if (abrindo) {
-    document.getElementById('resultadosSticker').innerHTML = Object.keys(STICKERS_ATOMO).map(chave => `
-      <div onclick="enviarSticker('${chave}')" style="cursor:pointer; text-align:center; padding:6px; border-radius:12px; background:var(--card); border:1px solid var(--card-b);">
-        ${icone(STICKERS_ATOMO[chave], 30)}
-      </div>`).join('');
-  }
 };
 
 window.enviarSticker = async function (chave) {
@@ -5409,7 +5831,21 @@ window.enviarDmMsg = async function () {
 
   input.value = '';
   await renderDmMsgs();
-  notificarPushEvento(outroId, 'mensagem', {});
+
+  // notificação in-app (funciona até nos dispositivos que ainda não pegaram
+  // o realtime/push novo) + push de verdade quando disponível
+  const { data: donoConversa } = await supabaseClient.from('usuarios').select('notif_ativado').eq('id', outroId).maybeSingle();
+  if (!donoConversa || donoConversa.notif_ativado !== false) {
+    const { error: erroNotifDm } = await supabaseClient.from('notificacoes').insert({
+      usuario_id: outroId,
+      tipo: 'mensagem',
+      titulo: 'Nova mensagem',
+      subtitulo: `@${window.MEU_HANDLE || 'alguém'}: ${val.slice(0, 60)}`,
+      ator_id: meuId,
+    });
+    if (erroNotifDm) console.log('erro ao criar notificação de mensagem:', erroNotifDm.message);
+  }
+  notificarPushEvento(outroId, 'mensagem', { ator_id: meuId });
 };
 
 window.abrirDmDireto = async function (id) {
@@ -5425,9 +5861,17 @@ window.abrirPerfilDoAmigo = async function (id) {
 
   // ---------- navegação ----------
   window.showScreen2 = function (id) {
+    const jaEstavaNessaAba = document.getElementById('screen-' + id).classList.contains('active');
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === id));
+
+    // tocar de novo na aba Feed enquanto já tá nela = atualiza, igual outros apps
+    if (id === 'feed' && jaEstavaNessaAba) {
+      const tela = document.getElementById('screen-feed');
+      if (tela) tela.scrollTo({ top: 0, behavior: 'smooth' });
+      carregarPostsReais();
+    }
   };
 
   // ---------- puxar para atualizar ----------
@@ -5463,7 +5907,6 @@ window.abrirPerfilDoAmigo = async function (id) {
   (function initPuxarAtualizar() {
     const indicador = document.getElementById('pullRefreshIndicator');
     if (!indicador) return;
-    const spanIcone = indicador.querySelector('span');
 
     const ATUALIZAR_POR_TELA = {
       feed: () => carregarPostsReais(),
@@ -5488,7 +5931,6 @@ window.abrirPerfilDoAmigo = async function (id) {
       indicador.classList.remove('spinning');
       indicador.style.opacity = '0';
       indicador.style.transform = 'translateX(-50%) translateY(-60px) scale(0.8)';
-      spanIcone.innerHTML = icone('setaBaixo',18);
     }
 
     document.addEventListener('touchstart', (e) => {
@@ -5513,7 +5955,6 @@ window.abrirPerfilDoAmigo = async function (id) {
       const progresso = Math.min(dist / LIMIAR, 1);
       indicador.style.opacity = String(progresso);
       indicador.style.transform = `translateX(-50%) translateY(${dist - 60}px) scale(${0.8 + progresso * 0.3}) rotate(${dist * 3}deg)`;
-      spanIcone.innerHTML = progresso >= 1 ? icone('setaCima',18) : icone('setaBaixo',18);
     }, { passive: true });
 
     document.addEventListener('touchend', async () => {
@@ -5526,7 +5967,6 @@ window.abrirPerfilDoAmigo = async function (id) {
       indicador.classList.add('spinning');
       indicador.style.opacity = '1';
       indicador.style.transform = 'translateX(-50%) translateY(4px) scale(1)';
-      spanIcone.innerHTML = icone('atualizando',18);
 
       const id = telaAtual ? telaAtual.id.replace('screen-', '') : null;
       const fnAtualizar = id ? ATUALIZAR_POR_TELA[id] : null;
@@ -5587,7 +6027,7 @@ window.toggleMatchPref = async function (p) {
 };
 
 let ordemTipos = [...TIPOS];
-let itemArrastando = null;
+let tiposOcultos = [];
 
 const EMOJIS_STREAK = ['🧶', '🔥', '⭐', '🌱', '☕', '📖'];
 let meuEmojiStreak = '🧶';
@@ -5611,17 +6051,23 @@ window.abrirReordenarTipos = function () {
   renderReordenarLista();
 };
 
+// sem arrastar — a versão com "segure e arraste" ficava lenta e difícil de
+// usar direito no celular (o toque conflitava com a rolagem da lista), então
+// a reordenação agora é só pelas setinhas (curtas, confiáveis) + um botão
+// pra esconder o tipo do composer sem precisar excluir ele de verdade
 function renderReordenarLista() {
-  document.getElementById('reordenarTiposList').innerHTML = ordemTipos.map((t, i) => `
-    <div class="reordenar-item" draggable="true" data-i="${i}"
-      ondragstart="arrastarInicio(event, ${i})" ondragover="arrastarSobre(event, ${i})" ondrop="arrastarSoltar(event, ${i})"
-      ontouchstart="arrastarInicioTouch(event, ${i})" ontouchmove="arrastarMoverTouch(event)" ontouchend="arrastarFimTouch(event)">
-      <span class="alca"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.8s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14M5 12h14M5 17h14"/></svg></span></span> ${t}
+  document.getElementById('reordenarTiposList').innerHTML = ordemTipos.map((t, i) => {
+    const oculto = tiposOcultos.includes(t);
+    return `
+    <div class="reordenar-item ${oculto ? 'oculto' : ''}">
+      <span>${t}</span>
       <div class="reordenar-setas">
-        <button class="reordenar-seta" ${i === 0 ? 'disabled' : ''} onclick="event.stopPropagation(); moverTipoOrdem(${i}, -1)">${icone('setaCima', 13)}</button>
-        <button class="reordenar-seta" ${i === ordemTipos.length - 1 ? 'disabled' : ''} onclick="event.stopPropagation(); moverTipoOrdem(${i}, 1)">${icone('setaBaixo', 13)}</button>
+        <button class="reordenar-ocultar ${oculto ? 'on' : ''}" title="${oculto ? 'mostrar de novo' : 'esconder do composer'}" onclick="toggleTipoOculto('${t}')">${oculto ? '✕' : '✓'}</button>
+        <button class="reordenar-seta" ${i === 0 ? 'disabled' : ''} onclick="moverTipoOrdem(${i}, -1)">${icone('setaCima', 13)}</button>
+        <button class="reordenar-seta" ${i === ordemTipos.length - 1 ? 'disabled' : ''} onclick="moverTipoOrdem(${i}, 1)">${icone('setaBaixo', 13)}</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 window.moverTipoOrdem = async function (i, direcao) {
@@ -5630,46 +6076,24 @@ window.moverTipoOrdem = async function (i, direcao) {
   const [item] = ordemTipos.splice(i, 1);
   ordemTipos.splice(destino, 0, item);
   renderReordenarLista();
-  await salvarOrdemTipos();
+  await salvarPreferenciasTipos();
 };
 
-window.arrastarInicio = function (e, i) { itemArrastando = i; };
-window.arrastarSobre = function (e, i) { e.preventDefault(); };
-window.arrastarSoltar = async function (e, i) {
-  e.preventDefault();
-  const [item] = ordemTipos.splice(itemArrastando, 1);
-  ordemTipos.splice(i, 0, item);
-  renderReordenarLista();
-  await salvarOrdemTipos();
-};
-
-let touchIndiceOrigem = null;
-window.arrastarInicioTouch = function (e, i) { touchIndiceOrigem = i; };
-window.arrastarMoverTouch = function (e) {
-  const toque = e.touches[0];
-  const elemento = document.elementFromPoint(toque.clientX, toque.clientY);
-  const item = elemento ? elemento.closest('.reordenar-item') : null;
-  document.querySelectorAll('.reordenar-item').forEach(el => el.classList.remove('arrastando'));
-  if (item) item.classList.add('arrastando');
-};
-window.arrastarFimTouch = async function (e) {
-  const toque = e.changedTouches[0];
-  const elemento = document.elementFromPoint(toque.clientX, toque.clientY);
-  const item = elemento ? elemento.closest('.reordenar-item') : null;
-  document.querySelectorAll('.reordenar-item').forEach(el => el.classList.remove('arrastando'));
-  if (item && touchIndiceOrigem !== null) {
-    const destino = parseInt(item.dataset.i);
-    const [movido] = ordemTipos.splice(touchIndiceOrigem, 1);
-    ordemTipos.splice(destino, 0, movido);
-    renderReordenarLista();
-    await salvarOrdemTipos();
+window.toggleTipoOculto = async function (t) {
+  const jaOculto = tiposOcultos.includes(t);
+  // não deixa esconder todo mundo — sempre sobra pelo menos 1 tipo pra postar
+  if (!jaOculto && tiposOcultos.length >= ordemTipos.length - 1) {
+    mostrarToast('❌ precisa deixar pelo menos um tipo visível');
+    return;
   }
-  touchIndiceOrigem = null;
+  tiposOcultos = jaOculto ? tiposOcultos.filter(x => x !== t) : [...tiposOcultos, t];
+  renderReordenarLista();
+  await salvarPreferenciasTipos();
 };
 
-async function salvarOrdemTipos() {
+async function salvarPreferenciasTipos() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
-  await supabaseClient.from('usuarios').update({ ordem_tipos: ordemTipos }).eq('id', sessionData.session.user.id);
+  await supabaseClient.from('usuarios').update({ ordem_tipos: ordemTipos, tipos_ocultos: tiposOcultos }).eq('id', sessionData.session.user.id);
   renderTypeChips();
 }
 
@@ -5976,6 +6400,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       if (perfil.match_preferencia) minhaMatchPref = perfil.match_preferencia;
       if (perfil.genero) meuGenero = perfil.genero;
       if (perfil.ordem_tipos && perfil.ordem_tipos.length === TIPOS.length) ordemTipos = perfil.ordem_tipos;
+      if (Array.isArray(perfil.tipos_ocultos)) tiposOcultos = perfil.tipos_ocultos;
       if (perfil.emoji_streak) {
         meuEmojiStreak = perfil.emoji_streak;
         document.getElementById('streakEmoji').textContent = meuEmojiStreak;
@@ -5996,7 +6421,9 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     }
     window.MEU_USUARIO_ID = session.user.id;
     window.MEU_HANDLE = (perfil && perfil.handle) || '';
-           mostrarToast('✨ Bem-vinda de volta, ' + session.user.email);
+           // nome de verdade em vez do e-mail inteiro — cai pro @handle se não tiver
+           // nome salvo, e só usa "por aqui" como último recurso (nunca o e-mail)
+           mostrarToast('✨ Bem-vinda de volta, ' + ((perfil && perfil.nome) || (perfil && perfil.handle && ('@' + perfil.handle)) || 'por aqui') + '!');
     await carregarAmigosEsugestoes();
     await atualizarContadorVisitas();
     renderDmList();
@@ -6005,6 +6432,18 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     carregarPerguntasPublicasMinhas();
     verificarGuiaInstalacao(perfil && perfil.viu_guia_instalacao === true);
     verificarPermissaoNotifPush(perfil && perfil.pediu_permissao_notif === true);
+
+    // se o app abriu (ou recebeu a mensagem do service worker) por causa de um
+    // clique em notificação push ANTES do login terminar, agora sim dá pra rotear
+    if (window.NOTIF_DEEP_LINK_PENDENTE) {
+      const n = window.NOTIF_DEEP_LINK_PENDENTE;
+      window.NOTIF_DEEP_LINK_PENDENTE = null;
+      setTimeout(() => {
+        abrirNotificacao(n);
+        // limpa os parâmetros da URL pra não rotear de novo se a pessoa der F5
+        history.replaceState(null, '', location.pathname);
+      }, 400);
+    }
 
     supabaseClient
       .channel('notificacoes-realtime')
@@ -6142,9 +6581,13 @@ window.esqueciMinhaSenha = async function () {
 };
 
 window.loginComGoogle = async function () {
+  // usa origin (sem barra/caminho/parâmetros no final), igual o resto do app —
+  // location.href pode virar "http://localhost:3000/" (com barra), que não bate
+  // com a URL cadastrada sem barra na lista de redirect do Supabase, e aí ele
+  // cai no site de produção em vez de voltar pro localhost
   const { error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: window.location.origin }
   });
   if (error) { 
     mostrarToast('❌ erro no login: ' + error.message);
@@ -6288,6 +6731,22 @@ window.irParaPostDaNotif = async function (postId) {
   }
 };
 
+// leva pro lugar certo de acordo com o tipo da notificação — antes só
+// funcionava pra comentário (e só se o post já estivesse carregado no feed)
+window.abrirNotificacao = async function (n) {
+  closeOverlay('notifOverlay');
+  if (n.tipo === 'comentario' || n.tipo === 'curtida') {
+    if (n.post_id) { irParaPostDaNotif(n.post_id); } else { showScreen2('feed'); }
+  } else if (n.tipo === 'seguidor' && n.ator_id) {
+    abrirPerfilAlheio(n.ator_id);
+  } else if (n.tipo === 'mensagem' && n.ator_id) {
+    const { data: usuario } = await supabaseClient.from('usuarios').select('handle').eq('id', n.ator_id).maybeSingle();
+    abrirDm(n.ator_id, usuario ? usuario.handle : 'alguém');
+  } else if (n.tipo === 'pergunta') {
+    abrirPerguntasPendentes();
+  }
+};
+
 window.openNotifs = async function () {
   document.getElementById('notifOverlay').classList.add('open');
 
@@ -6295,7 +6754,7 @@ window.openNotifs = async function () {
   const lista = window.NOTIFICACOES_REAIS || [];
 
   document.getElementById('notifList').innerHTML = lista.length
-    ? lista.map(n => `<div class="notif-item" ${n.post_id ? `onclick="irParaPostDaNotif(${n.post_id})" style="cursor:pointer;"` : ''}><div class="ic">${n.tipo === 'comentario' ? icone('comentar',18) : n.tipo === 'seguidor' ? icone('pessoa',18) : n.tipo === 'pergunta' ? icone('pergunta',18) : icone('sino',18)}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
+    ? lista.map((n, i) => `<div class="notif-item" onclick="abrirNotificacao(window.NOTIFICACOES_REAIS[${i}])" style="cursor:pointer;"><div class="ic">${n.tipo === 'comentario' ? icone('comentar',18) : n.tipo === 'curtida' ? icone('curtir',18) : n.tipo === 'seguidor' ? icone('pessoa',18) : n.tipo === 'pergunta' ? icone('pergunta',18) : n.tipo === 'mensagem' ? icone('comentar',18) : icone('sino',18)}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
     : `<div class="visitor-lock-note">Nenhuma notificação ainda 🌱</div>`;
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -6390,6 +6849,40 @@ window.openNotifs = async function () {
       navigator.serviceWorker.register('sw.js').catch(err => console.log('service worker não registrou:', err.message));
     });
   }
+
+  // ---------- deep-link de notificação push ----------
+  // lê tipo/post_id/ator_id (seja da URL com que o app abriu, seja da mensagem
+  // que o service worker manda quando o app já tava aberto) e usa o MESMO
+  // roteador das notificações de dentro do app (window.abrirNotificacao) pra
+  // levar a pessoa direto pro post/perfil/conversa — antes clicar numa
+  // notificação push só abria o app na tela padrão, sem levar a lugar nenhum.
+  window.tratarNotifDeepLinkDaUrl = function (urlStr) {
+    try {
+      const params = new URL(urlStr, location.href).searchParams;
+      const tipo = params.get('notif_tipo');
+      if (!tipo) return;
+      const n = { tipo, post_id: params.get('notif_post') || null, ator_id: params.get('notif_ator') || null };
+      // só dispara depois que o app terminou de logar (checarSessaoErotear cuida
+      // do timing na primeira carga); numa aba já aberta e focada, dispara na hora
+      if (window.MEU_USUARIO_ID) {
+        window.abrirNotificacao(n);
+      } else {
+        window.NOTIF_DEEP_LINK_PENDENTE = n;
+      }
+    } catch (e) { /* URL malformada — ignora, não é crítico */ }
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.tipo === 'atomo-notif-click' && event.data.url) {
+        window.tratarNotifDeepLinkDaUrl(event.data.url);
+      }
+    });
+  }
+
+  // se o app abriu direto de um clique em notificação (aba nova), a URL já
+  // vem com os parâmetros — guarda pra rotear assim que o login terminar
+  window.tratarNotifDeepLinkDaUrl(location.href);
 </script>
 <script>
   // ---------- gesto de arrastar da borda pra voltar (igual Threads/iOS) ----------

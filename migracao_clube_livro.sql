@@ -211,3 +211,51 @@ grant select, insert, update, delete on public.grifos_livro to service_role;
 -- na aba Mensagens e pra saber o que já foi visto quando a conversa é reaberta.
 -- Tabela mensagens já existe (não é nova), então não precisa de GRANT novo.
 alter table mensagens add column if not exists lida boolean not null default false;
+
+-- 13) quem causou a notificação (ex: quem começou a seguir) — usado pra clicar
+-- na notificação e ir direto pro perfil da pessoa. Tabela já existe, sem GRANT novo.
+alter table notificacoes add column if not exists ator_id uuid references auth.users(id) on delete set null;
+
+-- 14) garante que a tabela mensagens está na publicação de realtime do Supabase.
+-- Sem isso, o canal 'mensagens-realtime' do app nunca recebe evento nenhum de
+-- mensagem nova (fica em silêncio, mesmo com o código certo) — é uma config
+-- separada do RLS, tem que ligar explicitamente. Idempotente: só liga se não
+-- estiver ligada ainda.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'mensagens'
+  ) then
+    alter publication supabase_realtime add table mensagens;
+  end if;
+end $$;
+
+-- 15) permite que quem RECEBEU a mensagem marque ela como lida. Se a política
+-- de UPDATE em mensagens só liberava o autor da linha (dono da mensagem), a
+-- outra pessoa da conversa nunca conseguia gravar lida=true e a bolinha de
+-- não lida na aba Mensagens nunca sumia mesmo depois de ler. Isso aqui é uma
+-- política ADICIONAL (permissiva) pros dois participantes da conversa — não
+-- mexe em nenhuma política que já exista, só soma.
+drop policy if exists "marcar mensagem lida" on mensagens;
+create policy "marcar mensagem lida" on mensagens for update using (
+  exists (
+    select 1 from conversas c
+    where c.id = mensagens.conversa_id
+      and (c.usuario1_id = auth.uid() or c.usuario2_id = auth.uid())
+  )
+) with check (
+  exists (
+    select 1 from conversas c
+    where c.id = mensagens.conversa_id
+      and (c.usuario1_id = auth.uid() or c.usuario2_id = auth.uid())
+  )
+);
+
+grant update on public.mensagens to authenticated;
+
+-- 16) guarda quais tipos de post a pessoa escondeu da lista de opções do
+-- composer (ela continua podendo reordenar os tipos com ordem_tipos; agora
+-- também pode esconder os que não usa, sem apagar nada — é só um filtro de
+-- exibição no front-end)
+alter table usuarios add column if not exists tipos_ocultos jsonb default '[]'::jsonb;

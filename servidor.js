@@ -90,7 +90,11 @@ app.post('/api/push/notificar', async (req, res) => {
 
   try {
     const { titulo, corpo } = modelo(dados || {});
-    const enviadas = await enviarPushParaUsuario(usuarioId, titulo, corpo);
+    // só repassa pro service worker o que ele precisa pra montar o link —
+    // nunca o texto livre que a pessoa digitou, então continua sem dar pra
+    // usar isso pra levar quem clica pra qualquer lugar arbitrário
+    const dadosExtra = { tipo, post_id: (dados || {}).post_id || null, ator_id: (dados || {}).ator_id || null };
+    const enviadas = await enviarPushParaUsuario(usuarioId, titulo, corpo, dadosExtra);
     res.json({ ok: true, enviadas });
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
@@ -221,7 +225,7 @@ function indiceRotativoDoDia(dataYyyyMmDd, tamanho) {
   return ((diasDesdeEpoca % tamanho) + tamanho) % tamanho;
 }
 
-async function enviarPushParaUsuario(usuarioId, titulo, corpo) {
+async function enviarPushParaUsuario(usuarioId, titulo, corpo, dadosExtra) {
   // push ainda não configurado no servidor (faltam segredos no .env) — sai sem
   // quebrar quem chamou, pra dar pra chamar essa função de qualquer lugar sem medo
   if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return 0;
@@ -231,7 +235,11 @@ async function enviarPushParaUsuario(usuarioId, titulo, corpo) {
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        JSON.stringify({ titulo, corpo })
+        // manda o "tipo"/post_id/ator_id junto do texto — é isso que o service
+        // worker usa pra saber pra onde levar quem clicar na notificação (antes
+        // não ia nada disso e clicar só abria o app na tela padrão, sem levar
+        // a lugar nenhum de verdade)
+        JSON.stringify({ titulo, corpo, dados: dadosExtra || null })
       );
       enviadas++;
     } catch (erro) {
@@ -454,6 +462,10 @@ app.get('/api/tumblr-tag', async (req, res) => {
   const tag = (req.query.tag || '').trim();
   const variar = req.query.variar === 'true';
   if (!tag) return res.status(400).json({ erro: 'faltou o parâmetro tag' });
+  if (!process.env.TUMBLR_API_KEY) {
+    console.log('TUMBLR_API_KEY não configurada no servidor.env — Tumblr não vai trazer post nenhum até isso ser adicionado');
+    return res.status(500).json({ erro: 'Tumblr não configurado no servidor (falta TUMBLR_API_KEY)' });
+  }
 
   try {
     // npf=true força o Tumblr a devolver os posts no formato novo (blocos de
@@ -490,11 +502,18 @@ app.get('/api/tumblr-tag', async (req, res) => {
         ...(Array.isArray(p.content) ? p.content.map(b => b.text || b.title || b.description || '') : []),
         p.body, p.caption, p.title,
       ].filter(Boolean).join(' ');
-      return pareceTextoEmPortugues(pistaTexto) > -4;
+      // limiar mais rígido do que antes (> -4 só descartava o que parecia
+      // claramente espanhol) — mas > 2 acabou rejeitando até legenda curta e
+      // genuinamente em português sem acento nenhum (ex: "isso é muito bom"
+      // só pontua 1). > 0 já exclui o que tem cara de espanhol/neutro sem
+      // descartar português comum de legenda curta.
+      return pareceTextoEmPortugues(pistaTexto) > 0;
     });
 
-    // prioriza quem tem mais nota (curtida + reblog), e ainda embaralha um
-    // pouco o topo pra não ficar sempre a mesma ordem nos posts mais populares
+    // prioriza quem tem mais nota (curtida + reblog) — sem piso fixo de nota
+    // (uma tag menos movimentada podia zerar os resultados), só pega os mais
+    // populares de quem sobrou do filtro de português acima, e ainda
+    // embaralha um pouco o topo pra não ficar sempre a mesma ordem
     postsBrutos = postsBrutos
       .slice()
       .sort((a, b) => (b.note_count || 0) - (a.note_count || 0))
@@ -640,11 +659,19 @@ app.get('/api/livros-em-destaque', async (req, res) => {
     (dados.docs || []).forEach(l => {
       const autores = (l.author_name || []).join(', ');
       const ano = l.first_publish_year ? ` (${l.first_publish_year})` : '';
+      // quando o Internet Archive tem uma cópia digitalizada de acesso
+      // público, dá pra ler o livro de verdade dentro do app (visualizador
+      // do próprio archive.org, embutido em iframe — bem mais confiável
+      // que o visualizador antigo do Google Books, que parou de funcionar)
+      const iaId = Array.isArray(l.ia) && l.ia.length ? l.ia[0] : null;
+      const leituraCompleta = !!iaId && l.ebook_access === 'public';
       itens.push({
         fonte: 'Open Library',
         coverId: l.cover_i || null,
         capa: l.cover_i ? `https://covers.openlibrary.org/b/id/${l.cover_i}-L.jpg` : null,
         autor: autores,
+        iaId,
+        leituraCompleta,
         volumeInfo: {
           title: l.title || 'Sem título',
           description: autores ? `${autores}${ano}` : 'Sem descrição disponível.',
@@ -664,7 +691,15 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
     );
     const dados = await resposta.json();
-    (dados.results || []).slice(0, limite).forEach(l => {
+    (dados.results || []).forEach(l => {
+      // só entra na lista quem realmente dá pra ler dentro do app — sem
+      // text/plain nem text/html no Gutendex não tem prévia nenhuma pra
+      // mostrar (era isso que fazia clicar em alguns livros só dar erro sem
+      // avisar antes; agora esses nem aparecem na lista de livros gratuitos)
+      const temTextoLegivel = Object.keys(l.formats || {}).some(k => k.startsWith('text/plain') || k.startsWith('text/html'));
+      if (!temTextoLegivel) return;
+      if (itens.filter(it => it.fonte === 'Gutendex').length >= limite) return;
+
       const autores = (l.authors || []).map(a => a.name).join(', ');
       itens.push({
         fonte: 'Gutendex',
@@ -682,15 +717,20 @@ app.get('/api/livros-em-destaque', async (req, res) => {
     console.log('erro Gutendex (livros em destaque):', erro.message);
   }
 
-  // reforça a prioridade de português: mesmo pedindo só PT nas 3 fontes,
-  // o filtro de idioma de cada API (principalmente o langRestrict do
-  // Google Books) às vezes deixa passar item em outro idioma — inclusive
+  // ordena em duas camadas: primeiro quem dá pra ler dentro do app de
+  // verdade (Gutendex sempre, Open Library só quando tem cópia completa no
+  // Internet Archive) — Google Books e Open Library sem cópia completa vão
+  // pro final, já que só abrem uma amostra ou o site de origem. Dentro de
+  // cada grupo, reforça a prioridade de português: mesmo pedindo só PT nas
+  // 3 fontes, o filtro de idioma de cada API (principalmente o langRestrict
+  // do Google Books) às vezes deixa passar item em outro idioma — inclusive
   // espanhol, que compartilha muito acento com o português (por isso usa a
   // mesma heurística pareceTextoEmPortugues() de cima, que já pesa isso).
-  // Reordena pra deixar os que claramente parecem PT-BR primeiro, sem
-  // descartar os outros (sort estável: dentro de cada grupo a ordem
-  // original das fontes continua igual).
+  const daPraLerNoApp = it => it.fonte === 'Gutendex' || (it.fonte === 'Open Library' && it.leituraCompleta);
   itens.sort((a, b) => {
+    const legivelA = daPraLerNoApp(a) ? 1 : 0;
+    const legivelB = daPraLerNoApp(b) ? 1 : 0;
+    if (legivelA !== legivelB) return legivelB - legivelA;
     const scoreA = pareceTextoEmPortugues((a.volumeInfo.title || '') + ' ' + (a.volumeInfo.description || ''));
     const scoreB = pareceTextoEmPortugues((b.volumeInfo.title || '') + ' ' + (b.volumeInfo.description || ''));
     return scoreB - scoreA;
@@ -699,9 +739,40 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   res.json({ items: itens });
 });
 
+// tira o cabeçalho/rodapé padrão do Project Gutenberg (licença, sumário de
+// catalogação etc.) e deixa só o miolo do livro — cobre tanto o texto de
+// marcação mais novo ("START OF THE PROJECT GUTENBERG EBOOK") quanto o
+// formato mais antigo usado em livros catalogados há mais tempo ("START OF
+// THIS PROJECT GUTENBERG EBOOK"); quando não acha os marcadores (raro),
+// cai no comportamento antigo de pular os primeiros 5% do arquivo
+function limparBoilerplateGutenberg(bruto) {
+  const marcaInicio = /\*\*\*\s*START OF (?:THE|THIS) PROJECT GUTENBERG EBOOK[^\n]*\*\*\*/i;
+  const marcaFim = /\*\*\*\s*END OF (?:THE|THIS) PROJECT GUTENBERG EBOOK[^\n]*\*\*\*/i;
+
+  const mInicio = bruto.match(marcaInicio);
+  const mFim = bruto.match(marcaFim);
+
+  let texto = bruto;
+  if (mInicio) texto = texto.slice(mInicio.index + mInicio[0].length);
+  if (mFim) {
+    const idxFim = texto.search(marcaFim);
+    if (idxFim > -1) texto = texto.slice(0, idxFim);
+  }
+
+  if (!mInicio) {
+    // marcadores não encontrados — mantém o comportamento antigo como rede de segurança
+    texto = bruto.slice(Math.min(3000, Math.floor(bruto.length * 0.05)));
+  }
+
+  return texto.trim();
+}
+
+const LIMITE_TEXTO_LIVRO = 5_000_000; // ~5MB — cobre praticamente qualquer clássico, evita caso patológico
+
 app.get('/api/livro-texto', async (req, res) => {
-  // pega um trecho de verdade do texto integral de um livro do Gutendex
-  // (domínio público) pra mostrar como prévia dentro do próprio app
+  // pega o texto integral (domínio público) de um livro do Gutendex pra
+  // mostrar no leitor de verdade dentro do app — o front-end é quem divide
+  // isso em páginas pro modo de leitura com deslizar
   const id = (req.query.id || '').trim();
   if (!id) return res.status(400).json({ erro: 'faltou o parâmetro id' });
 
@@ -718,7 +789,8 @@ app.get('/api/livro-texto', async (req, res) => {
       return res.json({
         titulo: livro.title || 'Sem título',
         autor: (livro.authors || []).map(a => a.name).join(', '),
-        texto: 'Prévia não disponível pra este livro.',
+        texto: '',
+        erro: 'Esse livro não tem texto disponível pra leitura.',
       });
     }
 
@@ -729,18 +801,25 @@ app.get('/api/livro-texto', async (req, res) => {
       bruto = bruto.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
     }
 
-    // pula licença/sumário do início do arquivo do Gutenberg e pega um trecho do miolo
-    const inicio = Math.min(3000, Math.floor(bruto.length * 0.05));
-    const trecho = bruto.slice(inicio, inicio + 6000).trim();
+    let texto = limparBoilerplateGutenberg(bruto);
+    let truncado = false;
+    if (texto.length > LIMITE_TEXTO_LIVRO) {
+      texto = texto.slice(0, LIMITE_TEXTO_LIVRO);
+      truncado = true;
+    }
 
     res.json({
       titulo: livro.title || 'Sem título',
       autor: (livro.authors || []).map(a => a.name).join(', '),
-      texto: trecho || 'Prévia não disponível pra este livro.',
+      texto: texto || 'Prévia não disponível pra este livro.',
+      truncado,
     });
   } catch (erro) {
     console.log('erro ao buscar texto do livro (Gutendex):', erro.message);
-    res.status(500).json({ erro: 'não consegui carregar a prévia' });
+    // 200 com aviso amigável em vez de 500 — o Gutendex faz parte da internet
+    // e falha na hora vez ou outra; melhor a pessoa ver "tenta de novo" do
+    // que um erro cru no console sem explicação nenhuma
+    res.json({ erro: 'não consegui carregar o livro', texto: '' });
   }
 });
 
@@ -817,6 +896,45 @@ app.get('/api/gifs-em-alta', async (req, res) => {
     res.json(dados);
   } catch (erro) {
     res.status(500).json({ erro: 'falha ao buscar gifs em alta' });
+  }
+});
+
+// figurinhas de verdade — trocado de Klipy pra Giphy (a API de Sticker da
+// Klipy dizia "chave inválida" só pra figurinha, mesmo a mesma chave indo bem
+// pro GIF; provavelmente precisa de habilitação separada por produto que não
+// dava pra resolver só no código). O formato de resposta do Giphy é público,
+// documentado e estável há anos — precisa de GIPHY_API_KEY no servidor.env
+// (grátis em developers.giphy.com, cria um app e a chave sai na hora).
+app.get('/api/buscar-sticker', async (req, res) => {
+  const termo = req.query.q;
+  if (!termo) return res.status(400).json({ erro: 'faltou o parâmetro q' });
+  if (!process.env.GIPHY_API_KEY) return res.status(500).json({ erro: 'busca de figurinha não configurada no servidor (falta GIPHY_API_KEY)' });
+
+  try {
+    const resposta = await fetch(
+      `https://api.giphy.com/v1/stickers/search?api_key=${process.env.GIPHY_API_KEY}&q=${encodeURIComponent(termo)}&limit=16&rating=g&lang=pt`
+    );
+    const dados = await resposta.json();
+    if (!resposta.ok) console.log('Giphy stickers/search não-OK:', resposta.status, JSON.stringify(dados).slice(0, 300));
+    res.json(dados);
+  } catch (erro) {
+    console.log('erro ao buscar sticker (Giphy):', erro.message);
+    res.status(500).json({ erro: 'falha ao buscar figurinha' });
+  }
+});
+
+app.get('/api/stickers-em-alta', async (req, res) => {
+  if (!process.env.GIPHY_API_KEY) return res.status(500).json({ erro: 'figurinhas em alta não configuradas no servidor (falta GIPHY_API_KEY)' });
+  try {
+    const resposta = await fetch(
+      `https://api.giphy.com/v1/stickers/trending?api_key=${process.env.GIPHY_API_KEY}&limit=24&rating=g`
+    );
+    const dados = await resposta.json();
+    if (!resposta.ok) console.log('Giphy stickers/trending não-OK:', resposta.status, JSON.stringify(dados).slice(0, 300));
+    res.json(dados);
+  } catch (erro) {
+    console.log('erro ao buscar stickers em alta (Giphy):', erro.message);
+    res.status(500).json({ erro: 'falha ao buscar figurinhas em alta' });
   }
 });
 
