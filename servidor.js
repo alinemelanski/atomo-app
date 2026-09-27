@@ -5,7 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
 
 // mesma URL e chave publicável (anon) que o front-end já usa — não é segredo,
 // é protegida por RLS no banco (só permite INSERT na tabela de lista de espera)
@@ -32,6 +32,52 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
 const supabaseAdmin = process.env.SUPABASE_SERVICE_ROLE_KEY
   ? createClient('https://wfhikucbygmjeawrfsfq.supabase.co', process.env.SUPABASE_SERVICE_ROLE_KEY)
   : null;
+
+// ---------- upload de avatar (via service role, contorna bug de RLS no INSERT do bucket avatars) ----------
+// o client do navegador nao consegue inserir um avatar NOVO no bucket "avatars" -
+// existe algum bug nas politicas de RLS do storage que rejeita insert mesmo com
+// uma politica corretamente configurada (testado e confirmado com a Aline).
+// pra nao depender disso, o upload passa a ser feito aqui no servidor com a
+// service role, que ignora RLS - so quem tem o token valido do proprio usuario
+// pode subir avatar, e so na propria pasta (usuarioId vem do token, nunca do body).
+app.post('/api/upload-avatar', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace('Bearer ', '').trim();
+    if (!token) return res.status(401).json({ erro: 'sem token de autenticacao' });
+
+    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !userData || !userData.user) {
+      return res.status(401).json({ erro: 'token invalido ou expirado' });
+    }
+    const usuarioId = userData.user.id;
+
+    if (!supabaseAdmin) {
+      return res.status(500).json({ erro: 'upload de avatar nao configurado no servidor (falta SUPABASE_SERVICE_ROLE_KEY)' });
+    }
+
+    const { imagemBase64, contentType } = req.body || {};
+    if (!imagemBase64) return res.status(400).json({ erro: 'imagem faltando' });
+
+    const buffer = Buffer.from(imagemBase64, 'base64');
+    const caminho = `${usuarioId}/avatar.jpg`;
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from('avatars')
+      .upload(caminho, buffer, { upsert: true, contentType: contentType || 'image/jpeg' });
+
+    if (uploadError) {
+      console.log('ERRO UPLOAD AVATAR (servidor):', uploadError);
+      return res.status(500).json({ erro: uploadError.message });
+    }
+
+    const { data: urlData } = supabaseAdmin.storage.from('avatars').getPublicUrl(caminho);
+    res.json({ url: urlData.publicUrl + '?v=' + Date.now() });
+  } catch (e) {
+    console.log('ERRO INESPERADO upload-avatar:', e);
+    res.status(500).json({ erro: 'erro interno no upload' });
+  }
+});
 
 app.get('/api/push/chave-publica', (req, res) => {
   res.json({ chave: VAPID_PUBLIC_KEY || null });
@@ -192,29 +238,84 @@ const MENSAGENS_MANHA = [
   'Bom dia! Um novo dia começando — o que ele guarda pra você?',
 ];
 const MENSAGENS_NOITE = [
-  'Cada dia é uma página que não se reescreve — essa também deixou sua marca.',
-  'O tempo não pede licença pra passar. Só pede atenção.',
-  'Nem todo dia precisa de sentido. Alguns só precisam ser vividos até o fim.',
-  'Há um segredo escondido em cada dia comum, como uma semente dentro da casca.',
-  'A vida não é feita só dos grandes dias, mas da soma silenciosa dos comuns.',
-  'O que passou hoje não volta — mas também não se perde. Vira quem você é amanhã.',
-  'Existe uma sabedoria simples em ter chegado até aqui, até esta noite.',
-  'Debaixo da rotina de qualquer dia, sempre mora algo que vale guardar.',
-  'A vida se escreve em dias comuns — hoje foi mais um capítulo silencioso.',
-  'Ninguém vive o mesmo dia duas vezes. Esse aqui já foi só seu.',
-  'Há mais poesia no cotidiano do que se costuma perceber.',
-  'O fim de um dia é sempre um pequeno adeus — e um pequeno recomeço.',
-  'Nem tudo que vivemos precisa ser lembrado. Basta ter sido vivido.',
-  'Entre o barulho do dia e o silêncio da noite, mora um instante de paz.',
-  'A vida não espera — ela simplesmente acontece, um dia de cada vez.',
-  'Há beleza até nos dias mais comuns, se alguém parar pra olhar.',
-  'O que fica de um dia não são as horas, é o que elas tocaram em você.',
-  'Toda noite é um convite silencioso a soltar o que já passou.',
-  'A vida é feita de pequenas despedidas diárias — essa é mais uma.',
-  'Nem todo dia muda tudo. Mas todo dia muda alguma coisa.',
+  'Otimismo é a fé que conduz à realização. — Helen Keller',
+  'Nada é permanente neste mundo, nem mesmo os nossos problemas. — Charles Chaplin',
+  'Tudo parece impossível até que seja feito. — Nelson Mandela',
+  'O futuro depende do que fazemos no presente. — Mahatma Gandhi',
+  'No meio da dificuldade encontra-se a oportunidade. — Albert Einstein',
+  'Não importa o quão devagar você vá, desde que não pare. — Confúcio',
+  'Tudo vale a pena quando a alma não é pequena. — Fernando Pessoa',
+  'Mantenha o rosto voltado para o sol, e as sombras ficarão para trás. — Walt Whitman',
+  'Onde há vontade, há um caminho. — Provérbio popular',
+  'Aprender é a única coisa de que a mente nunca se cansa. — Leonardo da Vinci',
+  'Quem tem um porquê para viver pode suportar quase qualquer como. — Friedrich Nietzsche',
+  'Enquanto há vida, há esperança. — Cícero',
+  'A esperança é o sonho de um homem acordado. — Aristóteles',
+  'A vida é curta, mas há sempre tempo para a gentileza. — Ralph Waldo Emerson',
+  'Se você pode sonhar, você pode realizar. — Walt Disney',
+  'Um pessimista vê a dificuldade em cada oportunidade; um otimista vê a oportunidade em cada dificuldade. — Winston Churchill',
+  'Nunca é tarde demais para ser quem você poderia ter sido. — George Eliot',
+  'A maior descoberta da minha geração é que o ser humano pode mudar sua vida mudando sua atitude. — William James',
+  'Muitos dos fracassos da vida são de pessoas que não perceberam o quão perto do sucesso estavam quando desistiram. — Thomas Edison',
+  'Se você pensa que pode, ou pensa que não pode, de qualquer forma você está certo. — Henry Ford',
+  'Tem domínio sobre a tua mente, ou ela terá domínio sobre ti. — Marco Aurélio',
+  'Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que elas são difíceis. — Sêneca',
+  'A mente é tudo. Aquilo em que você pensa, você se torna. — Buda',
+  'A felicidade nunca diminui quando compartilhada. — Buda',
+  'Este é o dia que o Senhor fez; regozijemo-nos, e alegremo-nos nele. — Salmos 118:24',
+  'O choro pode durar uma noite, mas a alegria vem pela manhã. — Salmos 30:5',
+  'O Senhor é a minha luz e a minha salvação. — Salmos 27:1',
+  'Entrega o teu caminho ao Senhor; confia nele, e ele tudo fará. — Salmos 37:5',
+  'Ainda que eu andasse pelo vale da sombra da morte, não temeria mal algum, porque tu estás comigo. — Salmos 23:4',
+  'O Senhor é o meu pastor, nada me faltará. — Salmos 23:1',
+  'De dia o Senhor mandará a sua benignidade, e de noite a sua canção estará comigo. — Salmos 42:8',
+  'Aquietai-vos, e sabei que eu sou Deus. — Salmos 46:10',
 ];
 const HORARIO_NOITE_MIN = 21 * 60; // 21h00 (horário de Brasília) — fixo pra todo mundo
+const HORARIO_SIGNO_MIN = 8 * 60; // 08h00 - horóscopo chega de manhã, hora de checar o dia
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
+const MIN_EVENTOS_PRO_RESUMO = 3; // dia com poucos toques de humor não rende resumo que preste
+
+// monta a narrativa do "resumo do dia" a partir dos toques de humor registrados
+// (humor_eventos), em ordem cronológica. Regra: 2+ toques da mesma emoção
+// negativa (brava/ansiosa/triste) dentro de 90min vira "pico"; senão, so aponta
+// a emoção que mais apareceu no dia.
+function gerarTextoResumo(eventos) {
+  if (!eventos || !eventos.length) return null;
+  const NOMES = { feliz: 'feliz', calma: 'calma', triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
+  const negativas = ['brava', 'ansiosa', 'triste'];
+
+  const contagem = {};
+  eventos.forEach((e) => { contagem[e.emocao] = (contagem[e.emocao] || 0) + 1; });
+  const dominante = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0][0];
+
+  const picos = [];
+  let streakEmocao = null, streakInicio = null, streakCount = 0;
+  eventos.forEach((e) => {
+    if (negativas.includes(e.emocao)) {
+      if (streakEmocao === e.emocao && (new Date(e.criado_em) - new Date(streakInicio)) <= 90 * 60 * 1000) {
+        streakCount++;
+      } else {
+        streakEmocao = e.emocao; streakInicio = e.criado_em; streakCount = 1;
+      }
+      if (streakCount === 2) picos.push({ emocao: e.emocao, hora: e.criado_em });
+    } else {
+      streakEmocao = null; streakCount = 0;
+    }
+  });
+
+  const formatarHora = (iso) => {
+    const d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    return String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
+  };
+
+  const frases = [];
+  frases.push(`seu dia começou registrando ${NOMES[eventos[0].emocao]} às ${formatarHora(eventos[0].criado_em)}.`);
+  picos.slice(0, 2).forEach((p) => frases.push(`às ${formatarHora(p.hora)} você teve um pico de ${NOMES[p.emocao]}.`));
+  if (!picos.length) frases.push(`você se manteve majoritariamente ${NOMES[dominante]} ao longo do dia.`);
+  else frases.push(`no geral, ${NOMES[dominante]} foi o que mais apareceu.`);
+  return frases.join(' ');
+}
 
 // escolhe a mensagem do dia por rotação (não por sorteio), pra nunca repetir
 // em dias seguidos — cada dia do calendário sempre cai num índice diferente
@@ -303,7 +404,78 @@ async function rodarCronNotificacoes(req, res) {
       await supabaseAdmin.from('usuarios').update({ ultima_notif_noite_data: hojeBrasilia }).eq('id', u.id);
     }
 
-    res.json({ ok: true, manha: precisamManha.length, noite: precisamNoite.length, notificacoesEnviadas: totalEnviadas });
+    // lembretes de itens do checklist (Home) — cada item pode ter um horário
+    // próprio escolhido pelo usuário; só avisa quem ainda não marcou como feito
+    // e ainda não recebeu o aviso hoje
+    const { data: itensLembrete } = await supabaseAdmin
+      .from('checklist_itens')
+      .select('id, usuario_id, texto, horario_lembrete_min, ultimo_lembrete_data, feito')
+      .not('horario_lembrete_min', 'is', null)
+      .eq('feito', false)
+      .gte('horario_lembrete_min', minutosAgora)
+      .lt('horario_lembrete_min', minutosAgora + JANELA_CRON_MIN);
+
+    const precisamLembrete = (itensLembrete || []).filter(it => it.ultimo_lembrete_data !== hojeBrasilia);
+
+    for (const it of precisamLembrete) {
+      totalEnviadas += await enviarPushParaUsuario(it.usuario_id, '✅ Lembrete', it.texto);
+      await supabaseAdmin.from('checklist_itens').update({ ultimo_lembrete_data: hojeBrasilia }).eq('id', it.id);
+    }
+
+    // resumo do dia — gerado uma vez, no fim do dia (mesma janela da notificação
+    // da noite), a partir dos toques de humor registrados hoje (humor_eventos).
+    // dia com poucos toques não gera resumo nenhum (não tem narrativa que preste).
+    let resumosGerados = 0;
+    if (dentroJanelaNoite) {
+      const inicioHojeUTC = new Date(Date.UTC(agoraBrasilia.getFullYear(), agoraBrasilia.getMonth(), agoraBrasilia.getDate(), 3, 0, 0));
+      const { data: eventosHoje } = await supabaseAdmin
+        .from('humor_eventos')
+        .select('usuario_id, emocao, criado_em')
+        .gte('criado_em', inicioHojeUTC.toISOString())
+        .order('criado_em', { ascending: true });
+
+      const porUsuario = {};
+      (eventosHoje || []).forEach((e) => {
+        if (!porUsuario[e.usuario_id]) porUsuario[e.usuario_id] = [];
+        porUsuario[e.usuario_id].push(e);
+      });
+
+      for (const usuarioId of Object.keys(porUsuario)) {
+        const eventosDoUsuario = porUsuario[usuarioId];
+        if (eventosDoUsuario.length < MIN_EVENTOS_PRO_RESUMO) continue;
+
+        const { data: jaTemResumo } = await supabaseAdmin
+          .from('resumos_dia').select('id').eq('usuario_id', usuarioId).eq('data', hojeBrasilia).maybeSingle();
+        if (jaTemResumo) continue;
+
+        const texto = gerarTextoResumo(eventosDoUsuario);
+        if (!texto) continue;
+        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto });
+        totalEnviadas += await enviarPushParaUsuario(usuarioId, '📊 Seu resumo do dia chegou', 'toque pra ver como foi seu dia');
+        resumosGerados++;
+      }
+    }
+
+    // aviso do cartão de signo (opcional, só quem ativou e escolheu o signo) —
+    // um teaser de manhã; o texto de verdade só é buscado quando abre o app
+    // (evita gastar cota da API de horóscopo com gente que nem vai abrir)
+    let signosAvisados = 0;
+    const dentroJanelaSigno = minutosAgora >= HORARIO_SIGNO_MIN && minutosAgora < HORARIO_SIGNO_MIN + JANELA_CRON_MIN;
+    if (dentroJanelaSigno) {
+      const { data: usuariosComSigno } = await supabaseAdmin
+        .from('usuarios')
+        .select('id, ultimo_signo_notif_data')
+        .eq('signo_ativado', true)
+        .not('meu_signo', 'is', null);
+      const precisamSigno = (usuariosComSigno || []).filter(u => u.ultimo_signo_notif_data !== hojeBrasilia);
+      for (const u of precisamSigno) {
+        totalEnviadas += await enviarPushParaUsuario(u.id, '✨ Seu horóscopo chegou', 'confira como está seu dia');
+        await supabaseAdmin.from('usuarios').update({ ultimo_signo_notif_data: hojeBrasilia }).eq('id', u.id);
+        signosAvisados++;
+      }
+    }
+
+    res.json({ ok: true, manha: precisamManha.length, noite: precisamNoite.length, lembretes: precisamLembrete.length, resumos: resumosGerados, signos: signosAvisados, notificacoesEnviadas: totalEnviadas });
   } catch (erro) {
     console.log('erro no cron de notificações:', erro.message);
     res.status(500).json({ erro: erro.message });
@@ -417,6 +589,40 @@ app.get('/api/musicas-em-alta', async (req, res) => {
     res.json(dados);
   } catch (erro) {
     res.status(500).json({ erro: 'falha ao buscar músicas em alta' });
+  }
+});
+
+// busca "radios" (estacoes por estilo, tipo indie, mpb, lo-fi...) no Deezer pelo nome.
+// se a busca direta nao achar nada, cai pra lista completa de radios e filtra pelo titulo.
+app.get('/api/buscar-radio', async (req, res) => {
+  const termo = (req.query.q || '').trim();
+  if (!termo) return res.status(400).json({ erro: 'faltou o parâmetro q' });
+  try {
+    const respBusca = await fetch(`https://api.deezer.com/search/radio?q=${encodeURIComponent(termo)}`);
+    const dadosBusca = await respBusca.json();
+    if (dadosBusca && Array.isArray(dadosBusca.data) && dadosBusca.data.length) {
+      return res.json(dadosBusca);
+    }
+    const respLista = await fetch('https://api.deezer.com/radio');
+    const dadosLista = await respLista.json();
+    const termoBusca = termo.toLowerCase();
+    const filtrados = (dadosLista.data || []).filter(r => (r.title || '').toLowerCase().includes(termoBusca));
+    res.json({ data: filtrados });
+  } catch (erro) {
+    res.status(500).json({ erro: 'falha ao buscar rádios no Deezer' });
+  }
+});
+
+// faixas de uma "radio" (estacao por estilo) especifica do Deezer, pelo id escolhido
+app.get('/api/radio-faixas', async (req, res) => {
+  const id = req.query.id;
+  if (!id) return res.status(400).json({ erro: 'faltou o parâmetro id' });
+  try {
+    const resposta = await fetch(`https://api.deezer.com/radio/${encodeURIComponent(id)}/tracks`);
+    const dados = await resposta.json();
+    res.json(dados);
+  } catch (erro) {
+    res.status(500).json({ erro: 'falha ao buscar faixas do rádio' });
   }
 });
 
@@ -610,112 +816,144 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   // vitrine padrão).
   const termo = (req.query.q || '').trim();
   const buscando = termo.length > 0;
+  // quando a chamada só vai usar os resultados do Google Books (ex: escolher
+  // o "livro atual" do clube), nem vale a pena chamar Open Library e
+  // Gutendex — economiza 2 requisições externas inteiras e a busca fica
+  // bem mais rápida
+  const somenteGoogle = req.query.somenteGoogle === '1';
   const limite = buscando ? 10 : 5;
   const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
   const itens = [];
   const autorVitrine = AUTORES_BRASILEIROS_DESTAQUE[(pagina - 1) % AUTORES_BRASILEIROS_DESTAQUE.length];
 
-  // Google Books
-  try {
-    const queryGoogle = buscando ? `q=${encodeURIComponent(termo)}` : `q=${encodeURIComponent('inauthor:"' + autorVitrine + '"')}`;
-    const startIndex = (pagina - 1) * limite;
-    const resposta = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?${queryGoogle}&langRestrict=pt&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=${limite}&startIndex=${startIndex}`
-    );
-    const dados = await resposta.json();
-    (dados.items || []).forEach(l => {
-      const capaGoogle = l.volumeInfo?.imageLinks?.thumbnail || l.volumeInfo?.imageLinks?.smallThumbnail || null;
-      // a API do Google Books quase sempre só libera uma amostra do livro —
-      // só dá pra ler o livro inteiro por lá quando é domínio público ou a
-      // editora liberou visualização completa. Marca isso pra avisar a
-      // pessoa antes dela clicar, em vez de deixar ela descobrir sozinha
-      // depois de abrir o Google Play Livros.
-      const leituraCompleta = l.accessInfo?.viewability === 'ALL_PAGES' || l.accessInfo?.publicDomain === true;
-      itens.push({
-        fonte: 'Google Books',
-        googleId: l.id || null,
-        capa: capaGoogle ? capaGoogle.replace('http://', 'https://') : null,
-        autor: (l.volumeInfo?.authors || []).join(', '),
-        leituraCompleta,
-        volumeInfo: {
-          title: l.volumeInfo?.title || 'Sem título',
-          description: l.volumeInfo?.description || 'Sem descrição disponível.',
-          link: l.volumeInfo?.infoLink || l.volumeInfo?.previewLink || null,
-        },
-      });
-    });
-  } catch (erro) {
-    console.log('erro Google Books (livros em destaque):', erro.message);
-  }
+  // as 3 fontes agora rodam EM PARALELO (antes era uma await depois da outra,
+  // then na pratica a busca demorava a soma do tempo das 3 — agora demora
+  // so o tempo da mais lenta das 3). Cada uma continua com seu try/catch
+  // isolado: se uma falhar ou demorar mais, as outras aparecem normal.
+  const [itensGoogle, itensOpenLibrary, itensGutendex] = await Promise.all([
+    (async () => {
+      const out = [];
+      try {
+        const queryGoogle = buscando ? `q=${encodeURIComponent(termo)}` : `q=${encodeURIComponent('inauthor:"' + autorVitrine + '"')}`;
+        const startIndex = (pagina - 1) * limite;
+        const resposta = await fetch(
+          `https://www.googleapis.com/books/v1/volumes?${queryGoogle}&langRestrict=pt&key=${process.env.GOOGLE_BOOKS_API_KEY}&maxResults=${limite}&startIndex=${startIndex}`
+        );
+        if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
+        const dados = await resposta.json();
+        (dados.items || []).forEach(l => {
+          // antes só pegava "thumbnail" (a miniatura baixa) — agora prioriza os
+          // tamanhos maiores que a Google Books às vezes manda (igual já
+          // fazíamos na busca de livro pra citação), e ainda pede um zoom maior
+          // e tira o efeito de "canto dobrado" da URL, que também limitava a
+          // resolução mesmo quando só tinha a miniatura mesmo
+          const linksImagemGoogle = l.volumeInfo?.imageLinks || {};
+          const capaGoogleBruta = linksImagemGoogle.large || linksImagemGoogle.medium || linksImagemGoogle.small
+            || linksImagemGoogle.thumbnail || linksImagemGoogle.smallThumbnail || null;
+          const capaGoogle = capaGoogleBruta
+            ? capaGoogleBruta.replace(/&edge=curl/, '').replace(/zoom=\d/, 'zoom=3')
+            : null;
+          // a API do Google Books quase sempre só libera uma amostra do livro —
+          // só dá pra ler o livro inteiro por lá quando é domínio público ou a
+          // editora liberou visualização completa. Marca isso pra avisar a
+          // pessoa antes dela clicar, em vez de deixar ela descobrir sozinha
+          // depois de abrir o Google Play Livros.
+          const leituraCompleta = l.accessInfo?.viewability === 'ALL_PAGES' || l.accessInfo?.publicDomain === true;
+          out.push({
+            fonte: 'Google Books',
+            googleId: l.id || null,
+            capa: capaGoogle ? capaGoogle.replace('http://', 'https://') : null,
+            autor: (l.volumeInfo?.authors || []).join(', '),
+            leituraCompleta,
+            volumeInfo: {
+              title: l.volumeInfo?.title || 'Sem título',
+              description: l.volumeInfo?.description || 'Sem descrição disponível.',
+              link: l.volumeInfo?.infoLink || l.volumeInfo?.previewLink || null,
+            },
+          });
+        });
+      } catch (erro) {
+        console.log('erro Google Books (livros em destaque):', erro.message);
+      }
+      return out;
+    })(),
+    somenteGoogle ? Promise.resolve([]) : (async () => {
+      const out = [];
+      try {
+        const queryOpenLibrary = buscando ? `q=${encodeURIComponent(termo)}` : `author=${encodeURIComponent(autorVitrine)}`;
+        const resposta = await fetch(
+          `https://openlibrary.org/search.json?${queryOpenLibrary}&language=por&limit=${limite}&page=${pagina}`,
+          { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+        );
+        if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
+        const dados = await resposta.json();
+        (dados.docs || []).forEach(l => {
+          const autores = (l.author_name || []).join(', ');
+          const ano = l.first_publish_year ? ` (${l.first_publish_year})` : '';
+          // quando o Internet Archive tem uma cópia digitalizada de acesso
+          // público, dá pra ler o livro de verdade dentro do app (visualizador
+          // do próprio archive.org, embutido em iframe — bem mais confiável
+          // que o visualizador antigo do Google Books, que parou de funcionar)
+          const iaId = Array.isArray(l.ia) && l.ia.length ? l.ia[0] : null;
+          const leituraCompleta = !!iaId && l.ebook_access === 'public';
+          out.push({
+            fonte: 'Open Library',
+            coverId: l.cover_i || null,
+            capa: l.cover_i ? `https://covers.openlibrary.org/b/id/${l.cover_i}-L.jpg` : null,
+            autor: autores,
+            iaId,
+            leituraCompleta,
+            volumeInfo: {
+              title: l.title || 'Sem título',
+              description: autores ? `${autores}${ano}` : 'Sem descrição disponível.',
+              link: l.key ? `https://openlibrary.org${l.key}` : null,
+            },
+          });
+        });
+      } catch (erro) {
+        console.log('erro Open Library (livros em destaque):', erro.message);
+      }
+      return out;
+    })(),
+    somenteGoogle ? Promise.resolve([]) : (async () => {
+      const out = [];
+      try {
+        const queryGutendex = buscando ? `search=${encodeURIComponent(termo)}` : `search=${encodeURIComponent(autorVitrine)}`;
+        const resposta = await fetch(
+          `https://gutendex.com/books/?languages=pt&${queryGutendex}&page=${pagina}`,
+          { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+        );
+        if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
+        const dados = await resposta.json();
+        (dados.results || []).forEach(l => {
+          // só entra na lista quem realmente dá pra ler dentro do app — sem
+          // text/plain nem text/html no Gutendex não tem prévia nenhuma pra
+          // mostrar (era isso que fazia clicar em alguns livros só dar erro sem
+          // avisar antes; agora esses nem aparecem na lista de livros gratuitos)
+          const temTextoLegivel = Object.keys(l.formats || {}).some(k => k.startsWith('text/plain') || k.startsWith('text/html'));
+          if (!temTextoLegivel) return;
+          if (out.length >= limite) return;
 
-  // Open Library — sem chave, sem limite de cota, catálogo enorme
-  try {
-    const queryOpenLibrary = buscando ? `q=${encodeURIComponent(termo)}` : `author=${encodeURIComponent(autorVitrine)}`;
-    const resposta = await fetch(
-      `https://openlibrary.org/search.json?${queryOpenLibrary}&language=por&limit=${limite}&page=${pagina}`,
-      { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
-    );
-    const dados = await resposta.json();
-    (dados.docs || []).forEach(l => {
-      const autores = (l.author_name || []).join(', ');
-      const ano = l.first_publish_year ? ` (${l.first_publish_year})` : '';
-      // quando o Internet Archive tem uma cópia digitalizada de acesso
-      // público, dá pra ler o livro de verdade dentro do app (visualizador
-      // do próprio archive.org, embutido em iframe — bem mais confiável
-      // que o visualizador antigo do Google Books, que parou de funcionar)
-      const iaId = Array.isArray(l.ia) && l.ia.length ? l.ia[0] : null;
-      const leituraCompleta = !!iaId && l.ebook_access === 'public';
-      itens.push({
-        fonte: 'Open Library',
-        coverId: l.cover_i || null,
-        capa: l.cover_i ? `https://covers.openlibrary.org/b/id/${l.cover_i}-L.jpg` : null,
-        autor: autores,
-        iaId,
-        leituraCompleta,
-        volumeInfo: {
-          title: l.title || 'Sem título',
-          description: autores ? `${autores}${ano}` : 'Sem descrição disponível.',
-          link: l.key ? `https://openlibrary.org${l.key}` : null,
-        },
-      });
-    });
-  } catch (erro) {
-    console.log('erro Open Library (livros em destaque):', erro.message);
-  }
-
-  // Gutendex — Projeto Gutenberg, clássicos de domínio público (a obra continua viva!)
-  try {
-    const queryGutendex = buscando ? `search=${encodeURIComponent(termo)}` : `search=${encodeURIComponent(autorVitrine)}`;
-    const resposta = await fetch(
-      `https://gutendex.com/books/?languages=pt&${queryGutendex}&page=${pagina}`,
-      { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
-    );
-    const dados = await resposta.json();
-    (dados.results || []).forEach(l => {
-      // só entra na lista quem realmente dá pra ler dentro do app — sem
-      // text/plain nem text/html no Gutendex não tem prévia nenhuma pra
-      // mostrar (era isso que fazia clicar em alguns livros só dar erro sem
-      // avisar antes; agora esses nem aparecem na lista de livros gratuitos)
-      const temTextoLegivel = Object.keys(l.formats || {}).some(k => k.startsWith('text/plain') || k.startsWith('text/html'));
-      if (!temTextoLegivel) return;
-      if (itens.filter(it => it.fonte === 'Gutendex').length >= limite) return;
-
-      const autores = (l.authors || []).map(a => a.name).join(', ');
-      itens.push({
-        fonte: 'Gutendex',
-        gutendexId: l.id || null,
-        capa: (l.formats && l.formats['image/jpeg']) || null,
-        autor: autores,
-        volumeInfo: {
-          title: l.title || 'Sem título',
-          description: autores ? `${autores} · clássico de domínio público` : 'Clássico de domínio público.',
-          link: l.id ? `https://www.gutenberg.org/ebooks/${l.id}` : null,
-        },
-      });
-    });
-  } catch (erro) {
-    console.log('erro Gutendex (livros em destaque):', erro.message);
-  }
+          const autores = (l.authors || []).map(a => a.name).join(', ');
+          out.push({
+            fonte: 'Gutendex',
+            gutendexId: l.id || null,
+            capa: (l.formats && l.formats['image/jpeg']) || null,
+            autor: autores,
+            volumeInfo: {
+              title: l.title || 'Sem título',
+              description: autores ? `${autores} · clássico de domínio público` : 'Clássico de domínio público.',
+              link: l.id ? `https://www.gutenberg.org/ebooks/${l.id}` : null,
+            },
+          });
+        });
+      } catch (erro) {
+        console.log('erro Gutendex (livros em destaque):', erro.message);
+      }
+      return out;
+    })(),
+  ]);
+  itens.push(...itensGoogle, ...itensOpenLibrary, ...itensGutendex);
 
   // ordena em duas camadas: primeiro quem dá pra ler dentro do app de
   // verdade (Gutendex sempre, Open Library só quando tem cópia completa no
@@ -857,6 +1095,54 @@ app.get('/api/podcast-episodio', async (req, res) => {
     res.json({ url: episodio ? episodio.episodeUrl : null });
   } catch (erro) {
     res.status(500).json({ erro: 'falha ao buscar episódio' });
+  }
+});
+
+// mapa signo em portugues -> parametro em ingles que a API Ninjas espera
+const SIGNO_PARA_ZODIAC = {
+  'Áries': 'aries', 'Touro': 'taurus', 'Gêmeos': 'gemini', 'Câncer': 'cancer',
+  'Leão': 'leo', 'Virgem': 'virgo', 'Libra': 'libra', 'Escorpião': 'scorpio',
+  'Sagitário': 'sagittarius', 'Capricórnio': 'capricorn', 'Aquário': 'aquarius', 'Peixes': 'pisces',
+};
+
+// traduz um texto curto en->pt-BR via MyMemory (gratuita, sem chave). A API
+// Ninjas do horóscopo só devolve em inglês, e o app é todo em português - sem
+// isso o cartão do signo ia destoar do resto (regra da Aline: nada de "sensação
+// estrangeira/genérica" no app). Se a tradução falhar por qualquer motivo,
+// devolve o texto original em inglês em vez de quebrar o cartão.
+async function traduzirParaPortugues(texto) {
+  if (!texto) return texto;
+  try {
+    const resposta = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|pt-BR`
+    );
+    const dados = await resposta.json();
+    const traduzido = dados && dados.responseData && dados.responseData.translatedText;
+    return traduzido || texto;
+  } catch (erro) {
+    console.log('erro ao traduzir horóscopo:', erro.message);
+    return texto;
+  }
+}
+
+// horoscopo diario (cartao "signo" na Home) - via API Ninjas (só devolve em
+// inglês), traduzido pro português antes de mandar pro app.
+app.get('/api/horoscopo', async (req, res) => {
+  if (!process.env.API_NINJAS_KEY) {
+    return res.status(500).json({ erro: 'faltou configurar API_NINJAS_KEY no servidor.env' });
+  }
+  const zodiac = SIGNO_PARA_ZODIAC[req.query.signo];
+  if (!zodiac) return res.status(400).json({ erro: 'signo inválido' });
+  try {
+    const resposta = await fetch(`https://api.api-ninjas.com/v1/horoscope?zodiac_sign=${zodiac}`, {
+      headers: { 'X-Api-Key': process.env.API_NINJAS_KEY },
+    });
+    const dados = await resposta.json();
+    if (!dados.horoscope) return res.json({ texto: null });
+    const texto = await traduzirParaPortugues(dados.horoscope);
+    res.json({ texto });
+  } catch (erro) {
+    res.status(500).json({ erro: 'falha ao buscar horóscopo' });
   }
 });
 
