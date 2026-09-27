@@ -1202,7 +1202,7 @@
           <button class="top-icon-btn" onclick="abrirBuscaConteudo()">
             <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M11,4.2 C15,3.9 18.3,7.1 18,11.1 C18.3,15.2 14.7,18.4 10.7,18 C6.7,18.3 3.5,14.8 3.9,10.8 C3.6,6.7 7,3.9 11,4.2 Z" stroke="currentColor" stroke-width="1.7" style="color:var(--ink-dim)"/><path d="M17,17.3 C18.4,18.6 19.7,19.9 21.1,21.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color:var(--ink-dim)"/></svg>
           </button>
-          <button class="top-icon-btn" onclick="abrirMatch()" id="matchBtnTopo">
+          <button class="top-icon-btn" onclick="abrirMatch()" id="matchBtnTopo" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path d="M12,20.3 C11,19.4 4.3,14.2 4.3,9.3 C4.3,6.4 6.5,4.3 9,4.3 C10.5,4.3 11.7,5 12,6 C12.3,5 13.5,4.3 15,4.3 C17.5,4.3 19.7,6.4 19.7,9.3 C19.7,14.2 13,19.4 12,20.3 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" style="color:var(--ink-dim)"/></svg>
           </button>
           <button class="top-icon-btn" onclick="openNotifs()">
@@ -1831,6 +1831,26 @@
   </div>
 </div>
 
+<!-- OVERLAY: SUPORTE E FEEDBACK -->
+<div class="composer-glass-bg" id="feedbackOverlay" onclick="if(event.target===this) closeOverlay('feedbackOverlay')">
+  <div class="composer-glass-card" style="max-width:400px;">
+    <div class="composer-glass-header">
+      <h2>Suporte e feedback</h2>
+      <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('feedbackOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+    </div>
+    <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">manda uma sugestão ou reclamação — chega direto pra gente.</div>
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+      <div class="onboard-topic-chip on" id="feedbackTipoSugestao" onclick="escolherTipoFeedback('sugestao')">💡 Sugestão</div>
+      <div class="onboard-topic-chip" id="feedbackTipoReclamacao" onclick="escolherTipoFeedback('reclamacao')">⚠️ Reclamação</div>
+    </div>
+    <textarea id="feedbackTexto" placeholder="escreve aqui o que você quer me contar..." maxlength="1000"></textarea>
+    <div class="composer-glass-foot">
+      <div style="font-family:'Nunito', sans-serif; font-size:10.5px; color:var(--ink-faint); max-width:220px;">vai com seu @ e seu e-mail de cadastro, pra eu poder te responder</div>
+      <button class="composer-glass-send" id="feedbackEnviarBtn" onclick="enviarFeedback()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg></button>
+    </div>
+  </div>
+</div>
+
 <!-- OVERLAY: DIARIO RAPIDO - GRATIDAO (POLAROID) -->
 <div class="dm-chat-overlay" id="quickGratidaoOverlay">
   <div class="dm-chat-header">
@@ -2294,7 +2314,7 @@
   <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div><div class="t">💛 Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
-      <div class="toggle-sw on" id="matchSwitch" onclick="toggleMatch()"><div class="dot"></div></div>
+      <div class="toggle-sw" id="matchSwitch" onclick="toggleMatch()"><div class="dot"></div></div>
     </div>
     <div id="matchPrefRow" style="display:none;">
       <div class="t" style="margin-bottom:8px;">Quer ver no Match:</div>
@@ -2319,6 +2339,10 @@
       </div>
       <div class="settings-row settings-nav-row" onclick="abrirBloqueados()">
         <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Pessoas bloqueadas</div>
+        <div class="nav-chevron">›</div>
+      </div>
+      <div class="settings-row settings-nav-row" onclick="abrirFeedbackOverlay()">
+        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.6s;animation-delay:0.7s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H7l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg></span> Suporte e feedback</div>
         <div class="nav-chevron">›</div>
       </div>
       <div class="settings-row settings-nav-row" onclick="abrirReordenarTipos()">
@@ -4508,6 +4532,46 @@ window.fecharSeloIndividual = function () {
     }
   };
 
+  // ---------- suporte e feedback (manda um e-mail pra gente pelo servidor) ----------
+  let feedbackTipoAtual = 'sugestao';
+  window.abrirFeedbackOverlay = function () {
+    document.getElementById('feedbackTexto').value = '';
+    feedbackTipoAtual = 'sugestao';
+    document.getElementById('feedbackTipoSugestao').classList.add('on');
+    document.getElementById('feedbackTipoReclamacao').classList.remove('on');
+    document.getElementById('feedbackOverlay').classList.add('open');
+  };
+  window.escolherTipoFeedback = function (tipo) {
+    feedbackTipoAtual = tipo;
+    document.getElementById('feedbackTipoSugestao').classList.toggle('on', tipo === 'sugestao');
+    document.getElementById('feedbackTipoReclamacao').classList.toggle('on', tipo === 'reclamacao');
+  };
+  window.enviarFeedback = async function () {
+    const texto = document.getElementById('feedbackTexto').value.trim();
+    if (!texto) { mostrarToast('escreve uma mensagem antes de mandar 📝'); return; }
+    const btn = document.getElementById('feedbackEnviarBtn');
+    if (btn) btn.disabled = true;
+    try {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const handleEl = document.getElementById('profHandle');
+      const usuarioHandle = handleEl ? handleEl.textContent.replace('@', '') : '';
+      const usuarioEmail = sessionData.session ? sessionData.session.user.email : '';
+      const resp = await fetch(`${API_BASE}/api/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensagem: texto, tipo: feedbackTipoAtual, usuarioHandle, usuarioEmail }),
+      });
+      const resultado = await resp.json().catch(() => ({}));
+      if (!resp.ok || resultado.erro) { mostrarToast('❌ ' + (resultado.erro || 'não consegui enviar, tenta de novo')); return; }
+      mostrarToast('💌 recebido, obrigada!');
+      closeOverlay('feedbackOverlay');
+    } catch (e) {
+      mostrarToast('❌ erro ao enviar: ' + e.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
+
   window.ajustarTempoPicker = function (parte, dir) {
     if (navigator.vibrate) navigator.vibrate(6);
     let h = Math.floor(window.TEMPO_PICKER_MIN / 60);
@@ -4813,12 +4877,19 @@ window.favoritarUsuarioAtual = async function () {
     mostrarToast('☆ removido dos favoritos');
     if (btnPerfil) btnPerfil.innerHTML = icone('estrela',13) + ' Favoritar';
     if (labelChat) labelChat.textContent = 'Favoritar';
+    if (typeof AMIGOS_FAVORITOS !== 'undefined') AMIGOS_FAVORITOS.delete(autorId);
   } else {
     const { error } = await supabaseClient.from('amigos_favoritos').insert({ usuario_id: meuId, amigo_id: autorId });
     if (error) { mostrarToast('❌ ' + error.message); return; }
     mostrarToast('⭐ adicionado aos favoritos');
     if (btnPerfil) btnPerfil.innerHTML = icone('estrela',13) + ' Desfavoritar';
     if (labelChat) labelChat.textContent = 'Desfavoritar';
+    if (typeof AMIGOS_FAVORITOS !== 'undefined') AMIGOS_FAVORITOS.add(autorId);
+  }
+  // atualiza o pote de amigos na hora, sem precisar sair e voltar em Mensagens
+  // pra aba "Favoritos" refletir o que acabou de favoritar/desfavoritar
+  if (typeof poteFiltroAtual !== 'undefined' && poteFiltroAtual === 'favoritos' && typeof aplicarFiltroPote === 'function') {
+    aplicarFiltroPote();
   }
 };
 
@@ -6744,6 +6815,16 @@ window.trocarModoDescobrir = function (modo) {
     gerarCartaoDiario(entrada);
   };
 
+  function carregarImagemCartaoDiario(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
   async function gerarCartaoDiario(entrada) {
     try {
       await document.fonts.load('500 26px "Nunito"');
@@ -6842,14 +6923,70 @@ window.trocarModoDescobrir = function (modo) {
     ctx.fillStyle = vinheta;
     ctx.fillRect(0, 0, W, H);
 
-    const textoComAspas = `"${entrada.texto}"`;
+    const ehPolaroidGratidao = entrada.tipo === 'Gratidão do dia' && entrada.imagem_url;
+    let y;
+    if (ehPolaroidGratidao) {
+      // mesma anotação que virou polaroid no Gratidão do dia — o cartão de
+      // compartilhar precisa mostrar a foto, não só o texto por cima do papel
+      const imgFoto = await carregarImagemCartaoDiario(entrada.imagem_url);
+      const polW = 380;
+      const borda = 20;
+      const fotoW = polW - borda * 2;
+      const fotoH = fotoW;
+      const legendaAltura = 96;
+      const polH = borda + fotoH + legendaAltura;
+      const polX = W / 2 - polW / 2;
+      const polY = H / 2 - polH / 2 - 22;
 
-    ctx.fillStyle = corInk;
-    ctx.font = 'italic 400 37px "Nunito"';
-    ctx.textAlign = 'center';
-    const linhas = quebrarLinhasCanvas(ctx, textoComAspas, W - 150);
-    let y = H / 2 - (linhas.length * 47) / 2;
-    linhas.forEach(linha => { ctx.fillText(linha, W / 2, y); y += 47; });
+      ctx.save();
+      ctx.translate(W / 2, polY + polH / 2);
+      ctx.rotate((-4 * Math.PI) / 180);
+      ctx.translate(-(W / 2), -(polY + polH / 2));
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(60,40,15,.30)';
+      ctx.shadowBlur = 22;
+      ctx.shadowOffsetY = 10;
+      ctx.fillStyle = '#FBF8F1';
+      ctx.fillRect(polX, polY, polW, polH);
+      ctx.restore();
+
+      const fotoX = polX + borda;
+      const fotoY = polY + borda;
+      if (imgFoto) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(fotoX, fotoY, fotoW, fotoH);
+        ctx.clip();
+        const escalaFoto = Math.max(fotoW / imgFoto.width, fotoH / imgFoto.height);
+        const iw = imgFoto.width * escalaFoto, ih = imgFoto.height * escalaFoto;
+        ctx.drawImage(imgFoto, fotoX + (fotoW - iw) / 2, fotoY + (fotoH - ih) / 2, iw, ih);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#EDE3D3';
+        ctx.fillRect(fotoX, fotoY, fotoW, fotoH);
+      }
+
+      if (entrada.texto) {
+        ctx.fillStyle = corInk;
+        ctx.font = 'italic 400 19px "Nunito"';
+        ctx.textAlign = 'center';
+        const linhasLegenda = quebrarLinhasCanvas(ctx, entrada.texto, fotoW - 14);
+        let yLegenda = fotoY + fotoH + 34;
+        linhasLegenda.slice(0, 3).forEach(linha => { ctx.fillText(linha, W / 2, yLegenda); yLegenda += 24; });
+      }
+
+      ctx.restore();
+      y = polY + polH + 40;
+    } else {
+      const textoComAspas = `"${entrada.texto}"`;
+      ctx.fillStyle = corInk;
+      ctx.font = 'italic 400 37px "Nunito"';
+      ctx.textAlign = 'center';
+      const linhas = quebrarLinhasCanvas(ctx, textoComAspas, W - 150);
+      y = H / 2 - (linhas.length * 47) / 2;
+      linhas.forEach(linha => { ctx.fillText(linha, W / 2, y); y += 47; });
+    }
 
     // data sem italico, com peso mais fino (era Baloo 2 800 -- bem grossa) --
     // com respiro minimo em relacao ao texto, mesmo quando a anotacao é longa
@@ -8786,7 +8923,7 @@ window.abrirPerfilDoAmigo = async function (id) {
 
   window.closeConfig = function () { document.getElementById('configOverlay').classList.remove('open'); };
 
-let matchAtivado = true;
+let matchAtivado = false;
 const MATCH_PREFS = ['Mulher', 'Homem', 'Não-binário', 'Todos'];
 let minhaMatchPref = [];
 const GENERO_OPCOES = ['Mulher', 'Homem', 'Não-binário'];
@@ -9242,7 +9379,14 @@ let notifAtivo = true;
   };
 
   window.verificarPermissaoNotifPush = function (jaPediu) {
-    if (jaPediu) return;
+    // "jaPediu" vem do banco (por CONTA), mas o pedido de notificação é por
+    // NAVEGADOR/aparelho — se a pessoa já ativou no celular isso não quer dizer
+    // que esse computador/navegador já tem inscrição de push. Por isso o que
+    // realmente decide se mostra o banner de novo é uma marca local desse
+    // aparelho (localStorage), não a flag da conta.
+    try {
+      if (localStorage.getItem('atomoNotifBannerDispensado') === '1') return;
+    } catch (e) {}
     setTimeout(() => mostrarBannerNotificacao(), 4500);
   };
 
@@ -9265,6 +9409,7 @@ let notifAtivo = true;
   window.fecharBannerNotificacao = async function (marcarPedido) {
     document.getElementById('notifBanner').classList.remove('show');
     if (marcarPedido) {
+      try { localStorage.setItem('atomoNotifBannerDispensado', '1'); } catch (e) {}
       const { data: sessionData } = await supabaseClient.auth.getSession();
       if (sessionData.session) {
         await supabaseClient.from('usuarios').update({ pediu_permissao_notif: true }).eq('id', sessionData.session.user.id);
@@ -9414,12 +9559,18 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         meuEmojiStreak = normalizarIconeStreak(perfil.emoji_streak);
         document.getElementById('streakEmoji').innerHTML = iconeStreakHtml(meuEmojiStreak);
       }
-      if (perfil.match_ativado === false) {
+      // agora o padrão é DESLIGADO: só liga se a pessoa explicitamente ativou
+      // (antes: qualquer valor que não fosse "false" contava como ligado, então
+      // toda conta nova/antiga que nunca mexeu nisso já entrava com o Match ligado
+      // sem nunca ter sido perguntada)
+      if (perfil.match_ativado === true) {
+        matchAtivado = true;
+        document.getElementById('matchSwitch').classList.add('on');
+        document.getElementById('matchBtnTopo').style.display = 'flex';
+      } else {
         matchAtivado = false;
         document.getElementById('matchSwitch').classList.remove('on');
         document.getElementById('matchBtnTopo').style.display = 'none';
-      } else {
-        matchAtivado = true;
       }
       atualizarVisibilidadeMatchPref();
       if (perfil.notif_ativado !== undefined) {

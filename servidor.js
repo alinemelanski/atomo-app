@@ -147,6 +147,46 @@ app.post('/api/push/notificar', async (req, res) => {
   }
 });
 
+// ============ SUPORTE E FEEDBACK (caixinha em Configurações) ============
+// manda um e-mail pra você (via Resend) toda vez que alguém usa a caixinha de
+// sugestão/reclamação em Configurações. Não guarda nada no banco — só repassa.
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const EMAIL_FEEDBACK_DESTINO = process.env.EMAIL_FEEDBACK_DESTINO || 'alinemelanski10@gmail.com';
+
+app.post('/api/feedback', async (req, res) => {
+  const { mensagem, tipo, usuarioHandle, usuarioEmail } = req.body || {};
+  const texto = (mensagem || '').trim();
+  if (!texto) return res.status(400).json({ erro: 'escreve uma mensagem antes de mandar' });
+  if (texto.length > 2000) return res.status(400).json({ erro: 'mensagem muito longa' });
+  if (!RESEND_API_KEY) return res.status(500).json({ erro: 'envio de feedback não configurado no servidor (falta RESEND_API_KEY)' });
+
+  const assunto = `[Átomo] ${tipo === 'reclamacao' ? 'Reclamação' : 'Sugestão'} de @${usuarioHandle || 'alguém'}`;
+  const agoraBrasilia = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const corpo = `${texto}\n\n---\nde: @${usuarioHandle || 'desconhecido'}${usuarioEmail ? ' (' + usuarioEmail + ')' : ''}\nenviado em: ${agoraBrasilia}`;
+
+  try {
+    const resposta = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+      body: JSON.stringify({
+        from: 'Átomo <onboarding@resend.dev>',
+        to: EMAIL_FEEDBACK_DESTINO,
+        subject: assunto,
+        text: corpo,
+        reply_to: usuarioEmail || undefined,
+      }),
+    });
+    if (!resposta.ok) {
+      const erroTxt = await resposta.text();
+      console.log('erro ao mandar feedback por e-mail:', erroTxt);
+      return res.status(500).json({ erro: 'não consegui enviar agora, tenta de novo' });
+    }
+    res.json({ ok: true });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
 // painel de métricas privado — só pra você acompanhar quantos usuários o
 // Átomo tem, protegido por senha (ADMIN_SECRET), sem link em nenhum lugar
 // do app pros outros usuários
