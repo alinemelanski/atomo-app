@@ -2581,7 +2581,7 @@
     return '<div class="' + classe + '"' + onclickAttr + (estilo ? ' style="' + estilo + '"' : '') + '>' + (iniciais || '?').toUpperCase() + '</div>';
   };
 
-  const TIPOS = ['História', 'Arte', 'Poema', 'Música', 'Conto', 'Livro', 'Filme', 'Série', 'Jogo', 'Podcast', 'Assunto', 'Finanças', 'Reflexão', 'Sonho', 'Gratidão', 'Memória', 'Desabafo'];
+  const TIPOS = ['História', 'Arte', 'Poema', 'Música', 'Conto', 'Livro', 'Filme', 'Série', 'Jogo', 'Podcast', 'Assunto', 'Finanças', 'Reflexão', 'Sonho', 'Gratidão', 'Memória', 'Desabafo', 'Relato', 'Humor'];
   let tipoSelecionado = null;
   let composerPrivado = false;
 function formatarTempoRelativo(isoString) {
@@ -9621,7 +9621,11 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       if (perfil.assuntos_favoritos) assuntosFavoritos = perfil.assuntos_favoritos;
       if (perfil.match_preferencia) minhaMatchPref = perfil.match_preferencia;
       if (perfil.genero) meuGenero = perfil.genero;
-      if (perfil.ordem_tipos && perfil.ordem_tipos.length === TIPOS.length) ordemTipos = perfil.ordem_tipos;
+      if (perfil.ordem_tipos && Array.isArray(perfil.ordem_tipos)) {
+        const ordemSalva = perfil.ordem_tipos.filter(t => TIPOS.includes(t));
+        const tiposNovos = TIPOS.filter(t => !ordemSalva.includes(t));
+        ordemTipos = [...ordemSalva, ...tiposNovos];
+      }
       if (Array.isArray(perfil.tipos_ocultos)) tiposOcultos = perfil.tipos_ocultos;
       if (perfil.emoji_streak) {
         meuEmojiStreak = normalizarIconeStreak(perfil.emoji_streak);
