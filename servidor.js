@@ -317,6 +317,60 @@ function gerarTextoResumo(eventos) {
   return frases.join(' ');
 }
 
+// versão "de verdade" do resumo do dia, escrita por IA (Gemini, plano gratuito
+// do Google AI Studio — basta gerar uma chave em aistudio.google.com e colar
+// em GEMINI_API_KEY no servidor.env). Olha não só os toques de humor, mas
+// também o que a pessoa escreveu no diário/postou hoje, e fecha sempre com
+// uma dica/exercício combinando com o humor do dia. Se a chave não estiver
+// configurada, ou a chamada falhar por qualquer motivo (rede, cota, etc.),
+// devolve null — quem chamou cai de volta pro gerarTextoResumo (template),
+// então o recurso nunca quebra o cron mesmo sem IA disponível.
+async function gerarResumoComIA(eventos, postsHoje) {
+  if (!process.env.GEMINI_API_KEY) return null;
+  try {
+    const NOMES = { feliz: 'feliz', calma: 'calma', triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
+    const formatarHora = (iso) => {
+      const d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      return String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
+    };
+
+    const linhasHumor = eventos.map((e) => `- ${formatarHora(e.criado_em)}: sentiu-se ${NOMES[e.emocao] || e.emocao}`).join('\n');
+    const linhasPosts = (postsHoje && postsHoje.length)
+      ? postsHoje.map((p) => `- (${p.tipo || 'anotação'}) "${(p.texto || '').slice(0, 220)}"`).join('\n')
+      : '- (não escreveu nada no diário/feed hoje)';
+
+    const prompt = `Toques de humor de hoje (em ordem):\n${linhasHumor}\n\nO que a pessoa escreveu/postou hoje:\n${linhasPosts}\n\nEscreva o resumo do dia dessa pessoa.`;
+
+    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{
+            text: 'Você escreve o "resumo do dia" de um app de diário pessoal chamado Átomo, em português do Brasil. '
+              + 'Tom: acolhedor e natural, como uma amiga observadora — nunca clínico, nunca soando como diagnóstico psicológico. '
+              + 'Baseie-se nos toques de humor registrados e no que a pessoa escreveu/postou no dia (cite algo específico do que ela escreveu, se houver). '
+              + 'Feche sempre com uma dica prática e curta (um exercício, respiração, alongamento, ou pequena atitude) que combine com o humor predominante do dia. '
+              + 'No máximo 5 frases curtas, sem markdown, sem listas, no máximo 1 emoji.'
+          }]
+        },
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 300, temperature: 0.85 }
+      })
+    });
+
+    if (!resp.ok) { console.log('gemini resumo: status', resp.status, await resp.text()); return null; }
+    const data = await resp.json();
+    const texto = data && data.candidates && data.candidates[0] && data.candidates[0].content
+      && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
+      && data.candidates[0].content.parts[0].text;
+    return texto ? texto.trim() : null;
+  } catch (erro) {
+    console.log('erro ao gerar resumo do dia com IA:', erro.message);
+    return null;
+  }
+}
+
 // escolhe a mensagem do dia por rotação (não por sorteio), pra nunca repetir
 // em dias seguidos — cada dia do calendário sempre cai num índice diferente
 // do anterior, e só volta a repetir depois de passar por todas as frases
@@ -448,7 +502,11 @@ async function rodarCronNotificacoes(req, res) {
           .from('resumos_dia').select('id').eq('usuario_id', usuarioId).eq('data', hojeBrasilia).maybeSingle();
         if (jaTemResumo) continue;
 
-        const texto = gerarTextoResumo(eventosDoUsuario);
+        const { data: postsHoje } = await supabaseAdmin
+          .from('posts').select('tipo, texto').eq('autor_id', usuarioId)
+          .is('clube_id', null).gte('criado_em', inicioHojeUTC.toISOString());
+
+        const texto = (await gerarResumoComIA(eventosDoUsuario, postsHoje)) || gerarTextoResumo(eventosDoUsuario);
         if (!texto) continue;
         await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto });
         totalEnviadas += await enviarPushParaUsuario(usuarioId, '📊 Seu resumo do dia chegou', 'toque pra ver como foi seu dia');
