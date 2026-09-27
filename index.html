@@ -499,6 +499,9 @@
   .dm-bubble.other { align-self: flex-start; background: var(--card); border: 1px solid var(--card-b); color: var(--ink); border-bottom-left-radius: 4px; }
   .dm-bubble.own { align-self: flex-end; background: var(--dm-tema-cor, var(--accent-a)); color: #fff; border-bottom-right-radius: 4px; }
   .dm-input-row { display: flex; gap: 8px; align-items: center; }
+  .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; background: var(--card); border: 1px solid var(--card-b);
+    border-radius: 999px; padding: 10px 14px; color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none; }
+  .dm-input-row > input[type="text"]::placeholder { color: var(--ink-faint); }
   .dm-input-wrap { position: relative; flex: 1; min-width: 0; }
   .dm-input-wrap input { width: 100%; box-sizing: border-box; background: var(--card); border: 1px solid var(--card-b);
     border-radius: 999px; padding: 10px 40px 10px 14px;
@@ -1226,7 +1229,7 @@
           <div class="rf-label" id="refFormLabel">📎 anexar referência</div>
           <div id="buscaFilmeArea" style="display:none; margin-bottom:8px;">
   <div style="display:flex; gap:6px; margin-bottom:6px;">
-    <input type="text" id="buscaFilmeInput" placeholder="Digite o nome do filme..." style="flex:1;" />
+    <input type="text" id="buscaFilmeInput" class="busca-input" placeholder="Digite o nome do filme..." style="flex:1; margin-bottom:0;" />
     <button type="button" onclick="buscarFilmeReal()" class="post-btn" style="padding:8px 12px; font-size:11px;">Buscar</button>
   </div>
   <div id="resultadosFilme"></div>
@@ -1234,7 +1237,7 @@
 
 <div id="buscaMusicaArea" style="display:none; margin-bottom:8px;">
   <div style="display:flex; gap:6px; margin-bottom:6px;">
-    <input type="text" id="buscaMusicaInput" placeholder="Digite o nome da música..." style="flex:1;" />
+    <input type="text" id="buscaMusicaInput" class="busca-input" placeholder="Digite o nome da música..." style="flex:1; margin-bottom:0;" />
     <button type="button" onclick="buscarMusicaReal()" class="post-btn" style="padding:8px 12px; font-size:11px;">Buscar</button>
   </div>
   <div id="resultadosMusica"></div>
@@ -1242,14 +1245,14 @@
 
 <div id="buscaLivroArea" style="display:none; margin-bottom:8px;">
   <div style="display:flex; gap:6px; margin-bottom:6px;">
-    <input type="text" id="buscaLivroInput" placeholder="Digite o nome do livro..." style="flex:1;" />
+    <input type="text" id="buscaLivroInput" class="busca-input" placeholder="Digite o nome do livro..." style="flex:1; margin-bottom:0;" />
     <button type="button" onclick="buscarLivroReal()" class="post-btn" style="padding:8px 12px; font-size:11px;">Buscar</button>
   </div>
   <div id="resultadosLivro"></div>
 </div>
 <div id="buscaPodcastArea" style="display:none; margin-bottom:8px;">
   <div style="display:flex; gap:6px; margin-bottom:6px;">
-    <input type="text" id="buscaPodcastInput" placeholder="Digite o nome do podcast..." style="flex:1;" />
+    <input type="text" id="buscaPodcastInput" class="busca-input" placeholder="Digite o nome do podcast..." style="flex:1; margin-bottom:0;" />
     <button type="button" onclick="buscarPodcastReal()" class="post-btn" style="padding:8px 12px; font-size:11px;">Buscar</button>
   </div>
   <div id="resultadosPodcast"></div>
