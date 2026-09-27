@@ -288,7 +288,22 @@
 .reordenar-ocultar { width: 26px; height: 22px; border-radius: 7px; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; font-size: 12px; background: var(--accent-soft); color: var(--ink-dim); }
 .reordenar-ocultar.on { background: var(--pink-soft); color: var(--pink); }
-.guia-passo { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; font-size: 13px; color: var(--ink); line-height: 1.45; }
+.guia-instalacao-mockup { width: 88px; height: 168px; margin: 2px auto 20px; border: 2px solid var(--ink); border-radius: 16px;
+  position: relative; background: var(--card); box-shadow: var(--shadow); }
+.guia-instalacao-mockup::before { content: ''; position: absolute; left: 50%; top: 7px; transform: translateX(-50%);
+  width: 24px; height: 3px; border-radius: 3px; background: var(--ink-faint); }
+.guia-instalacao-dot { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-a);
+  animation: guiaDotPulso 1.7s ease-out infinite; }
+.guia-instalacao-dot.topo-direita { top: 10px; right: 8px; }
+.guia-instalacao-dot.base-centro { bottom: 8px; left: 50%; transform: translateX(-50%); }
+@keyframes guiaDotPulso {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-a) 55%, transparent); }
+  70% { box-shadow: 0 0 0 13px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.guia-passo { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; font-size: 13.5px; color: var(--ink); line-height: 1.35; font-weight: 700; }
+.guia-passo-icone { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-a);
+  display: flex; align-items: center; justify-content: center; }
 .guia-passo-n { flex: none; width: 22px; height: 22px; border-radius: 50%;
   background: var(--accent-a); color: #fff; font-size: 11px; font-weight: 800;
   display: flex; align-items: center; justify-content: center; }
@@ -1044,6 +1059,10 @@
     color: var(--accent-a); cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: transform .15s ease; }
   .tempo-picker-btn:active { transform: scale(.85); background: var(--accent-a); color: #fff; }
+  .tempo-picker-ampm { flex:none; align-self:center; padding:6px 10px; border-radius:999px; border:1px solid var(--card-b);
+    background: var(--card); font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:800; color:var(--accent-a);
+    cursor:pointer; user-select:none; transition: transform .15s ease; }
+  .tempo-picker-ampm:active { transform: scale(.9); }
 
   /* ---------- resumo do dia + cartao de signo (Home) ---------- */
   .home-resumo-wrap { margin-bottom: 18px; }
@@ -1802,6 +1821,7 @@
         <div class="tempo-picker-num" id="tempoPickerMinNum">00</div>
         <button class="tempo-picker-btn" onclick="ajustarTempoPicker('m',-1)"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13"/><path d="M8 13l4 4 4-4"/></svg></span></button>
       </div>
+      <div class="tempo-picker-ampm" id="tempoPickerAmPm" onclick="alternarAmPm()" style="display:none;">AM</div>
     </div>
     <input type="hidden" id="checklistLembreteInput" />
     <div style="display:flex; gap:8px; margin-top:14px;">
@@ -2267,6 +2287,10 @@
     <div><div class="t">🌙 Modo escuro</div><div class="s">troca a paleta clara pela escura</div></div>
     <div class="toggle-sw" id="darkSwitch" onclick="toggleDarkMode()"><div class="dot"></div></div>
   </div>
+  <div class="settings-row">
+    <div><div class="t">🕐 Horário em 12h (AM/PM)</div><div class="s">mostra os horários tipo 09:00pm em vez de 21:00</div></div>
+    <div class="toggle-sw" id="formatoHoraSwitch" onclick="toggleFormatoHora()"><div class="dot"></div></div>
+  </div>
   <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div><div class="t">💛 Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
@@ -2458,7 +2482,8 @@
     broto: '<path d="M12 20.4V12.6"/><path d="M12 12.6c0-4-3.2-6.2-7.3-6 .1 4.1 3.3 6.8 7.3 6Z"/><path d="M12 14.4c0-3.6 3-5.7 6.7-5.4-.2 3.7-3.1 6.1-6.7 5.4Z"/>',
     xicara: '<path d="M5.3 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5Z"/><path d="M16.3 10.6h1.3a2.2 2.2 0 0 1 0 4.4h-1.3"/><path d="M9 5.4c-.5.8-.5 1.3 0 2.1M12.4 5.4c-.5.8-.5 1.3 0 2.1"/>',
     grafico: '<path d="M4.7 19.2V12.6"/><path d="M11.6 19.2V4.8"/><path d="M18.5 19.2v-8.6"/>',
-    tema: '<path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/>'
+    tema: '<path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/>',
+    instalar: '<rect x="4.5" y="4.5" width="15" height="15" rx="4"/><path d="M12 9v6M9 12h6"/>'
   };
   function icone(nome, tamanho, seed, cor) {
     tamanho = tamanho || 16;
@@ -4372,9 +4397,13 @@ window.fecharSeloIndividual = function () {
   window.CHECKLIST_ITEM_LEMBRETE_ATUAL = null;
 
   function formatarHorarioMin(min) {
-    const h = Math.floor(min / 60).toString().padStart(2, '0');
+    const h24 = Math.floor(min / 60);
     const m = (min % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
+    if (formatoHora12h) {
+      let h12 = h24 % 12; if (h12 === 0) h12 = 12;
+      return `${String(h12).padStart(2, '0')}:${m}${h24 < 12 ? 'am' : 'pm'}`;
+    }
+    return `${String(h24).padStart(2, '0')}:${m}`;
   }
 
   async function carregarChecklist() {
@@ -4447,12 +4476,37 @@ window.fecharSeloIndividual = function () {
   window.TEMPO_PICKER_MIN = 7 * 60;
 
   function renderTempoPicker() {
-    const h = Math.floor(window.TEMPO_PICKER_MIN / 60);
+    const h24 = Math.floor(window.TEMPO_PICKER_MIN / 60);
     const m = window.TEMPO_PICKER_MIN % 60;
-    document.getElementById('tempoPickerHoraNum').textContent = String(h).padStart(2, '0');
+    const pillAmPm = document.getElementById('tempoPickerAmPm');
+    if (formatoHora12h) {
+      let h12 = h24 % 12; if (h12 === 0) h12 = 12;
+      document.getElementById('tempoPickerHoraNum').textContent = String(h12).padStart(2, '0');
+      if (pillAmPm) { pillAmPm.style.display = 'flex'; pillAmPm.textContent = h24 < 12 ? 'AM' : 'PM'; }
+    } else {
+      document.getElementById('tempoPickerHoraNum').textContent = String(h24).padStart(2, '0');
+      if (pillAmPm) pillAmPm.style.display = 'none';
+    }
     document.getElementById('tempoPickerMinNum').textContent = String(m).padStart(2, '0');
-    document.getElementById('checklistLembreteInput').value = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    document.getElementById('checklistLembreteInput').value = String(h24).padStart(2, '0') + ':' + String(m).padStart(2, '0');
   }
+
+  window.alternarAmPm = function () {
+    if (navigator.vibrate) navigator.vibrate(6);
+    window.TEMPO_PICKER_MIN = (window.TEMPO_PICKER_MIN + 720) % 1440;
+    renderTempoPicker();
+  };
+
+  window.toggleFormatoHora = async function () {
+    formatoHora12h = !formatoHora12h;
+    document.getElementById('formatoHoraSwitch').classList.toggle('on', formatoHora12h);
+    renderChecklist();
+    renderTempoPicker();
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData.session) {
+      await supabaseClient.from('usuarios').update({ formato_hora_12h: formatoHora12h }).eq('id', sessionData.session.user.id);
+    }
+  };
 
   window.ajustarTempoPicker = function (parte, dir) {
     if (navigator.vibrate) navigator.vibrate(6);
@@ -9079,24 +9133,28 @@ let notifAtivo = true;
   function montarPassosGuiaInstalacao() {
     if (isIOSDevice()) {
       return [
-        'Toque no ícone de compartilhar ' + icone('compartilhar', 15) + ' na barra do Safari (embaixo, no meio da tela)',
-        'Role a lista de opções e toque em "Adicionar à Tela de Início"',
-        'Toque em "Adicionar", no canto superior direito',
+        { icone: 'compartilhar', texto: 'Toque em Compartilhar' },
+        { icone: 'instalar', texto: 'Adicionar à Tela de Início' },
+        { icone: 'check', texto: 'Toque em Adicionar' },
       ];
     }
     if (window.DEFERRED_INSTALL_PROMPT) return [];
     return [
-      'Toque no menu ⋮ do navegador (geralmente no canto superior direito)',
-      'Toque em "Instalar app" ou "Adicionar à tela inicial"',
-      'Confirme tocando em "Instalar"',
+      { icone: 'maisOpcoes', texto: 'Toque no menu do navegador' },
+      { icone: 'instalar', texto: 'Instalar app' },
+      { icone: 'check', texto: 'Confirme' },
     ];
   }
 
   window.abrirGuiaInstalacao = function () {
     if (isStandalonePwa()) return;
     const passos = montarPassosGuiaInstalacao();
+    const posicaoDot = isIOSDevice() ? 'base-centro' : 'topo-direita';
+    const mockupHtml = passos.length
+      ? '<div class="guia-instalacao-mockup"><div class="guia-instalacao-dot ' + posicaoDot + '"></div></div>'
+      : '';
     document.getElementById('guiaInstalacaoPassos').innerHTML = passos.length
-      ? passos.map((p, i) => '<div class="guia-passo"><span class="guia-passo-n">' + (i + 1) + '</span><div>' + p + '</div></div>').join('')
+      ? mockupHtml + passos.map((p) => '<div class="guia-passo"><span class="guia-passo-icone">' + icone(p.icone, 19) + '</span><div>' + p.texto + '</div></div>').join('')
       : '<div class="visitor-lock-note" style="margin-bottom:10px;">Seu navegador já pode instalar o Átomo com um toque.</div>';
     document.getElementById('guiaInstalacaoBtnInstalar').style.display = window.DEFERRED_INSTALL_PROMPT ? 'block' : 'none';
     document.getElementById('guiaInstalacaoPopupBg').classList.add('show');
@@ -9274,6 +9332,7 @@ let notifAtivo = true;
 
   // ---------- onboarding: horário de acordar ----------
   let horarioAcordarMin = 440; // minutos desde meia-noite (7h20 por padrão)
+  let formatoHora12h = false; // preferência de exibição de horário (12h AM/PM vs 24h)
 
   window.atualizarHorarioSlider = function () {
     const val = parseInt(document.getElementById('wakeSlider').value);
@@ -9290,7 +9349,6 @@ let notifAtivo = true;
 supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
   if (session) {
             console.log('MEU E-MAIL REAL:', session.user.email);
-    document.getElementById('onboardOverlay').classList.add('hide');
 
     const { data: perfilExistente } = await supabaseClient
       .from('usuarios')
@@ -9298,7 +9356,8 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       .eq('id', session.user.id)
       .maybeSingle();
 
-        if (!perfilExistente) {
+    const contaNova = !perfilExistente;
+        if (contaNova) {
       await supabaseClient.from('usuarios').insert({
         id: session.user.id,
         nome: session.user.user_metadata.full_name || session.user.email,
@@ -9306,9 +9365,18 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       });
     }
 
+    // conta nova: continua o onboarding (horário de acordar + assuntos
+    // favoritos) em vez de já esconder e cair direto no app — antes isso
+    // era escondido cedo demais e essas 2 perguntas nunca chegavam a rodar
+    if (contaNova) {
+      avancarOnboard(2);
+    } else {
+      document.getElementById('onboardOverlay').classList.add('hide');
+    }
+
     iniciarHeartbeatPresenca(session.user.id);
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado, formato_hora_12h').eq('id', session.user.id).maybeSingle();
     if (perfil) {
       if (perfil.streak_atual != null) {
         const streakAntigo = perfil.streak_atual;
@@ -9356,6 +9424,11 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         document.getElementById('notifSwitch').classList.toggle('on', notifAtivo);
       }
       if (perfil.horario_acordar_min != null) horarioAcordarMin = perfil.horario_acordar_min;
+      if (perfil.formato_hora_12h) {
+        formatoHora12h = true;
+        const swEl = document.getElementById('formatoHoraSwitch');
+        if (swEl) swEl.classList.add('on');
+      }
       if (perfil.meu_signo) meuSigno = perfil.meu_signo;
       if (perfil.signo_ativado) {
         signoAtivado = true;
