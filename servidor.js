@@ -640,6 +640,123 @@ app.get('/api/filmes-em-cartaz', async (req, res) => {
   }
 });
 
+// ============ POSTS AUTOMÁTICOS DE SUGESTÃO DE FILME (conta bot @Átomo) ============
+// gera 1 sugestão de filme por dia (por gênero do TMDB) e posta como se fosse
+// um post normal da conta bot @Átomo, aparecendo no feed de todo mundo, com
+// curtir/comentar normalmente. evita repetir filme já sugerido antes.
+const BOT_HANDLE_ATOMO = process.env.BOT_HANDLE_ATOMO || 'Átomo';
+
+async function buscarIdContaBotAtomo() {
+  if (!supabaseAdmin) return null;
+  const { data } = await supabaseAdmin.from('usuarios').select('id').ilike('handle', BOT_HANDLE_ATOMO).maybeSingle();
+  return data ? data.id : null;
+}
+
+async function buscarSugestaoFilmePorGenero(generoId, jaPostadosIds) {
+  // pega os mais bem avaliados do gênero, com um mínimo de votos pra não cair
+  // num filme obscuro com nota 10 e 4 votos só
+  for (let pagina = 1; pagina <= 3; pagina++) {
+    const resposta = await fetch(
+      `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`
+    );
+    const dados = await resposta.json();
+    const candidatos = (dados.results || []).filter(f => !jaPostadosIds.includes(f.id));
+    if (candidatos.length) return candidatos[0];
+  }
+  return null;
+}
+
+async function buscarTrailerParaSugestao(filmeId) {
+  try {
+    const resposta = await fetch(
+      `https://api.themoviedb.org/3/movie/${filmeId}/videos?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR`
+    );
+    const dados = await resposta.json();
+    const trailer = (dados.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
+    return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+  } catch (erro) {
+    return null;
+  }
+}
+
+function gerarLegendaSugestaoFilme(filme, generoLabel) {
+  const ano = filme.release_date ? filme.release_date.slice(0, 4) : '';
+  const nota = filme.vote_average ? filme.vote_average.toFixed(1) : null;
+  let texto = `🎬 sugestão pra hoje: que tal assistir "${filme.title}"${ano ? ' (' + ano + ')' : ''}?`;
+  if (generoLabel) texto += ` um dos melhores em ${generoLabel} do momento`;
+  if (nota) texto += `, nota ${nota} na crítica`;
+  texto += '.';
+  if (filme.overview) {
+    const sinopseCurta = filme.overview.length > 180 ? filme.overview.slice(0, 177) + '...' : filme.overview;
+    texto += `\n\n${sinopseCurta}`;
+  }
+  return texto;
+}
+
+async function postarSugestaoFilmeDoDia(generoId, generoLabel, forcar) {
+  if (!supabaseAdmin) return { ok: false, motivo: 'supabase admin não configurado' };
+  if (!process.env.TMDB_API_KEY_V3) return { ok: false, motivo: 'TMDB não configurado' };
+
+  const botId = await buscarIdContaBotAtomo();
+  if (!botId) return { ok: false, motivo: `conta bot "@${BOT_HANDLE_ATOMO}" não encontrada (confira o handle salvo no banco)` };
+
+  const agoraBrasiliaStr = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const agoraBrasilia = new Date(agoraBrasiliaStr);
+  const hojeBrasilia = `${agoraBrasilia.getFullYear()}-${String(agoraBrasilia.getMonth() + 1).padStart(2, '0')}-${String(agoraBrasilia.getDate()).padStart(2, '0')}`;
+
+  if (!forcar) {
+    const { data: botUsuario } = await supabaseAdmin.from('usuarios').select('ultimo_post_filme_data').eq('id', botId).maybeSingle();
+    if (botUsuario && botUsuario.ultimo_post_filme_data === hojeBrasilia) {
+      return { ok: false, motivo: 'já postou uma sugestão hoje' };
+    }
+  }
+
+  const { data: postsAnteriores } = await supabaseAdmin
+    .from('posts').select('ref_filme_id').eq('autor_id', botId).not('ref_filme_id', 'is', null);
+  const jaPostadosIds = (postsAnteriores || []).map(p => Number(p.ref_filme_id)).filter(n => !isNaN(n));
+
+  const filme = await buscarSugestaoFilmePorGenero(generoId, jaPostadosIds);
+  if (!filme) return { ok: false, motivo: 'nenhum filme novo encontrado nesse gênero (já sugeriu todos os bons?)' };
+
+  const trailer = await buscarTrailerParaSugestao(filme.id);
+  const texto = gerarLegendaSugestaoFilme(filme, generoLabel);
+
+  const { error } = await supabaseAdmin.from('posts').insert({
+    autor_id: botId,
+    texto,
+    tipo: 'Filme',
+    privado: false,
+    ref_titulo: filme.title,
+    ref_autor: filme.release_date ? filme.release_date.slice(0, 4) : null,
+    ref_citacao: null,
+    ref_trailer: trailer,
+    ref_filme_id: filme.id,
+    ref_capa: filme.poster_path ? `https://image.tmdb.org/t/p/w500${filme.poster_path}` : null,
+  });
+
+  if (error) return { ok: false, motivo: error.message };
+
+  await supabaseAdmin.from('usuarios').update({ ultimo_post_filme_data: hojeBrasilia }).eq('id', botId);
+
+  return { ok: true, filme: filme.title, ano: filme.release_date ? filme.release_date.slice(0, 4) : null };
+}
+
+async function rodarCronSugestaoFilme(req, res) {
+  const segredo = req.query.segredo || req.headers['x-cron-secret'];
+  if (!process.env.CRON_SECRET || segredo !== process.env.CRON_SECRET) {
+    return res.status(401).json({ erro: 'não autorizado' });
+  }
+  const generoId = req.query.genero || '53'; // 53 = suspense/thriller no TMDB
+  const generoLabel = req.query.generoLabel || 'suspense';
+  const forcar = req.query.forcar === 'true' || req.query.forcar === '1';
+
+  const resultado = await postarSugestaoFilmeDoDia(generoId, generoLabel, forcar);
+  res.json(resultado);
+}
+
+app.get('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
+app.post('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
+
 app.get('/api/musicas-em-alta', async (req, res) => {
   try {
     const resposta = await fetch('https://api.deezer.com/chart/0/tracks?limit=10');
