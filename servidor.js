@@ -779,6 +779,99 @@ async function rodarCronSugestaoFilme(req, res) {
 app.get('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
 app.post('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
 
+// troca 1 filme específico (por título/trecho) dentro do ÚLTIMO post de lista
+// que o bot postou, mantendo os outros da lista e a legenda igual — usado
+// quando ela não curtiu uma das sugestões (ex: "troca o do Batman")
+async function trocarFilmeNoUltimoPost(termoRemover, generoId, generoLabel) {
+  if (!supabaseAdmin) return { ok: false, motivo: 'supabase admin não configurado' };
+  if (!process.env.TMDB_API_KEY_V3) return { ok: false, motivo: 'TMDB não configurado' };
+
+  const botId = await buscarIdContaBotAtomo();
+  if (!botId) return { ok: false, motivo: 'conta bot não encontrada' };
+
+  const { data: ultimoPost } = await supabaseAdmin
+    .from('posts').select('id, texto, ref_filme_id')
+    .eq('autor_id', botId).eq('tipo', 'Filme')
+    .order('criado_em', { ascending: false }).limit(1).maybeSingle();
+  if (!ultimoPost) return { ok: false, motivo: 'nenhum post de filme do bot encontrado' };
+
+  const linhas = ultimoPost.texto.split('\n');
+  const termoLower = termoRemover.toLowerCase();
+  let indice = -1;
+  let numeroItem = null;
+  for (let i = 0; i < linhas.length; i++) {
+    const m = linhas[i].match(/^(\d+)\.\s+"(.+?)"/);
+    if (m && m[2].toLowerCase().includes(termoLower)) {
+      indice = i;
+      numeroItem = m[1];
+      break;
+    }
+  }
+  if (indice === -1) return { ok: false, motivo: `não achei nenhum filme com "${termoRemover}" na última lista` };
+
+  const titulosNaLista = linhas
+    .map(l => l.match(/^\d+\.\s+"(.+?)"/))
+    .filter(Boolean)
+    .map(m => m[1].toLowerCase());
+
+  const { data: postsAnteriores } = await supabaseAdmin
+    .from('posts').select('ref_filme_id').eq('autor_id', botId).not('ref_filme_id', 'is', null);
+  const jaPostadosIds = (postsAnteriores || []).map(p => Number(p.ref_filme_id)).filter(n => !isNaN(n));
+
+  let substituto = null;
+  for (let pagina = 1; pagina <= 5 && !substituto; pagina++) {
+    const resposta = await fetch(
+      `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`
+    );
+    const dados = await resposta.json();
+    for (const f of (dados.results || [])) {
+      if (jaPostadosIds.includes(f.id)) continue;
+      if (titulosNaLista.includes(f.title.toLowerCase())) continue;
+      if (f.title.toLowerCase().includes(termoLower)) continue;
+      substituto = f;
+      break;
+    }
+  }
+  if (!substituto) return { ok: false, motivo: 'não achei um filme substituto novo nesse gênero' };
+
+  const ano = substituto.release_date ? substituto.release_date.slice(0, 4) : '';
+  const nota = substituto.vote_average ? substituto.vote_average.toFixed(1) : null;
+  linhas[indice] = `${numeroItem}. "${substituto.title}"${ano ? ' (' + ano + ')' : ''}${nota ? ' — nota ' + nota : ''}`;
+  const novoTexto = linhas.join('\n');
+
+  const atualizacao = { texto: novoTexto };
+  if (numeroItem === '1') {
+    const trailer = await buscarTrailerParaSugestao(substituto.id);
+    atualizacao.ref_titulo = substituto.title;
+    atualizacao.ref_autor = ano || null;
+    atualizacao.ref_trailer = trailer;
+    atualizacao.ref_filme_id = substituto.id;
+    atualizacao.ref_capa = substituto.poster_path ? `https://image.tmdb.org/t/p/w500${substituto.poster_path}` : null;
+  }
+
+  const { error } = await supabaseAdmin.from('posts').update(atualizacao).eq('id', ultimoPost.id);
+  if (error) return { ok: false, motivo: error.message };
+
+  return { ok: true, trocado_por: substituto.title };
+}
+
+async function rodarCronTrocarFilme(req, res) {
+  const segredo = req.query.segredo || req.headers['x-cron-secret'];
+  if (!process.env.CRON_SECRET || segredo !== process.env.CRON_SECRET) {
+    return res.status(401).json({ erro: 'não autorizado' });
+  }
+  const termo = req.query.termo;
+  if (!termo) return res.status(400).json({ erro: 'faltou o parâmetro termo (nome do filme a trocar)' });
+  const generoId = req.query.genero || '53';
+  const generoLabel = req.query.generoLabel || 'suspense';
+
+  const resultado = await trocarFilmeNoUltimoPost(termo, generoId, generoLabel);
+  res.json(resultado);
+}
+
+app.get('/api/cron/trocar-filme', rodarCronTrocarFilme);
+app.post('/api/cron/trocar-filme', rodarCronTrocarFilme);
+
 app.get('/api/musicas-em-alta', async (req, res) => {
   try {
     const resposta = await fetch('https://api.deezer.com/chart/0/tracks?limit=10');
