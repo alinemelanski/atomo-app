@@ -843,6 +843,16 @@
     text-transform:uppercase; letter-spacing:.09em; margin-bottom:2px; }
   .explorar-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:26px; color:var(--ink); margin:0; }
   .explorar-add-btn svg { color: var(--accent-a); }
+  /* Explorar ganha o tratamento de vidro/transparente do app (diferente do
+     Feed, que usa cartão solido) -- cartoes, chips de modo e busca */
+  #screen-descobrir .discover-card { background: var(--card); background: color-mix(in srgb, var(--card) 68%, transparent);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
+  #screen-descobrir .discover-card-destaque { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 78%, transparent); }
+  #screen-descobrir .feed-modo-chip { background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
+  #screen-descobrir .feed-modo-chip.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
+  #screen-descobrir .busca-input { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 62%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 
   .composer-glass-bg { position:absolute; inset:0; background: rgba(20,14,8,0.28); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
     z-index:35; display:none; align-items:flex-end; justify-content:center; padding: 0 14px calc(20px + env(safe-area-inset-bottom)); }
@@ -3096,8 +3106,8 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         ${renderRefCard(p.ref)}
         <div class="post-actions">
           <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
-          <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length ? p.comentarios.length + ' comentários' : 'comentar'}</div>
-          <div class="post-action" onclick="abrirCompartilhar(${i})">${icone('compartilhar',14,i)} compartilhar</div>
+          <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length}</div>
+          <div class="post-action" onclick="abrirCompartilhar(${i})">${icone('compartilhar',14,i)}</div>
           ${ehMeu
             ? `<div class="post-action" onclick="apagarPost(${p.id})">${icone('lixeira',14)}</div>`
             : `<div class="post-action" onclick="abrirDenuncia(${p.id}, '${p.autor_id}')">${icone('denunciar',14)}</div>`}
@@ -3148,8 +3158,8 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         <div class="discover-desc">${d.desc}</div>
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewPreenchimentoFeed(${i})">▶ prévia</div>` : ''}
         <div class="post-actions" style="margin-top:10px;">
-          <div class="post-action" onclick="comentarPreenchimentoFeed(${i})">💬 comentar</div>
-          <div class="post-action" onclick="compartilharPreenchimentoFeed(${i})">${icone('compartilhar',14,i)} compartilhar</div>
+          <div class="post-action" onclick="comentarPreenchimentoFeed(${i})">${icone('comentar',14,i)}</div>
+          <div class="post-action" onclick="compartilharPreenchimentoFeed(${i})">${icone('compartilhar',14,i)}</div>
         </div>
       </div>`;
   }
@@ -4961,7 +4971,7 @@ function renderPerfilAlheioPosts() {
           <div style="font-size:10px; color:var(--ink-faint); margin-top:6px; margin-bottom:8px;">${p.tipo} · ${p.tempo}</div>
           <div class="post-actions">
             <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPostAlheio(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
-            <div class="post-action" onclick="abrirComentarios(${i}, perfilAlheioPostsAtuais)">${icone('comentar',14,i)} ${p.comentarios.length ? p.comentarios.length + ' comentários' : 'comentar'}</div>
+            <div class="post-action" onclick="abrirComentarios(${i}, perfilAlheioPostsAtuais)">${icone('comentar',14,i)} ${p.comentarios.length}</div>
           </div>
         </div>`).join('')
     : `<div class="visitor-lock-note">Nada compartilhado ainda.</div>`;
@@ -6505,8 +6515,8 @@ window.trocarModoDescobrir = function (modo) {
           <div class="discover-title">${d.title}</div>
           <div class="discover-desc">${d.desc}</div>
           <div class="post-actions" style="margin-top:10px;">
-            <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">💬 comentar</div>
-            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">${icone('compartilhar',14,i)} compartilhar</div>
+            <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">${icone('comentar',14,i)}</div>
+            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">${icone('compartilhar',14,i)}</div>
           </div>
         </div>`;
   }
@@ -7749,8 +7759,8 @@ function cardDescobrirHtml(d, i) {
         <div class="discover-desc">${d.desc}</div>
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
             <div class="post-actions" style="margin-top:10px;">
-          <div class="post-action" onclick="comentarItemDescobrir(${i})">💬 comentar</div>
-          <div class="post-action" onclick="compartilharItemDescobrir(${i})">${icone('compartilhar',14,i)} compartilhar</div>
+          <div class="post-action" onclick="comentarItemDescobrir(${i})">${icone('comentar',14,i)}</div>
+          <div class="post-action" onclick="compartilharItemDescobrir(${i})">${icone('compartilhar',14,i)}</div>
         </div>  
        </div>`;
 }
