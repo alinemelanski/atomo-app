@@ -1854,6 +1854,19 @@
   </div>
 </div>
 
+<!-- OVERLAY: CONVITE PRA CONHECER O MATCH (aparece sozinho depois de um tempo de uso) -->
+<div class="composer-glass-bg" id="conviteMatchOverlay">
+  <div class="composer-glass-card" style="max-width:360px; text-align:center;">
+    <div class="friend-avatar" id="conviteMatchAvatar" style="width:64px; height:64px; font-size:22px; margin:0 auto 12px; background:var(--accent-soft);"></div>
+    <div style="font-family:'Fraunces', serif; font-size:17px; color:var(--ink); margin-bottom:8px;">oi, sou eu, o Átomo 🤍</div>
+    <div style="font-family:'Nunito', sans-serif; font-size:13px; color:var(--ink-dim); line-height:1.5; margin-bottom:16px;">reparei que você já tem uns dias de diário por aqui — que tal conhecer gente com o mesmo gosto? o Match mostra pessoas com os mesmos assuntos favoritos que você escolheu, pra trocar ideia sobre livro, filme, poema, o que for. sem pressão, dá pra desligar quando quiser.</div>
+    <div style="display:flex; gap:8px;">
+      <button class="livro-link-externo" style="flex:1; margin:0; justify-content:center;" onclick="responderConviteMatch(false)">agora não</button>
+      <button class="post-btn" style="flex:1; padding:12px;" onclick="responderConviteMatch(true)">quero conhecer 💛</button>
+    </div>
+  </div>
+</div>
+
 <!-- OVERLAY: DIARIO RAPIDO - GRATIDAO (POLAROID) -->
 <div class="dm-chat-overlay" id="quickGratidaoOverlay">
   <div class="dm-chat-header">
@@ -2344,10 +2357,6 @@
         <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Pessoas bloqueadas</div>
         <div class="nav-chevron">›</div>
       </div>
-      <div class="settings-row settings-nav-row" onclick="abrirFeedbackOverlay()">
-        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.6s;animation-delay:0.7s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H7l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg></span> Suporte e feedback</div>
-        <div class="nav-chevron">›</div>
-      </div>
       <div class="settings-row settings-nav-row" onclick="abrirReordenarTipos()">
         <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.8s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v13"/><path d="M4 7l3-3 3 3"/><path d="M17 20V7"/><path d="M14 17l3 3 3-3"/></svg></span> Reordenar tipos de post</div>
         <div class="nav-chevron">›</div>
@@ -2355,6 +2364,10 @@
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
         <div class="t">🧶 Emoji da sequência</div>
         <div id="emojiStreakGrid" style="display:flex; gap:8px; justify-content:center;"></div>
+      </div>
+      <div class="settings-row settings-nav-row" onclick="abrirFeedbackOverlay()">
+        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.6s;animation-delay:0.7s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H7l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg></span> Suporte e feedback</div>
+        <div class="nav-chevron">›</div>
       </div>
 
       <hr class="settings-divider" />
@@ -4572,6 +4585,36 @@ window.fecharSeloIndividual = function () {
       mostrarToast('❌ erro ao enviar: ' + e.message);
     } finally {
       if (btn) btn.disabled = false;
+    }
+  };
+
+  // ---------- convite pro Match (aparece sozinho depois de um tempo de uso) ----------
+  window.verificarConviteMatch = function (matchJaAtivado, streakAtualNoConvite, jaViuConvite) {
+    if (matchJaAtivado || jaViuConvite) return;
+    if ((streakAtualNoConvite || 0) < 3) return; // só depois de uns dias reais de uso
+    setTimeout(() => mostrarConviteMatch(), 7000);
+  };
+
+  window.mostrarConviteMatch = function () {
+    if (document.querySelector('.write-popup-bg.show, .config-overlay.open, .dm-chat-overlay.open, .composer-glass-bg.open')) {
+      setTimeout(() => mostrarConviteMatch(), 4000);
+      return;
+    }
+    const avatarEl = document.getElementById('conviteMatchAvatar');
+    if (avatarEl) avatarEl.innerHTML = avatarConteudo(null);
+    document.getElementById('conviteMatchOverlay').classList.add('open');
+  };
+
+  window.responderConviteMatch = async function (ativar) {
+    document.getElementById('conviteMatchOverlay').classList.remove('open');
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData.session) {
+      await supabaseClient.from('usuarios').update({ viu_convite_match: true }).eq('id', sessionData.session.user.id);
+    }
+    if (ativar) {
+      await toggleMatch();
+      mostrarToast('💛 Match ativado! já dá pra ver quem tem interesse parecido');
+      abrirMatch();
     }
   };
 
@@ -9515,7 +9558,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
 
     iniciarHeartbeatPresenca(session.user.id);
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado, formato_hora_12h').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado, formato_hora_12h, viu_convite_match').eq('id', session.user.id).maybeSingle();
 
     // conta nova OU conta antiga que nunca completou essas 2 perguntas
     // (bug antigo escondia o onboarding cedo demais, então gente que já
@@ -9619,6 +9662,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     carregarPerguntasPublicasMinhas();
     verificarGuiaInstalacao(perfil && perfil.viu_guia_instalacao === true);
     verificarPermissaoNotifPush(perfil && perfil.pediu_permissao_notif === true);
+    verificarConviteMatch(matchAtivado, streakAtual, perfil && perfil.viu_convite_match === true);
 
     // se o app abriu (ou recebeu a mensagem do service worker) por causa de um
     // clique em notificação push ANTES do login terminar, agora sim dá pra rotear
