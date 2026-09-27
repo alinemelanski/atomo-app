@@ -1054,6 +1054,8 @@
     border-radius: 9px; cursor: pointer; transition: background .15s ease; }
   .mencao-item:hover, .mencao-item:active { background: var(--accent-soft); }
   .mencao-texto-link { color: var(--accent-a); font-weight: 700; cursor: pointer; }
+  .post-video-embed { position: relative; width: 100%; padding-top: 56%; margin-top: 8px; border-radius: 12px; overflow: hidden; background: #000; }
+  .post-video-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
   /* ---------- seletor de horario customizado (sem input nativo) ---------- */
   .tempo-picker { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 6px;
@@ -1232,7 +1234,8 @@
       <div class="composer">
         <textarea id="composerText" placeholder="O que você quer compartilhar hoje?"></textarea>
         <img id="composerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
-        <input type="file" id="composerFotoInput" accept="image/*" onchange="previewFotoComposer(this)" style="display:none;" />
+        <video id="composerFotoPreviewVideo" controls style="max-width:100%; max-height:220px; border-radius:12px; display:none; margin:6px 0; background:#000;"></video>
+        <input type="file" id="composerFotoInput" accept="image/*,video/*" onchange="previewFotoComposer(this)" style="display:none;" />
         <input type="file" id="composerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposer(this)" style="display:none;" />
         <div class="type-chip-wrap"><div class="type-chip-row" id="typeChipRow"></div></div>
         <div class="ref-form" id="refForm">
@@ -1696,7 +1699,8 @@
     <div class="composer composer-vidro" style="margin:10px 0 14px;">
       <textarea id="perfilComposerText" placeholder="Escreva uma anotação..."></textarea>
       <img id="perfilComposerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
-      <input type="file" id="perfilComposerFotoInput" accept="image/*" onchange="previewFotoComposerPerfil(this)" style="display:none;" />
+      <video id="perfilComposerFotoPreviewVideo" controls style="max-width:100%; max-height:220px; border-radius:12px; display:none; margin:6px 0; background:#000;"></video>
+      <input type="file" id="perfilComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerPerfil(this)" style="display:none;" />
       <input type="file" id="perfilComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerPerfil(this)" style="display:none;" />
       <div class="type-chip-wrap"><div class="type-chip-row" id="typeChipRowDiario"></div></div>
       <div class="composer-foot">
@@ -1952,6 +1956,7 @@
         </div>
         <textarea id="composerExplorarText" placeholder="O que você quer compartilhar com a comunidade?"></textarea>
         <img id="composerExplorarFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
+        <video id="composerExplorarFotoPreviewVideo" controls style="max-width:100%; max-height:220px; border-radius:12px; display:none; margin:6px 0; background:#000;"></video>
         <div class="composer-glass-foot">
           <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('explorar')"><span class="icon-svg" style="width:18px;height:18px;animation-duration:3.45s;animation-delay:1.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
           <button class="composer-glass-send" id="btnPostarExplorar" onclick="publicarPostExplorar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
@@ -2270,7 +2275,7 @@
         <input type="file" id="clubeFotoInput" accept="image/*" onchange="enviarFotoClube(this)" style="display:none;" />
         <input type="file" id="clubeFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoClube(this)" style="display:none;" />
         <input type="file" id="uploadEpubInput" accept=".epub" onchange="escolherArquivoEpub()" style="display:none;" />
-        <input type="file" id="explorarComposerFotoInput" accept="image/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
+        <input type="file" id="explorarComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <div class="dm-input-wrap">
           <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" />
@@ -2658,6 +2663,7 @@ async function carregarPostsReais() {
       id: row.id,
       autor_id: row.autor_id,
       imagem_url: row.imagem_url,
+      video_url: row.video_url,
       autor: handle,
       avatarUrl: avatarUrl,
       iniciais: handle[0].toUpperCase(),
@@ -2806,16 +2812,32 @@ window.dispararFotoGlobal = function (tipo) {
   if (input) { input.value = ''; input.click(); }
 };
 
+// mostra a previa certa (foto ou video) pro arquivo escolhido, escondendo a outra
+function exibirPreviewMidia(arquivo, idImg, idVideo) {
+  const ehVideo = !!(arquivo && arquivo.type && arquivo.type.startsWith('video/'));
+  const previewImg = document.getElementById(idImg);
+  const previewVideo = document.getElementById(idVideo);
+  const url = URL.createObjectURL(arquivo);
+  if (ehVideo) {
+    previewVideo.src = url;
+    previewVideo.style.display = 'block';
+    previewImg.style.display = 'none';
+    previewImg.removeAttribute('src');
+  } else {
+    previewImg.src = url;
+    previewImg.style.display = 'block';
+    previewVideo.style.display = 'none';
+    previewVideo.removeAttribute('src');
+  }
+}
+
 let arquivoFotoComposer = null;
 
 window.previewFotoComposer = function (el) {
   const input = el || document.getElementById('composerFotoInput');
   if (!input.files || !input.files[0]) return;
   arquivoFotoComposer = input.files[0];
-
-  const preview = document.getElementById('composerFotoPreview');
-  preview.src = URL.createObjectURL(arquivoFotoComposer);
-  preview.style.display = 'block';
+  exibirPreviewMidia(arquivoFotoComposer, 'composerFotoPreview', 'composerFotoPreviewVideo');
 };
 
 async function subirFotoPost(usuarioId) {
@@ -2828,10 +2850,7 @@ window.previewFotoComposerPerfil = function (el) {
   const input = el || document.getElementById('perfilComposerFotoInput');
   if (!input.files || !input.files[0]) return;
   arquivoFotoComposerPerfil = input.files[0];
-
-  const preview = document.getElementById('perfilComposerFotoPreview');
-  preview.src = URL.createObjectURL(arquivoFotoComposerPerfil);
-  preview.style.display = 'block';
+  exibirPreviewMidia(arquivoFotoComposerPerfil, 'perfilComposerFotoPreview', 'perfilComposerFotoPreviewVideo');
 };
 
 window.publicarPostPerfil = async function () {
@@ -2843,6 +2862,7 @@ window.publicarPostPerfil = async function () {
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
+  const ehVideoPerfil = !!(arquivoFotoComposerPerfil && arquivoFotoComposerPerfil.type && arquivoFotoComposerPerfil.type.startsWith('video/'));
   const fotoUrl = await subirFotoParaStorage(usuarioId, arquivoFotoComposerPerfil);
 
   const { error } = await supabaseClient.from('posts').insert({
@@ -2850,7 +2870,8 @@ window.publicarPostPerfil = async function () {
     texto: texto,
     tipo: tipoSelecionadoDiario || 'Assunto',
     privado: true,
-    imagem_url: fotoUrl,
+    imagem_url: ehVideoPerfil ? null : fotoUrl,
+    video_url: ehVideoPerfil ? fotoUrl : null,
   });
 
   if (error) {
@@ -2861,6 +2882,8 @@ window.publicarPostPerfil = async function () {
   if (btnPostar) { btnPostar.disabled = false; btnPostar.textContent = 'Postar'; }
   document.getElementById('perfilComposerText').value = '';
   document.getElementById('perfilComposerFotoPreview').style.display = 'none';
+  document.getElementById('perfilComposerFotoPreviewVideo').style.display = 'none';
+  document.getElementById('perfilComposerFotoPreviewVideo').removeAttribute('src');
   document.getElementById('perfilComposerFotoInput').value = '';
   arquivoFotoComposerPerfil = null;
   tipoSelecionadoDiario = null;
@@ -2876,10 +2899,7 @@ window.previewFotoComposerExplorar = function (el) {
   const input = el || document.getElementById('explorarComposerFotoInput');
   if (!input.files || !input.files[0]) return;
   arquivoFotoComposerExplorar = input.files[0];
-
-  const preview = document.getElementById('composerExplorarFotoPreview');
-  preview.src = URL.createObjectURL(arquivoFotoComposerExplorar);
-  preview.style.display = 'block';
+  exibirPreviewMidia(arquivoFotoComposerExplorar, 'composerExplorarFotoPreview', 'composerExplorarFotoPreviewVideo');
 };
 
 window.abrirComposerExplorar = function () {
@@ -2896,6 +2916,7 @@ window.publicarPostExplorar = async function () {
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
+  const ehVideoExplorar = !!(arquivoFotoComposerExplorar && arquivoFotoComposerExplorar.type && arquivoFotoComposerExplorar.type.startsWith('video/'));
   const fotoUrl = await subirFotoParaStorage(usuarioId, arquivoFotoComposerExplorar);
 
   const { error } = await supabaseClient.from('posts').insert({
@@ -2903,7 +2924,8 @@ window.publicarPostExplorar = async function () {
     texto: texto,
     tipo: 'Assunto',
     privado: false,
-    imagem_url: fotoUrl,
+    imagem_url: ehVideoExplorar ? null : fotoUrl,
+    video_url: ehVideoExplorar ? fotoUrl : null,
   });
 
   if (btnPostar) btnPostar.disabled = false;
@@ -2911,6 +2933,8 @@ window.publicarPostExplorar = async function () {
 
   document.getElementById('composerExplorarText').value = '';
   document.getElementById('composerExplorarFotoPreview').style.display = 'none';
+  document.getElementById('composerExplorarFotoPreviewVideo').style.display = 'none';
+  document.getElementById('composerExplorarFotoPreviewVideo').removeAttribute('src');
   document.getElementById('explorarComposerFotoInput').value = '';
   arquivoFotoComposerExplorar = null;
   closeOverlay('composerExplorarOverlay');
@@ -2957,6 +2981,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
 
+  const ehVideoFeed = !!(arquivoFotoComposer && arquivoFotoComposer.type && arquivoFotoComposer.type.startsWith('video/'));
   const fotoUrl = await subirFotoPost(usuarioId);
 
   const { error } = await supabaseClient.from('posts').insert({
@@ -2971,7 +2996,8 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
     ref_livro_id: refLivroId,
     ref_filme_id: (tipo === 'Filme' ? filmeIdEscolhido : null),
     ref_capa: capaEscolhida,
-    imagem_url: fotoUrl,
+    imagem_url: ehVideoFeed ? null : fotoUrl,
+    video_url: ehVideoFeed ? fotoUrl : null,
   });
 
   if (error) {
@@ -2987,6 +3013,8 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
   document.getElementById('refCitacao').value = '';
   document.getElementById('refForm').classList.remove('show');
   document.getElementById('composerFotoPreview').style.display = 'none';
+  document.getElementById('composerFotoPreviewVideo').style.display = 'none';
+  document.getElementById('composerFotoPreviewVideo').removeAttribute('src');
   document.getElementById('composerFotoInput').value = '';
   arquivoFotoComposer = null;
   tipoSelecionado = null;
@@ -3062,8 +3090,9 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
           <span class="post-tag">${p.tipo}</span>
         </div>
         ${modoFeedAtivo === 'interesse' && relevante ? '<div class="post-relevante-tag">✨ do seu interesse</div><br>' : ''}
-        <div class="post-body">${formatarMencoes(p.texto)}</div>
+        <div class="post-body">${formatarMencoesEVideo(p.texto)}</div>
         ${p.imagem_url ? `<img src="${p.imagem_url}" style="width:100%; border-radius:12px; margin-top:8px; display:block;" />` : ''}
+        ${p.video_url ? `<video src="${p.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block; background:#000;"></video>` : ''}
         ${renderRefCard(p.ref)}
         <div class="post-actions">
           <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
@@ -3521,7 +3550,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     const meuId = sessionData.session.user.id;
     const conversaId = await encontrarOuCriarConversa(amigoId, meuId);
     if (!conversaId) { mostrarToast('❌ erro ao enviar'); return; }
-    const payload = JSON.stringify({ texto: post.texto, autor: post.autor, tipo: post.tipo, imagem_url: post.imagem_url || null });
+    const payload = JSON.stringify({ texto: post.texto, autor: post.autor, tipo: post.tipo, imagem_url: post.imagem_url || null, video_url: post.video_url || null });
     const { error } = await supabaseClient.from('mensagens').insert({ conversa_id: conversaId, autor_id: meuId, texto: payload, tipo_conteudo: 'post' });
     if (error) { mostrarToast('❌ erro ao enviar: ' + error.message); return; }
     fecharCompartilhar();
@@ -3540,6 +3569,7 @@ if (p.autor_id !== sessionData.session.user.id) {
       tipo: original.tipo,
       privado: false,
       imagem_url: original.imagem_url || null,
+      video_url: original.video_url || null,
       ref_titulo: original.ref ? original.ref.titulo : null,
       ref_autor: original.ref ? original.ref.autor : null,
       ref_citacao: original.ref ? original.ref.citacao : null,
@@ -3600,7 +3630,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     const ehPolaroidGratidao = e.tipo === 'Gratidão do dia' && e.imagem_url;
     const corpoHtml = ehPolaroidGratidao
       ? `<div class="polaroid-card polaroid-card-diario"><div class="polaroid-foto"><img src="${e.imagem_url}" /></div><div class="polaroid-legenda-display">${formatarMencoes(e.texto)}</div></div>`
-      : `<div class="body">${formatarMencoes(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" style="width:100%; border-radius:12px; margin-top:8px; display:block; filter: sepia(.28) saturate(1.2) contrast(1.05) brightness(1.03);" />` : ''}`;
+      : `<div class="body">${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" style="width:100%; border-radius:12px; margin-top:8px; display:block; filter: sepia(.28) saturate(1.2) contrast(1.05) brightness(1.03);" />` : ''}${e.video_url ? `<video src="${e.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block;"></video>` : ''}`;
     return `
     <div class="diary-entry${e.fixado ? ' fixado' : ''}">
       <div class="tag">${e.fixado ? icone('fixar',10) + ' ' : ''}${diaryTabAtiva === 'privado' ? icone('cadeado',10) + ' Só eu · ' : ''}${e.tipo}</div>
@@ -3853,6 +3883,30 @@ if (p.autor_id !== sessionData.session.user.id) {
     if (!texto) return texto;
     return texto.replace(/@([a-zA-Z0-9_.]+)/g, (match, handle) =>
       `<span class="mencao-texto-link" onclick="event.stopPropagation(); abrirPerfilPorHandle('${handle}')">@${handle}</span>`);
+  };
+
+  // ---------- embed automatico de video (link do youtube/vimeo colado no texto do post/diario) ----------
+  const REGEX_YOUTUBE_EMBED = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{6,15})/;
+  const REGEX_VIMEO_EMBED = /(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
+
+  window.extrairVideoEmbedHtml = function (texto) {
+    if (!texto) return '';
+    const mYoutube = texto.match(REGEX_YOUTUBE_EMBED);
+    if (mYoutube) {
+      return `<div class="post-video-embed"><iframe src="https://www.youtube.com/embed/${mYoutube[1]}" allowfullscreen></iframe></div>`;
+    }
+    const mVimeo = texto.match(REGEX_VIMEO_EMBED);
+    if (mVimeo) {
+      return `<div class="post-video-embed"><iframe src="https://player.vimeo.com/video/${mVimeo[1]}" allowfullscreen></iframe></div>`;
+    }
+    return '';
+  };
+
+  // mesma formatacao de mencao de sempre, mas tambem detecta e embeda um
+  // link de video do youtube/vimeo colado no texto (usado só no corpo de
+  // posts/diario -- comentario, checklist e DM continuam só com mencao)
+  window.formatarMencoesEVideo = function (texto) {
+    return formatarMencoes(texto) + window.extrairVideoEmbedHtml(texto);
   };
 
   window.abrirPerfilPorHandle = async function (handle) {
@@ -8367,6 +8421,7 @@ function dmPostCompartilhadoHtml(textoBruto) {
       <div class="autor">@${p.autor || 'alguém'}</div>
       <div class="trecho">${(p.texto || '').slice(0, 140)}</div>
       ${p.imagem_url ? `<img src="${p.imagem_url}" />` : ''}
+      ${p.video_url ? `<video src="${p.video_url}" controls style="max-width:170px; border-radius:12px; display:block;"></video>` : ''}
     </div>`;
   } catch (e) {
     return textoBruto;
