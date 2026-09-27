@@ -311,7 +311,8 @@ const MENSAGENS_NOITE = [
   'De dia o Senhor mandará a sua benignidade, e de noite a sua canção estará comigo. — Salmos 42:8',
   'Aquietai-vos, e sabei que eu sou Deus. — Salmos 46:10',
 ];
-const HORARIO_NOITE_MIN = 21 * 60; // 21h00 (horário de Brasília) — fixo pra todo mundo
+const OFFSET_MANHA_MIN = 15; // "bom dia" chega 15min DEPOIS do horário de acordar de cada um
+const OFFSET_NOITE_MIN = 30; // "reflexão do dia" chega 30min ANTES do horário de dormir de cada um
 const HORARIO_SIGNO_MIN = 8 * 60; // 08h00 - horóscopo chega de manhã, hora de checar o dia
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
 const MIN_EVENTOS_PRO_RESUMO = 3; // dia com poucos toques de humor não rende resumo que preste
@@ -470,21 +471,28 @@ async function rodarCronNotificacoes(req, res) {
     const d = String(agoraBrasilia.getDate()).padStart(2, '0');
     const hojeBrasilia = `${y}-${m}-${d}`;
 
+    // manha: dispara quando "agora" bate com horario_acordar_min + 15min
+    // (ex: acordou 10:00 -> notificação por volta de 10:15)
     const { data: candidatosManha } = await supabaseAdmin
       .from('usuarios')
       .select('id, horario_acordar_min, ultima_notif_manha_data')
       .not('horario_acordar_min', 'is', null)
-      .gte('horario_acordar_min', minutosAgora)
-      .lt('horario_acordar_min', minutosAgora + JANELA_CRON_MIN);
+      .gte('horario_acordar_min', minutosAgora - OFFSET_MANHA_MIN)
+      .lt('horario_acordar_min', minutosAgora - OFFSET_MANHA_MIN + JANELA_CRON_MIN);
 
     const precisamManha = (candidatosManha || []).filter(u => u.ultima_notif_manha_data !== hojeBrasilia);
 
-    let precisamNoite = [];
-    const dentroJanelaNoite = minutosAgora >= HORARIO_NOITE_MIN && minutosAgora < HORARIO_NOITE_MIN + JANELA_CRON_MIN;
-    if (dentroJanelaNoite) {
-      const { data: todos } = await supabaseAdmin.from('usuarios').select('id, ultima_notif_noite_data');
-      precisamNoite = (todos || []).filter(u => u.ultima_notif_noite_data !== hojeBrasilia);
-    }
+    // noite: dispara quando "agora" bate com horario_dormir_min - 30min
+    // (ex: dorme 23:00 -> reflexão por volta de 22:30) -- por pessoa, não mais
+    // um horário fixo igual pra todo mundo
+    const { data: candidatosNoite } = await supabaseAdmin
+      .from('usuarios')
+      .select('id, horario_dormir_min, ultima_notif_noite_data')
+      .not('horario_dormir_min', 'is', null)
+      .gte('horario_dormir_min', minutosAgora + OFFSET_NOITE_MIN)
+      .lt('horario_dormir_min', minutosAgora + OFFSET_NOITE_MIN + JANELA_CRON_MIN);
+
+    const precisamNoite = (candidatosNoite || []).filter(u => u.ultima_notif_noite_data !== hojeBrasilia);
 
     let totalEnviadas = 0;
     for (const u of precisamManha) {
@@ -520,11 +528,13 @@ async function rodarCronNotificacoes(req, res) {
     // da noite), a partir dos toques de humor registrados hoje (humor_eventos).
     // dia com poucos toques não gera resumo nenhum (não tem narrativa que preste).
     let resumosGerados = 0;
-    if (dentroJanelaNoite) {
+    if (precisamNoite.length) {
       const inicioHojeUTC = new Date(Date.UTC(agoraBrasilia.getFullYear(), agoraBrasilia.getMonth(), agoraBrasilia.getDate(), 3, 0, 0));
+      const idsNoiteAgora = precisamNoite.map(u => u.id);
       const { data: eventosHoje } = await supabaseAdmin
         .from('humor_eventos')
         .select('usuario_id, emocao, criado_em')
+        .in('usuario_id', idsNoiteAgora)
         .gte('criado_em', inicioHojeUTC.toISOString())
         .order('criado_em', { ascending: true });
 

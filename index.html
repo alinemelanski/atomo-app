@@ -111,6 +111,11 @@
   #wakeSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff;
     border: 3px solid var(--accent-a); box-shadow: 0 2px 8px rgba(0,0,0,0.25); cursor: pointer; }
   #wakeSlider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--accent-a); cursor: pointer; }
+  #sleepSlider { -webkit-appearance: none; width: 100%; height: 10px; border-radius: 999px;
+    background: linear-gradient(90deg, #4A3426, #4A9B8E, #2E5952); outline: none; margin: 0; }
+  #sleepSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+    border: 3px solid var(--accent-b); box-shadow: 0 2px 8px rgba(0,0,0,0.25); cursor: pointer; }
+  #sleepSlider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--accent-b); cursor: pointer; }
   .onboard-btn { width: 100%; max-width: 260px; background: var(--accent-a); color: #fff;
     font-weight: 600; font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 13.5px; padding: 13px; border: none; border-radius: 999px; cursor: pointer; margin-top: 8px;
     display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -1180,6 +1185,11 @@
           <input type="range" id="wakeSlider" min="300" max="660" step="10" value="440" oninput="atualizarHorarioSlider()" />
         </div>
         <div class="slider-val" id="wakeValLabel">7h20</div>
+        <div class="onboard-sub" style="margin-top:2px; margin-bottom:10px;">e a que horas costuma dormir?</div>
+        <div class="slider-wrap">
+          <input type="range" id="sleepSlider" min="1200" max="1430" step="10" value="1350" oninput="atualizarHorarioSliderDormir()" />
+        </div>
+        <div class="slider-val" id="sleepValLabel">22h30</div>
         <button class="onboard-btn" onclick="avancarOnboard(3)">Continuar</button>
       </div>
 
@@ -9523,6 +9533,7 @@ let notifAtivo = true;
 
   // ---------- onboarding: horário de acordar ----------
   let horarioAcordarMin = 440; // minutos desde meia-noite (7h20 por padrão)
+  let horarioDormirMin = 1350; // minutos desde meia-noite (22h30 por padrão)
   let formatoHora12h = false; // preferência de exibição de horário (12h AM/PM vs 24h)
 
   window.atualizarHorarioSlider = function () {
@@ -9531,6 +9542,13 @@ let notifAtivo = true;
     const h = Math.floor(val / 60);
     const m = val % 60;
     document.getElementById('wakeValLabel').textContent = `${h}h${m.toString().padStart(2, '0')}`;
+  };
+  window.atualizarHorarioSliderDormir = function () {
+    const val = parseInt(document.getElementById('sleepSlider').value);
+    horarioDormirMin = val;
+    const h = Math.floor(val / 60);
+    const m = val % 60;
+    document.getElementById('sleepValLabel').textContent = `${h}h${m.toString().padStart(2, '0')}`;
   };
   const supabaseClient = window.supabase.createClient(
     'https://wfhikucbygmjeawrfsfq.supabase.co',
@@ -9558,7 +9576,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
 
     iniciarHeartbeatPresenca(session.user.id);
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado, formato_hora_12h, viu_convite_match').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, horario_dormir_min, meu_signo, signo_ativado, formato_hora_12h, viu_convite_match').eq('id', session.user.id).maybeSingle();
 
     // conta nova OU conta antiga que nunca completou essas 2 perguntas
     // (bug antigo escondia o onboarding cedo demais, então gente que já
@@ -9624,6 +9642,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         document.getElementById('notifSwitch').classList.toggle('on', notifAtivo);
       }
       if (perfil.horario_acordar_min != null) horarioAcordarMin = perfil.horario_acordar_min;
+      if (perfil.horario_dormir_min != null) horarioDormirMin = perfil.horario_dormir_min;
       if (perfil.formato_hora_12h) {
         formatoHora12h = true;
         const swEl = document.getElementById('formatoHoraSwitch');
@@ -9859,6 +9878,7 @@ window.loginComGoogle = async function () {
     await supabaseClient.from('usuarios').update({
       assuntos_favoritos: assuntosFavoritos,
       horario_acordar_min: horarioAcordarMin,
+      horario_dormir_min: horarioDormirMin,
     }).eq('id', sessionData.session.user.id);
 
     setTimeout(() => {
