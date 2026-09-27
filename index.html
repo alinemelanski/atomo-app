@@ -3917,7 +3917,10 @@ if (p.autor_id !== sessionData.session.user.id) {
             if (!iframe.getAttribute('src')) {
               const base = iframe.dataset.src;
               const separador = base.includes('?') ? '&' : '?';
-              const paramAutoplay = base.includes('vimeo.com') ? 'autoplay=1&muted=1' : 'autoplay=1&mute=1';
+              // tira titulo/autor/engrenagem/barra de progresso/marca do player, deixa so o video tocando
+              const paramAutoplay = base.includes('vimeo.com')
+                ? 'autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0'
+                : 'autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1';
               iframe.src = base + separador + paramAutoplay;
             }
           } else if (iframe.getAttribute('src')) {
