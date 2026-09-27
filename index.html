@@ -3121,6 +3121,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
       : postsHtml;
 
     document.getElementById('feedList').innerHTML = listaFinal.join('');
+    ativarAutoplayVideoEmbeds();
   }
 
   // intercala conteúdo curado do Descobrir entre os posts de amigos, pra o feed nunca ficar vazio
@@ -3650,6 +3651,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     diaryTabAtiva === 'privado' ? 'O que ficar aqui só você vai ver.' : 'Escreva algo ali em cima — pode ser qualquer coisa.',
     null, null
   );
+  ativarAutoplayVideoEmbeds();
   }
 
   // ---------- diario rapido: "o que te fez sorrir hoje" ----------
@@ -3893,13 +3895,38 @@ if (p.autor_id !== sessionData.session.user.id) {
     if (!texto) return '';
     const mYoutube = texto.match(REGEX_YOUTUBE_EMBED);
     if (mYoutube) {
-      return `<div class="post-video-embed"><iframe src="https://www.youtube.com/embed/${mYoutube[1]}" allowfullscreen></iframe></div>`;
+      return `<div class="post-video-embed" data-video-embed><iframe data-src="https://www.youtube.com/embed/${mYoutube[1]}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
     }
     const mVimeo = texto.match(REGEX_VIMEO_EMBED);
     if (mVimeo) {
-      return `<div class="post-video-embed"><iframe src="https://player.vimeo.com/video/${mVimeo[1]}" allowfullscreen></iframe></div>`;
+      return `<div class="post-video-embed" data-video-embed><iframe data-src="https://player.vimeo.com/video/${mVimeo[1]}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
     }
     return '';
+  };
+
+  // ---------- autoplay do embed de video só quando o post passa pela tela ----------
+  // (exige mudo: navegador só deixa autoplay sem gesto do usuario se comecar mudo)
+  let observadorVideoEmbed = null;
+  window.ativarAutoplayVideoEmbeds = function () {
+    if (!observadorVideoEmbed) {
+      observadorVideoEmbed = new IntersectionObserver((entradas) => {
+        entradas.forEach(entrada => {
+          const iframe = entrada.target.querySelector('iframe[data-src]');
+          if (!iframe) return;
+          if (entrada.isIntersecting) {
+            if (!iframe.getAttribute('src')) {
+              const base = iframe.dataset.src;
+              const separador = base.includes('?') ? '&' : '?';
+              const paramAutoplay = base.includes('vimeo.com') ? 'autoplay=1&muted=1' : 'autoplay=1&mute=1';
+              iframe.src = base + separador + paramAutoplay;
+            }
+          } else if (iframe.getAttribute('src')) {
+            iframe.removeAttribute('src'); // sai da tela -- para o video, so retoma quando voltar a aparecer
+          }
+        });
+      }, { threshold: 0.55 });
+    }
+    document.querySelectorAll('[data-video-embed]').forEach(el => observadorVideoEmbed.observe(el));
   };
 
   // mesma formatacao de mencao de sempre, mas tambem detecta e embeda um
