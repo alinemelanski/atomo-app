@@ -9365,18 +9365,21 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       });
     }
 
-    // conta nova: continua o onboarding (horário de acordar + assuntos
-    // favoritos) em vez de já esconder e cair direto no app — antes isso
-    // era escondido cedo demais e essas 2 perguntas nunca chegavam a rodar
-    if (contaNova) {
+    iniciarHeartbeatPresenca(session.user.id);
+
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado, formato_hora_12h').eq('id', session.user.id).maybeSingle();
+
+    // conta nova OU conta antiga que nunca completou essas 2 perguntas
+    // (bug antigo escondia o onboarding cedo demais, então gente que já
+    // tinha conta nunca chegou a ser perguntada) — aborda agora, nessa
+    // entrada, em vez de já cair direto no app
+    const precisaCompletarOnboarding = contaNova || (perfil && perfil.horario_acordar_min == null);
+    if (precisaCompletarOnboarding) {
       avancarOnboard(2);
     } else {
       document.getElementById('onboardOverlay').classList.add('hide');
     }
 
-    iniciarHeartbeatPresenca(session.user.id);
-
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, meu_signo, signo_ativado, formato_hora_12h').eq('id', session.user.id).maybeSingle();
     if (perfil) {
       if (perfil.streak_atual != null) {
         const streakAntigo = perfil.streak_atual;
