@@ -4591,7 +4591,7 @@ window.fecharSeloIndividual = function () {
   // ---------- convite pro Match (aparece sozinho depois de um tempo de uso) ----------
   window.verificarConviteMatch = function (matchJaAtivado, streakAtualNoConvite, jaViuConvite) {
     if (matchJaAtivado || jaViuConvite) return;
-    if ((streakAtualNoConvite || 0) < 3) return; // só depois de uns dias reais de uso
+    if ((streakAtualNoConvite || 0) < 2) return; // só depois de uns dias reais de uso
     setTimeout(() => mostrarConviteMatch(), 7000);
   };
 
