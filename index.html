@@ -1032,13 +1032,14 @@
   .sala-p-nome { font-size: 10.5px; font-weight: 800; color: var(--ink); font-family: 'DM Sans', sans-serif; }
   .sala-p-status { font-size: 9px; color: var(--ink-faint); line-height: 1.3; }
   .sala-p-voce .sala-p-nome { color: var(--accent-a); }
-  .sala-controles-bar { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px; right: 16px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+  .sala-controles-bar { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 50%;
+    transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%); border-radius: 999px; padding: 10px 14px;
+    -webkit-backdrop-filter: blur(18px) saturate(160%); border-radius: 999px; padding: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); }
-  .sala-ctrl-btn { width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; display: flex;
-    align-items: center; justify-content: center; background: var(--bg); color: var(--ink); }
+  .sala-ctrl-btn { width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: none; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; background: var(--bg); color: var(--ink); padding: 0; }
   .sala-ctrl-btn.on { background: var(--accent-b); color: #fff; }
   .sala-ctrl-btn.sair { background: var(--pink); color: #fff; width: 52px; }
   .sala-ctrl-btn:active { transform: scale(.92); }
@@ -2508,7 +2509,7 @@
 
       <div class="sala-controles-bar">
         <button class="sala-ctrl-btn on" id="salaBtnMic" onclick="toggleMicSalaEstudo()"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span></button>
-        <button class="sala-ctrl-btn" onclick="mostrarToast('✋ mão levantada — os outros veem um sininho no seu avatar')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 12V4.5a1.5 1.5 0 0 1 3 0V12M14 12V6a1.5 1.5 0 0 1 3 0v7c0 3.3-2 6-5.5 6-2.4 0-3.6-.9-4.8-2.4L4.3 13a1.4 1.4 0 0 1 2-2l1.7 1.7"/></svg></span></button>
+        <button class="sala-ctrl-btn" onclick="mostrarToast('🖐️')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 12V4.5a1.5 1.5 0 0 1 3 0V12M14 12V6a1.5 1.5 0 0 1 3 0v7c0 3.3-2 6-5.5 6-2.4 0-3.6-.9-4.8-2.4L4.3 13a1.4 1.4 0 0 1 2-2l1.7 1.7"/></svg></span></button>
         <button class="sala-ctrl-btn" onclick="mostrarToast('📖 em breve: sobe a citação certinha pro mural, com a página marcada')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h.01M7 12h6M7 16h4"/><rect x="3.5" y="4" width="17" height="16" rx="3"/></svg></span></button>
         <button class="sala-ctrl-btn sair" onclick="sairSalaEstudo()"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17l5-5-5-5M21 12H9M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/></svg></span></button>
       </div>
