@@ -58,8 +58,8 @@
        escuro em transparencia) misturavam com esse fundo claro e viravam
        um cinza sujo em vez de vidro escuro de verdade */
     --bg-tela-suave: #17140F;
-    --vidro-fosco: 84%;
-    --vidro-fosco-leve: 78%;
+    --vidro-fosco: 91%;
+    --vidro-fosco-leve: 86%;
   }
 
   [data-theme="dark"] .tabbar:not(.textura-couro) { background: #161616; border-color: #2C2C2C; }
@@ -154,7 +154,8 @@
   .clima-overlay { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
     opacity: 0; transition: opacity .8s ease, background 1.2s ease; }
   .clima-overlay.on { opacity: 1; }
-  .device.clima-ativo #screen-descobrir, .device.clima-ativo #screen-livros, .device.clima-ativo #screen-mensagens {
+  .device.clima-ativo #screen-descobrir, .device.clima-ativo #screen-livros, .device.clima-ativo #screen-mensagens,
+  .device.clima-ativo #dmChatOverlay {
     background: color-mix(in srgb, var(--card) 8%, transparent) !important;
   }
 
@@ -195,7 +196,7 @@
     --bg: #0D0D0D; --card: #1A1A1A; --card-b: #2C2C2C; --ink: #F2F2F2; --ink-dim: #A8A8A8; --ink-faint: #6E6E6E;
     --accent-a: #E08657; --accent-b: #5CB3A4; --accent-soft: #2E2418; --pink: #E68686; --pink-soft: #3A2624;
     --yellow: #E0A83D; --raiva: #C2503E; --shadow: 0 3px 14px rgba(0,0,0,0.5);
-    --bg-tela-suave: #17140F; --vidro-fosco: 84%; --vidro-fosco-leve: 78%;
+    --bg-tela-suave: #17140F; --vidro-fosco: 91%; --vidro-fosco-leve: 86%;
   }
   .device.clima-ativo:has(.clima-overlay.on[data-estado="noite"]) .tabbar:not(.textura-couro) {
     background: #161616; border-color: #2C2C2C;
@@ -638,16 +639,25 @@
   .dm-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; scrollbar-width: none; }
   #dmMessages::-webkit-scrollbar { display: none; }
   .dm-bubble { max-width: 76%; padding: 9px 13px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
-  .dm-bubble.other { align-self: flex-start; background: var(--card); border: 1px solid var(--card-b); color: var(--ink); border-bottom-left-radius: 4px; }
+  .dm-bubble.other { align-self: flex-start; color: var(--ink); border-bottom-left-radius: 4px;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 45%, transparent); }
   .dm-bubble.own { align-self: flex-end; background: var(--dm-tema-cor, var(--accent-a)); color: #fff; border-bottom-right-radius: 4px; }
   .dm-input-row { display: flex; gap: 8px; align-items: center; }
-  .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; background: var(--card); border: 1px solid var(--card-b);
-    border-radius: 999px; padding: 10px 14px; color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none; }
+  .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; border-radius: 999px; padding: 10px 14px;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); }
   .dm-input-row > input[type="text"]::placeholder { color: var(--ink-faint); }
   .dm-input-wrap { position: relative; flex: 1; min-width: 0; }
-  .dm-input-wrap input { width: 100%; box-sizing: border-box; background: var(--card); border: 1px solid var(--card-b);
-    border-radius: 999px; padding: 10px 40px 10px 14px;
-    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none; }
+  .dm-input-wrap input { width: 100%; box-sizing: border-box; border-radius: 999px; padding: 10px 40px 10px 14px;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); }
   .dm-input-mic-btn { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px;
     border-radius: 50%; border: none; background: transparent; color: var(--accent-a); cursor: pointer;
     display: flex; align-items: center; justify-content: center; }
