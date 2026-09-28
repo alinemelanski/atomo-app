@@ -15,6 +15,9 @@
 <meta name="apple-mobile-web-app-title" content="Átomo">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+<!-- daily-js: SDK do provedor de áudio ao vivo (Daily.co) usado na sala de
+     call de estudo das comunidades — carrega o objeto global DailyIframe -->
+<script src="https://unpkg.com/@daily-co/daily-js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
@@ -6842,6 +6845,7 @@ window.trocarModoDescobrir = function (modo) {
     if (!c) return;
     closeOverlay('comunidadeDetalheOverlay');
     iniciarSalaEstudo({
+      salaId: comunidadeEstudoAtualId,
       titulo: c.titulo,
       mesaEyebrow: c.tema_atual ? 'na mesa agora' : 'sem tema definido ainda',
       mesaTitulo: c.tema_atual || 'defina um tema pra essa sessão',
@@ -6851,37 +6855,37 @@ window.trocarModoDescobrir = function (modo) {
   };
 
 
-  // ---------- sala de call de estudo ao vivo (visual/protótipo por enquanto) ----------
-  const participantesDemoSala = [
-    { nome: 'Você', status: '', eu: true, falando: false, mudo: false },
-    { nome: 'Marina', status: 'grifando trecho', eu: false, falando: true, mudo: false },
-    { nome: 'Theo', status: 'em silêncio', eu: false, falando: false, mudo: true },
-    { nome: 'Júlia', status: 'com a mão levantada', eu: false, falando: false, mudo: false },
-    { nome: 'Rafa', status: 'lendo devagar', eu: false, falando: false, mudo: true },
-    { nome: 'Bia', status: 'fazendo anotação', eu: false, falando: false, mudo: false },
-  ];
+  // ---------- sala de call de estudo ao vivo — áudio de verdade via Daily.co ----------
+  // (o timer pomodoro e os modos discussão/silêncio ficam só no seu aparelho,
+  // não sincronizam entre quem tá na sala — só o áudio é compartilhado de
+  // verdade; sincronizar o timer entre todo mundo fica pra uma próxima)
+  let chamadaDailyAtual = null;
+  let participantesSalaReais = {}; // session_id -> { nome, mudo, eu }
+  let falandoAgoraSessionId = null;
+  let micLigadoSala = true;
 
   function renderParticipantesSala() {
     const grid = document.getElementById('salaGradeParticipantes');
-    grid.innerHTML = participantesDemoSala.map((p, i) => {
+    const lista = Object.entries(participantesSalaReais);
+    grid.innerHTML = lista.map(([sessionId, p], i) => {
       const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
-      const micNome = p.mudo ? 'silenciar' : 'microfone';
+      const falando = sessionId === falandoAgoraSessionId;
       const micIcone = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="9" height="9">${p.mudo
         ? '<path d="M4 4l16 16"/><path d="M12 3a4 4 0 0 1 4 4v5c0 .5-.08 1-.24 1.4M8 8v4a4 4 0 0 0 5.3 3.8"/><path d="M6 11v1a6 6 0 0 0 8.7 5.3M12 18v3"/>'
         : '<path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/>'}</svg>`;
       return `
       <div class="sala-participante ${p.eu ? 'sala-p-voce' : ''}">
-        <div class="sala-p-avatar-wrap ${p.falando ? 'falando' : ''} ${p.mudo ? 'mudo' : ''}">
+        <div class="sala-p-avatar-wrap ${falando ? 'falando' : ''} ${p.mudo ? 'mudo' : ''}">
           <div class="sala-p-avatar" style="background:${cor}">${iniciaisNome(p.nome)}</div>
           <div class="sala-p-mic">${micIcone}</div>
         </div>
         <div class="sala-p-nome">${p.eu ? 'você' : p.nome}</div>
-        <div class="sala-p-status">${p.eu ? '' : p.status}</div>
+        <div class="sala-p-status"></div>
       </div>`;
     }).join('');
   }
 
-  let intervalTimerSala = null, intervalFalandoSala = null, segundosRestantesSala = 18 * 60 + 42;
+  let intervalTimerSala = null, segundosRestantesSala = 18 * 60 + 42;
   const CIRCUNF_SALA = 345.6;
 
   function tickSalaTimer() {
@@ -6895,30 +6899,84 @@ window.trocarModoDescobrir = function (modo) {
     if (ring) ring.setAttribute('stroke-dashoffset', CIRCUNF_SALA * (1 - frac));
   }
 
-  window.iniciarSalaEstudo = function (c) {
+  window.iniciarSalaEstudo = async function (c) {
     document.getElementById('salaEstudoTitulo').textContent = c.titulo;
     document.getElementById('salaMesaEyebrow').textContent = c.mesaEyebrow;
     document.getElementById('salaMesaTitulo').textContent = c.mesaTitulo;
     document.getElementById('salaMesaSub').textContent = c.mesaSub || '';
     document.getElementById('salaMeuStatusTxt').textContent = c.meuStatus || 'por aqui';
+
+    micLigadoSala = true;
+    document.getElementById('salaBtnMic').classList.add('on');
+    participantesSalaReais = { eu: { nome: window.MEU_HANDLE || 'você', mudo: false, eu: true } };
     renderParticipantesSala();
     document.getElementById('salaEstudoOverlay').classList.add('open');
 
     clearInterval(intervalTimerSala);
-    clearInterval(intervalFalandoSala);
     intervalTimerSala = setInterval(tickSalaTimer, 1000);
-    intervalFalandoSala = setInterval(() => {
-      const idx = Math.floor(Math.random() * participantesDemoSala.length);
-      participantesDemoSala.forEach(p => p.falando = false);
-      if (!participantesDemoSala[idx].mudo && !participantesDemoSala[idx].eu) participantesDemoSala[idx].falando = true;
-      if (document.getElementById('salaEstudoOverlay').classList.contains('open')) renderParticipantesSala();
-    }, 2600);
+
+    await entrarNaChamadaDeAudio(c.salaId);
   };
+
+  // entra de verdade na sala de áudio (Daily.co) — se o servidor ainda não
+  // tiver a chave configurada, ou der qualquer erro de rede/permissão de
+  // microfone, a sala continua aberta só visualmente (timer funciona,
+  // ninguém trava), com um aviso em vez de fingir que tem áudio
+  async function entrarNaChamadaDeAudio(salaId) {
+    try {
+      const resp = await fetch(`${API_BASE}/api/sala/entrar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salaId }),
+      });
+      const dados = await resp.json();
+      if (!resp.ok || !dados.url) {
+        mostrarToast(dados.erro ? '🎙 ' + dados.erro : '🎙 áudio ao vivo ainda não disponível');
+        return;
+      }
+
+      if (typeof DailyIframe === 'undefined') { mostrarToast('🎙 não consegui carregar o áudio agora'); return; }
+
+      chamadaDailyAtual = DailyIframe.createCallObject();
+      chamadaDailyAtual
+        .on('participant-joined', atualizarParticipantesSalaDaily)
+        .on('participant-updated', atualizarParticipantesSalaDaily)
+        .on('participant-left', atualizarParticipantesSalaDaily)
+        .on('active-speaker-change', (ev) => {
+          falandoAgoraSessionId = ev && ev.activeSpeaker ? ev.activeSpeaker.peerId : null;
+          renderParticipantesSala();
+        })
+        .on('error', (ev) => { console.log('erro sala de áudio:', ev); mostrarToast('🎙 a sala de áudio caiu — o resto continua funcionando'); });
+
+      await chamadaDailyAtual.join({ url: dados.url, userName: window.MEU_HANDLE || 'alguém' });
+      atualizarParticipantesSalaDaily();
+    } catch (erro) {
+      console.log('erro ao entrar na sala de áudio:', erro.message);
+      mostrarToast('🎙 não consegui ligar o áudio (talvez falte permissão de microfone) — a sala continua aberta');
+    }
+  }
+
+  function atualizarParticipantesSalaDaily() {
+    if (!chamadaDailyAtual) return;
+    const todos = chamadaDailyAtual.participants();
+    const novo = {};
+    Object.values(todos).forEach(p => {
+      novo[p.session_id] = { nome: p.local ? (window.MEU_HANDLE || 'você') : (p.user_name || 'alguém'), mudo: !p.audio, eu: !!p.local };
+    });
+    participantesSalaReais = novo;
+    renderParticipantesSala();
+  }
 
   window.sairSalaEstudo = function () {
     document.getElementById('salaEstudoOverlay').classList.remove('open');
     clearInterval(intervalTimerSala);
-    clearInterval(intervalFalandoSala);
+    if (chamadaDailyAtual) {
+      chamadaDailyAtual.leave().catch(() => {});
+      chamadaDailyAtual.destroy().catch(() => {});
+      chamadaDailyAtual = null;
+    }
+    participantesSalaReais = {};
+    falandoAgoraSessionId = null;
   };
 
   window.trocarModoSalaEstudo = function (modo) {
@@ -6930,7 +6988,9 @@ window.trocarModoDescobrir = function (modo) {
   };
 
   window.toggleMicSalaEstudo = function () {
-    document.getElementById('salaBtnMic').classList.toggle('on');
+    micLigadoSala = !micLigadoSala;
+    document.getElementById('salaBtnMic').classList.toggle('on', micLigadoSala);
+    if (chamadaDailyAtual) chamadaDailyAtual.setLocalAudio(micLigadoSala);
   };
 
   window.abrirCriarClube = function () {

@@ -1853,5 +1853,61 @@ app.get('/api/stickers-em-alta', async (req, res) => {
   }
 });
 
+// ---------- sala de call de estudo ao vivo — áudio de verdade via Daily.co ----------
+// decisão do provedor: Daily.co (10 mil minutos grátis por mês, integração
+// mais simples pra quem tá aprendendo backend do zero — só REST API + SDK
+// JS, sem precisar montar servidor de mídia próprio). Pra ligar de vez:
+// 1) criar conta grátis em https://dashboard.daily.co
+// 2) em Developers, copiar a "API key"
+// 3) colar em DAILY_API_KEY no servidor.env (local) e nas variáveis de
+//    ambiente do Render (produção) — sem isso esse endpoint responde 503 e
+//    a sala continua funcionando só visualmente, sem travar o app.
+const DAILY_API_KEY = process.env.DAILY_API_KEY || '';
+
+app.post('/api/sala/entrar', async (req, res) => {
+  if (!DAILY_API_KEY) {
+    return res.status(503).json({ erro: 'áudio ao vivo ainda não configurado' });
+  }
+
+  const salaId = (req.body && req.body.salaId || '').toString().trim();
+  if (!salaId) return res.status(400).json({ erro: 'faltou salaId' });
+
+  // nome da sala no Daily só aceita letra/número/hífen — um nome fixo por
+  // comunidade garante que toda sessão daquela comunidade cai na MESMA sala
+  const nomeSala = ('atomo-' + salaId).replace(/[^a-zA-Z0-9-]/g, '').slice(0, 100);
+
+  try {
+    // já existe? reaproveita
+    const respGet = await fetch(`https://api.daily.co/v1/rooms/${nomeSala}`, {
+      headers: { Authorization: `Bearer ${DAILY_API_KEY}` },
+    });
+    if (respGet.ok) {
+      const dadosGet = await respGet.json();
+      return res.json({ url: dadosGet.url });
+    }
+
+    // não existe ainda -- cria uma sala pública nova com esse nome fixo
+    const respCriar = await fetch('https://api.daily.co/v1/rooms', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${DAILY_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: nomeSala,
+        privacy: 'public',
+        properties: { enable_screenshare: false, enable_chat: false, start_video_off: true, start_audio_off: false },
+      }),
+    });
+    if (!respCriar.ok) {
+      const erroTxt = await respCriar.text();
+      console.log('erro ao criar sala Daily:', respCriar.status, erroTxt.slice(0, 300));
+      return res.status(500).json({ erro: 'não consegui criar a sala de áudio' });
+    }
+    const dadosCriar = await respCriar.json();
+    res.json({ url: dadosCriar.url });
+  } catch (erro) {
+    console.log('erro sala Daily:', erro.message);
+    res.status(500).json({ erro: 'não consegui abrir a sala de áudio' });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
