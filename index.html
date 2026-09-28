@@ -2403,15 +2403,22 @@
       </div>
     </div>
 
-    <!-- OVERLAY: DETALHE DE COMUNIDADE (Comunidades — protótipo aprovado por ela) -->
+    <!-- OVERLAY: DETALHE DE COMUNIDADE DE ESTUDO -->
     <div class="dm-chat-overlay" id="comunidadeDetalheOverlay">
       <div class="dm-chat-header">
         <button class="back-btn" onclick="closeOverlay('comunidadeDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;" id="comunidadeDetalheTitulo">Comunidade</h2>
+        <div class="clube-overflow-wrap" id="comunidadeDetalheOverflowWrap" style="display:none;">
+          <button class="clube-overflow-btn" onclick="toggleComunidadeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
+          <div class="clube-overflow-menu" id="comunidadeDetalheOverflowMenu">
+            <div class="item" onclick="toggleComunidadeOverflowMenu(); sairDaComunidadeEstudo();">sair da comunidade</div>
+          </div>
+        </div>
       </div>
       <div class="discover-desc" id="comunidadeDetalheSub" style="margin-bottom:12px;"></div>
       <div class="comunidade-meta-chip-row" id="comunidadeDetalheMetaChips"></div>
       <div id="comunidadeDetalheAcoes" style="margin-bottom:8px;"></div>
+      <div id="comunidadeDetalheFerramentas" style="margin-bottom:12px;"></div>
       <div id="comunidadeDetalheMural" style="overflow-y:auto; flex:1; padding-bottom:74px;"></div>
       <button class="iniciar-sala-fab" id="comunidadeIniciarSalaBtn" onclick="abrirSalaDaComunidadeAtual()">
         <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span>
@@ -2524,6 +2531,19 @@
       <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharClubeWhatsapp()">📱 WhatsApp</button>
       <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharClubeTelegram()">✈️ Telegram</button>
       <button class="post-btn" style="width:100%;" onclick="compartilharClubeCopiar()">🔗 Copiar link</button>
+      <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
+    </div>
+
+    <!-- OVERLAY: CONVIDAR PRA COMUNIDADE DE ESTUDO -->
+    <div class="dm-chat-overlay" id="compartilharComunidadeOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('compartilharComunidadeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Convidar pra comunidade</h2>
+      </div>
+      <div class="bio-box" id="compartilharComunidadeResumo" style="margin-bottom:16px;"></div>
+      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharComunidadeWhatsapp()">📱 WhatsApp</button>
+      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharComunidadeTelegram()">✈️ Telegram</button>
+      <button class="post-btn" style="width:100%;" onclick="compartilharComunidadeCopiar()">🔗 Copiar link</button>
       <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
     </div>
 
@@ -2961,6 +2981,19 @@
     if (idConvite) {
       localStorage.setItem('atomoConviteClube', JSON.stringify({ id: idConvite, quando: Date.now() }));
       params.delete('clube');
+      const novaUrl = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
+      history.replaceState(null, '', novaUrl);
+    }
+  })();
+
+  // ---------- convite de comunidade de estudo por link (?comunidade=<id>) ----------
+  // mesmo padrão do convite de clube acima
+  (function guardarConviteComunidadeDaUrl() {
+    const params = new URLSearchParams(location.search);
+    const idConvite = params.get('comunidade');
+    if (idConvite) {
+      localStorage.setItem('atomoConviteComunidade', JSON.stringify({ id: idConvite, quando: Date.now() }));
+      params.delete('comunidade');
       const novaUrl = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
       history.replaceState(null, '', novaUrl);
     }
@@ -6587,11 +6620,20 @@ window.trocarModoDescobrir = function (modo) {
 
   // ---------- detalhe de comunidade de estudo ----------
   let comunidadeEstudoAtualId = null;
+  let comunidadeTemaAtual = { tema: null };
 
   window.abrirComunidadeDetalhe = async function (i) {
     const c = window.ITENS_COMUNIDADES_ESTUDO_ATUAIS[i];
     if (!c) return;
     comunidadeEstudoAtualId = c.id;
+    document.getElementById('comunidadeDetalheOverlay').classList.add('open');
+    await renderComunidadeEstudoDetalhe();
+  };
+
+  // abre uma comunidade direto pelo id (usado pelo link de convite), sem
+  // depender do índice da lista já carregada na tela
+  window.abrirComunidadePorId = async function (id) {
+    comunidadeEstudoAtualId = id;
     document.getElementById('comunidadeDetalheOverlay').classList.add('open');
     await renderComunidadeEstudoDetalhe();
   };
@@ -6610,18 +6652,23 @@ window.trocarModoDescobrir = function (modo) {
 
     const membros = c.comunidade_estudo_membros || [];
     const souMembro = membros.some(m => m.usuario_id === meuId);
+    const souAdmin = c.criador_id === meuId || membros.some(m => m.usuario_id === meuId && m.papel === 'admin');
     const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
+    comunidadeTemaAtual = { tema: c.tema_atual || null };
 
     document.getElementById('comunidadeDetalheTitulo').textContent = c.titulo;
     document.getElementById('comunidadeDetalheSub').textContent = `${membros.length} membro${membros.length === 1 ? '' : 's'} · ${c.privada ? 'comunidade privada' : 'comunidade pública'}`;
+    document.getElementById('comunidadeDetalheOverflowWrap').style.display = souMembro ? 'flex' : 'none';
 
     document.getElementById('comunidadeDetalheMetaChips').innerHTML = `
       <div class="comunidade-meta-chip">${categoria ? categoria.label : c.categoria}</div>
-      ${c.tema_atual ? `<div class="comunidade-meta-chip teal">📌 ${c.tema_atual}</div>` : ''}`;
+      ${c.descricao ? `<div class="comunidade-meta-chip">${c.descricao}</div>` : ''}`;
 
     document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
-      ? ''
+      ? (c.privada ? '' : `<div class="livro-link-externo" onclick="abrirCompartilharComunidade()">${icone('compartilhar',10)} convidar pra comunidade</div>`)
       : `<button class="post-btn" style="width:100%;" onclick="entrarNaComunidadeEstudo()">entrar na comunidade</button>`;
+
+    document.getElementById('comunidadeDetalheFerramentas').innerHTML = souMembro ? temaComunidadeCardHtml(souAdmin) : '';
 
     document.getElementById('comunidadeIniciarSalaBtn').style.display = souMembro ? 'flex' : 'none';
     document.getElementById('comunidadeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
@@ -6636,6 +6683,116 @@ window.trocarModoDescobrir = function (modo) {
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
     mostrarToast('🎉 você entrou na comunidade');
     renderComunidadeEstudoDetalhe();
+  };
+
+  window.toggleComunidadeOverflowMenu = function () {
+    document.getElementById('comunidadeDetalheOverflowMenu').classList.toggle('show');
+  };
+
+  window.sairDaComunidadeEstudo = async function () {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    const { error } = await supabaseClient.from('comunidade_estudo_membros')
+      .delete().eq('comunidade_id', comunidadeEstudoAtualId).eq('usuario_id', usuarioId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('👋 você saiu da comunidade');
+    closeOverlay('comunidadeDetalheOverlay');
+    renderComunidades();
+  };
+
+  // ---------- ferramentas da comunidade: card com o tema atual (só o admin muda) ----------
+  function temaComunidadeCardHtml(souAdmin) {
+    const tema = comunidadeTemaAtual.tema;
+    return `
+      <div class="clube-cap-card">
+        <div class="clube-cap-info">
+          <div class="clube-cap-kicker">${icone('marco',10)} na mesa agora</div>
+          <div class="clube-cap-valor">${tema || 'tema ainda não definido'}</div>
+        </div>
+        ${souAdmin ? `<button class="clube-cap-editar" onclick="abrirEditarTemaComunidade()">${icone('editar',15)}</button>` : ''}
+      </div>
+      <div class="clube-cap-form" id="comunidadeTemaFormWrap" style="display:none;">
+        <div class="clube-cap-form-row">
+          <input type="text" id="comunidadeTemaInput" class="busca-input" placeholder="ex: revisão de exatas" style="flex:1;" value="${tema || ''}" />
+        </div>
+        <button class="post-btn" onclick="salvarTemaComunidade()">salvar tema</button>
+      </div>`;
+  }
+
+  window.abrirEditarTemaComunidade = function () {
+    const f = document.getElementById('comunidadeTemaFormWrap');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  };
+
+  window.salvarTemaComunidade = async function () {
+    const tema = document.getElementById('comunidadeTemaInput').value.trim();
+    const { error } = await supabaseClient.from('comunidades_estudo')
+      .update({ tema_atual: tema || null }).eq('id', comunidadeEstudoAtualId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    comunidadeTemaAtual = { tema: tema || null };
+    mostrarToast('📌 tema atualizado');
+    document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true);
+  };
+
+  // ---------- convidar pra comunidade (mesmo padrão do convite de clube) ----------
+  let compartilharComunidadeContexto = { texto: '', link: '' };
+
+  window.abrirCompartilharComunidade = async function () {
+    const { data: c } = await supabaseClient.from('comunidades_estudo').select('titulo, privada').eq('id', comunidadeEstudoAtualId).single();
+    if (!c) { mostrarToast('❌ não consegui montar o convite'); return; }
+    if (c.privada) { mostrarToast('🔒 comunidades privadas ainda não têm link de convite — chama a pessoa por DM'); return; }
+
+    const link = `${window.location.origin}${window.location.pathname}?comunidade=${comunidadeEstudoAtualId}`;
+    const texto = `📚 bora estudar junto? entra na comunidade "${c.titulo}" no Átomo:`;
+    compartilharComunidadeContexto = { texto, link };
+
+    if (navigator.share) {
+      try { await navigator.share({ title: c.titulo, text: texto, url: link }); } catch (e) { /* cancelou, sem problema */ }
+      return;
+    }
+
+    document.getElementById('compartilharComunidadeResumo').textContent = texto + ' ' + link;
+    document.getElementById('compartilharComunidadeOverlay').classList.add('open');
+  };
+
+  window.compartilharComunidadeWhatsapp = function () {
+    const { texto, link } = compartilharComunidadeContexto;
+    window.open('https://wa.me/?text=' + encodeURIComponent(texto + ' ' + link), '_blank');
+  };
+
+  window.compartilharComunidadeTelegram = function () {
+    const { texto, link } = compartilharComunidadeContexto;
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(texto), '_blank');
+  };
+
+  window.compartilharComunidadeCopiar = async function () {
+    const { texto, link } = compartilharComunidadeContexto;
+    try {
+      await navigator.clipboard.writeText(texto + ' ' + link);
+      mostrarToast('✨ link copiado! cola onde quiser');
+    } catch (e) {
+      mostrarToast('não consegui copiar sozinho — copia esse link: ' + link);
+    }
+    closeOverlay('compartilharComunidadeOverlay');
+  };
+
+  // se a pessoa chegou aqui por um link de convite de comunidade (guardado
+  // no localStorage lá em cima), abre essa comunidade assim que ela estiver logada
+  window.verificarConviteComunidadePendente = async function () {
+    const bruto = localStorage.getItem('atomoConviteComunidade');
+    if (!bruto) return;
+    let convite;
+    try { convite = JSON.parse(bruto); } catch (e) { localStorage.removeItem('atomoConviteComunidade'); return; }
+    const UM_DIA = 24 * 60 * 60 * 1000;
+    if (!convite || !convite.id || Date.now() - convite.quando > UM_DIA) { localStorage.removeItem('atomoConviteComunidade'); return; }
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return; // ainda não logou — deixa guardado pra tentar de novo depois
+
+    localStorage.removeItem('atomoConviteComunidade');
+    showScreen2('livros');
+    trocarModoLivros('comunidades');
+    await abrirComunidadePorId(convite.id);
   };
 
   async function renderMuralComunidadeEstudo() {
@@ -11190,6 +11347,7 @@ window.openNotifs = async function () {
   renderLivrosAtual();
   renderDmList();
   verificarConviteClubePendente();
+  verificarConviteComunidadePendente();
 })();
 </script>
 <script>
