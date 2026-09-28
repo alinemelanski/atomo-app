@@ -1319,7 +1319,23 @@ app.get('/api/livros-em-destaque', async (req, res) => {
         if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
         const dados = await resposta.json();
         const resultados = (dados.query && dados.query.search) || [];
-        const resultadosValidos = resultados.filter(r => (r.wordcount || 0) >= 30);
+        const resultadosComTexto = resultados.filter(r => (r.wordcount || 0) >= 30);
+
+        // Wikisource divide muita obra em subpáginas por capítulo/seção
+        // (ex: "Ressurreição (Machado de Assis)/Advertência") e a busca por
+        // palavra às vezes acha justo uma dessas subpáginas em vez da
+        // página raiz da obra — foi o bug que ela viu (abria só a
+        // "Advertência", uma página curtinha, em vez do livro inteiro).
+        // Correção: sempre usa o título RAIZ (antes da primeira "/"), que é
+        // a página real do livro — é nela que /api/livro-texto-wikisource
+        // consegue achar os capítulos depois via action=parse — e
+        // deduplica pra não repetir o mesmo livro várias vezes na lista.
+        const raizPorTitulo = new Map();
+        resultadosComTexto.forEach(r => {
+          const raiz = r.title.split('/')[0];
+          if (!raizPorTitulo.has(raiz)) raizPorTitulo.set(raiz, { ...r, title: raiz });
+        });
+        const resultadosValidos = [...raizPorTitulo.values()];
 
         // busca capa (pageimage) em lote pra quem sobrou — melhor esforço,
         // boa parte das obras na Wikisource não tem imagem associada (é um
