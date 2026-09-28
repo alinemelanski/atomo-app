@@ -2512,10 +2512,6 @@
       <div class="leitor-livro-area" id="leitorLivroArea">
         <div class="leitor-livro-pagina" id="leitorLivroPagina"></div>
       </div>
-      <div style="display:flex; justify-content:space-between; padding:10px 4px; gap:10px;">
-        <button class="post-btn" style="flex:1;" onclick="paginaAnteriorLivro()">← anterior</button>
-        <button class="post-btn" style="flex:1;" onclick="proximaPaginaLivro()">próxima →</button>
-      </div>
     </div>
 
     <!-- OVERLAY: CARTÃO DE CITAÇÃO -->
@@ -8112,6 +8108,53 @@ window.trocarModoDescobrir = function (modo) {
     }
   };
 
+  // mesmo leitor paginado do Gutendex/Wikisource, só que busca o texto OCR
+  // (djvu) de um item do Internet Archive -- unifica o "estilo Kindle" pra
+  // TODA fonte que tem leitura completa. Se esse item específico não tiver
+  // texto OCR disponível, cai pro visualizador incorporado do archive.org
+  // como fallback (retorna false nesse caso, pra quem chamou decidir).
+  window.abrirLeitorOpenLibrary = async function (i) {
+    const item = window.ITENS_LIVROS_ATUAIS[i];
+    if (!item) return;
+    const conseguiu = await abrirLeitorLivroArquivo(i);
+    if (conseguiu) { registrarLeituraHoje(); return; }
+    // esse item não tem texto OCR disponível -- cai pro visualizador
+    // incorporado do próprio archive.org, que sempre funciona
+    const corpo = document.getElementById('livroPreviewCorpo');
+    corpo.innerHTML += `
+      <div style="width:100%; height:460px; border-radius:12px; overflow:hidden; background:var(--accent-soft); margin-top:10px;">
+        <iframe src="https://archive.org/embed/${item.iaId}" width="100%" height="100%" frameborder="0" allowfullscreen style="border:0;"></iframe>
+      </div>`;
+    registrarLeituraHoje();
+  };
+
+  window.abrirLeitorLivroArquivo = async function (i) {
+    const item = window.ITENS_LIVROS_ATUAIS[i];
+    if (!item || !item.iaId) return false;
+
+    document.getElementById('leitorLivroTitulo').textContent = item.title;
+    document.getElementById('leitorLivroProgresso').textContent = '';
+    document.getElementById('leitorLivroBarra').style.width = '0%';
+    document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Carregando o livro...</div>`;
+    document.getElementById('leitorLivroOverlay').classList.add('open');
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/livro-texto-arquivo?iaId=${encodeURIComponent(item.iaId)}`);
+      const dados = await resp.json();
+      if (!dados.texto) {
+        closeOverlay('leitorLivroOverlay');
+        return false;
+      }
+      leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now() };
+      renderPaginaLivroAtual();
+      registrarLeituraHoje();
+      return true;
+    } catch (e) {
+      closeOverlay('leitorLivroOverlay');
+      return false;
+    }
+  };
+
   function renderPaginaLivroAtual() {
     if (!leitorLivroAtual) return;
     const { paginas, paginaIdx } = leitorLivroAtual;
@@ -8219,12 +8262,9 @@ window.trocarModoDescobrir = function (modo) {
     // API antiga do Google que parou de funcionar).
     if (item.fonte === 'Open Library' && item.leituraCompleta && item.iaId) {
       corpo.innerHTML = heroHtml + `
-        <div class="bio-box" style="margin-bottom:10px;">📗 esse aqui dá pra ler completo, direto por aqui</div>
-        <div style="width:100%; height:460px; border-radius:12px; overflow:hidden; background:var(--accent-soft); margin-bottom:10px;">
-          <iframe src="https://archive.org/embed/${item.iaId}" width="100%" height="100%" frameborder="0" allowfullscreen style="border:0;"></iframe>
-        </div>
+        <div class="bio-box" style="margin-bottom:14px;">📗 esse aqui dá pra ler completo, direto por aqui</div>
+        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorOpenLibrary(${i})">📖 começar a ler</button>
       `;
-      registrarLeituraHoje();
       return;
     }
 

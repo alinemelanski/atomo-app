@@ -1319,15 +1319,36 @@ app.get('/api/livros-em-destaque', async (req, res) => {
         if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
         const dados = await resposta.json();
         const resultados = (dados.query && dados.query.search) || [];
-        resultados.forEach(r => {
-          // pula página muito curta (verbete/redirecionamento/índice sem
-          // conteúdo de verdade) — só entra quem tem miolo de texto real
-          if ((r.wordcount || 0) < 30) return;
+        const resultadosValidos = resultados.filter(r => (r.wordcount || 0) >= 30);
+
+        // busca capa (pageimage) em lote pra quem sobrou — melhor esforço,
+        // boa parte das obras na Wikisource não tem imagem associada (é um
+        // acervo de texto, não de capas), então isso só preenche quando
+        // existe; se a chamada falhar ou vier vazia, todo mundo cai no
+        // fallback visual que o app já usa pra "sem capa"
+        const capasPorTitulo = {};
+        if (resultadosValidos.length) {
+          try {
+            const titulosLote = resultadosValidos.map(r => r.title).join('|');
+            const respCapas = await fetch(
+              `https://pt.wikisource.org/w/api.php?action=query&titles=${encodeURIComponent(titulosLote)}&prop=pageimages&piprop=thumbnail&pithumbsize=300&format=json&formatversion=2`,
+              { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+            );
+            const dadosCapas = await respCapas.json();
+            ((dadosCapas.query && dadosCapas.query.pages) || []).forEach(p => {
+              if (p.thumbnail && p.thumbnail.source) capasPorTitulo[p.title] = p.thumbnail.source;
+            });
+          } catch (erroCapa) {
+            console.log('erro ao buscar capas Wikisource (segue sem capa):', erroCapa.message);
+          }
+        }
+
+        resultadosValidos.forEach(r => {
           const descricaoLimpa = (r.snippet || '').replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
           out.push({
             fonte: 'Wikisource',
             wikisourceTitulo: r.title,
-            capa: null,
+            capa: capasPorTitulo[r.title] || null,
             autor: '',
             leituraCompleta: true,
             volumeInfo: {
@@ -1459,19 +1480,62 @@ app.get('/api/livro-texto-wikisource', async (req, res) => {
   if (!titulo) return res.status(400).json({ erro: 'faltou o parâmetro titulo' });
 
   try {
-    const resposta = await fetch(
-      `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=${encodeURIComponent(titulo)}&format=json&formatversion=2`,
+    // muita obra na Wikisource é dividida em subpáginas por capítulo (ex:
+    // "Obra/Capítulo I", "Obra/Capítulo II"...) e a página "capa" (o título
+    // que a busca devolve) é só um SUMÁRIO com link pra cada capítulo — o
+    // extracts dela sozinha vem vazio de história de verdade (só a lista de
+    // capítulos), foi exatamente o bug que ela viu ("Ressurreição" com 1
+    // página só, cheia de "Capítulo I", "Capítulo II"...).
+    // Solução: usa action=parse (preserva a ORDEM em que os links aparecem
+    // na página — importante, porque ordem alfabética quebra numeração
+    // romana: "Capítulo IX" viria antes de "Capítulo V") pra achar as
+    // subpáginas de capítulo, busca o texto de cada uma e concatena tudo.
+    const respParse = await fetch(
+      `https://pt.wikisource.org/w/api.php?action=parse&page=${encodeURIComponent(titulo)}&prop=links&format=json&formatversion=2`,
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
     );
-    const dados = await resposta.json();
-    const pagina = dados.query && dados.query.pages && dados.query.pages[0];
-    const texto = (pagina && pagina.extract || '').trim();
+    const dadosParse = await respParse.json();
+    const prefixoSubpagina = titulo + '/';
+    const titulosCapitulos = ((dadosParse.parse && dadosParse.parse.links) || [])
+      .filter(l => l.ns === 0 && l.exists && l.title && l.title.startsWith(prefixoSubpagina))
+      .map(l => l.title);
 
-    if (!texto) {
+    let textoFinal = '';
+
+    if (titulosCapitulos.length) {
+      const LOTE = 20; // a API aceita várias "titles" numa chamada só, separadas por |
+      const textoPorTitulo = {};
+      for (let i = 0; i < titulosCapitulos.length; i += LOTE) {
+        const lote = titulosCapitulos.slice(i, i + LOTE);
+        const respLote = await fetch(
+          `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=${encodeURIComponent(lote.join('|'))}&format=json&formatversion=2`,
+          { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+        );
+        const dadosLote = await respLote.json();
+        ((dadosLote.query && dadosLote.query.pages) || []).forEach(p => {
+          textoPorTitulo[p.title] = (p.extract || '').trim();
+        });
+      }
+      // remonta na ORDEM certa dos capítulos (não na ordem que a API devolveu)
+      textoFinal = titulosCapitulos.map(t => textoPorTitulo[t]).filter(Boolean).join('\n\n');
+    }
+
+    if (!textoFinal) {
+      // não é um livro dividido em capítulos (ou os capítulos vieram vazios)
+      // — usa o texto direto da própria página, do jeito que já fazia antes
+      const resposta = await fetch(
+        `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=${encodeURIComponent(titulo)}&format=json&formatversion=2`,
+        { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+      );
+      const dados = await resposta.json();
+      const pagina = dados.query && dados.query.pages && dados.query.pages[0];
+      textoFinal = (pagina && pagina.extract || '').trim();
+    }
+
+    if (!textoFinal) {
       return res.json({ titulo, autor: '', texto: '', erro: 'Esse texto não tem conteúdo disponível pra leitura.' });
     }
 
-    let textoFinal = texto;
     let truncado = false;
     if (textoFinal.length > LIMITE_TEXTO_LIVRO) {
       textoFinal = textoFinal.slice(0, LIMITE_TEXTO_LIVRO);
@@ -1482,6 +1546,50 @@ app.get('/api/livro-texto-wikisource', async (req, res) => {
   } catch (erro) {
     console.log('erro ao buscar texto do livro (Wikisource):', erro.message);
     res.json({ erro: 'não consegui carregar o livro', texto: '' });
+  }
+});
+
+// texto OCR (djvu) de um item do Internet Archive — usado pra fazer os
+// livros do Open Library/archive.org abrirem no MESMO leitor paginado
+// (estilo Kindle) que Gutendex/Wikisource já usam, em vez do player
+// genérico incorporado do archive.org. Lê o metadata do item pra achar o
+// nome real do arquivo _djvu.txt (não assume o nome, cada item pode variar)
+// — se não existir esse arquivo, devolve erro e o front cai pro player
+// incorporado como estava antes (nada quebra).
+app.get('/api/livro-texto-arquivo', async (req, res) => {
+  const iaId = (req.query.iaId || '').trim();
+  if (!iaId) return res.status(400).json({ erro: 'faltou o parâmetro iaId' });
+
+  try {
+    const respMeta = await fetch(`https://archive.org/metadata/${encodeURIComponent(iaId)}`);
+    if (!respMeta.ok) throw new Error(`metadata ${respMeta.status}`);
+    const dadosMeta = await respMeta.json();
+    const arquivoTexto = (dadosMeta.files || []).find(f =>
+      f.format === 'DjVuTXT' || (f.name || '').toLowerCase().endsWith('_djvu.txt')
+    );
+
+    if (!arquivoTexto) {
+      return res.json({ texto: '', erro: 'Esse item não tem texto OCR disponível.' });
+    }
+
+    const respTexto = await fetch(`https://archive.org/download/${encodeURIComponent(iaId)}/${encodeURIComponent(arquivoTexto.name)}`);
+    if (!respTexto.ok) throw new Error(`download ${respTexto.status}`);
+    let texto = (await respTexto.text()).trim();
+
+    if (!texto) {
+      return res.json({ texto: '', erro: 'Esse item não tem texto OCR disponível.' });
+    }
+
+    let truncado = false;
+    if (texto.length > LIMITE_TEXTO_LIVRO) {
+      texto = texto.slice(0, LIMITE_TEXTO_LIVRO);
+      truncado = true;
+    }
+
+    res.json({ texto, truncado });
+  } catch (erro) {
+    console.log('erro ao buscar texto OCR do Internet Archive:', erro.message);
+    res.json({ erro: 'não consegui carregar o texto', texto: '' });
   }
 });
 
