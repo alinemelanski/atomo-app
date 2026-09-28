@@ -33,8 +33,8 @@
     --pink-soft: #F7E0DA;
     --yellow: #E8A83D;
     --bg-tela-suave: #FBF7EE;
-    --vidro-fosco: 62%;
-    --vidro-fosco-leve: 55%;
+    --vidro-fosco: 74%;
+    --vidro-fosco-leve: 66%;
     --raiva: #B33F30;
     --shadow: 0 3px 14px rgba(90,60,30,0.10);
   }
@@ -157,6 +157,14 @@
   .device.clima-ativo #screen-descobrir, .device.clima-ativo #screen-livros, .device.clima-ativo #screen-mensagens {
     background: color-mix(in srgb, var(--card) 8%, transparent) !important;
   }
+  /* --ink-faint (usado em icones de acao, icones/labels da barra de baixo,
+     chips) e claro demais pra ficar legivel em cima do fundo colorido do
+     clima, mesmo com o card mais fosco -- escurece só enquanto o Tema
+     Clima ta ligado (a noite ja sobrescreve de novo com o proprio tom
+     escuro, seletor mais especifico ganha). */
+  .device.clima-ativo {
+    --ink-faint: #6E5D42;
+  }
 
   .clima-overlay[data-estado="sol"] { background: radial-gradient(600px circle at 50% -10%, rgba(255,244,198,.55), transparent 55%),
     linear-gradient(160deg, #cfe0a3 0%, #8fb36b 22%, #4f8a52 46%, #2c5c3f 72%, #16382b 100%); }
@@ -210,6 +218,25 @@
   .clima-folha { position:absolute; top:-20px; width:9px; height:9px; background:#f6d94a; border-radius:0 60% 0 60%;
     animation: climaFolhaCair linear infinite; }
   .clima-folha.verde { background:#c7dd6e; }
+
+  /* conversa (dmChatOverlay) acompanha a cor do clima tambem -- pintada
+     direto (nao transparente!) pra nao arriscar revelar outra camada da
+     tela por baixo dela (isso ja causou um bug serio, ver commit
+     "CORRIGE bug grave"). A noite ja fica escura sozinha via --bg
+     sobrescrito acima, nao precisa de regra propria aqui. */
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="sol"]) #dmChatOverlay {
+    background: radial-gradient(600px circle at 50% -10%, rgba(255,244,198,.55), transparent 55%),
+      linear-gradient(160deg, #cfe0a3 0%, #8fb36b 22%, #4f8a52 46%, #2c5c3f 72%, #16382b 100%);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="nublado"]) #dmChatOverlay {
+    background: linear-gradient(160deg, #aab3a4 0%, #838f7c 28%, #5c685a 58%, #333d33 100%);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="chuva"]) #dmChatOverlay {
+    background: linear-gradient(160deg, #7e9a8f 0%, #4c6b62 30%, #2c453e 60%, #142521 100%);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="primavera"]) #dmChatOverlay {
+    background: linear-gradient(160deg, #fdf0c4 0%, #f0cf5c 18%, #a9c15a 55%, #4c7a4a 100%);
+  }
   @keyframes climaFolhaCair { from { transform: translate(0,0) rotate(0deg); opacity:0; } 8% { opacity:1; }
     to { transform: translate(40px, 900px) rotate(340deg); opacity:.6; } }
 
