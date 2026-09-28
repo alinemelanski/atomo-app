@@ -330,14 +330,14 @@
     background: linear-gradient(90deg, transparent, var(--card)); pointer-events: none; }
 
   /* ---------- referência anexada (livro/música/filme) ---------- */
-  .ref-form { background: var(--accent-soft); border: 1px dashed var(--accent-a); border-radius: 14px; padding: 12px; margin-bottom: 10px; display: none; }
+  .ref-form { background: var(--accent-soft); border: 1px dashed var(--accent-a); border-radius: 18px; padding: 12px; margin-bottom: 10px; display: none; }
   .ref-form.show { display: block; }
   .ref-form .rf-label { font-size: 10.5px; font-weight: 800; color: var(--accent-a); margin-bottom: 6px; }
   .ref-form input, .ref-form textarea { width: 100%; border: 1px solid var(--card-b); background: var(--card); border-radius: 10px;
     padding: 8px 10px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); margin-bottom: 6px; outline: none; }
   .ref-form textarea { resize: none; min-height: 40px; }
 
-  .ref-card { display: flex; gap: 10px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px; margin-top: 10px; }
+  .ref-card { display: flex; gap: 10px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 18px; padding: 10px; margin-top: 10px; }
   .ref-thumb { width: 46px; height: 46px; border-radius: 10px; flex: none; display: flex; align-items: center; justify-content: center;
     font-size: 18px; background: var(--accent-a); position: relative; }
   .ref-thumb .play-badge { position: absolute; inset: 0; background: rgba(0,0,0,0.25); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
@@ -354,7 +354,7 @@
      meio; depois: fileira propria mas ainda tomando espaco embaixo dos chips) */
   .composer-foot { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 8px; z-index: 2; }
   .privacy-toggle-mini { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-dim); font-weight: 700; cursor: pointer; }
-  .referencia-preview-card { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
+  .referencia-preview-card { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: 18px; padding: 10px 12px; margin-bottom: 8px; }
 .referencia-preview-card .rp-info { flex: 1; min-width: 0; }
 .referencia-preview-card .rp-t { font-size: 12.5px; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .referencia-preview-card .rp-a { font-size: 11px; color: var(--ink-dim); }
@@ -419,7 +419,7 @@
 .sticker-bubble .icon-svg { width: 46px; height: 46px; }
 
   /* ---------- posts no feed ---------- */
-  .post { background: var(--card); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; margin-bottom: 6px; box-shadow: var(--shadow); }
+  .post { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 10px 12px; margin-bottom: 6px; box-shadow: var(--shadow); }
   .post-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .post-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-a);
     display: flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; font-weight: 800; flex: none; }
@@ -438,10 +438,10 @@
 .reordenar-item.oculto { opacity: 0.45; }
 .reordenar-item .alca { color: var(--ink-faint); font-size: 16px; }
 .reordenar-setas { display: flex; align-items: center; gap: 6px; margin-left: auto; flex: none; }
-.reordenar-seta { width: 26px; height: 22px; border-radius: 7px; background: var(--accent-soft); border: none; cursor: pointer;
+.reordenar-seta { width: 26px; height: 22px; border-radius: 11px; background: var(--accent-soft); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
 .reordenar-seta:disabled { opacity: 0.3; cursor: default; }
-.reordenar-ocultar { width: 26px; height: 22px; border-radius: 7px; border: none; cursor: pointer;
+.reordenar-ocultar { width: 26px; height: 22px; border-radius: 11px; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center; font-size: 12px; background: var(--accent-soft); color: var(--ink-dim); }
 .reordenar-ocultar.on { background: var(--pink-soft); color: var(--pink); }
 .guia-instalacao-mockup { width: 88px; height: 168px; margin: 2px auto 20px; border: 2px solid var(--ink); border-radius: 16px;
@@ -457,7 +457,7 @@
   70% { box-shadow: 0 0 0 13px transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
-.guia-passo { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; font-size: 13.5px; color: var(--ink); line-height: 1.35; font-weight: 700; }
+.guia-passo { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; font-size: 13.5px; color: var(--ink); line-height: 1.35; font-weight: 500; }
 .guia-passo-icone { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-a);
   display: flex; align-items: center; justify-content: center; }
 .guia-passo-n { flex: none; width: 22px; height: 22px; border-radius: 50%;
@@ -475,7 +475,7 @@
 .notif-banner-corpo b { display: block; font-size: 13.5px; color: var(--ink); margin-bottom: 2px; }
 .notif-banner-corpo p { margin: 0; font-size: 12.5px; color: var(--ink-dim); line-height: 1.4; }
 .notif-banner-botoes { display: flex; gap: 8px; margin-top: 10px; }
-.notif-banner-botoes button { flex: 1; border: none; border-radius: 10px; padding: 9px 0; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.notif-banner-botoes button { flex: 1; border: none; border-radius: 999px; padding: 9px 0; font-size: 12.5px; font-weight: 700; cursor: pointer; }
 .notif-banner-ativar { background: var(--accent-a); color: #fff; }
 .notif-banner-depois { background: var(--accent-soft); color: var(--ink-dim); }
 
@@ -516,7 +516,7 @@
     background: var(--card); border: 1px solid var(--card-b); cursor: pointer; }
   .diary-tab.on { background: var(--accent-a); color: #fff; border-color: transparent; }
 
-  .diary-entry { background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 13px; margin-bottom: 10px; }
+  .diary-entry { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 13px; margin-bottom: 10px; }
   .diary-entry.fixado { border-color: var(--accent-a); background: var(--accent-soft); }
   .diary-entry .tag { font-size: 9px; font-weight: 800; color: var(--accent-a); text-transform: uppercase; letter-spacing: .03em; }
   .diary-entry .body { font-size: 13px; color: var(--ink); margin-top: 4px; line-height: 1.5; }
@@ -540,7 +540,7 @@
   .dm-empty-state .icon-svg { opacity: 0.55; }
   .dm-empty-state .titulo { font-weight: 800; font-size: 14px; color: var(--ink-dim); }
   .dm-empty-state .sub { font-size: 11.5px; color: var(--ink-faint); line-height: 1.5; max-width: 220px; }
-  .dm-post-share { display: flex; flex-direction: column; gap: 6px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 14px; padding: 10px 12px; max-width: 210px; }
+  .dm-post-share { display: flex; flex-direction: column; gap: 6px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 18px; padding: 10px 12px; max-width: 210px; }
   .dm-post-share .autor { font-size: 11px; font-weight: 800; color: var(--accent-a); }
   .dm-post-share .trecho { font-size: 12.5px; color: var(--ink); line-height: 1.4; }
   .dm-post-share img { width: 100%; border-radius: 10px; display: block; margin-top: 2px; }
@@ -549,8 +549,8 @@
   .estado-vazio .titulo { font-family: 'Baloo 2', sans-serif; font-size: 15px; color: var(--ink); margin-bottom: 6px; }
   .estado-vazio .sub { font-size: 12px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 16px; }
   /* ---------- descobrir (@) ---------- */
-  .discover-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
-  .skeleton-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .discover-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .skeleton-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .skeleton-bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-b) 25%, var(--bg) 50%, var(--card-b) 75%);
     background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease-in-out infinite; }
   .skeleton-bar.sk-w40 { width: 40%; height: 10px; margin-bottom: 10px; }
@@ -571,7 +571,7 @@
   .dm-preview .msg { font-size: 11.5px; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ---------- mensagens: cards grandes de vidro + pote de amigos ---------- */
-  .dm-swipe-wrap { position: relative; overflow: hidden; border-radius: 14px; margin-bottom: 8px; }
+  .dm-swipe-wrap { position: relative; overflow: hidden; border-radius: 18px; margin-bottom: 8px; }
   .dm-swipe-wrap:last-child { margin-bottom: 0; }
   .dm-swipe-actions { position: absolute; inset: 0; display: flex; align-items: stretch; justify-content: flex-end;
     opacity: 0; pointer-events: none; transition: opacity .15s ease; }
@@ -796,7 +796,7 @@
   .comment-item .cn { font-size: 12px; font-weight: 800; color: var(--ink); }
   .comment-item .ct { font-size: 12.5px; color: var(--ink-dim); margin-top: 1px; }
 
-  .share-option { padding: 13px 14px; background: var(--accent-soft); border-radius: 14px; font-size: 13px; font-weight: 700;
+  .share-option { padding: 13px 14px; background: var(--accent-soft); border-radius: 18px; font-size: 13px; font-weight: 700;
     color: var(--ink); margin-bottom: 10px; cursor: pointer; }
 
   .busca-input { width: 100%; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 999px;
@@ -963,7 +963,7 @@
   /* ---------- clube: linha do tempo de capitulos (quem esta onde) ---------- */
   .clube-timeline-caps { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 6px; scrollbar-width: none; position: relative; }
   .clube-timeline-caps::-webkit-scrollbar { display: none; }
-  .clube-timeline-marco { flex: none; min-width: 94px; max-width: 130px; text-align: center; padding: 10px 12px; border-radius: 14px;
+  .clube-timeline-marco { flex: none; min-width: 94px; max-width: 130px; text-align: center; padding: 10px 12px; border-radius: 18px;
     background: var(--card); border: 1px solid var(--card-b); }
   .clube-timeline-cap { font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 800; color: var(--accent-a); margin-bottom: 4px; }
   .clube-timeline-pessoas { font-family: 'DM Sans', sans-serif; font-size: 10.5px; color: var(--ink-dim); line-height: 1.3;
