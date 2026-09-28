@@ -583,7 +583,7 @@
   #screen-mensagens .dm-list-row { border-bottom: none; margin-bottom: 0; padding: 10px 13px; border-radius: 18px;
     border: 1px solid color-mix(in srgb, white 10%, transparent); background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
     backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent), 0 4px 14px rgba(60,40,15,.10);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 25%, transparent), 0 4px 14px rgba(60,40,15,.10);
     position: relative; z-index: 1; transition: transform .2s ease; touch-action: pan-y; }
   #screen-mensagens .dm-list-row.fixada { border-color: var(--accent-b); }
   #screen-mensagens .dm-list-row .friend-avatar { width: 44px; height: 44px; font-size: 15px; }
@@ -674,7 +674,7 @@
     background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
     backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
     border: 1px solid color-mix(in srgb, white 10%, transparent);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 35%, transparent); }
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 20%, transparent); }
   .dm-bubble.own { align-self: flex-end; background: var(--dm-tema-cor, var(--accent-a)); color: #fff; border-bottom-right-radius: 4px; }
   .dm-input-row { display: flex; gap: 8px; align-items: center; }
   .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; border-radius: 999px; padding: 10px 14px;
@@ -1167,7 +1167,7 @@
     font-size:12px; font-weight:700; color:var(--ink-dim); font-family:'DM Sans', sans-serif; transition: background .2s ease, color .2s ease; }
   .home-semana-dia.hoje .numero { background:var(--accent-a); color:#fff; }
 
-  .home-diario-card { position:relative; overflow:hidden; border-radius:22px; padding:18px; margin-bottom:18px;
+  .home-diario-card { position:relative; overflow:hidden; border-radius:20px; padding:18px; margin-bottom:18px;
     background: var(--accent-soft); box-shadow: var(--shadow); }
   .home-diario-atomo { position:absolute; right:-28px; bottom:-28px; width:120px; height:120px; color:var(--accent-a); opacity:.45;
     animation: atomoDiaLido 9s ease-in-out infinite; }
@@ -1195,7 +1195,7 @@
   .home-quick-titulo-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .home-quick-row { margin-bottom: 18px; }
   .home-quick-cards { display:flex; gap:10px; }
-  .home-quick-card { flex:1; background:var(--accent-soft); border-radius:16px; padding:12px; display:flex; flex-direction:column; gap:10px;
+  .home-quick-card { flex:1; background:var(--accent-soft); border-radius:18px; padding:12px; display:flex; flex-direction:column; gap:10px;
     font-family:'DM Sans', sans-serif; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; transition: transform .15s ease; }
   .home-quick-card svg { color: var(--accent-a); }
   .home-quick-card.alt { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-b) 18%, var(--card)); }
@@ -1365,7 +1365,7 @@
 
   /* ---------- resumo do dia + cartao de signo (Home) ---------- */
   .home-resumo-wrap { margin-bottom: 18px; }
-  .home-resumo-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 14px 16px;
+  .home-resumo-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px 16px;
     animation: resumoDiaEntra .4s cubic-bezier(.2,.8,.2,1); }
   @keyframes resumoDiaEntra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   .home-resumo-texto { font-size: 13px; line-height: 1.55; color: var(--ink); }
