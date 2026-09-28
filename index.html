@@ -2689,15 +2689,15 @@
     </div>
 
     <!-- POP-UP: DETALHE DA SEQUÊNCIA -->
-    <div class="write-popup-bg" id="sequenciaPopupBg">
+    <div class="write-popup-bg" id="sequenciaPopupBg" onclick="if (event.target === this) fecharSequenciaPopup();">
       <div class="write-popup" style="position:relative;">
         <button class="write-popup-close" onclick="fecharSequenciaPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
-        <div class="write-popup-head"><span class="pe">🧶</span><span class="write-popup-title">Sua sequência</span></div>
+        <div class="write-popup-head"><span class="icon-svg pe" style="width:20px;height:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="7.3"/><path d="M5.5 10c3.4 2 9.6 2 13 0M4.9 14.5c4 2.3 10.2 2.3 14.2 0M7.3 18c2.6 1.3 6.8 1.3 9.4 0"/></svg></span><span class="write-popup-title">Sua sequência</span></div>
         <div class="sequencia-numero"><span id="seqPopupNum">4</span> dias seguidos</div>
         <div class="sequencia-progresso-track"><div class="sequencia-progresso-fill" id="seqProgressFill"></div></div>
-        <div class="sequencia-progresso-label" id="seqProgressLabel">3 dias pro seu primeiro marco (7 dias) 🎉</div>
-        <div class="sequencia-protecao">Sua sequência conta os dias seguidos em que você escreveu algo — hoje ou ontem, sem pular. Escreva todo dia pra manter ela viva 🧶</div>
-        <button class="post-btn" style="width:100%; margin-top:10px; padding:11px;" onclick="abrirColecaoSelos()">📮 Ver coleção de selos</button>
+        <div class="sequencia-progresso-label" id="seqProgressLabel">3 dias pro seu primeiro marco (7 dias)</div>
+        <div class="sequencia-protecao">Sua sequência conta os dias seguidos em que você escreveu algo — hoje ou ontem, sem pular. Escreva todo dia pra manter ela viva.</div>
+        <button class="post-btn" style="width:100%; margin-top:10px; padding:11px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="abrirColecaoSelos()"><span class="icon-svg" style="width:15px;height:15px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M3.5 9h17M8 4v5M16 4v5"/></svg></span> Ver coleção de selos</button>
       </div>
     </div>
 
@@ -2991,7 +2991,7 @@
     <!-- CELEBRAÇÃO DE MARCO -->
     <div class="marco-celebracao" id="marcoCelebracao">
       <div class="marco-card">
-        <div class="me" id="marcoEmoji">🎉</div>
+        <div class="me" id="marcoEmoji"><span class="icon-svg" style="width:64px;height:64px;color:var(--accent-a);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span></div>
         <h3 id="marcoTitulo">7 dias seguidos!</h3>
         <p id="marcoTexto">Sua sequência de escrita tá firme. Continue assim 🧶</p>
         <button class="post-btn" style="width:100%; padding:11px;" onclick="fecharMarco()">Continuar</button>
@@ -4804,7 +4804,7 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
     document.getElementById('seqProgressFill').style.width = pct + '%';
     const faltam = proximo - streakAtual;
     document.getElementById('seqProgressLabel').textContent = faltam > 0
-      ? `${faltam} dia${faltam > 1 ? 's' : ''} pro seu marco de ${proximo} dias 🎉`
+      ? `${faltam} dia${faltam > 1 ? 's' : ''} pro seu marco de ${proximo} dias`
       : `Marco de ${proximo} dias alcançado!`;
     document.getElementById('sequenciaPopupBg').classList.add('show');
   };
@@ -4857,8 +4857,8 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
     if (MARCOS_SEQUENCIA.includes(novoValor)) {
       document.getElementById('marcoTitulo').textContent = `${novoValor} dias seguidos!`;
       document.getElementById('marcoTexto').textContent = novoValor >= 100
-        ? 'Isso é raro demais. Seu diário é uma parte da sua rotina agora 🧶'
-        : 'Sua sequência de escrita tá firme. Continue assim 🧶';
+        ? 'Isso é raro demais. Seu diário é uma parte da sua rotina agora'
+        : 'Sua sequência de escrita tá firme. Continue assim';
       document.getElementById('marcoCelebracao').classList.add('show');
     }
   }
