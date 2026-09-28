@@ -932,6 +932,107 @@
   #clubeDetalheMural .post-body { animation: clubeFadeIn .3s ease; }
   @keyframes clubeFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+  /* ---------- aba Livros: chip "comunidades" ---------- */
+  .badge-novo-chip { background: var(--accent-b); color: #fff; font-size: 8.5px; font-weight: 800;
+    padding: 1px 5px; border-radius: 999px; margin-left: 3px; letter-spacing: .03em; font-family: 'DM Sans', sans-serif; }
+  .feed-modo-chip.on .badge-novo-chip { background: rgba(255,255,255,.28); }
+
+  /* ---------- comunidades: card da lista (protótipo aprovado por ela) ---------- */
+  .comunidade-card { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px;
+    padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; transition: transform .15s ease;
+    animation: clubeCardEntra .45s cubic-bezier(.2,.8,.2,1) backwards; }
+  .comunidade-card:active { transform: scale(.985); }
+  .comunidade-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .comunidade-icone { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; color: #fff; }
+  .comunidade-badge { display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--accent-b); background: color-mix(in srgb, var(--accent-b) 14%, transparent); padding: 2px 7px;
+    border-radius: 999px; margin-bottom: 4px; font-family: 'DM Sans', sans-serif; }
+  .comunidade-titulo { font-family: 'Baloo 2', sans-serif; font-size: 14.5px; color: var(--ink); line-height: 1.25; }
+  .comunidade-desc { font-size: 11.5px; color: var(--ink-dim); line-height: 1.45; margin: 6px 0 10px; }
+  .comunidade-footer { display: flex; align-items: center; justify-content: space-between; }
+  .comunidade-avatar-stack { display: flex; align-items: center; }
+  .comunidade-mini-avatar { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--card); margin-left: -7px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px; font-weight: 800;
+    font-family: 'DM Sans', sans-serif; }
+  .comunidade-mini-avatar:first-child { margin-left: 0; }
+  .comunidade-membros-txt { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; margin-left: 6px; font-family: 'DM Sans', sans-serif; }
+  .ao-vivo-pill { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--pink);
+    font-family: 'DM Sans', sans-serif; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); animation: pulseDotComunidade 1.4s infinite; }
+  @keyframes pulseDotComunidade { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(1.3); } }
+
+  /* ---------- comunidades: tela de detalhe ---------- */
+  .comunidade-meta-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .comunidade-meta-chip { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 7px 12px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-family: 'DM Sans', sans-serif; }
+  .comunidade-meta-chip.teal { background: color-mix(in srgb, var(--accent-b) 16%, transparent); color: var(--accent-b); }
+  .iniciar-sala-fab { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 5; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 14px;
+    font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-a) 40%, transparent); }
+  .iniciar-sala-fab:active { transform: scale(.98); }
+
+  /* ---------- sala de call de estudo ao vivo ---------- */
+  .sala-estudo-overlay { position: absolute; inset: 0; z-index: 31; display: none; flex-direction: column;
+    background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent-b) 14%, var(--bg)), var(--bg) 60%);
+    padding: calc(18px + env(safe-area-inset-top)) 0 calc(18px + env(safe-area-inset-bottom)); }
+  .sala-estudo-overlay.open { display: flex; }
+  .sala-header-row { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px; }
+  .sala-live-pill { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; color: #fff;
+    background: var(--pink); padding: 4px 10px; border-radius: 999px; font-family: 'DM Sans', sans-serif; }
+  .sala-live-pill .live-dot { background: #fff; }
+  .sala-modo-row { display: flex; gap: 6px; padding: 4px 16px 10px; }
+  .sala-modo-chip { flex: 1; text-align: center; font-size: 10px; font-weight: 800; padding: 7px 4px; border-radius: 12px;
+    background: color-mix(in srgb, var(--card) 70%, transparent); color: var(--ink-faint); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; border: 1px solid var(--card-b); }
+  .sala-modo-chip.on { background: var(--accent-b); color: #fff; border-color: transparent; }
+  .sala-mesa-card { margin: 6px 16px 14px; background: var(--card); border: 1px solid var(--card-b); border-radius: 18px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); }
+  .sala-mesa-icone { flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--accent-soft);
+    color: var(--accent-a); display: flex; align-items: center; justify-content: center; }
+  .sala-mesa-eyebrow { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--ink-faint); font-family: 'DM Sans', sans-serif; }
+  .sala-mesa-titulo { font-size: 13px; font-weight: 700; color: var(--ink); font-family: 'Baloo 2', sans-serif; }
+  .sala-mesa-sub { font-size: 10.5px; color: var(--ink-dim); }
+  .sala-timer-wrap { display: flex; flex-direction: column; align-items: center; margin: 6px 0 14px; }
+  .sala-timer-ring-wrap { position: relative; width: 128px; height: 128px; }
+  .sala-timer-ring-wrap svg { transform: rotate(-90deg); }
+  .sala-timer-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .sala-timer-num { font-family: 'Baloo 2', sans-serif; font-size: 23px; color: var(--ink); }
+  .sala-timer-sub { font-size: 9.5px; font-weight: 800; color: var(--accent-b); text-transform: uppercase;
+    letter-spacing: .04em; font-family: 'DM Sans', sans-serif; margin-top: 2px; }
+  .sala-status-eu-pill { margin: 0 16px 10px; background: var(--card); border: 1px dashed var(--card-b); border-radius: 14px;
+    padding: 9px 12px; font-size: 11px; color: var(--ink-dim); display: flex; align-items: center; gap: 7px; }
+  .sala-status-eu-pill b { color: var(--ink); font-family: 'DM Sans', sans-serif; }
+  .sala-participantes-wrap { flex: 1; overflow-y: auto; padding: 0 16px 100px; scrollbar-width: none; }
+  .sala-participantes-wrap::-webkit-scrollbar { width: 0; }
+  .sala-participantes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 8px; }
+  .sala-participante { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+  .sala-p-avatar-wrap { position: relative; width: 54px; height: 54px; }
+  .sala-p-avatar { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'Baloo 2', sans-serif; font-size: 17px; position: relative; z-index: 2; }
+  .sala-p-avatar-wrap.falando::before { content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2.5px solid var(--accent-b); animation: salaFalandoPulse 1.3s infinite; }
+  @keyframes salaFalandoPulse { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(1.22); opacity: 0; } 100% { opacity: 0; } }
+  .sala-p-mic { position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--card); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center;
+    color: var(--ink-dim); z-index: 3; }
+  .sala-p-avatar-wrap.mudo .sala-p-mic { color: var(--pink); }
+  .sala-p-nome { font-size: 10.5px; font-weight: 800; color: var(--ink); font-family: 'DM Sans', sans-serif; }
+  .sala-p-status { font-size: 9px; color: var(--ink-faint); line-height: 1.3; }
+  .sala-p-voce .sala-p-nome { color: var(--accent-a); }
+  .sala-controles-bar { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px; right: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%); border-radius: 999px; padding: 10px 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); }
+  .sala-ctrl-btn { width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; background: var(--bg); color: var(--ink); }
+  .sala-ctrl-btn.on { background: var(--accent-b); color: #fff; }
+  .sala-ctrl-btn.sair { background: var(--pink); color: #fff; width: 52px; }
+  .sala-ctrl-btn:active { transform: scale(.92); }
+
   /* ---------- clube: tela de detalhe com a mesma cara (serifada + rotulos em caixa alta) ---------- */
   #clubeDetalheOverlay .dm-chat-header h2 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
   #clubeDetalheOverlay .edit-field-label { font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700;
@@ -1604,6 +1705,7 @@
     <div class="screen" id="screen-livros">
       <div class="feed-modo-row-scroll" style="margin-top:6px;">
         <div class="feed-modo-chip on" data-modo-livros="clube" onclick="trocarModoLivros('clube')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/></svg></span> clube do livro</div>
+        <div class="feed-modo-chip" data-modo-livros="comunidades" onclick="trocarModoLivros('comunidades')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.05s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg></span> comunidades<span class="badge-novo-chip">novo</span></div>
         <div class="feed-modo-chip" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/></svg></span> livros gratuitos</div>
         <div class="feed-modo-chip" data-modo-livros="estante" onclick="trocarModoLivros('estante')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="M6.5 19.5V6.5a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v13"/><path d="M12.3 19.5V8.2a1 1 0 0 1 1-1h1.4a1 1 0 0 1 1 1v11.3"/><path d="M17.9 19.5V5.5a1 1 0 0 1 1-1h.6a1 1 0 0 1 1 1v14"/></svg></span> minha estante</div>
       </div>
@@ -2290,6 +2392,74 @@
       </div>
     </div>
 
+    <!-- OVERLAY: DETALHE DE COMUNIDADE (Comunidades — protótipo aprovado por ela) -->
+    <div class="dm-chat-overlay" id="comunidadeDetalheOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('comunidadeDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;" id="comunidadeDetalheTitulo">Comunidade</h2>
+      </div>
+      <div class="discover-desc" id="comunidadeDetalheSub" style="margin-bottom:12px;"></div>
+      <div class="comunidade-meta-chip-row" id="comunidadeDetalheMetaChips"></div>
+      <div id="comunidadeDetalheMural" style="overflow-y:auto; flex:1; padding-bottom:74px;"></div>
+      <button class="iniciar-sala-fab" id="comunidadeIniciarSalaBtn" onclick="abrirSalaDaComunidadeAtual()">
+        <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span>
+        iniciar sala de call de estudo
+      </button>
+    </div>
+
+    <!-- OVERLAY: SALA DE CALL DE ESTUDO AO VIVO (protótipo aprovado por ela — visual por enquanto, sem áudio real) -->
+    <div class="sala-estudo-overlay" id="salaEstudoOverlay">
+      <div class="sala-header-row">
+        <button class="back-btn" onclick="sairSalaEstudo()"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:14.5px; flex:1;" id="salaEstudoTitulo">Comunidade</h2>
+        <div class="sala-live-pill"><span class="live-dot"></span> ao vivo</div>
+      </div>
+
+      <div class="sala-modo-row">
+        <div class="sala-modo-chip on" id="salaModoDiscussao" onclick="trocarModoSalaEstudo('discussao')">🎙 discussão</div>
+        <div class="sala-modo-chip" id="salaModoSilencio" onclick="trocarModoSalaEstudo('silencio')">🤫 leitura silenciosa</div>
+        <div class="sala-modo-chip" id="salaModoPomodoro" onclick="trocarModoSalaEstudo('pomodoro')">⏱ só pomodoro</div>
+      </div>
+
+      <div class="sala-mesa-card">
+        <div class="sala-mesa-icone"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span></div>
+        <div>
+          <div class="sala-mesa-eyebrow" id="salaMesaEyebrow">na mesa agora</div>
+          <div class="sala-mesa-titulo" id="salaMesaTitulo">tema de hoje</div>
+          <div class="sala-mesa-sub" id="salaMesaSub"></div>
+        </div>
+      </div>
+
+      <div class="sala-timer-wrap">
+        <div class="sala-timer-ring-wrap">
+          <svg width="128" height="128" viewBox="0 0 128 128">
+            <circle cx="64" cy="64" r="55" fill="none" stroke="var(--card-b)" stroke-width="9"/>
+            <circle id="salaTimerRing" cx="64" cy="64" r="55" fill="none" stroke="var(--accent-b)" stroke-width="9" stroke-linecap="round" stroke-dasharray="345.6" stroke-dashoffset="60"/>
+          </svg>
+          <div class="sala-timer-label">
+            <div class="sala-timer-num" id="salaTimerNum">18:42</div>
+            <div class="sala-timer-sub" id="salaTimerSub">foco</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sala-status-eu-pill">
+        <span class="icon-svg" style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+        seu status: <b id="salaMeuStatusTxt">relendo o capítulo</b>
+      </div>
+
+      <div class="sala-participantes-wrap">
+        <div class="sala-participantes-grid" id="salaGradeParticipantes"></div>
+      </div>
+
+      <div class="sala-controles-bar">
+        <button class="sala-ctrl-btn on" id="salaBtnMic" onclick="toggleMicSalaEstudo()"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span></button>
+        <button class="sala-ctrl-btn" onclick="mostrarToast('✋ mão levantada — os outros veem um sininho no seu avatar')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 12V4.5a1.5 1.5 0 0 1 3 0V12M14 12V6a1.5 1.5 0 0 1 3 0v7c0 3.3-2 6-5.5 6-2.4 0-3.6-.9-4.8-2.4L4.3 13a1.4 1.4 0 0 1 2-2l1.7 1.7"/></svg></span></button>
+        <button class="sala-ctrl-btn" onclick="mostrarToast('📖 em breve: sobe a citação certinha pro mural, com a página marcada')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h.01M7 12h6M7 16h4"/><rect x="3.5" y="4" width="17" height="16" rx="3"/></svg></span></button>
+        <button class="sala-ctrl-btn sair" onclick="sairSalaEstudo()"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17l5-5-5-5M21 12H9M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/></svg></span></button>
+      </div>
+    </div>
+
     <!-- OVERLAY: BUSCAR LIVRO GUIA (GOOGLE) PRO CLUBE -->
     <div class="dm-chat-overlay" id="buscaLivroClubeOverlay">
       <div class="dm-chat-header">
@@ -2809,7 +2979,11 @@
     grafico: '<path d="M4.7 19.2V12.6"/><path d="M11.6 19.2V4.8"/><path d="M18.5 19.2v-8.6"/>',
     tema: '<path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/>',
     instalar: '<rect x="4.5" y="4.5" width="15" height="15" rx="4"/><path d="M12 9v6M9 12h6"/>',
-    misturar: '<path d="M4 7h3c1.6 0 2.6.8 3.6 2.2M4 17h3c1.6 0 2.6-.8 3.6-2.2"/><path d="M12.4 9.2C13.4 7.8 14.4 7 16 7h4M12.4 14.8c1 1.4 2 2.2 3.6 2.2h4"/><path d="M17 4.3 20 7l-3 2.7M17 19.7l3-2.7-3-2.7"/>'
+    misturar: '<path d="M4 7h3c1.6 0 2.6.8 3.6 2.2M4 17h3c1.6 0 2.6-.8 3.6-2.2"/><path d="M12.4 9.2C13.4 7.8 14.4 7 16 7h4M12.4 14.8c1 1.4 2 2.2 3.6 2.2h4"/><path d="M17 4.3 20 7l-3 2.7M17 19.7l3-2.7-3-2.7"/>',
+    comunidades: '<path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"/>',
+    mao: '<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 12V4.5a1.5 1.5 0 0 1 3 0V12M14 12V6a1.5 1.5 0 0 1 3 0v7c0 3.3-2 6-5.5 6-2.4 0-3.6-.9-4.8-2.4L4.3 13a1.4 1.4 0 0 1 2-2l1.7 1.7"/>',
+    aspas: '<path d="M7 8h.01M7 12h6M7 16h4"/><rect x="3.5" y="4" width="17" height="16" rx="3"/>',
+    saida: '<path d="M16 17l5-5-5-5M21 12H9M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/>'
   };
   function icone(nome, tamanho, seed, cor) {
     tamanho = tamanho || 16;
@@ -6163,6 +6337,7 @@ window.trocarModoDescobrir = function (modo) {
 
   window.renderLivrosAtual = function () {
     if (modoLivrosAtivo === 'clube') return renderClubes();
+    if (modoLivrosAtivo === 'comunidades') return renderComunidades();
     if (modoLivrosAtivo === 'estante') return renderEstante();
     return renderLivros();
   };
@@ -6235,6 +6410,206 @@ window.trocarModoDescobrir = function (modo) {
         </div>
       </div>`;
   }
+
+  // ---------- comunidades (protótipo aprovado por ela em 29/09 — por enquanto
+  // 100% visual/mock, sem tabela no banco ainda; foi pedido pra construir
+  // primeiro a parte visual idêntica ao protótipo, e só depois, quando ela
+  // decidir o provedor de áudio (Daily.co/LiveKit/Agora), ligar de verdade
+  // a sala com áudio real, presença real e timer sincronizado) ----------
+  const CORES_COMUNIDADE = ['var(--accent-a)', 'var(--accent-b)', 'var(--yellow)', 'var(--pink)', 'var(--ink-dim)'];
+
+  const COMUNIDADES_MOCK = [
+    { tipo: 'livro', badge: 'leitura · clube do livro', titulo: 'Torto Arado', desc: 'clube do livro clássico — mural, citações e sala de leitura em grupo, do jeito que já é hoje.', membros: 18, live: true,
+      mesaEyebrow: 'lendo agora', mesaTitulo: 'Torto Arado — Itamar Vieira Jr.', mesaSub: 'capítulo 9 de 22 · página 118', meuStatus: 'relendo o capítulo 9',
+      metaChips: [], mural: [] },
+    { tipo: 'estudo', badge: 'concurso', titulo: 'Concurso TRT — call de estudos', desc: 'grupo focado em direito administrativo e constitucional, com salas de call quase todo dia.', membros: 41, live: true,
+      mesaEyebrow: 'na mesa agora', mesaTitulo: 'direito administrativo — atos vinculados', mesaSub: 'página 112 · capítulo 6', meuStatus: 'relendo o capítulo 6',
+      metaChips: [], mural: [] },
+    { tipo: 'estudo', badge: 'vestibular', titulo: 'Vestibular 2027', desc: 'grupo de redação e simulados, contagem regressiva até a prova mostrada pra todo mundo.', membros: 32, live: false,
+      mesaEyebrow: 'tema de hoje', mesaTitulo: 'redação nota 1000: repertório sociocultural', mesaSub: '', meuStatus: 'treinando repertório',
+      metaChips: [{ texto: '🎯 prova em 47 dias' }, { texto: '🔥 6 dias seguidos ativos', teal: true }],
+      mural: [
+        { autor: 'Marina', txt: 'gente alguém entendeu a questão de redação sobre inteligência artificial? bora discutir amanhã na call?' },
+        { autor: 'Theo', txt: 'terminei o simulado de humanas, acertei 78%! bora comparar respostas 📈' },
+        { autor: 'Você', txt: 'criei um resumo de literatura, vou trazer pra próxima sala' },
+      ] },
+    { tipo: 'estudo', badge: 'idioma', titulo: 'Inglês fluente até dezembro', desc: 'meta compartilhada, sala de conversação semanal e streak coletivo de prática.', membros: 24, live: false,
+      mesaEyebrow: 'tema de hoje', mesaTitulo: 'conversação — rotina do dia a dia', mesaSub: '', meuStatus: 'praticando listening',
+      metaChips: [{ texto: '🎯 meta até dezembro' }, { texto: '🔥 streak coletivo de 12 dias', teal: true }],
+      mural: [
+        { autor: 'Rafa', txt: 'achei um podcast ótimo pra quem tá on B1/B2, posso trazer trechos pra sala de sexta' },
+        { autor: 'Você', txt: 'gravei um áudio de 2min contando meu dia em inglês, adoraria feedback' },
+      ] },
+    { tipo: 'estudo', badge: 'filosofia', titulo: 'Filosofia às quintas', desc: 'um texto curto por semana, discussão às quintas às 20h, sem pressa nenhuma.', membros: 15, live: false,
+      mesaEyebrow: 'texto da semana', mesaTitulo: 'Sêneca — Sobre a brevidade da vida', mesaSub: '', meuStatus: 'lendo devagar',
+      metaChips: [{ texto: '📅 próximo encontro quinta 20h' }],
+      mural: [
+        { autor: 'Bia', txt: 'esse trecho sobre "perder tempo" bateu forte, alguém mais sentiu isso?' },
+      ] },
+  ];
+
+  function iniciaisNome(nome) { return nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
+
+  function renderComunidades() {
+    const lista = document.getElementById('livrosList');
+    lista.innerHTML = `
+      <div class="clube-lista-wrap">
+        <svg class="clube-watermark" viewBox="0 0 100 100">
+          <path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+        </svg>
+        <div class="clube-kicker">gente estudando e lendo junto</div>
+        <div class="clube-titulo-grande">Comunidades</div>
+        <div class="clube-sub-grande">${COMUNIDADES_MOCK.length} comunidades · clubes de livro e grupos de estudo, tudo no mesmo lugar</div>
+        <button class="clube-criar-btn" onclick="abrirCriarComunidade()">+ criar comunidade</button>
+        ${COMUNIDADES_MOCK.map((c, i) => cardComunidadeHtml(c, i)).join('')}
+      </div>`;
+  }
+
+  function cardComunidadeHtml(c, i) {
+    const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
+    const iconeTipo = c.tipo === 'livro' ? icone('livro', 18, i, '#fff') : icone('comunidades', 18, i, '#fff');
+    const nomesAvatares = ['M', 'L', 'J'];
+    const avatares = [0, 1, 2].map(n => `<div class="comunidade-mini-avatar" style="background:${CORES_COMUNIDADE[(i + n + 1) % CORES_COMUNIDADE.length]}">${nomesAvatares[n]}</div>`).join('');
+    const acao = c.live ? `abrirComunidadeSalaDireto(${i})` : `abrirComunidadeDetalhe(${i})`;
+    return `
+      <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="${acao}">
+        <div class="comunidade-card-top">
+          <div class="comunidade-icone" style="background:${cor}">${iconeTipo}</div>
+          <div style="flex:1; min-width:0;">
+            <span class="comunidade-badge">${c.badge}</span>
+            <div class="comunidade-titulo">${c.titulo}</div>
+          </div>
+        </div>
+        <div class="comunidade-desc">${c.desc}</div>
+        <div class="comunidade-footer">
+          <div style="display:flex; align-items:center;">
+            <div class="comunidade-avatar-stack">${avatares}</div>
+            <span class="comunidade-membros-txt">${c.membros} membros</span>
+          </div>
+          ${c.live
+            ? `<div class="ao-vivo-pill"><span class="live-dot"></span> ao vivo agora</div>`
+            : `<span class="icon-svg" style="width:15px;height:15px; color:var(--ink-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>`}
+        </div>
+      </div>`;
+  }
+
+  window.abrirCriarComunidade = function () {
+    mostrarToast('🎨 em breve — por enquanto dá pra navegar pelas comunidades de exemplo');
+  };
+
+  let comunidadeAtualParaSala = null;
+
+  window.abrirComunidadeDetalhe = function (i) {
+    const c = COMUNIDADES_MOCK[i];
+    if (!c) return;
+    comunidadeAtualParaSala = c;
+    document.getElementById('comunidadeDetalheTitulo').textContent = c.titulo;
+    document.getElementById('comunidadeDetalheSub').textContent = `${c.membros} membros · comunidade pública`;
+    document.getElementById('comunidadeDetalheMetaChips').innerHTML = (c.metaChips || [])
+      .map(m => `<div class="comunidade-meta-chip${m.teal ? ' teal' : ''}">${m.texto}</div>`).join('')
+      || `<div class="comunidade-meta-chip">${icone('pessoas', 12)} ${c.membros} membros</div>`;
+    document.getElementById('comunidadeDetalheMural').innerHTML = (c.mural && c.mural.length)
+      ? c.mural.map(p => `<div class="mural-post-demo" style="background:var(--card); border:1px solid var(--card-b); border-radius:16px; padding:12px; margin-bottom:10px;">
+          <div style="font-size:11.5px; font-weight:800; color:var(--ink); font-family:'DM Sans',sans-serif; margin-bottom:3px;">${p.autor}</div>
+          <div style="font-size:12.5px; color:var(--ink-dim); line-height:1.5;">${p.txt}</div>
+        </div>`).join('')
+      : estadoVazio('mural vazio ainda', 'seja a primeira pessoa a postar algo por aqui');
+    document.getElementById('comunidadeDetalheOverlay').classList.add('open');
+  };
+
+  window.abrirComunidadeSalaDireto = function (i) {
+    const c = COMUNIDADES_MOCK[i];
+    if (!c) return;
+    iniciarSalaEstudo(c);
+  };
+
+  window.abrirSalaDaComunidadeAtual = function () {
+    if (!comunidadeAtualParaSala) return;
+    closeOverlay('comunidadeDetalheOverlay');
+    iniciarSalaEstudo(comunidadeAtualParaSala);
+  };
+
+  // ---------- sala de call de estudo ao vivo (visual/protótipo por enquanto) ----------
+  const participantesDemoSala = [
+    { nome: 'Você', status: '', eu: true, falando: false, mudo: false },
+    { nome: 'Marina', status: 'grifando trecho', eu: false, falando: true, mudo: false },
+    { nome: 'Theo', status: 'em silêncio', eu: false, falando: false, mudo: true },
+    { nome: 'Júlia', status: 'com a mão levantada', eu: false, falando: false, mudo: false },
+    { nome: 'Rafa', status: 'lendo devagar', eu: false, falando: false, mudo: true },
+    { nome: 'Bia', status: 'fazendo anotação', eu: false, falando: false, mudo: false },
+  ];
+
+  function renderParticipantesSala() {
+    const grid = document.getElementById('salaGradeParticipantes');
+    grid.innerHTML = participantesDemoSala.map((p, i) => {
+      const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
+      const micNome = p.mudo ? 'silenciar' : 'microfone';
+      const micIcone = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="9" height="9">${p.mudo
+        ? '<path d="M4 4l16 16"/><path d="M12 3a4 4 0 0 1 4 4v5c0 .5-.08 1-.24 1.4M8 8v4a4 4 0 0 0 5.3 3.8"/><path d="M6 11v1a6 6 0 0 0 8.7 5.3M12 18v3"/>'
+        : '<path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/>'}</svg>`;
+      return `
+      <div class="sala-participante ${p.eu ? 'sala-p-voce' : ''}">
+        <div class="sala-p-avatar-wrap ${p.falando ? 'falando' : ''} ${p.mudo ? 'mudo' : ''}">
+          <div class="sala-p-avatar" style="background:${cor}">${iniciaisNome(p.nome)}</div>
+          <div class="sala-p-mic">${micIcone}</div>
+        </div>
+        <div class="sala-p-nome">${p.eu ? 'você' : p.nome}</div>
+        <div class="sala-p-status">${p.eu ? '' : p.status}</div>
+      </div>`;
+    }).join('');
+  }
+
+  let intervalTimerSala = null, intervalFalandoSala = null, segundosRestantesSala = 18 * 60 + 42;
+  const CIRCUNF_SALA = 345.6;
+
+  function tickSalaTimer() {
+    segundosRestantesSala = Math.max(0, segundosRestantesSala - 1);
+    const m = String(Math.floor(segundosRestantesSala / 60)).padStart(2, '0');
+    const s = String(segundosRestantesSala % 60).padStart(2, '0');
+    const numEl = document.getElementById('salaTimerNum');
+    if (numEl) numEl.textContent = `${m}:${s}`;
+    const frac = segundosRestantesSala / (25 * 60);
+    const ring = document.getElementById('salaTimerRing');
+    if (ring) ring.setAttribute('stroke-dashoffset', CIRCUNF_SALA * (1 - frac));
+  }
+
+  window.iniciarSalaEstudo = function (c) {
+    document.getElementById('salaEstudoTitulo').textContent = c.titulo;
+    document.getElementById('salaMesaEyebrow').textContent = c.mesaEyebrow;
+    document.getElementById('salaMesaTitulo').textContent = c.mesaTitulo;
+    document.getElementById('salaMesaSub').textContent = c.mesaSub || '';
+    document.getElementById('salaMeuStatusTxt').textContent = c.meuStatus || 'por aqui';
+    renderParticipantesSala();
+    document.getElementById('salaEstudoOverlay').classList.add('open');
+
+    clearInterval(intervalTimerSala);
+    clearInterval(intervalFalandoSala);
+    intervalTimerSala = setInterval(tickSalaTimer, 1000);
+    intervalFalandoSala = setInterval(() => {
+      const idx = Math.floor(Math.random() * participantesDemoSala.length);
+      participantesDemoSala.forEach(p => p.falando = false);
+      if (!participantesDemoSala[idx].mudo && !participantesDemoSala[idx].eu) participantesDemoSala[idx].falando = true;
+      if (document.getElementById('salaEstudoOverlay').classList.contains('open')) renderParticipantesSala();
+    }, 2600);
+  };
+
+  window.sairSalaEstudo = function () {
+    document.getElementById('salaEstudoOverlay').classList.remove('open');
+    clearInterval(intervalTimerSala);
+    clearInterval(intervalFalandoSala);
+  };
+
+  window.trocarModoSalaEstudo = function (modo) {
+    ['salaModoDiscussao', 'salaModoSilencio', 'salaModoPomodoro'].forEach(id => document.getElementById(id).classList.remove('on'));
+    const sub = document.getElementById('salaTimerSub');
+    if (modo === 'discussao') { document.getElementById('salaModoDiscussao').classList.add('on'); sub.textContent = 'foco + conversa'; }
+    if (modo === 'silencio') { document.getElementById('salaModoSilencio').classList.add('on'); sub.textContent = 'silêncio'; }
+    if (modo === 'pomodoro') { document.getElementById('salaModoPomodoro').classList.add('on'); sub.textContent = 'pomodoro'; }
+  };
+
+  window.toggleMicSalaEstudo = function () {
+    document.getElementById('salaBtnMic').classList.toggle('on');
+  };
 
   window.abrirCriarClube = function () {
     document.getElementById('criarClubeNome').value = '';
