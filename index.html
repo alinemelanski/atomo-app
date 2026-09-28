@@ -2612,17 +2612,6 @@
     <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.22s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 17.3a4 4 0 0 1-.4-8 5.3 5.3 0 0 1 10.2-1.5A4.1 4.1 0 0 1 17 17.3Z"/></svg></span> Tema Clima</div><div class="s">o fundo do app muda com o clima real e a hora do dia — sol, nuvens, chuva, noite com vaga-lumes e primavera</div></div>
     <div class="toggle-sw" id="climaSwitch" onclick="toggleTemaClima()"><div class="dot"></div></div>
   </div>
-  <div class="settings-row" id="climaTesteRow" style="display:none; flex-direction:column; align-items:stretch; gap:8px;">
-    <div class="t" style="font-size:11.5px;">Testar estado (só visual, não muda o clima real):</div>
-    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-      <div class="feed-modo-chip" onclick="testarEstadoClima('sol')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.2" r="4.1"/><path d="M12 3.6v2.3M12 18.3v2.3M4.8 12h2.3M16.9 12h2.3M6.9 6.9l1.6 1.6M15.5 15.5l1.6 1.6M6.9 17.3l1.6-1.6M15.5 8.7l1.6-1.6"/></svg></span> Sol</div>
-      <div class="feed-modo-chip" onclick="testarEstadoClima('nublado')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.2s;animation-delay:0.15s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 17.3a4 4 0 0 1-.4-8 5.3 5.3 0 0 1 10.2-1.5A4.1 4.1 0 0 1 17 17.3Z"/></svg></span> Nublado</div>
-      <div class="feed-modo-chip" onclick="testarEstadoClima('chuva')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.3s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.6a3.7 3.7 0 0 1-.4-7.3A5 5 0 0 1 16 4.5a3.8 3.8 0 0 1-.6 7.6Z"/><path d="M8.3 16.8l-1 2.3M11.8 16.8l-1 2.3M15.3 16.8l-1 2.3"/></svg></span> Chuva</div>
-      <div class="feed-modo-chip" onclick="testarEstadoClima('noite')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.4s;animation-delay:0.45s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/></svg></span> Noite</div>
-      <div class="feed-modo-chip" onclick="testarEstadoClima('primavera')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.5s;animation-delay:0.6s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.4V12.6"/><path d="M12 12.6c0-4-3.2-6.2-7.3-6 .1 4.1 3.3 6.8 7.3 6Z"/><path d="M12 14.4c0-3.6 3-5.7 6.7-5.4-.2 3.7-3.1 6.1-6.7 5.4Z"/></svg></span> Primavera</div>
-      <div class="feed-modo-chip" onclick="voltarClimaReal()"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.6s;animation-delay:0.75s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 0 1 13-5.1"/><path d="M19.5 12a7.5 7.5 0 0 1-13 5.1"/><path d="M17.2 4.2v3.3h-3.3"/><path d="M6.8 19.8v-3.3h3.3"/></svg></span> Automático (real)</div>
-    </div>
-  </div>
   <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.10s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/></svg></span> Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
@@ -9622,8 +9611,6 @@ let darkMode = false;
     climaAtivo = !climaAtivo;
     document.getElementById('climaSwitch').classList.toggle('on', climaAtivo);
     document.getElementById('device').classList.toggle('clima-ativo', climaAtivo);
-    const testeRow = document.getElementById('climaTesteRow');
-    if (testeRow) testeRow.style.display = climaAtivo ? '' : 'none';
     atualizarDisponibilidadeModoEscuro();
 
     if (climaAtivo) {
@@ -9677,16 +9664,6 @@ let darkMode = false;
     if (climaAtivo) toggleTemaClima();
   }
 
-  // botoes de "testar estado" em Configuracoes -- so pra ela conferir
-  // visualmente cada cenario sem precisar esperar o clima real mudar.
-  window.testarEstadoClima = function (estado) {
-    climaEstadoAtual = null; // forca redesenhar mesmo se for repetir o mesmo estado
-    renderClimaOverlay(estado);
-  };
-  window.voltarClimaReal = function () {
-    climaEstadoAtual = null;
-    atualizarClimaAgora();
-  };
 
   // hemisferio sul (Brasil) -- so usada pra saber quando trocar "sol" por
   // "primavera" (o resto do ano o dia claro continua com o visual de sol)
