@@ -1178,7 +1178,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   // then na pratica a busca demorava a soma do tempo das 3 — agora demora
   // so o tempo da mais lenta das 3). Cada uma continua com seu try/catch
   // isolado: se uma falhar ou demorar mais, as outras aparecem normal.
-  const [itensGoogle, itensOpenLibrary, itensGutendex] = await Promise.all([
+  const [itensGoogle, itensOpenLibrary, itensGutendex, itensWikisource] = await Promise.all([
     (async () => {
       const out = [];
       try {
@@ -1300,8 +1300,46 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       }
       return out;
     })(),
+    somenteGoogle ? Promise.resolve([]) : (async () => {
+      // Wikisource (pt.wikisource.org) - acervo de clássicos brasileiros e
+      // portugueses de domínio público, texto transcrito por voluntários
+      // (não é OCR de digitalização, então sai limpo no leitor do app,
+      // diferente do Internet Archive)
+      const out = [];
+      try {
+        const queryWikisource = buscando ? termo : autorVitrine;
+        const resposta = await fetch(
+          `https://pt.wikisource.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(queryWikisource)}&srnamespace=0&srlimit=${limite}&format=json`,
+          { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+        );
+        if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
+        const dados = await resposta.json();
+        const resultados = (dados.query && dados.query.search) || [];
+        resultados.forEach(r => {
+          // pula página muito curta (verbete/redirecionamento/índice sem
+          // conteúdo de verdade) — só entra quem tem miolo de texto real
+          if ((r.wordcount || 0) < 30) return;
+          const descricaoLimpa = (r.snippet || '').replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+          out.push({
+            fonte: 'Wikisource',
+            wikisourceTitulo: r.title,
+            capa: null,
+            autor: '',
+            leituraCompleta: true,
+            volumeInfo: {
+              title: r.title || 'Sem título',
+              description: descricaoLimpa || 'Domínio público, transcrição da Wikisource.',
+              link: r.title ? `https://pt.wikisource.org/wiki/${encodeURIComponent(r.title)}` : null,
+            },
+          });
+        });
+      } catch (erro) {
+        console.log('erro Wikisource (livros em destaque):', erro.message);
+      }
+      return out;
+    })(),
   ]);
-  itens.push(...itensGoogle, ...itensOpenLibrary, ...itensGutendex);
+  itens.push(...itensGoogle, ...itensOpenLibrary, ...itensGutendex, ...itensWikisource);
 
   // ordena em duas camadas: primeiro quem dá pra ler dentro do app de
   // verdade (Gutendex sempre, Open Library só quando tem cópia completa no
@@ -1312,7 +1350,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   // do Google Books) às vezes deixa passar item em outro idioma — inclusive
   // espanhol, que compartilha muito acento com o português (por isso usa a
   // mesma heurística pareceTextoEmPortugues() de cima, que já pesa isso).
-  const daPraLerNoApp = it => it.fonte === 'Gutendex' || (it.fonte === 'Open Library' && it.leituraCompleta);
+  const daPraLerNoApp = it => it.fonte === 'Gutendex' || it.fonte === 'Wikisource' || (it.fonte === 'Open Library' && it.leituraCompleta);
   itens.sort((a, b) => {
     const legivelA = daPraLerNoApp(a) ? 1 : 0;
     const legivelB = daPraLerNoApp(b) ? 1 : 0;
@@ -1405,6 +1443,40 @@ app.get('/api/livro-texto', async (req, res) => {
     // 200 com aviso amigável em vez de 500 — o Gutendex faz parte da internet
     // e falha na hora vez ou outra; melhor a pessoa ver "tenta de novo" do
     // que um erro cru no console sem explicação nenhuma
+    res.json({ erro: 'não consegui carregar o livro', texto: '' });
+  }
+});
+
+// pega o texto integral (domínio público, transcrição da Wikisource) de uma
+// página pra mostrar no mesmo leitor de verdade usado pro Gutendex — o
+// front-end é quem divide isso em páginas pro modo de leitura com deslizar
+app.get('/api/livro-texto-wikisource', async (req, res) => {
+  const titulo = (req.query.titulo || '').trim();
+  if (!titulo) return res.status(400).json({ erro: 'faltou o parâmetro titulo' });
+
+  try {
+    const resposta = await fetch(
+      `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=${encodeURIComponent(titulo)}&format=json&formatversion=2`,
+      { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+    );
+    const dados = await resposta.json();
+    const pagina = dados.query && dados.query.pages && dados.query.pages[0];
+    const texto = (pagina && pagina.extract || '').trim();
+
+    if (!texto) {
+      return res.json({ titulo, autor: '', texto: '', erro: 'Esse texto não tem conteúdo disponível pra leitura.' });
+    }
+
+    let textoFinal = texto;
+    let truncado = false;
+    if (textoFinal.length > LIMITE_TEXTO_LIVRO) {
+      textoFinal = textoFinal.slice(0, LIMITE_TEXTO_LIVRO);
+      truncado = true;
+    }
+
+    res.json({ titulo, autor: '', texto: textoFinal, truncado });
+  } catch (erro) {
+    console.log('erro ao buscar texto do livro (Wikisource):', erro.message);
     res.json({ erro: 'não consegui carregar o livro', texto: '' });
   }
 });

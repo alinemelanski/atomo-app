@@ -6766,7 +6766,9 @@ window.trocarModoDescobrir = function (modo) {
       ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">apenas amostra</span>`
       : (d.fonte === 'Open Library' && d.leituraCompleta
         ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">📗 leitura completa</span>`
-        : '');
+        : (d.fonte === 'Wikisource'
+          ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">📜 domínio público</span>`
+          : ''));
     return `
         <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
           <span class="discover-kind">${d.kind}</span>${selinhoAmostra}
@@ -6798,6 +6800,7 @@ window.trocarModoDescobrir = function (modo) {
           gutendexId: l.gutendexId || null,
           coverId: l.coverId || null,
           iaId: l.iaId || null,
+          wikisourceTitulo: l.wikisourceTitulo || null,
           capa: l.capa || null,
           autor: l.autor || '',
           leituraCompleta: l.leituraCompleta === true,
@@ -7708,6 +7711,32 @@ window.trocarModoDescobrir = function (modo) {
     }
   };
 
+  // mesmo leitor paginado do Gutendex, só busca o texto da Wikisource
+  window.abrirLeitorLivroWikisource = async function (i) {
+    const item = window.ITENS_LIVROS_ATUAIS[i];
+    if (!item) return;
+
+    document.getElementById('leitorLivroTitulo').textContent = item.title;
+    document.getElementById('leitorLivroProgresso').textContent = '';
+    document.getElementById('leitorLivroBarra').style.width = '0%';
+    document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Carregando o texto...</div>`;
+    document.getElementById('leitorLivroOverlay').classList.add('open');
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/livro-texto-wikisource?titulo=${encodeURIComponent(item.wikisourceTitulo)}`);
+      const dados = await resp.json();
+      if (!dados.texto) {
+        document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">${dados.erro || 'Não consegui carregar esse texto agora.'}</div>`;
+        return;
+      }
+      leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now() };
+      renderPaginaLivroAtual();
+      registrarLeituraHoje();
+    } catch (e) {
+      document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Não consegui carregar esse texto agora — tenta de novo em instantes.</div>`;
+    }
+  };
+
   function renderPaginaLivroAtual() {
     if (!leitorLivroAtual) return;
     const { paginas, paginaIdx } = leitorLivroAtual;
@@ -7794,6 +7823,17 @@ window.trocarModoDescobrir = function (modo) {
         <div class="bio-box" style="margin-bottom:14px;">📖 clássico de domínio público — dá pra ler o livro inteiro, direto por aqui</div>
         <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroGutendex(${i})">📖 começar a ler</button>
         ${item.link ? `<div style="text-align:center; margin-top:10px;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ver na página do Gutenberg</div></div>` : ''}
+      `;
+      return;
+    }
+
+    // Wikisource: transcrição de voluntários (não é OCR), texto limpo — usa
+    // o mesmo leitor paginado do Gutendex, só muda de onde busca o texto
+    if (item.fonte === 'Wikisource' && item.wikisourceTitulo) {
+      corpo.innerHTML = heroHtml + `
+        <div class="bio-box" style="margin-bottom:14px;">📜 domínio público (Wikisource) — dá pra ler o texto inteiro, direto por aqui</div>
+        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroWikisource(${i})">📖 começar a ler</button>
+        ${item.link ? `<div style="text-align:center; margin-top:10px;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ver na Wikisource</div></div>` : ''}
       `;
       return;
     }
