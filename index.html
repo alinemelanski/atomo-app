@@ -227,6 +227,19 @@
     background: #161616; border-color: #2C2C2C; backdrop-filter: none; -webkit-backdrop-filter: none;
   }
 
+  /* quando a Tema Clima esta na noite E um tema inclusivo esta ativo ao
+     mesmo tempo, o bloco de cima (mais especifico que .device[data-tema-especial])
+     ganhava a guerra de especificidade do CSS e a pilula do streak nunca
+     mudava de cor -- essa era a causa real do bug reportado. Repete os
+     valores do tema inclusivo aqui, com especificidade igual/maior, pra
+     sempre vencer quando os dois estao ligados juntos. */
+  .device.clima-ativo[data-tema-especial="diversidade"]:has(.clima-overlay.on[data-estado="noite"]) {
+    --accent-a: #E0447C; --accent-b: #3B82C4; --accent-soft: #4A2436; --pink: #E0447C; --pink-soft: #4A2436; --yellow: #F2B705;
+  }
+  .device.clima-ativo[data-tema-especial="girassol"]:has(.clima-overlay.on[data-estado="noite"]) {
+    --accent-a: #D99A1F; --accent-b: #6FA84A; --accent-soft: #4A3B12; --pink: #D99A1F; --pink-soft: #4A3B12; --yellow: #D99A1F;
+  }
+
   .clima-overlay[data-estado="primavera"] { background: linear-gradient(160deg, #fdf0c4 0%, #f0cf5c 18%, #a9c15a 55%, #4c7a4a 100%); }
   .clima-folha { position:absolute; top:-20px; width:9px; height:9px; background:#f6d94a; border-radius:0 60% 0 60%;
     animation: climaFolhaCair linear infinite; }
@@ -3741,7 +3754,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
     return `
       <div class="discover-card ${d.destaque ? 'discover-card-destaque' : ''}">
         <span class="discover-kind">${d.kind}</span>
-        ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; border-radius:12px; margin:8px 0; display:block;">` : ''}
+        ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin:8px 0; display:block;">` : ''}
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewPreenchimentoFeed(${i})">▶ prévia</div>` : ''}
@@ -8010,7 +8023,7 @@ window.trocarModoDescobrir = function (modo) {
     return `
       <div class="livro-lombada" style="animation-delay:${Math.min(i, 10) * 0.06}s;" onclick="abrirLeitorEpub(${i})" title="${d.titulo}">
         ${d.capa_url
-          ? `<img src="${d.capa_url}" alt="" loading="lazy">`
+          ? `<img src="${d.capa_url}" alt="" loading="lazy" width="72" height="104">`
           : `<div class="livro-lombada-vazia" style="background:${cor};">${icone('livro',20,i,'#fff')}</div>`}
         <div class="livro-lombada-progresso" style="width:${pct}%;"></div>
         <div class="livro-lombada-legenda">${d.titulo}</div>
@@ -8971,7 +8984,7 @@ function cardDescobrirHtml(d, i) {
   return `
       <div class="discover-card ${d.destaque ? 'discover-card-destaque' : ''}">
         <span class="discover-kind">${d.kind}</span>
-        ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; border-radius:12px; margin:8px 0; display:block;">` : ''}
+        ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin:8px 0; display:block;">` : ''}
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
         ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
