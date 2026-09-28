@@ -865,14 +865,21 @@
   .busca-wrap { position: relative; }
   .busca-wrap .icon-svg { position: absolute; left: 13px; top: 50%; margin-top: -8px; pointer-events: none; color: var(--ink-faint); }
   .busca-wrap .busca-input { padding-left: 36px; }
-  .livro-hero { text-align: center; padding: 4px 0 18px; }
-  .livro-hero .capa-img { width: 138px; height: 196px; object-fit: cover; border-radius: 10px; box-shadow: var(--shadow);
+  .livro-hero { text-align: center; padding: 4px 0 10px; }
+  .livro-hero .capa-img { width: 138px; height: 196px; object-fit: cover; border-radius: 18px; box-shadow: var(--shadow);
     margin: 0 auto 14px; display: block; background: var(--accent-soft); }
-  .livro-hero .capa-vazia { width: 138px; height: 196px; border-radius: 10px; margin: 0 auto 14px; box-shadow: var(--shadow);
-    background: var(--accent-a); display: flex; align-items: center;
-    justify-content: center; font-size: 34px; }
+  .livro-hero .capa-vazia { width: 138px; height: 196px; border-radius: 18px; margin: 0 auto 14px;
+    background: var(--accent-soft); color: var(--accent-a); display: flex; align-items: center;
+    justify-content: center; }
   .livro-hero .titulo-livro { font-family: 'Baloo 2', sans-serif; font-size: 19px; color: var(--ink); line-height: 1.25; padding: 0 8px; }
   .livro-hero .autor-livro { font-size: 12px; color: var(--ink-faint); margin-top: 5px; font-weight: 700; }
+  /* botões do preview de livro — mesma pílula do app, só mais leve (fundo
+     suave + texto na cor do accent, em vez de fundo sólido forte) pra
+     combinar com a capa; e sem sobrar espaço vazio embaixo */
+  #livroPreviewCorpo { padding-bottom: 4px; }
+  #livroPreviewCorpo .post-btn, #livroPreviewCorpo .livro-link-externo {
+    background: var(--accent-soft); color: var(--accent-a); box-shadow: none; }
+  #livroPreviewCorpo .bio-box { margin-bottom: 10px; }
   .capa-vazia-mini { border-radius: 8px; box-shadow: var(--shadow); background: var(--accent-a);
     display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
   .livro-link-externo { display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; border-radius: 999px;
@@ -3018,6 +3025,14 @@
     aspas: '<path d="M7 8h.01M7 12h6M7 16h4"/><rect x="3.5" y="4" width="17" height="16" rx="3"/>',
     saida: '<path d="M16 17l5-5-5-5M21 12H9M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/>'
   };
+  // troca uma capa de livro que falhou ao carregar pelo mesmo retângulo
+  // "capa vazia" (ícone desenhado à mão, não emoji) usado quando a fonte
+  // nem manda imagem de capa — feito via função em vez de HTML dentro do
+  // atributo onerror pra não ter que escapar aspas de SVG dentro de aspas
+  window.mostrarCapaVaziaLivro = function (img) {
+    img.outerHTML = '<div class="capa-vazia">' + icone('livro', 36) + '</div>';
+  };
+
   function icone(nome, tamanho, seed, cor) {
     tamanho = tamanho || 16;
     seed = seed || 0;
@@ -8384,16 +8399,16 @@ window.trocarModoDescobrir = function (modo) {
     const heroHtml = `
       <div class="livro-hero">
         ${capaUrl
-          ? `<img class="capa-img" src="${capaUrl}" alt="" onerror="this.outerHTML='<div class=&quot;capa-vazia&quot;>📖</div>'">`
-          : `<div class="capa-vazia">📖</div>`}
+          ? `<img class="capa-img" src="${capaUrl}" alt="" onerror="mostrarCapaVaziaLivro(this)">`
+          : `<div class="capa-vazia">${icone('livro', 36, i)}</div>`}
         <div class="titulo-livro">${item.title}</div>
         ${item.autor ? `<div class="autor-livro">${item.autor}</div>` : ''}
       </div>`;
 
     if (item.fonte === 'Gutendex' && item.gutendexId) {
       corpo.innerHTML = heroHtml + `
-        <div class="bio-box" style="margin-bottom:14px;">📖 clássico de domínio público — dá pra ler o livro inteiro, direto por aqui</div>
-        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroGutendex(${i})">📖 começar a ler</button>
+        <div class="bio-box">clássico de domínio público — dá pra ler o livro inteiro, direto por aqui</div>
+        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroGutendex(${i})">${icone('livro',14)} ler</button>
         ${item.link ? `<div style="text-align:center; margin-top:10px;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ver na página do Gutenberg</div></div>` : ''}
       `;
       return;
@@ -8403,8 +8418,8 @@ window.trocarModoDescobrir = function (modo) {
     // o mesmo leitor paginado do Gutendex, só muda de onde busca o texto
     if (item.fonte === 'Wikisource' && item.wikisourceTitulo) {
       corpo.innerHTML = heroHtml + `
-        <div class="bio-box" style="margin-bottom:14px;">📜 domínio público (Wikisource) — dá pra ler o texto inteiro, direto por aqui</div>
-        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroWikisource(${i})">📖 começar a ler</button>
+        <div class="bio-box">domínio público (Wikisource) — dá pra ler o texto inteiro, direto por aqui</div>
+        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorLivroWikisource(${i})">${icone('livro',14)} ler</button>
         ${item.link ? `<div style="text-align:center; margin-top:10px;"><div class="livro-link-externo" onclick="window.open('${item.link}', '_blank')">${icone('link',13)} ver na Wikisource</div></div>` : ''}
       `;
       return;
@@ -8416,8 +8431,8 @@ window.trocarModoDescobrir = function (modo) {
     // API antiga do Google que parou de funcionar).
     if (item.fonte === 'Open Library' && item.leituraCompleta && item.iaId) {
       corpo.innerHTML = heroHtml + `
-        <div class="bio-box" style="margin-bottom:14px;">📗 esse aqui dá pra ler completo, direto por aqui</div>
-        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorOpenLibrary(${i})">📖 começar a ler</button>
+        <div class="bio-box">esse aqui dá pra ler completo, direto por aqui</div>
+        <button class="post-btn" style="width:100%; padding:13px;" onclick="abrirLeitorOpenLibrary(${i})">${icone('livro',14)} ler</button>
       `;
       return;
     }
