@@ -65,15 +65,15 @@
     --vidro-fosco-leve: 86%;
   }
 
-  /* ---------- temas especiais de inclusão (alternados pela pilula de sequência na Home) ---------- */
-  [data-tema-especial="diversidade"] {
-    --accent-a: #E0447C; --accent-b: #3B82C4; --accent-soft: #FBE4EC; --pink: #E0447C; --pink-soft: #FBE4EC; --yellow: #F2B705;
+  /* ---------- temas especiais de inclusão (alternados pela pilula de sequência no Diario) ---------- */
+  .device[data-tema-especial="diversidade"] {
+    --accent-a: #E0447C; --accent-b: #3B82C4; --accent-soft: #F7C6D9; --pink: #E0447C; --pink-soft: #F7C6D9; --yellow: #F2B705;
   }
-  [data-theme="dark"][data-tema-especial="diversidade"] { --accent-soft: #3A2230; --pink-soft: #3A2230; }
-  [data-tema-especial="girassol"] {
-    --accent-a: #E8A83D; --accent-b: #6FA84A; --accent-soft: #FCF1D6; --pink: #E8A83D; --pink-soft: #FCF1D6; --yellow: #E8A83D;
+  .device[data-theme="dark"][data-tema-especial="diversidade"] { --accent-soft: #4A2436; --pink-soft: #4A2436; }
+  .device[data-tema-especial="girassol"] {
+    --accent-a: #D99A1F; --accent-b: #6FA84A; --accent-soft: #F6DE8C; --pink: #D99A1F; --pink-soft: #F6DE8C; --yellow: #D99A1F;
   }
-  [data-theme="dark"][data-tema-especial="girassol"] { --accent-soft: #332911; --pink-soft: #332911; }
+  .device[data-theme="dark"][data-tema-especial="girassol"] { --accent-soft: #4A3B12; --pink-soft: #4A3B12; }
 
   [data-theme="dark"] .tabbar:not(.textura-couro) { background: #161616; border-color: #2C2C2C; }
  [data-theme="dark"] .tab-btn.active { color: var(--accent-a); }
@@ -1315,10 +1315,11 @@
   .home-diario-atomo { position:absolute; right:-28px; bottom:-28px; width:120px; height:120px; color:var(--accent-a); opacity:.45;
     animation: atomoDiaLido 9s ease-in-out infinite; }
   .home-diario-streak-wrap { position:relative; display:flex; align-items:center; gap:6px; margin-bottom:12px; width:fit-content; max-width:100%; z-index:2; }
-  .home-diario-streak { position:relative; overflow:hidden; background:var(--card); color:var(--accent-a); font-family:'DM Sans', sans-serif;
-    font-weight:800; font-size:10.5px; padding:6px 13px; border-radius:999px; box-shadow:var(--shadow); cursor:pointer; }
+  .home-diario-streak { position:relative; overflow:hidden; background:var(--accent-soft); color:var(--accent-a); font-family:'DM Sans', sans-serif;
+    font-weight:800; font-size:10.5px; padding:6px 13px; border-radius:999px; box-shadow:var(--shadow); cursor:pointer;
+    transition: background .4s ease, color .4s ease; }
   .home-diario-streak .streak-fill { position:absolute; left:0; top:0; bottom:0; width:0%; z-index:0; border-radius:999px;
-    background: color-mix(in srgb, var(--accent-a) 26%, transparent); transition: width .7s cubic-bezier(.2,.8,.2,1); }
+    background: color-mix(in srgb, var(--accent-a) 38%, transparent); transition: width .7s cubic-bezier(.2,.8,.2,1), background .4s ease; }
   .home-diario-streak .streak-conteudo { position:relative; z-index:1; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
   .streak-dots { display:inline-block; width:1.1em; overflow:hidden; vertical-align:bottom; }
   .streak-dots::after { content:'...'; animation: streakReticencias 1.3s steps(4) infinite; }
@@ -1340,7 +1341,7 @@
 
   /* ---------- pagina "Meu Diario" (abre ao tocar no card, cheia de posts + composer vidro) ---------- */
   .diario-page-scroll { flex:1; overflow-y:auto; margin: 0 -16px; padding: 0 16px calc(16px + env(safe-area-inset-bottom));
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 55%, var(--bg)) 0%, var(--bg) 280px); }
+    background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--accent-soft) 45%, var(--bg)) 70px, var(--bg) 280px); }
   .diario-page-intro { padding-top:2px; margin-bottom:12px; }
   .diario-page-sub { font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); line-height:1.4; margin-top:3px; max-width:88%; }
   .composer.composer-vidro { background: color-mix(in srgb, var(--card) 78%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
