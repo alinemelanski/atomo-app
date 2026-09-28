@@ -1473,6 +1473,44 @@ async function traduzirParaPortugues(texto) {
   }
 }
 
+// reescreve o horóscopo (que a API Ninjas só devolve em inglês) em português
+// natural com o mesmo Gemini já usado no resumo do dia — bem melhor que
+// tradução literal palavra-por-palavra, que ficava com frase esquisita.
+// Sem GEMINI_API_KEY configurada, ou se a chamada falhar, cai pro
+// traduzirParaPortugues (MyMemory) de antes, então o card nunca quebra.
+async function traduzirHoroscopoComIA(texto) {
+  if (!texto) return texto;
+  if (!process.env.GEMINI_API_KEY) return traduzirParaPortugues(texto);
+  try {
+    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{
+            text: 'Você traduz horóscopos do inglês pro português do Brasil, pro app de diário Átomo. '
+              + 'Não traduza ao pé da letra — reescreva com frases naturais, do jeito que um horóscopo '
+              + 'brasileiro de verdade seria escrito. Mantenha o mesmo sentido e tamanho aproximado do '
+              + 'original, tom leve e acolhedor, sem markdown, sem aspas, sem comentário extra — só o '
+              + 'texto final do horóscopo.'
+          }]
+        },
+        contents: [{ parts: [{ text: texto }] }],
+        generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
+      })
+    });
+    if (!resp.ok) { console.log('gemini horoscopo: status', resp.status, await resp.text()); return traduzirParaPortugues(texto); }
+    const data = await resp.json();
+    const traduzido = data && data.candidates && data.candidates[0] && data.candidates[0].content
+      && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
+      && data.candidates[0].content.parts[0].text;
+    return traduzido ? traduzido.trim() : await traduzirParaPortugues(texto);
+  } catch (erro) {
+    console.log('erro ao traduzir horóscopo com IA:', erro.message);
+    return traduzirParaPortugues(texto);
+  }
+}
+
 // horoscopo diario (cartao "signo" na Home) - via API Ninjas (só devolve em
 // inglês), traduzido pro português antes de mandar pro app.
 app.get('/api/horoscopo', async (req, res) => {
@@ -1490,7 +1528,7 @@ app.get('/api/horoscopo', async (req, res) => {
       console.log('horoscopo sem retorno da API Ninjas — status:', resposta.status, 'corpo:', JSON.stringify(dados));
       return res.json({ texto: null });
     }
-    const texto = await traduzirParaPortugues(dados.horoscope);
+    const texto = await traduzirHoroscopoComIA(dados.horoscope);
     res.json({ texto });
   } catch (erro) {
     console.log('erro ao buscar horoscopo:', erro.message);
