@@ -10144,7 +10144,12 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     carregarPostsReais();
     atualizarBadgePerguntasPendentes();
     carregarPerguntasPublicasMinhas();
-    verificarGuiaInstalacao(perfil && perfil.viu_guia_instalacao === true);
+    // só dispara aqui pra quem NÃO está prestes a passar pelo onboarding agora —
+    // pra conta nova/pendente, confirmarOnboarding() cuida disso no fim de
+    // verdade da configuração, senão o guia abria por cima da escolha de tópicos
+    if (!precisaCompletarOnboarding) {
+      verificarGuiaInstalacao(perfil && perfil.viu_guia_instalacao === true);
+    }
     verificarPermissaoNotifPush(perfil && perfil.pediu_permissao_notif === true);
     verificarConviteMatch(matchAtivado, streakAtual, perfil && perfil.viu_convite_match === true);
 
@@ -10353,6 +10358,11 @@ window.loginComGoogle = async function () {
     // pede permissão de notificação externa já no cadastro, como combinado
     // (via banner com botão, pra não ser bloqueado silenciosamente pelo navegador)
     setTimeout(() => mostrarBannerNotificacao(), 1200);
+
+    // só agora, com a configuração de verdade concluída e a pessoa já na
+    // Home/Perfil, mostra o guia de instalação do PWA (antes disparava em
+    // cima da escolha de tópicos, no meio do onboarding — confuso)
+    setTimeout(() => verificarGuiaInstalacao(false), 2600);
   };
 
   // ---------- clima real do dia, mostrado no topo da tela de escrever ----------
