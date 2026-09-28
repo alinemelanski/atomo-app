@@ -65,6 +65,16 @@
     --vidro-fosco-leve: 86%;
   }
 
+  /* ---------- temas especiais de inclusão (alternados pela pilula de sequência na Home) ---------- */
+  [data-tema-especial="diversidade"] {
+    --accent-a: #E0447C; --accent-b: #3B82C4; --accent-soft: #FBE4EC; --pink: #E0447C; --pink-soft: #FBE4EC; --yellow: #F2B705;
+  }
+  [data-theme="dark"][data-tema-especial="diversidade"] { --accent-soft: #3A2230; --pink-soft: #3A2230; }
+  [data-tema-especial="girassol"] {
+    --accent-a: #E8A83D; --accent-b: #6FA84A; --accent-soft: #FCF1D6; --pink: #E8A83D; --pink-soft: #FCF1D6; --yellow: #E8A83D;
+  }
+  [data-theme="dark"][data-tema-especial="girassol"] { --accent-soft: #332911; --pink-soft: #332911; }
+
   [data-theme="dark"] .tabbar:not(.textura-couro) { background: #161616; border-color: #2C2C2C; }
  [data-theme="dark"] .tab-btn.active { color: var(--accent-a); }
 [data-theme="dark"] .tab-btn.active svg { color: var(--accent-a); }
@@ -1304,8 +1314,20 @@
     background: var(--accent-soft); box-shadow: var(--shadow); }
   .home-diario-atomo { position:absolute; right:-28px; bottom:-28px; width:120px; height:120px; color:var(--accent-a); opacity:.45;
     animation: atomoDiaLido 9s ease-in-out infinite; }
-  .home-diario-streak { position:absolute; top:14px; right:14px; background:var(--card); color:var(--accent-a); font-family:'DM Sans', sans-serif;
-    font-weight:800; font-size:10.5px; padding:5px 11px; border-radius:999px; box-shadow:var(--shadow); cursor:pointer; }
+  .home-diario-streak-wrap { position:absolute; top:14px; right:14px; display:flex; align-items:center; gap:6px; z-index:2; }
+  .home-diario-streak { position:relative; overflow:hidden; background:var(--card); color:var(--accent-a); font-family:'DM Sans', sans-serif;
+    font-weight:800; font-size:10.5px; padding:6px 13px; border-radius:999px; box-shadow:var(--shadow); cursor:pointer; }
+  .home-diario-streak .streak-fill { position:absolute; left:0; top:0; bottom:0; width:0%; z-index:0; border-radius:999px;
+    background: color-mix(in srgb, var(--accent-a) 26%, transparent); transition: width .7s cubic-bezier(.2,.8,.2,1); }
+  .home-diario-streak .streak-conteudo { position:relative; z-index:1; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+  .streak-dots { display:inline-block; width:1.1em; overflow:hidden; vertical-align:bottom; }
+  .streak-dots::after { content:'...'; animation: streakReticencias 1.3s steps(4) infinite; }
+  @keyframes streakReticencias { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .streak-tema-toggle { width:26px; height:26px; border-radius:50%; border:none; cursor:pointer; flex:none; padding:3px;
+    box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; background:var(--card); transition: transform .15s ease; }
+  .streak-tema-toggle:active { transform: scale(.85); }
+  .streak-tema-dot { width:100%; height:100%; border-radius:50%; display:block;
+    background: conic-gradient(from 0deg, #E0447C, #F2B705, #3FA34D, #3B82C4, #8B5CF6, #E0447C); }
   .home-diario-eyebrow { font-family:'DM Sans', sans-serif; font-size:10px; font-weight:700; color:var(--accent-a); text-transform:uppercase;
     letter-spacing:.08em; margin-bottom:6px; }
   .home-diario-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:23px; color:var(--ink); margin-bottom:6px; max-width:72%; }
@@ -1805,7 +1827,13 @@
           <svg class="home-diario-atomo" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
             <path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z"/>
           </svg>
-          <div class="home-diario-streak" onclick="event.stopPropagation(); abrirDetalheSequencia()"><span id="streakEmoji"><span class="icon-svg" style="width:15px;height:15px;vertical-align:-2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="7.3"/><path d="M5.5 10c3.4 2 9.6 2 13 0M4.9 14.5c4 2.3 10.2 2.3 14.2 0M7.3 18c2.6 1.3 6.8 1.3 9.4 0"/></svg></span></span> <span id="streakCount">4</span> dias</div>
+          <div class="home-diario-streak-wrap">
+            <div class="home-diario-streak" onclick="event.stopPropagation(); abrirDetalheSequencia()">
+              <div class="streak-fill" id="streakFill"></div>
+              <span class="streak-conteudo"><span id="streakEmoji"><span class="icon-svg" style="width:15px;height:15px;vertical-align:-2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="7.3"/><path d="M5.5 10c3.4 2 9.6 2 13 0M4.9 14.5c4 2.3 10.2 2.3 14.2 0M7.3 18c2.6 1.3 6.8 1.3 9.4 0"/></svg></span></span> <span id="streakCount">4</span> dias escrevendo<span class="streak-dots"></span></span>
+            </div>
+            <button class="streak-tema-toggle" onclick="event.stopPropagation(); alternarTemaInclusivo()" title="alternar tema especial"><span class="streak-tema-dot"></span></button>
+          </div>
           <div class="home-diario-eyebrow">um espacinho pra você</div>
           <div class="home-diario-titulo">Meu Diário</div>
           <div class="home-diario-sub">Pausa, respira, e guarda um espaço pras coisas que importam.</div>
@@ -4810,7 +4838,7 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
   window.simularDiaSequencia = async function () {
   const antigo = streakAtual;
   streakAtual++;
-  document.getElementById('streakCount').textContent = streakAtual;
+  atualizarStreakPill(streakAtual);
   fecharSequenciaPopup();
   renderSelosPerfil();
 
@@ -10740,6 +10768,43 @@ function atualizarVisibilidadeMatchPref() {
   if (row) row.style.display = (matchAtivado && matchPrefGridAberto) ? '' : 'none';
 }
 
+// ---------- temas especiais de inclusao: diversidade (LGBTQIA+) e girassol
+// (simbolo mundial de deficiencias nao visiveis) -- por cima do claro/escuro,
+// alternados tocando na pilula de sequencia da Home. Guarda so no aparelho
+// (localStorage), nao precisa de conta nem de internet pra funcionar ----------
+let temaEspecialAtual = '';
+try { temaEspecialAtual = localStorage.getItem('atomoTemaEspecial') || ''; } catch (e) {}
+
+function aplicarTemaEspecial(tema) {
+  const device = document.getElementById('device');
+  if (tema) device.setAttribute('data-tema-especial', tema); else device.removeAttribute('data-tema-especial');
+  temaEspecialAtual = tema;
+  try { localStorage.setItem('atomoTemaEspecial', tema); } catch (e) {}
+}
+aplicarTemaEspecial(temaEspecialAtual);
+
+window.alternarTemaInclusivo = function () {
+  const ordem = ['', 'diversidade', 'girassol'];
+  const proximo = ordem[(ordem.indexOf(temaEspecialAtual) + 1) % ordem.length];
+  aplicarTemaEspecial(proximo);
+  if (proximo === 'diversidade') mostrarToast('🌈 tema Orgulho ativado');
+  else if (proximo === 'girassol') mostrarToast('🌻 tema Girassol ativado — símbolo mundial de deficiências não visíveis');
+  else mostrarToast('tema padrão de volta');
+};
+
+// pilula de sequencia: numero + barrinha que enche ao longo da semana (reinicia
+// a cada 7 dias, assim sempre da pra ver progresso em vez de ficar sempre cheia)
+function atualizarStreakPill(dias) {
+  const elCount = document.getElementById('streakCount');
+  if (elCount) elCount.textContent = dias;
+  const fill = document.getElementById('streakFill');
+  if (fill) {
+    const pct = dias > 0 ? (((dias - 1) % 7) + 1) / 7 * 100 : 0;
+    requestAnimationFrame(() => { fill.style.width = pct + '%'; });
+  }
+}
+window.atualizarStreakPill = atualizarStreakPill;
+
 let darkMode = false;
   window.toggleDarkMode = async function () {
     console.log('1. função chamada');
@@ -11221,7 +11286,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         }
 
         streakAtual = streakCalculado;
-        document.getElementById('streakCount').textContent = streakAtual;
+        atualizarStreakPill(streakAtual);
         renderSelosPerfil();
 
         if (streakCalculado > streakAntigo) {
