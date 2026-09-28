@@ -508,13 +508,21 @@ async function rodarCronNotificacoes(req, res) {
 
     // lembretes de itens do checklist (Home) — cada item pode ter um horário
     // próprio escolhido pelo usuário; só avisa quem ainda não marcou como feito
-    // e ainda não recebeu o aviso hoje
+    // e ainda não recebeu o aviso hoje.
+    // Antes exigia horario_lembrete_min >= minutosAgora (so pegava o horario
+    // "vindo ai"), entao se a pessoa marcasse um horario que ja tinha passado
+    // no dia (ou perdesse a janela de 6min por qualquer motivo), o lembrete só
+    // disparava no dia seguinte na mesma hora -- podia demorar quase 24h. Agora
+    // so olha pra frente ate +6min (não avisa antes da hora) mas NAO tem mais
+    // piso pra trás: qualquer horario que ja passou hoje e ainda nao foi
+    // avisado dispara na proxima rodada do cron (efeito "atrasado, mas hoje
+    // mesmo"), sem interferir em nada do bloco de manha/noite acima, que
+    // continua com a logica de sempre.
     const { data: itensLembrete } = await supabaseAdmin
       .from('checklist_itens')
       .select('id, usuario_id, texto, horario_lembrete_min, ultimo_lembrete_data, feito')
       .not('horario_lembrete_min', 'is', null)
       .eq('feito', false)
-      .gte('horario_lembrete_min', minutosAgora)
       .lt('horario_lembrete_min', minutosAgora + JANELA_CRON_MIN);
 
     const precisamLembrete = (itensLembrete || []).filter(it => it.ultimo_lembrete_data !== hojeBrasilia);
@@ -1474,14 +1482,18 @@ app.get('/api/horoscopo', async (req, res) => {
   const zodiac = SIGNO_PARA_ZODIAC[req.query.signo];
   if (!zodiac) return res.status(400).json({ erro: 'signo inválido' });
   try {
-    const resposta = await fetch(`https://api.api-ninjas.com/v1/horoscope?zodiac_sign=${zodiac}`, {
+    const resposta = await fetch(`https://api.api-ninjas.com/v1/horoscope?zodiac=${zodiac}`, {
       headers: { 'X-Api-Key': process.env.API_NINJAS_KEY },
     });
     const dados = await resposta.json();
-    if (!dados.horoscope) return res.json({ texto: null });
+    if (!dados.horoscope) {
+      console.log('horoscopo sem retorno da API Ninjas — status:', resposta.status, 'corpo:', JSON.stringify(dados));
+      return res.json({ texto: null });
+    }
     const texto = await traduzirParaPortugues(dados.horoscope);
     res.json({ texto });
   } catch (erro) {
+    console.log('erro ao buscar horoscopo:', erro.message);
     res.status(500).json({ erro: 'falha ao buscar horóscopo' });
   }
 });

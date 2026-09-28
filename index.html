@@ -32,6 +32,7 @@
     --pink: #E06B6B;
     --pink-soft: #F7E0DA;
     --yellow: #E8A83D;
+    --bg-tela-suave: #FBF7EE;
     --raiva: #B33F30;
     --shadow: 0 3px 14px rgba(90,60,30,0.10);
   }
@@ -134,7 +135,14 @@
 
   .screen { position: absolute; inset: 0; padding: calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom));
     overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; opacity: 0; pointer-events: none;
-    transform: translateY(8px); transition: opacity .25s ease, transform .25s ease; }
+    transform: translateY(8px); transition: opacity .25s ease, transform .25s ease;
+    scrollbar-width: none; -ms-overflow-style: none; }
+  .screen::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  /* mesma escondida de barra nativa nas listas com scroll proprio dentro da
+     tela (lista de conversas recentes, pote de amigos) -- tinham barra visivel
+     mesmo com a barra da .screen ja escondida, por serem overflow proprio */
+  #dmListWrap, .pote-amigos-wrap { scrollbar-width: none; -ms-overflow-style: none; }
+  #dmListWrap::-webkit-scrollbar, .pote-amigos-wrap::-webkit-scrollbar { display: none; width: 0; height: 0; }
   .screen.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
   /* ---------- tela cheia em celular real / instalado como PWA ---------- */
@@ -198,11 +206,16 @@
   /* ---------- composer do feed ---------- */
   .clima-chip { display: none; align-items: center; gap: 6px; width: fit-content; margin: 0 0 10px; padding: 6px 12px 6px 10px;
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-size: 12px; font-weight: 700; }
-  .composer { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .composer { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .composer textarea { width: 100%; border: none; background: none; resize: none; font-family: 'Nunito', sans-serif; font-size: 14px;
     color: var(--ink); min-height: 46px; outline: none; }
+  /* quando o composer tem os icones de anexar/enviar flutuando (composer-foot
+     posicionado no canto), reserva espaco na 1a linha do texto pra nao ficar
+     por baixo deles */
+  .composer:has(.composer-foot) textarea { padding-right: 92px; }
   .composer textarea::placeholder { color: var(--ink-faint); }
-  .type-chip-row { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0 10px; padding-bottom: 2px; }
+  .type-chip-row { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0 6px; padding-bottom: 2px; }
+  .post-foto-fixa { width:100%; aspect-ratio: 4/3; object-fit: cover; border-radius:12px; margin-top:8px; display:block; background: var(--card-b); }
   .type-chip-wrap { position: relative; }
   .type-chip-wrap::after { content: ''; position: absolute; top: 0; right: 0; bottom: 2px; width: 26px;
     background: linear-gradient(90deg, transparent, var(--card)); pointer-events: none; }
@@ -226,7 +239,11 @@
   .type-chip { flex: none; font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--accent-soft);
     color: var(--accent-a); cursor: pointer; border: 1.5px solid transparent; }
   .type-chip.on { background: var(--accent-a); color: #fff; }
-  .composer-foot { display: flex; align-items: center; justify-content: space-between; }
+  /* icones de anexar foto/enviar flutuam fixos no canto superior direito do
+     card, por cima da caixa de texto -- nao ocupam mais uma fileira propria
+     la embaixo (antes: espalhados nas pontas opostas com vao vazio enorme no
+     meio; depois: fileira propria mas ainda tomando espaco embaixo dos chips) */
+  .composer-foot { position: absolute; top: 14px; right: 14px; display: flex; align-items: center; gap: 8px; z-index: 2; }
   .privacy-toggle-mini { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-dim); font-weight: 700; cursor: pointer; }
   .referencia-preview-card { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
 .referencia-preview-card .rp-info { flex: 1; min-width: 0; }
@@ -247,6 +264,31 @@
     font-family: 'DM Sans', 'Nunito', sans-serif;
     font-size: 12.5px; padding: 9px 18px; border-radius: 999px; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 6px; }
+  /* botao de enviar post (Explorar/Diario) -- so icone de papel de aviao, redondo,
+     com animacao de voar ao clicar em vez do texto "Enviando..." */
+  .btn-enviar-post { width: 40px; height: 40px; padding: 0; border-radius: 50%; flex: none; }
+  .btn-enviar-post .icone-enviar-svg { width: 18px; height: 18px; display: block; }
+  .btn-enviar-post:disabled { opacity: .55; }
+  .btn-enviar-post.disparando .icone-enviar-svg { animation: voarPapelPostar 1.2s cubic-bezier(.4,.1,.3,1); }
+  @keyframes voarPapelPostar {
+    0% { transform: translate(0px,0px) rotate(0deg); }
+    6.25% { transform: translate(-6.1px,-1.2px) rotate(22deg); }
+    12.5% { transform: translate(-11.3px,-4.7px) rotate(45deg); }
+    18.75% { transform: translate(-14.8px,-9.9px) rotate(68deg); }
+    25% { transform: translate(-16.0px,-16.0px) rotate(90deg); }
+    31.25% { transform: translate(-14.8px,-22.1px) rotate(112deg); }
+    37.5% { transform: translate(-11.3px,-27.3px) rotate(135deg); }
+    43.75% { transform: translate(-6.1px,-30.8px) rotate(158deg); }
+    50% { transform: translate(0px,-32.0px) rotate(180deg); }
+    56.25% { transform: translate(6.1px,-30.8px) rotate(202deg); }
+    62.5% { transform: translate(11.3px,-27.3px) rotate(225deg); }
+    68.75% { transform: translate(14.8px,-22.1px) rotate(248deg); }
+    75% { transform: translate(16.0px,-16.0px) rotate(270deg); }
+    81.25% { transform: translate(14.8px,-9.9px) rotate(292deg); }
+    87.5% { transform: translate(11.3px,-4.7px) rotate(315deg); }
+    93.75% { transform: translate(6.1px,-1.2px) rotate(338deg); }
+    100% { transform: translate(0px,0px) rotate(360deg); }
+  }
   .atomo-player { display: flex; align-items: center; gap: 12px; background: var(--accent-soft); border-radius: 999px; padding: 10px 14px; margin-top: 10px; }
 .player-play-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-a); border: none; color: #fff; font-size: 15px; cursor: pointer; flex: none; display:flex; align-items:center; justify-content:center; }
 .player-track { flex: 1; height: 6px; background: var(--card-b); border-radius: 999px; cursor: pointer; position: relative; overflow: hidden; }
@@ -430,8 +472,8 @@
   .dm-swipe-btn.fixar { background: var(--accent-b); }
   .dm-swipe-btn.deletar { background: var(--pink); }
   #screen-mensagens .dm-list-row { border-bottom: none; margin-bottom: 0; padding: 9px 12px; border-radius: 14px;
-    border: 1px solid var(--card-b); background: var(--card); background: color-mix(in srgb, var(--card) 92%, transparent);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 2px 8px rgba(60,40,15,.08);
+    border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 2px 8px rgba(60,40,15,.08);
     position: relative; z-index: 1; transition: transform .2s ease; touch-action: pan-y; }
   #screen-mensagens .dm-list-row.fixada { border-color: var(--accent-b); }
   #screen-mensagens .dm-list-row .friend-avatar { width: 44px; height: 44px; font-size: 15px; }
@@ -439,7 +481,10 @@
 
   #msgTopRow h1 { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex .3s ease, opacity .25s ease; }
   #msgTopRow.busca-aberta h1 { flex: 0; opacity: 0; }
-  .msg-busca-widget { flex: none; width: 38px; height: 38px; border-radius: 19px; background: var(--card); border: 1px solid var(--card-b);
+  .msg-busca-widget { flex: none; width: 38px; height: 38px; border-radius: 19px; background: var(--card);
+    background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent);
     box-shadow: var(--shadow); display: flex; align-items: center; overflow: hidden; cursor: pointer;
     transition: width .35s cubic-bezier(.2,.8,.2,1), flex .35s cubic-bezier(.2,.8,.2,1); }
   .msg-busca-widget.aberto { flex: 1; width: auto; }
@@ -455,18 +500,23 @@
     display: flex; align-items: center; justify-content: center; flex: none; cursor: pointer; }
   .msg-busca-lupa:active { transform: scale(.9); }
 
-  #screen-mensagens { display: flex; flex-direction: column; padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
+  #screen-mensagens {
+    display: flex; flex-direction: column; padding-bottom: calc(112px + env(safe-area-inset-bottom));
+    background: var(--bg-tela-suave);
+  }
   .pote-amigos-wrap { position: relative; margin: 2px 0 0; border-radius: 26px; overflow-x: hidden; overflow-y: auto; touch-action: pan-y;
     flex: 1; min-height: 150px;
-    background: var(--card); background: color-mix(in srgb, var(--card) 50%, transparent);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--card-b); box-shadow: inset 0 3px 12px rgba(60,40,15,.10), var(--shadow); }
+    background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); box-shadow: inset 0 3px 12px rgba(60,40,15,.10), var(--shadow); }
   .pote-amigos-inner { position: relative; width: 100%; min-height: 100%; }
   .pote-filtro-tabs { display: flex; gap: 8px; margin: 10px 0 8px; flex: none; }
   .pote-filtro-tab { flex: 1; text-align: center; padding: 8px; border-radius: 12px; font-size: 11.5px; font-weight: 800;
-    color: var(--ink-faint); background: var(--card); border: 1px solid var(--card-b); cursor: pointer;
+    color: var(--ink-faint); background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); cursor: pointer;
     font-family: 'DM Sans', sans-serif; }
-  .pote-filtro-tab.on { background: var(--accent-a); color: #fff; border-color: transparent; }
+  .pote-filtro-tab.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); color: #fff; border-color: transparent; }
   .pote-amigos-vazio { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     color: var(--ink-faint); font-size: 12px; text-align: center; padding: 0 34px; line-height: 1.5; pointer-events: none; }
   .bolha-amigo { position: absolute; top: 0; left: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -482,6 +532,10 @@
     padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)); }
   .dm-chat-overlay.open { display: flex; }
   .dm-chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .digitando-dots span { opacity: .25; animation: digitandoPulse 1.2s infinite; }
+  .digitando-dots span:nth-child(2) { animation-delay: .2s; }
+  .digitando-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes digitandoPulse { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
   .dm-chat-header-info { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
   .dm-chat-header-info h2 { margin: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dm-chat-status { font-size: 10.5px; font-weight: 700; color: var(--ink-faint); margin-top: 1px; }
@@ -716,8 +770,8 @@
     font-size: 31px; line-height: 1.05; color: var(--ink); margin: 2px 0 4px; letter-spacing: -.01em; }
   .clube-sub-grande { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-dim); margin-bottom: 16px; }
 
-  .clube-criar-btn { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-    width: 100%; padding: 13px; margin-bottom: 16px; border: none; border-radius: 999px; cursor: pointer;
+  .clube-criar-btn { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 13px 22px; margin-bottom: 16px; border: none; border-radius: 999px; cursor: pointer;
     background: var(--accent-a); color: #fff; font-size: 13.5px; font-weight: 800;
     font-family: 'DM Sans', sans-serif; box-shadow: var(--shadow); transition: transform .15s ease; }
   .clube-criar-btn:active { transform: scale(.97); }
@@ -843,16 +897,102 @@
     text-transform:uppercase; letter-spacing:.09em; margin-bottom:2px; }
   .explorar-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:26px; color:var(--ink); margin:0; }
   .explorar-add-btn svg { color: var(--accent-a); }
-  /* Explorar ganha o tratamento de vidro/transparente do app (diferente do
-     Feed, que usa cartão solido) -- cartoes, chips de modo e busca */
-  #screen-descobrir .discover-card { background: var(--card); background: color-mix(in srgb, var(--card) 68%, transparent);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
-  #screen-descobrir .discover-card-destaque { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 78%, transparent); }
+  /* Explorar ganha o tratamento de vidro/transparente do app -- cartoes
+     (inclusive os posts de amigos, .post), o composer, chips de modo e busca --
+     mesmo estilo "vidro" do popup de Suporte e feedback (composer-glass-card).
+     Fundo em pastel claro e liso (--bg-tela-suave), espacamento lateral igual
+     ao da Home (16px padrao de .screen, sem reducao) -- o vidro dos cartoes
+     continua por cima, so a cor de fundo da tela mudou. */
+  #screen-descobrir {
+    background: var(--bg-tela-suave);
+  }
+  #screen-descobrir .composer { background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); }
+  #screen-descobrir .post { background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); }
+  #screen-descobrir .composer, #screen-descobrir .post, #screen-descobrir .discover-card { border-radius: 26px; }
+  #screen-descobrir .discover-card { background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); }
+  #screen-descobrir .discover-card-destaque { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 78%, transparent); border: 1px solid var(--card-b); }
   #screen-descobrir .feed-modo-chip { background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
   #screen-descobrir .feed-modo-chip.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
   #screen-descobrir .busca-input { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 62%, transparent);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+  /* ---------- livros/estante: mesmo tratamento de vidro do Explorar, calendario
+     de leitura, contadores e prateleira de epubs -- fundo pastel claro, mesmo
+     espacamento lateral da Home (16px padrao de .screen) ---------- */
+  #screen-livros {
+    background: var(--bg-tela-suave);
+  }
+  #screen-livros .discover-card, #screen-livros .bio-box, #screen-livros .busca-input {
+    background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent);
+  }
+  #screen-livros .discover-card, #screen-livros .bio-box { border-radius: 22px; }
+  #screen-livros .bio-box { padding: 15px; }
+  #screen-livros .feed-modo-chip { background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
+  #screen-livros .feed-modo-chip.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
+
+  /* ---------- calendario de leitura animado: celulas entram com um "pop" em
+     cascata, e o dia de hoje pulsa suavemente quando ainda nao foi lido ---------- */
+  .leitura-dia-cell {
+    width: 100%; aspect-ratio: 1; border-radius: 8px; background: var(--card-b); color: var(--ink-faint);
+    display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif; border: 1.5px solid transparent; position: relative; overflow: hidden;
+    opacity: 0; transform: scale(.4); animation: leituraDiaEntrada .4s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes leituraDiaEntrada { to { opacity: 1; transform: scale(1); } }
+  .leitura-dia-cell.hoje-nao-lido {
+    border-color: var(--accent-a);
+    animation: leituraDiaEntrada .4s cubic-bezier(.34,1.56,.64,1) forwards, leituraHojePulso 2.2s ease-in-out infinite .6s;
+  }
+  .leitura-dia-cell.hoje-lido { border-color: var(--ink); }
+  @keyframes leituraHojePulso {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-a) 45%, transparent); }
+    50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-a) 0%, transparent); }
+  }
+
+  /* ---------- botao de enviar epub: pill com gradiente, em vez do botao solido
+     generico que ficava perdido no meio dos cards ---------- */
+  .btn-enviar-epub {
+    width: 100%; margin-bottom: 14px; padding: 13px 18px; border-radius: 999px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-a) 35%, transparent);
+    transition: transform .15s ease, box-shadow .2s ease;
+  }
+  .btn-enviar-epub:active { transform: scale(.97); box-shadow: 0 3px 8px color-mix(in srgb, var(--accent-a) 30%, transparent); }
+
+  /* ---------- estante: prateleira de madeira de verdade pros epubs enviados,
+     livros em pe lado a lado como lombadas, em vez de uma lista de linhas ---------- */
+  .estante-madeira {
+    display: flex; flex-wrap: wrap; gap: 14px 11px; padding: 16px 10px 14px;
+    background-image: repeating-linear-gradient(to bottom,
+      transparent 0, transparent 104px,
+      #C08F5E 104px, #8C6239 110px,
+      transparent 110px, transparent 118px);
+    background-position: 0 16px;
+    border-radius: 18px;
+  }
+  .livro-lombada {
+    width: 72px; flex: 0 0 72px; height: 104px; position: relative; border-radius: 6px 6px 2px 2px; overflow: hidden; cursor: pointer;
+    box-shadow: 2px 5px 10px rgba(58,46,34,.35), inset 0 0 0 1px rgba(255,255,255,.15);
+    opacity: 0; transform: translateY(8px) scale(.94); animation: livroLombadaEntrada .35s cubic-bezier(.3,.9,.4,1) forwards;
+  }
+  @keyframes livroLombadaEntrada { to { opacity: 1; transform: translateY(0) scale(1); } }
+  .livro-lombada img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .livro-lombada-vazia { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .livro-lombada-progresso { position: absolute; top: 0; left: 0; height: 3px; background: #fff; box-shadow: 0 0 4px rgba(0,0,0,.3); }
+  .livro-lombada-legenda { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 5px 4px; font-size: 8px; font-weight: 700; color: #fff;
+    background: linear-gradient(to top, rgba(20,14,8,.85), rgba(20,14,8,0));
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
+  .livro-lombada-del { position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(20,14,8,.5); color: #fff; display: flex; align-items: center; justify-content: center; opacity: .75; }
+  .livro-lombada-del:active { opacity: 1; transform: scale(.9); }
 
   .composer-glass-bg { position:absolute; inset:0; background: rgba(20,14,8,0.28); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
     z-index:35; display:none; align-items:flex-end; justify-content:center; padding: 0 14px calc(20px + env(safe-area-inset-bottom)); }
@@ -1220,7 +1360,6 @@
     <div class="screen" id="screen-descobrir">
       <div class="top-row explorar-top-row">
         <div>
-          <div class="explorar-eyebrow">Átomo · comunidade</div>
           <h1 class="explorar-titulo">Explorar</h1>
         </div>
         <div class="top-icons-wrap">
@@ -1287,21 +1426,21 @@
         </div>
         <div class="composer-foot">
           <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('composer')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
-      <button class="post-btn" id="btnPostarFeed" onclick="publicarPost()">Postar</button>
+      <button class="post-btn btn-enviar-post" id="btnPostarFeed" onclick="publicarPost()" aria-label="Postar"><svg class="icone-enviar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
         </div>
       </div>
 
       <div class="feed-modo-row">
-        <div class="feed-modo-chip on" data-modo="interesse" onclick="trocarModoFeed('interesse')">✨ Pra você</div>
-        <div class="feed-modo-chip" data-modo="recente" onclick="trocarModoFeed('recente')">🕐 Recentes</div>
+        <div class="feed-modo-chip on" data-modo="interesse" onclick="trocarModoFeed('interesse')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span> Pra você</div>
+        <div class="feed-modo-chip" data-modo="recente" onclick="trocarModoFeed('recente')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M12 7.5v5l3.3 2"/></svg></span> Recentes</div>
       </div>
       <div id="feedList"></div>
 
       <div class="explorar-eyebrow" style="margin:22px 0 10px;">descobrir mais</div>
       <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaDescobrirInput" class="busca-input" placeholder="Buscar por tag..." oninput="aoDigitarBuscaDescobrir()" style="margin-bottom:12px;" /></div>
       <div class="feed-modo-row">
-      <div class="feed-modo-chip on" data-modo-descobrir="relevante" onclick="trocarModoDescobrir('relevante')">✨ Mais relevantes</div>
-      <div class="feed-modo-chip" data-modo-descobrir="tudo" onclick="trocarModoDescobrir('tudo')">🔀 Tudo</div>
+      <div class="feed-modo-chip on" data-modo-descobrir="relevante" onclick="trocarModoDescobrir('relevante')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span> Mais relevantes</div>
+      <div class="feed-modo-chip" data-modo-descobrir="tudo" onclick="trocarModoDescobrir('tudo')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3c1.6 0 2.6.8 3.6 2.2M4 17h3c1.6 0 2.6-.8 3.6-2.2"/><path d="M12.4 9.2C13.4 7.8 14.4 7 16 7h4M12.4 14.8c1 1.4 2 2.2 3.6 2.2h4"/><path d="M17 4.3 20 7l-3 2.7M17 19.7l3-2.7-3-2.7"/></svg></span> Tudo</div>
    </div>
       <div id="discoverList"></div>
     </div>
@@ -1698,7 +1837,7 @@
       <div class="type-chip-wrap"><div class="type-chip-row" id="typeChipRowDiario"></div></div>
       <div class="composer-foot">
         <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('perfil')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
-        <button class="post-btn" id="btnPostarPerfil" onclick="publicarPostPerfil()">Postar</button>
+        <button class="post-btn btn-enviar-post" id="btnPostarPerfil" onclick="publicarPostPerfil()" aria-label="Postar"><svg class="icone-enviar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
       </div>
     </div>
     <div id="diaryList"></div>
@@ -1780,8 +1919,8 @@
     <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">fica guardado só no seu perfil.</div>
     <textarea id="humorMotivoInput" class="edit-bio-textarea" placeholder="o motivo, se quiser contar..." style="min-height:90px;"></textarea>
     <div style="display:flex; gap:8px; margin-top:12px;">
-      <button class="livro-link-externo" style="flex:1; margin:0; justify-content:center;" onclick="closeOverlay('humorMotivoOverlay')">agora não</button>
-      <button class="post-btn" style="flex:1; padding:12px;" onclick="salvarMotivoHumor()">Guardar</button>
+      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="closeOverlay('humorMotivoOverlay')">agora não</button>
+      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px;" onclick="salvarMotivoHumor()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1793,8 +1932,8 @@
     <h2 style="margin-bottom:6px;" id="matchConfirmTitulo">Dar match?</h2>
     <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin-bottom:16px;">vocês têm interesses em comum.</div>
     <div style="display:flex; gap:8px;">
-      <button class="livro-link-externo" style="flex:1; margin:0; justify-content:center;" onclick="closeOverlay('matchConfirmOverlay')">agora não</button>
-      <button class="post-btn" style="flex:1; padding:12px;" onclick="confirmarMatch()">Sim, dar match</button>
+      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="closeOverlay('matchConfirmOverlay')">agora não</button>
+      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px;" onclick="confirmarMatch()">Sim, dar match</button>
     </div>
   </div>
 </div>
@@ -1805,8 +1944,8 @@
     <div class="composer-glass-header"><h2 id="confirmGenericoTitulo">Confirmar?</h2></div>
     <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin-bottom:16px;" id="confirmGenericoTexto"></div>
     <div style="display:flex; gap:8px;">
-      <button class="livro-link-externo" style="flex:1; margin:0; justify-content:center;" onclick="closeOverlay('confirmGenericoOverlay')">agora não</button>
-      <button class="post-btn" style="flex:1; padding:12px; background:var(--pink);" id="confirmGenericoBtn">confirmar</button>
+      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="closeOverlay('confirmGenericoOverlay')">agora não</button>
+      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px; background:var(--pink);" id="confirmGenericoBtn">confirmar</button>
     </div>
   </div>
 </div>
@@ -1835,8 +1974,8 @@
     </div>
     <input type="hidden" id="checklistLembreteInput" />
     <div style="display:flex; gap:8px; margin-top:14px;">
-      <button class="livro-link-externo" style="flex:1; margin:0; justify-content:center;" onclick="removerLembreteChecklist()">não quero</button>
-      <button class="post-btn" style="flex:1; padding:12px;" onclick="salvarLembreteChecklist()">Salvar</button>
+      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="removerLembreteChecklist()">não quero</button>
+      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px;" onclick="salvarLembreteChecklist()">Salvar</button>
     </div>
   </div>
 </div>
@@ -1868,8 +2007,8 @@
     <div style="font-family:'Fraunces', serif; font-size:17px; color:var(--ink); margin-bottom:8px;">oi, sou eu, o Átomo 🤍</div>
     <div style="font-family:'Nunito', sans-serif; font-size:13px; color:var(--ink-dim); line-height:1.5; margin-bottom:16px;">reparei que você já tem uns dias de diário por aqui — que tal conhecer gente com o mesmo gosto? o Match mostra pessoas com os mesmos assuntos favoritos que você escolheu, pra trocar ideia sobre livro, filme, poema, o que for. sem pressão, dá pra desligar quando quiser.</div>
     <div style="display:flex; gap:8px;">
-      <button class="livro-link-externo" style="flex:1; margin:0; justify-content:center;" onclick="responderConviteMatch(false)">agora não</button>
-      <button class="post-btn" style="flex:1; padding:12px;" onclick="responderConviteMatch(true)">quero conhecer 💛</button>
+      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="responderConviteMatch(false)">agora não</button>
+      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px;" onclick="responderConviteMatch(true)">quero conhecer 💛</button>
     </div>
   </div>
 </div>
@@ -2077,23 +2216,6 @@
       </div>
     </div>
 
-    <!-- OVERLAY: RESUMO DE LEITURA (estilo "wrapped") -->
-    <div class="dm-chat-overlay" id="resumoLeituraOverlay">
-      <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('resumoLeituraOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
-        <h2 style="font-size:16px;">Resumo de leitura</h2>
-      </div>
-      <div class="feed-modo-row" style="margin-bottom:12px;">
-        <div class="feed-modo-chip on" data-periodo-resumo="mes" onclick="trocarPeriodoResumoLeitura('mes')">este mês</div>
-        <div class="feed-modo-chip" data-periodo-resumo="ano" onclick="trocarPeriodoResumoLeitura('ano')">este ano</div>
-      </div>
-      <button class="post-btn" style="width:100%; padding:12px;" onclick="gerarResumoLeitura()">Gerar resumo</button>
-      <canvas id="resumoLeituraCanvas" width="600" height="750" style="display:none; width:100%; border-radius:14px; margin-top:14px; box-shadow:var(--shadow);"></canvas>
-      <div id="resumoLeituraAcoes" style="display:none; gap:10px; margin-top:12px;">
-        <button class="post-btn" style="flex:1; padding:11px;" onclick="baixarResumoLeitura()">baixar</button>
-        <button class="post-btn" style="flex:1; padding:11px;" onclick="compartilharResumoLeituraFeed()">postar no feed</button>
-      </div>
-    </div>
 
     <!-- OVERLAY: COMENTÁRIOS -->
     <div class="dm-chat-overlay" id="comentariosOverlay">
@@ -2271,7 +2393,7 @@
         <input type="file" id="explorarComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <div class="dm-input-wrap">
-          <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" />
+          <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" oninput="sinalizarDigitando()" />
           <button class="dm-input-mic-btn" id="btnGravarAudio" onclick="alternarGravacaoAudio()"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
         </div>
         <button class="dm-send-btn" onclick="enviarDmMsg()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
@@ -2331,10 +2453,6 @@
     <div><div class="t">🌙 Modo escuro</div><div class="s">troca a paleta clara pela escura</div></div>
     <div class="toggle-sw" id="darkSwitch" onclick="toggleDarkMode()"><div class="dot"></div></div>
   </div>
-  <div class="settings-row">
-    <div><div class="t">🕐 Horário em 12h (AM/PM)</div><div class="s">mostra os horários tipo 09:00pm em vez de 21:00</div></div>
-    <div class="toggle-sw" id="formatoHoraSwitch" onclick="toggleFormatoHora()"><div class="dot"></div></div>
-  </div>
   <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div><div class="t">💛 Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
@@ -2361,10 +2479,10 @@
         <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.22s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2a5 5 0 0 0-5 5v3.3c0 .8-.3 1.6-.9 2.2L5 16h14l-1.1-1.3a3 3 0 0 1-.9-2.2V9.2a5 5 0 0 0-5-5Z"/><path d="M10.1 19a1.9 1.9 0 0 0 3.8 0"/></svg></span> Notificações de amigos</div><div class="s">avisa quando um amigo posta ou comenta</div></div>
         <div class="toggle-sw on" id="notifSwitch" onclick="toggleNotif()"><div class="dot"></div></div>
       </div>
-      <div class="settings-row settings-nav-row" onclick="testarNotificacaoPush()">
-        <div class="t">🔔 Testar notificação push</div>
-        <div class="nav-chevron">›</div>
-      </div>
+  <div class="settings-row">
+    <div><div class="t">🕐 Horário em 12h (AM/PM)</div><div class="s">mostra os horários tipo 09:00pm em vez de 21:00</div></div>
+    <div class="toggle-sw" id="formatoHoraSwitch" onclick="toggleFormatoHora()"><div class="dot"></div></div>
+  </div>
       <div class="settings-row settings-nav-row" onclick="abrirBloqueados()">
         <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Pessoas bloqueadas</div>
         <div class="nav-chevron">›</div>
@@ -2531,7 +2649,8 @@
     xicara: '<path d="M5.3 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5Z"/><path d="M16.3 10.6h1.3a2.2 2.2 0 0 1 0 4.4h-1.3"/><path d="M9 5.4c-.5.8-.5 1.3 0 2.1M12.4 5.4c-.5.8-.5 1.3 0 2.1"/>',
     grafico: '<path d="M4.7 19.2V12.6"/><path d="M11.6 19.2V4.8"/><path d="M18.5 19.2v-8.6"/>',
     tema: '<path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/>',
-    instalar: '<rect x="4.5" y="4.5" width="15" height="15" rx="4"/><path d="M12 9v6M9 12h6"/>'
+    instalar: '<rect x="4.5" y="4.5" width="15" height="15" rx="4"/><path d="M12 9v6M9 12h6"/>',
+    misturar: '<path d="M4 7h3c1.6 0 2.6.8 3.6 2.2M4 17h3c1.6 0 2.6-.8 3.6-2.2"/><path d="M12.4 9.2C13.4 7.8 14.4 7 16 7h4M12.4 14.8c1 1.4 2 2.2 3.6 2.2h4"/><path d="M17 4.3 20 7l-3 2.7M17 19.7l3-2.7-3-2.7"/>'
   };
   function icone(nome, tamanho, seed, cor) {
     tamanho = tamanho || 16;
@@ -2847,7 +2966,7 @@ window.publicarPostPerfil = async function () {
   if (!texto) return;
 
   const btnPostar = document.getElementById('btnPostarPerfil');
-  if (btnPostar) { btnPostar.disabled = true; btnPostar.textContent = 'Enviando...'; }
+  if (btnPostar) { btnPostar.disabled = true; btnPostar.classList.add('disparando'); setTimeout(() => btnPostar.classList.remove('disparando'), 1200); }
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
@@ -2864,11 +2983,11 @@ window.publicarPostPerfil = async function () {
   });
 
   if (error) {
-    if (btnPostar) { btnPostar.disabled = false; btnPostar.textContent = 'Postar'; }
+    if (btnPostar) { btnPostar.disabled = false; }
     mostrarToast('❌ erro: ' + error.message); return;
   }
 
-  if (btnPostar) { btnPostar.disabled = false; btnPostar.textContent = 'Postar'; }
+  if (btnPostar) { btnPostar.disabled = false; }
   document.getElementById('perfilComposerText').value = '';
   document.getElementById('perfilComposerFotoPreview').style.display = 'none';
   document.getElementById('perfilComposerFotoPreviewVideo').style.display = 'none';
@@ -2940,7 +3059,7 @@ window.publicarPost = async function () {
   const tipo = tipoSelecionado || 'Assunto';
 
   const btnPostarFeed = document.getElementById('btnPostarFeed');
-  if (btnPostarFeed) { btnPostarFeed.disabled = true; btnPostarFeed.textContent = 'Enviando...'; }
+  if (btnPostarFeed) { btnPostarFeed.disabled = true; btnPostarFeed.classList.add('disparando'); setTimeout(() => btnPostarFeed.classList.remove('disparando'), 1200); }
 
     let refTitulo = null, refAutor = null, refCitacao = null, refTrailer = null, refLivroId = null;
   if (TIPOS_COM_REF[tipo]) {
@@ -2990,12 +3109,12 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
   });
 
   if (error) {
-    if (btnPostarFeed) { btnPostarFeed.disabled = false; btnPostarFeed.textContent = 'Postar'; }
+    if (btnPostarFeed) { btnPostarFeed.disabled = false; }
     mostrarToast('❌ erro ao postar: ' + error.message);
     return;
   }
 
-  if (btnPostarFeed) { btnPostarFeed.disabled = false; btnPostarFeed.textContent = 'Postar'; }
+  if (btnPostarFeed) { btnPostarFeed.disabled = false; }
   document.getElementById('composerText').value = '';
   document.getElementById('refTitulo').value = '';
   document.getElementById('refAutor').value = '';
@@ -3080,7 +3199,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         </div>
         ${modoFeedAtivo === 'interesse' && relevante ? '<div class="post-relevante-tag">✨ do seu interesse</div><br>' : ''}
         <div class="post-body">${formatarMencoesEVideo(p.texto)}</div>
-        ${p.imagem_url ? `<img src="${p.imagem_url}" style="width:100%; border-radius:12px; margin-top:8px; display:block;" />` : ''}
+        ${p.imagem_url ? `<img src="${p.imagem_url}" class="post-foto-fixa" loading="lazy" />` : ''}
         ${p.video_url ? `<video src="${p.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block; background:#000;"></video>` : ''}
         ${renderRefCard(p.ref)}
         <div class="post-actions">
@@ -3620,7 +3739,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     const ehPolaroidGratidao = e.tipo === 'Gratidão do dia' && e.imagem_url;
     const corpoHtml = ehPolaroidGratidao
       ? `<div class="polaroid-card polaroid-card-diario"><div class="polaroid-foto"><img src="${e.imagem_url}" /></div><div class="polaroid-legenda-display">${formatarMencoes(e.texto)}</div></div>`
-      : `<div class="body">${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" style="width:100%; border-radius:12px; margin-top:8px; display:block; filter: sepia(.28) saturate(1.2) contrast(1.05) brightness(1.03);" />` : ''}${e.video_url ? `<video src="${e.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block;"></video>` : ''}`;
+      : `<div class="body">${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" class="post-foto-fixa" loading="lazy" style="filter: sepia(.28) saturate(1.2) contrast(1.05) brightness(1.03);" />` : ''}${e.video_url ? `<video src="${e.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block;"></video>` : ''}`;
     return `
     <div class="diary-entry${e.fixado ? ' fixado' : ''}">
       <div class="tag">${e.fixado ? icone('fixar',10) + ' ' : ''}${diaryTabAtiva === 'privado' ? icone('cadeado',10) + ' Só eu · ' : ''}${e.tipo}</div>
@@ -5780,6 +5899,7 @@ window.closeOverlay = function (id) {
   // ou falhado por algum motivo (RLS, corrida com o realtime, etc.)
   if (id === 'dmChatOverlay' && typeof atualizarBadgeMensagens === 'function') {
     atualizarBadgeMensagens();
+    desconectarCanalDigitando();
   }
 };
 window.salvarPerfil = async function () {
@@ -6613,17 +6733,18 @@ window.trocarModoDescobrir = function (modo) {
       const chave = fmtDataISO(d);
       const lido = datasLidas.has(chave);
       const ehHoje = chave === hojeChave;
+      const delay = (Math.min(dia, 20) * 0.012).toFixed(3);
 
-      let borda = '1.5px solid transparent';
-      if (ehHoje) borda = lido ? '1.5px solid var(--ink)' : '1.5px solid var(--accent-a)';
+      let classe = 'leitura-dia-cell';
+      if (ehHoje) classe += lido ? ' hoje-lido' : ' hoje-nao-lido';
 
       if (lido) {
-        celulas += `<div title="${chave}" style="position:relative; width:100%; aspect-ratio:1; border-radius:8px; overflow:hidden; background:var(--card-b); border:${borda};">
+        celulas += `<div title="${chave}" class="${classe}" style="animation-delay:${delay}s;">
           <svg class="estante-dia-lido-atomo" viewBox="0 0 100 100" fill="currentColor"><path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z"/></svg>
           <span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; font-family:'DM Sans', sans-serif; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.5);">${dia}</span>
         </div>`;
       } else {
-        celulas += `<div title="${chave}" style="width:100%; aspect-ratio:1; border-radius:8px; background:var(--card-b); color:var(--ink-faint); border:${borda}; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; font-family:'DM Sans', sans-serif;">${dia}</div>`;
+        celulas += `<div title="${chave}" class="${classe}" style="animation-delay:${delay}s;">${dia}</div>`;
       }
     }
 
@@ -6637,7 +6758,6 @@ window.trocarModoDescobrir = function (modo) {
         </div>
         <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; margin:8px 0 4px;">${cabecalho}</div>
         <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px;">${celulas}</div>
-        <div class="livro-link-externo" style="justify-content:center; margin-top:10px;" onclick="abrirResumoLeitura()">criar resumo de leitura</div>
       </div>`;
   }
 
@@ -6686,28 +6806,24 @@ window.trocarModoDescobrir = function (modo) {
     }
 
     window.ITENS_ESTANTE_ATUAIS = data || [];
-    lista.innerHTML = estatisticasHtml + streakHtml + `<button class="post-btn" style="width:100%; margin-bottom:14px; padding:11px;" onclick="abrirUploadEpub()">+ enviar um epub</button>` +
+    lista.innerHTML = estatisticasHtml + streakHtml + `<button class="btn-enviar-epub" onclick="abrirUploadEpub()">${icone('instalar',17,0,'#fff')} enviar um epub</button>` +
       (data && data.length
-        ? data.map((d, i) => cardEstanteHtml(d, i)).join('')
+        ? `<div class="estante-madeira">${data.map((d, i) => cardEstanteHtml(d, i)).join('')}</div>`
         : estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho'));
   }
 
+  const CORES_LOMBADA_ESTANTE = ['var(--accent-a)', 'var(--accent-b)', 'var(--pink)', 'var(--yellow)', '#8FA06E', '#6FA3C9'];
   function cardEstanteHtml(d, i) {
     const pct = Math.round(d.progresso_percentual || 0);
+    const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
     return `
-      <div class="discover-card" style="display:flex; gap:12px; align-items:center; animation-delay:${Math.min(i, 6) * 0.05}s;">
-        <div onclick="abrirLeitorEpub(${i})" style="cursor:pointer; display:flex; gap:12px; align-items:center; flex:1; min-width:0;">
-          ${d.capa_url
-            ? `<img src="${d.capa_url}" alt="" style="width:52px; height:76px; object-fit:cover; border-radius:6px; flex-shrink:0;">`
-            : `<div class="capa-vazia-mini" style="width:52px; height:76px;">${icone('livro',24,i,'#fff')}</div>`}
-          <div style="min-width:0;">
-            <div class="discover-title">${d.titulo}</div>
-            ${d.autor ? `<div class="discover-desc">${d.autor}</div>` : ''}
-            <div style="background:var(--card-b); height:5px; border-radius:3px; margin-top:6px; overflow:hidden;"><div style="width:${pct}%; height:100%; background:var(--accent-a);"></div></div>
-            <div class="discover-desc" style="opacity:.7; margin-top:2px;">${pct}% lido</div>
-          </div>
-        </div>
-        <div class="post-action" onclick="event.stopPropagation(); excluirDoEstante(${i})">${icone('lixeira',14)}</div>
+      <div class="livro-lombada" style="animation-delay:${Math.min(i, 10) * 0.06}s;" onclick="abrirLeitorEpub(${i})" title="${d.titulo}">
+        ${d.capa_url
+          ? `<img src="${d.capa_url}" alt="" loading="lazy">`
+          : `<div class="livro-lombada-vazia" style="background:${cor};">${icone('livro',20,i,'#fff')}</div>`}
+        <div class="livro-lombada-progresso" style="width:${pct}%;"></div>
+        <div class="livro-lombada-legenda">${d.titulo}</div>
+        <div class="livro-lombada-del" onclick="event.stopPropagation(); excluirDoEstante(${i})">${icone('lixeira',10)}</div>
       </div>`;
   }
 
@@ -7210,156 +7326,6 @@ window.trocarModoDescobrir = function (modo) {
     }, 'image/png');
   };
 
-  // ---------- resumo de leitura compartilhável (estilo "wrapped"), inspirado no Fable ----------
-  let periodoResumoLeitura = 'mes';
-  window.trocarPeriodoResumoLeitura = function (periodo) {
-    periodoResumoLeitura = periodo;
-    document.querySelectorAll('.feed-modo-chip[data-periodo-resumo]').forEach(c => c.classList.toggle('on', c.dataset.periodoResumo === periodo));
-  };
-
-  window.abrirResumoLeitura = function () {
-    periodoResumoLeitura = 'mes';
-    document.querySelectorAll('.feed-modo-chip[data-periodo-resumo]').forEach(c => c.classList.toggle('on', c.dataset.periodoResumo === 'mes'));
-    document.getElementById('resumoLeituraCanvas').style.display = 'none';
-    document.getElementById('resumoLeituraAcoes').style.display = 'none';
-    document.getElementById('resumoLeituraOverlay').classList.add('open');
-  };
-
-  window.gerarResumoLeitura = async function () {
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    if (!sessionData.session) { mostrarToast('❌ entra na sua conta primeiro'); return; }
-    const usuarioId = sessionData.session.user.id;
-    const hoje = new Date();
-    const inicioPeriodo = periodoResumoLeitura === 'ano'
-      ? new Date(hoje.getFullYear(), 0, 1)
-      : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-
-    const { data: livros } = await supabaseClient
-      .from('estante_pessoal')
-      .select('titulo, autor, finalizado_em')
-      .eq('usuario_id', usuarioId)
-      .gte('finalizado_em', inicioPeriodo.toISOString())
-      .order('finalizado_em', { ascending: false });
-    const lista = livros || [];
-
-    const { data: logs } = await supabaseClient
-      .from('logs_leitura')
-      .select('data')
-      .eq('usuario_id', usuarioId)
-      .gte('data', fmtDataISO(inicioPeriodo));
-    const datasLidas = new Set((logs || []).map(d => d.data));
-    let streak = 0;
-    let cursor = new Date(hoje);
-    if (!datasLidas.has(fmtDataISO(cursor))) cursor.setDate(cursor.getDate() - 1);
-    while (datasLidas.has(fmtDataISO(cursor))) { streak++; cursor.setDate(cursor.getDate() - 1); }
-
-    try {
-      await document.fonts.load('800 40px "Baloo 2"');
-      await document.fonts.load('700 20px "Nunito"');
-      await document.fonts.load('700 15px "Nunito"');
-    } catch (e) {}
-
-    const canvas = document.getElementById('resumoLeituraCanvas');
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const estilo = getComputedStyle(document.documentElement);
-    const corBg = estilo.getPropertyValue('--bg').trim() || '#F7F1E6';
-    const corInk = estilo.getPropertyValue('--ink').trim() || '#3A2E22';
-    const corAccentA = estilo.getPropertyValue('--accent-a').trim() || '#D9714A';
-    const corAccentB = estilo.getPropertyValue('--accent-b').trim() || '#4A9B8E';
-    const corFaint = estilo.getPropertyValue('--ink-faint').trim() || '#B7A78D';
-
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = corBg; ctx.fillRect(0, 0, W, H);
-
-    ctx.strokeStyle = corAccentB; ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(36, 48); ctx.lineTo(W - 42, 38); ctx.lineTo(W - 38, H - 46); ctx.lineTo(42, H - 36); ctx.closePath();
-    ctx.stroke();
-
-    ctx.fillStyle = corInk; ctx.textAlign = 'center'; ctx.font = '700 18px "Nunito"';
-    ctx.fillText(periodoResumoLeitura === 'ano' ? `meu ${hoje.getFullYear()} de leitura` : 'meu mês de leitura', W / 2, 110);
-
-    if (lista.length > 0) {
-      ctx.fillStyle = corAccentA; ctx.font = '800 90px "Baloo 2"';
-      ctx.fillText(String(lista.length), W / 2, 230);
-      ctx.fillStyle = corInk; ctx.font = '700 20px "Nunito"';
-      ctx.fillText(lista.length === 1 ? 'livro terminado' : 'livros terminados', W / 2, 265);
-    } else {
-      ctx.fillStyle = corFaint; ctx.font = '700 22px "Nunito"';
-      ctx.fillText('nenhum livro terminado', W / 2, 215);
-      ctx.fillText(periodoResumoLeitura === 'ano' ? 'ainda esse ano' : 'ainda esse mês', W / 2, 245);
-    }
-
-    ctx.font = '700 16px "Nunito"'; ctx.fillStyle = corFaint;
-    ctx.fillText(`🔥 sequência atual: ${streak} dia${streak === 1 ? '' : 's'}`, W / 2, 305);
-
-    ctx.textAlign = 'center';
-    let y = 370;
-    lista.slice(0, 6).forEach(l => {
-      ctx.font = '700 17px "Nunito"'; ctx.fillStyle = corInk;
-      const linha = l.autor ? `${l.titulo} — ${l.autor}` : l.titulo;
-      const linhas = quebrarLinhasCanvas(ctx, linha, W - 140);
-      linhas.slice(0, 1).forEach(t => { ctx.fillText(t, W / 2, y); y += 34; });
-    });
-    if (lista.length > 6) {
-      ctx.font = '700 14px "Nunito"'; ctx.fillStyle = corFaint;
-      ctx.fillText(`+ ${lista.length - 6} outro${lista.length - 6 === 1 ? '' : 's'}`, W / 2, y + 4);
-    }
-
-    ctx.font = '700 18px "Nunito"';
-    const textoRodapeResumo = 'Átomo · seu diário tem visitas.';
-    const larguraTextoResumo = ctx.measureText(textoRodapeResumo).width;
-    const iconTamResumo = 30, gapResumo = 9;
-    const xInicioResumo = W / 2 - (iconTamResumo + gapResumo + larguraTextoResumo) / 2;
-
-    ctx.save();
-    ctx.translate(xInicioResumo, H - 70);
-    ctx.scale(iconTamResumo / 100, iconTamResumo / 100);
-    ctx.fillStyle = corAccentA;
-    ctx.fill(new Path2D('M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z'));
-    ctx.restore();
-
-    ctx.fillStyle = corFaint;
-    ctx.textAlign = 'left';
-    ctx.fillText(textoRodapeResumo, xInicioResumo + iconTamResumo + gapResumo, H - 50);
-
-    canvas.style.display = 'block';
-    document.getElementById('resumoLeituraAcoes').style.display = 'flex';
-  };
-
-  window.baixarResumoLeitura = function () {
-    const canvas = document.getElementById('resumoLeituraCanvas');
-    canvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'resumo-leitura-atomo.png'; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 3000);
-    }, 'image/png');
-  };
-
-  window.compartilharResumoLeituraFeed = function () {
-    const canvas = document.getElementById('resumoLeituraCanvas');
-    canvas.toBlob(async blob => {
-      const { data: sessionData } = await supabaseClient.auth.getSession();
-      const usuarioId = sessionData.session.user.id;
-      const caminho = `${usuarioId}/resumo-leitura-${Date.now()}.png`;
-      const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, blob, { contentType: 'image/png' });
-      if (erroUpload) { mostrarToast('❌ erro no upload: ' + erroUpload.message); return; }
-      const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
-      const { error } = await supabaseClient.from('posts').insert({
-        autor_id: usuarioId,
-        texto: periodoResumoLeitura === 'ano' ? '📚 meu resumo de leitura do ano' : '📚 meu resumo de leitura do mês',
-        tipo: 'Livro',
-        privado: false,
-        imagem_url: data.publicUrl,
-      });
-      if (error) { mostrarToast('❌ erro: ' + error.message); return; }
-      mostrarToast('✨ postado no feed!');
-      closeOverlay('resumoLeituraOverlay');
-      carregarPostsReais();
-    }, 'image/png');
-  };
 
   // ---------- leitor de epub (epub.js, carregado sob demanda) ----------
   let epubJsCarregado = null;
@@ -7754,8 +7720,55 @@ function ordenarItensDescobrir(itens) {
     : itens;
 }
 
+// noticias em alta (GNews) com cache de 1h -- a API tem cota limitada e a
+// lista de manchetes nao muda de minuto em minuto, entao nao faz sentido
+// buscar de novo a cada render; 1h por enquanto esta bom.
+async function buscarNoticiasEmAlta() {
+  const CACHE_KEY = 'atomo_noticias_cache_v1';
+  const UMA_HORA_MS = 60 * 60 * 1000;
+  try {
+    const cacheRaw = localStorage.getItem(CACHE_KEY);
+    if (cacheRaw) {
+      const cache = JSON.parse(cacheRaw);
+      if (cache && Array.isArray(cache.itens) && (Date.now() - cache.ts) < UMA_HORA_MS) {
+        return cache.itens;
+      }
+    }
+  } catch (e) { /* localStorage indisponivel -- segue sem cache */ }
+
+  let itens = [];
+  try {
+    const resp = await fetch(`${API_BASE}/api/noticias-em-alta`);
+    const dados = await resp.json();
+    itens = (dados.articles || []).filter(a => a.title).slice(0, 5).map(a => ({
+      kind: '📰 Notícia',
+      title: a.title,
+      desc: a.description || (a.source && a.source.name) || '',
+      imagemUrl: a.image || null,
+      postUrl: a.url,
+    }));
+  } catch (e) { console.log('erro noticias descobrir:', e); }
+
+  // so guarda no cache quando realmente veio alguma noticia -- se a busca
+  // falhou ou veio vazia (servidor dormindo, chave nao configurada no Render
+  // etc.), nao trava esse resultado vazio por 1h, deixa tentar de novo no
+  // proximo carregamento
+  if (itens.length) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), itens })); } catch (e) {}
+  }
+
+  return itens;
+}
+
 async function buscarPaginaDescobrir(pagina) {
   const itensPagina = [];
+
+  if (pagina === 1) {
+    try {
+      const itensNoticias = await buscarNoticiasEmAlta();
+      if (itensNoticias.length) itensPagina.push(itensNoticias[Math.floor(Math.random() * itensNoticias.length)]);
+    } catch (e) { console.log('erro noticias descobrir:', e); }
+  }
 
   try {
     const respFilmes = await fetch(`${API_BASE}/api/filmes-em-cartaz?pagina=${pagina}`);
@@ -8253,6 +8266,47 @@ window.carregarMaisDescobrir = async function () {
 let conversaAbertaId = null;
 let dmOutroUsuarioIdAtual = null;
 
+// ---------- indicador "digitando..." no cabecalho do chat (Supabase Realtime
+// Broadcast -- efemero, nao grava nada no banco, um canal por conversa) ----------
+let canalDigitando = null;
+let ultimoEnvioDigitando = 0;
+let timeoutDigitandoRemoto = null;
+
+function conectarCanalDigitando(convId, meuId) {
+  if (canalDigitando) { supabaseClient.removeChannel(canalDigitando); canalDigitando = null; }
+  canalDigitando = supabaseClient
+    .channel('digitando-' + convId)
+    .on('broadcast', { event: 'digitando' }, (msg) => {
+      if (!msg.payload || msg.payload.autor === meuId) return;
+      const statusEl = document.getElementById('dmChatStatus');
+      if (!statusEl) return;
+      statusEl.innerHTML = 'digitando<span class="digitando-dots"><span>.</span><span>.</span><span>.</span></span>';
+      clearTimeout(timeoutDigitandoRemoto);
+      // se a pessoa parar de digitar (sem mandar novo aviso por 2.5s), volta
+      // a mostrar o status normal (online/visto por ultimo)
+      timeoutDigitandoRemoto = setTimeout(() => {
+        if (dmOutroUsuarioIdAtual) atualizarStatusChatHeader(dmOutroUsuarioIdAtual);
+      }, 2500);
+    })
+    .subscribe();
+}
+
+window.sinalizarDigitando = function () {
+  if (!canalDigitando || !conversaAbertaId) return;
+  const agora = Date.now();
+  if (agora - ultimoEnvioDigitando < 1500) return; // throttle -- nao manda a cada tecla
+  ultimoEnvioDigitando = agora;
+  supabaseClient.auth.getSession().then(({ data }) => {
+    if (!data.session) return;
+    canalDigitando.send({ type: 'broadcast', event: 'digitando', payload: { autor: data.session.user.id } });
+  });
+};
+
+function desconectarCanalDigitando() {
+  if (canalDigitando) { supabaseClient.removeChannel(canalDigitando); canalDigitando = null; }
+  clearTimeout(timeoutDigitandoRemoto);
+}
+
 let dmTemaCorAtual = '';
 
 function aplicarTemaConversa(cor) {
@@ -8368,6 +8422,7 @@ window.abrirDm = async function (outroId, outroNome) {
   conversaAbertaId = await encontrarOuCriarConversa(outroId, meuId);
   if (!conversaAbertaId) { mostrarToast('❌ erro ao abrir conversa'); return; }
 
+  conectarCanalDigitando(conversaAbertaId, meuId);
   dmOutroUsuarioIdAtual = outroId;
   document.getElementById('dmChatName').textContent = '@' + outroNome;
   document.getElementById('dmChatOverlay').classList.add('open');

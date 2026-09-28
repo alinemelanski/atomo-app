@@ -32,6 +32,10 @@ create table if not exists clube_membros (
 --    só adiciona uma coluna pra marcar que aquele post é de um clube
 alter table posts add column if not exists clube_id uuid references clubes_livro(id) on delete cascade;
 
+-- 3b) capitulo/pagina atuais do clube — só o admin/criador pode alterar (ja coberto pela policy "clubes editar")
+alter table clubes_livro add column if not exists capitulo_atual text;
+alter table clubes_livro add column if not exists pagina_atual integer;
+
 -- 4) estante pessoal (epubs enviados por cada pessoa, leitura privada)
 create table if not exists estante_pessoal (
   id uuid primary key default gen_random_uuid(),
