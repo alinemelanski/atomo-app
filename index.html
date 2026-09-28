@@ -1049,7 +1049,11 @@
   #clubeDetalheOverlay .discover-card { animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }
 
   /* ---------- clube: mural em bolhas de chat, tipo grupo de conversa ---------- */
-  #clubeDetalheMural { display: flex; flex-direction: column; gap: 10px; }
+  /* (comunidadeDetalheMural reaproveita o mesmo componente de bolha
+     postClubeHtml() pro mural da comunidade de estudo, então precisa do
+     mesmo display:flex aqui, senão o align-self das bolhas "own"/"other"
+     não funciona sem um pai flex e o texto fica torto/desalinhado) */
+  #clubeDetalheMural, #comunidadeDetalheMural { display: flex; flex-direction: column; gap: 10px; }
   .clube-msg-row { display: flex; flex-direction: column; max-width: 78%; animation: clubeCardEntra .35s cubic-bezier(.2,.8,.2,1) backwards; }
   .clube-msg-row.own { align-self: flex-end; align-items: flex-end; }
   .clube-msg-row.other { align-self: flex-start; align-items: flex-start; }
@@ -2412,37 +2416,6 @@
             style="flex:1; background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; max-height:90px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralComunidadeEstudo(); }"></textarea>
           <button class="dm-send-btn" onclick="publicarNoMuralComunidadeEstudo()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- OVERLAY: ESCOLHER TIPO DE COMUNIDADE -->
-    <div class="composer-glass-bg" id="escolherTipoComunidadeOverlay" onclick="if(event.target===this) closeOverlay('escolherTipoComunidadeOverlay')">
-      <div class="composer-glass-card" style="max-width:380px;">
-        <div class="composer-glass-header">
-          <h2>Criar comunidade</h2>
-          <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('escolherTipoComunidadeOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
-        </div>
-        <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 14px;">o que você quer criar?</div>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <div class="comunidade-card" style="margin-bottom:0;" onclick="escolherTipoComunidade('livro')">
-            <div class="comunidade-card-top" style="margin-bottom:0;">
-              <div class="comunidade-icone" style="background:var(--accent-a);"><span class="icon-svg" style="width:18px;height:18px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/></svg></span></div>
-              <div style="flex:1; min-width:0;">
-                <div class="comunidade-titulo">Clube do livro</div>
-                <div class="comunidade-desc" style="margin:3px 0 0;">mural, citações, sala de leitura em grupo</div>
-              </div>
-            </div>
-          </div>
-          <div class="comunidade-card" style="margin-bottom:0;" onclick="escolherTipoComunidade('estudo')">
-            <div class="comunidade-card-top" style="margin-bottom:0;">
-              <div class="comunidade-icone" style="background:var(--accent-b);"><span class="icon-svg" style="width:18px;height:18px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg></span></div>
-              <div style="flex:1; min-width:0;">
-                <div class="comunidade-titulo">Comunidade de estudo</div>
-                <div class="comunidade-desc" style="margin:3px 0 0;">vestibular, concurso, idioma, filosofia...</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -6498,77 +6471,46 @@ window.trocarModoDescobrir = function (modo) {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const meuId = sessionData.session ? sessionData.session.user.id : null;
 
-    const [{ data: clubes, error: erroClubes }, { data: estudos, error: erroEstudos }] = await Promise.all([
-      supabaseClient.from('clubes_livro').select('*, clube_membros(usuario_id)').order('criado_em', { ascending: false }),
-      supabaseClient.from('comunidades_estudo').select('*, comunidade_estudo_membros(usuario_id)').order('criado_em', { ascending: false }),
-    ]);
+    const { data: estudos, error } = await supabaseClient
+      .from('comunidades_estudo')
+      .select('*, comunidade_estudo_membros(usuario_id)')
+      .order('criado_em', { ascending: false });
 
-    if (erroClubes && erroEstudos) {
-      lista.innerHTML = `<div class="visitor-lock-note">Não consegui carregar as comunidades agora${erroEstudos.message.includes('comunidades_estudo') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
+    if (error) {
+      lista.innerHTML = `<div class="visitor-lock-note">Não consegui carregar as comunidades agora${error.message.includes('comunidades_estudo') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
       return;
     }
 
-    window.ITENS_CLUBES_ATUAIS = clubes || [];
     window.ITENS_COMUNIDADES_ESTUDO_ATUAIS = estudos || [];
-
-    const itensUnificados = [
-      ...(clubes || []).map((c, idx) => ({ tipo: 'livro', idx, criado_em: c.criado_em, card: c })),
-      ...(estudos || []).map((c, idx) => ({ tipo: 'estudo', idx, criado_em: c.criado_em, card: c })),
-    ].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
-
-    const totalComunidades = itensUnificados.length;
-    const minhas = itensUnificados.filter(it => it.tipo === 'livro'
-      ? (it.card.clube_membros || []).some(m => m.usuario_id === meuId)
-      : (it.card.comunidade_estudo_membros || []).some(m => m.usuario_id === meuId)
-    ).length;
+    const totalComunidades = (estudos || []).length;
+    const minhas = (estudos || []).filter(c => (c.comunidade_estudo_membros || []).some(m => m.usuario_id === meuId)).length;
 
     lista.innerHTML = `
       <div class="clube-lista-wrap">
         <svg class="clube-watermark" viewBox="0 0 100 100">
           <path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
         </svg>
-        <div class="clube-kicker">gente estudando e lendo junto</div>
+        <div class="clube-kicker">gente estudando junto</div>
         <div class="clube-titulo-grande">Comunidades</div>
         <div class="clube-sub-grande">${totalComunidades} comunidade${totalComunidades === 1 ? '' : 's'}${minhas ? ` · você participa de ${minhas}` : ''}</div>
         <button class="clube-criar-btn" onclick="abrirCriarComunidade()">+ criar comunidade</button>
         ${totalComunidades
-          ? itensUnificados.map((it, i) => cardComunidadeHtml(it, i, meuId)).join('')
-          : estadoVazio('nenhuma comunidade ainda', 'crie a primeira — um clube de livro ou um grupo de estudo', '+ criar comunidade', 'abrirCriarComunidade()')}
+          ? estudos.map((c, i) => cardComunidadeHtml(c, i, meuId)).join('')
+          : estadoVazio('nenhuma comunidade ainda', 'crie a primeira — vestibular, concurso, idioma, filosofia...', '+ criar comunidade', 'abrirCriarComunidade()')}
       </div>`;
   }
 
-  function cardComunidadeHtml(it, i, meuId) {
+  function cardComunidadeHtml(c, i, meuId) {
     const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
-    const c = it.card;
     const setaOuCadeado = (privado) => privado
       ? icone('cadeado', 13)
       : `<span class="icon-svg" style="width:15px;height:15px; color:var(--ink-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>`;
-
-    if (it.tipo === 'livro') {
-      const membros = c.clube_membros || [];
-      const souMembro = membros.some(m => m.usuario_id === meuId);
-      return `
-        <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirClube(${it.idx})">
-          <div class="comunidade-card-top">
-            <div class="comunidade-icone" style="background:${cor}">${icone('livro', 18, i, '#fff')}</div>
-            <div style="flex:1; min-width:0;">
-              <span class="comunidade-badge">leitura · clube do livro</span>
-              <div class="comunidade-titulo">${c.nome}</div>
-            </div>
-          </div>
-          <div class="comunidade-desc">${c.livro_titulo ? `lendo agora: ${c.livro_titulo}` : 'sem livro definido ainda'}</div>
-          <div class="comunidade-footer">
-            <span class="comunidade-membros-txt" style="margin-left:0;">${icone('pessoas', 12)} ${membros.length}${souMembro ? ' · você' : ''}</span>
-            ${setaOuCadeado(c.privado)}
-          </div>
-        </div>`;
-    }
 
     const membros = c.comunidade_estudo_membros || [];
     const souMembro = membros.some(m => m.usuario_id === meuId);
     const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
     return `
-      <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirComunidadeDetalhe(${it.idx})">
+      <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirComunidadeDetalhe(${i})">
         <div class="comunidade-card-top">
           <div class="comunidade-icone" style="background:${cor}">${icone('comunidades', 18, i, '#fff')}</div>
           <div style="flex:1; min-width:0;">
@@ -6584,18 +6526,11 @@ window.trocarModoDescobrir = function (modo) {
       </div>`;
   }
 
-  // ---------- criar comunidade: escolhe o tipo primeiro, depois reaproveita
-  // o abrirCriarClube() que já existe (clube) ou abre o formulário novo
-  // (comunidade de estudo) ----------
-  window.abrirCriarComunidade = function () {
-    document.getElementById('escolherTipoComunidadeOverlay').classList.add('open');
-  };
-
+  // ---------- criar comunidade de estudo (o clube do livro tem seu próprio
+  // botão de criar, separado, na aba "clube do livro") ----------
   let categoriaComunidadeEstudoSelecionada = CATEGORIAS_COMUNIDADE_ESTUDO[0].valor;
 
-  window.escolherTipoComunidade = function (tipo) {
-    closeOverlay('escolherTipoComunidadeOverlay');
-    if (tipo === 'livro') { abrirCriarClube(); return; }
+  window.abrirCriarComunidade = function () {
     document.getElementById('criarComunidadeEstudoTitulo').value = '';
     document.getElementById('criarComunidadeEstudoDesc').value = '';
     document.getElementById('criarComunidadeEstudoPrivada').checked = false;
@@ -6637,7 +6572,6 @@ window.trocarModoDescobrir = function (modo) {
 
   // ---------- detalhe de comunidade de estudo ----------
   let comunidadeEstudoAtualId = null;
-  let muralComunidadeMeuId = null;
 
   window.abrirComunidadeDetalhe = async function (i) {
     const c = window.ITENS_COMUNIDADES_ESTUDO_ATUAIS[i];
@@ -6693,7 +6627,10 @@ window.trocarModoDescobrir = function (modo) {
     const wrap = document.getElementById('comunidadeDetalheMural');
     wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
     const { data: sessionData } = await supabaseClient.auth.getSession();
-    muralComunidadeMeuId = sessionData.session ? sessionData.session.user.id : null;
+    // reaproveita a mesma variável global que postClubeHtml() já lê pra
+    // decidir se a bolha é "minha" ou "de outra pessoa" (o mural da
+    // comunidade de estudo usa o mesmo componente de bolha do clube)
+    muralClubeMeuId = sessionData.session ? sessionData.session.user.id : null;
 
     const { data, error } = await supabaseClient
       .from('posts')
