@@ -4494,11 +4494,11 @@ if (p.autor_id !== sessionData.session.user.id) {
     if (!texto) return '';
     const mYoutube = texto.match(REGEX_YOUTUBE_EMBED);
     if (mYoutube) {
-      return `<div class="post-video-embed" data-video-embed><iframe data-src="https://www.youtube.com/embed/${mYoutube[1]}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
+      return `<div class="post-video-embed" data-video-embed><iframe data-src="https://www.youtube.com/embed/${mYoutube[1]}" allow="autoplay; encrypted-media; fullscreen"></iframe></div>`;
     }
     const mVimeo = texto.match(REGEX_VIMEO_EMBED);
     if (mVimeo) {
-      return `<div class="post-video-embed" data-video-embed><iframe data-src="https://player.vimeo.com/video/${mVimeo[1]}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
+      return `<div class="post-video-embed" data-video-embed><iframe data-src="https://player.vimeo.com/video/${mVimeo[1]}" allow="autoplay; encrypted-media; fullscreen"></iframe></div>`;
     }
     return '';
   };
@@ -11246,8 +11246,6 @@ let notifAtivo = true;
   
 supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
   if (session) {
-            console.log('MEU E-MAIL REAL:', session.user.email);
-
     const { data: perfilExistente } = await supabaseClient
       .from('usuarios')
       .select('id')
