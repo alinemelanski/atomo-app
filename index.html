@@ -2400,11 +2400,75 @@
       </div>
       <div class="discover-desc" id="comunidadeDetalheSub" style="margin-bottom:12px;"></div>
       <div class="comunidade-meta-chip-row" id="comunidadeDetalheMetaChips"></div>
+      <div id="comunidadeDetalheAcoes" style="margin-bottom:8px;"></div>
       <div id="comunidadeDetalheMural" style="overflow-y:auto; flex:1; padding-bottom:74px;"></div>
       <button class="iniciar-sala-fab" id="comunidadeIniciarSalaBtn" onclick="abrirSalaDaComunidadeAtual()">
         <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span>
         iniciar sala de call de estudo
       </button>
+      <div id="comunidadeDetalheComposerWrap" style="position:absolute; left:16px; right:16px; bottom:calc(70px + env(safe-area-inset-bottom));">
+        <div class="dm-input-row">
+          <textarea id="comunidadeComposerText" placeholder="o que você quer compartilhar com a comunidade?" rows="1"
+            style="flex:1; background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; max-height:90px;"
+            onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralComunidadeEstudo(); }"></textarea>
+          <button class="dm-send-btn" onclick="publicarNoMuralComunidadeEstudo()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY: ESCOLHER TIPO DE COMUNIDADE -->
+    <div class="composer-glass-bg" id="escolherTipoComunidadeOverlay" onclick="if(event.target===this) closeOverlay('escolherTipoComunidadeOverlay')">
+      <div class="composer-glass-card" style="max-width:380px;">
+        <div class="composer-glass-header">
+          <h2>Criar comunidade</h2>
+          <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('escolherTipoComunidadeOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        </div>
+        <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 14px;">o que você quer criar?</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="comunidade-card" style="margin-bottom:0;" onclick="escolherTipoComunidade('livro')">
+            <div class="comunidade-card-top" style="margin-bottom:0;">
+              <div class="comunidade-icone" style="background:var(--accent-a);"><span class="icon-svg" style="width:18px;height:18px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/></svg></span></div>
+              <div style="flex:1; min-width:0;">
+                <div class="comunidade-titulo">Clube do livro</div>
+                <div class="comunidade-desc" style="margin:3px 0 0;">mural, citações, sala de leitura em grupo</div>
+              </div>
+            </div>
+          </div>
+          <div class="comunidade-card" style="margin-bottom:0;" onclick="escolherTipoComunidade('estudo')">
+            <div class="comunidade-card-top" style="margin-bottom:0;">
+              <div class="comunidade-icone" style="background:var(--accent-b);"><span class="icon-svg" style="width:18px;height:18px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg></span></div>
+              <div style="flex:1; min-width:0;">
+                <div class="comunidade-titulo">Comunidade de estudo</div>
+                <div class="comunidade-desc" style="margin:3px 0 0;">vestibular, concurso, idioma, filosofia...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY: CRIAR COMUNIDADE DE ESTUDO -->
+    <div class="dm-chat-overlay" id="criarComunidadeEstudoOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('criarComunidadeEstudoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Criar comunidade de estudo</h2>
+      </div>
+      <div class="edit-field-label">Nome da comunidade</div>
+      <input type="text" id="criarComunidadeEstudoTitulo" class="busca-input" placeholder="ex: Vestibular 2027" />
+      <div class="edit-field-label">Descrição (opcional)</div>
+      <textarea id="criarComunidadeEstudoDesc" class="edit-bio-textarea" placeholder="sobre o que é essa comunidade..."></textarea>
+      <div class="edit-field-label">Categoria</div>
+      <div class="feed-modo-row" id="categoriasComunidadeRow" style="flex-wrap:wrap; margin-bottom:6px;">
+        <div class="onboard-topic-chip categoria-comunidade-chip on" onclick="escolherCategoriaComunidadeEstudo('vestibular', this)">🎓 vestibular</div>
+        <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('concurso', this)">📝 concurso</div>
+        <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('idioma', this)">🗣 idioma</div>
+        <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('filosofia', this)">💭 filosofia</div>
+        <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('geral', this)">📚 geral</div>
+      </div>
+      <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim); position:relative;">
+        <input type="checkbox" id="criarComunidadeEstudoPrivada" class="check-custom-input" /><span class="check-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> comunidade privada (só quem você convidar)
+      </label>
+      <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovaComunidadeEstudo()">Criar comunidade</button>
     </div>
 
     <!-- OVERLAY: SALA DE CALL DE ESTUDO AO VIVO (protótipo aprovado por ela — visual por enquanto, sem áudio real) -->
@@ -6407,47 +6471,57 @@ window.trocarModoDescobrir = function (modo) {
       </div>`;
   }
 
-  // ---------- comunidades (protótipo aprovado por ela em 29/09 — por enquanto
-  // 100% visual/mock, sem tabela no banco ainda; foi pedido pra construir
-  // primeiro a parte visual idêntica ao protótipo, e só depois, quando ela
-  // decidir o provedor de áudio (Daily.co/LiveKit/Agora), ligar de verdade
-  // a sala com áudio real, presença real e timer sincronizado) ----------
+  // ---------- comunidades (29/09 — real agora: clube do livro continua com
+  // suas próprias tabelas/telas de sempre (clubes_livro/clube_membros, sem
+  // nenhuma mudança); comunidades de estudo usam as tabelas novas
+  // comunidades_estudo/comunidade_estudo_membros, e o mural reaproveita a
+  // tabela posts igual o clube já fazia com clube_id, só que com a coluna
+  // comunidade_estudo_id. A sala de call continua visual/mock por enquanto
+  // — fica pra quando ela decidir o provedor de áudio) ----------
   const CORES_COMUNIDADE = ['var(--accent-a)', 'var(--accent-b)', 'var(--yellow)', 'var(--pink)', 'var(--ink-dim)'];
-
-  const COMUNIDADES_MOCK = [
-    { tipo: 'livro', badge: 'leitura · clube do livro', titulo: 'Torto Arado', desc: 'clube do livro clássico — mural, citações e sala de leitura em grupo, do jeito que já é hoje.', membros: 18, live: true,
-      mesaEyebrow: 'lendo agora', mesaTitulo: 'Torto Arado — Itamar Vieira Jr.', mesaSub: 'capítulo 9 de 22 · página 118', meuStatus: 'relendo o capítulo 9',
-      metaChips: [], mural: [] },
-    { tipo: 'estudo', badge: 'concurso', titulo: 'Concurso TRT — call de estudos', desc: 'grupo focado em direito administrativo e constitucional, com salas de call quase todo dia.', membros: 41, live: true,
-      mesaEyebrow: 'na mesa agora', mesaTitulo: 'direito administrativo — atos vinculados', mesaSub: 'página 112 · capítulo 6', meuStatus: 'relendo o capítulo 6',
-      metaChips: [], mural: [] },
-    { tipo: 'estudo', badge: 'vestibular', titulo: 'Vestibular 2027', desc: 'grupo de redação e simulados, contagem regressiva até a prova mostrada pra todo mundo.', membros: 32, live: false,
-      mesaEyebrow: 'tema de hoje', mesaTitulo: 'redação nota 1000: repertório sociocultural', mesaSub: '', meuStatus: 'treinando repertório',
-      metaChips: [{ texto: '🎯 prova em 47 dias' }, { texto: '🔥 6 dias seguidos ativos', teal: true }],
-      mural: [
-        { autor: 'Marina', txt: 'gente alguém entendeu a questão de redação sobre inteligência artificial? bora discutir amanhã na call?' },
-        { autor: 'Theo', txt: 'terminei o simulado de humanas, acertei 78%! bora comparar respostas 📈' },
-        { autor: 'Você', txt: 'criei um resumo de literatura, vou trazer pra próxima sala' },
-      ] },
-    { tipo: 'estudo', badge: 'idioma', titulo: 'Inglês fluente até dezembro', desc: 'meta compartilhada, sala de conversação semanal e streak coletivo de prática.', membros: 24, live: false,
-      mesaEyebrow: 'tema de hoje', mesaTitulo: 'conversação — rotina do dia a dia', mesaSub: '', meuStatus: 'praticando listening',
-      metaChips: [{ texto: '🎯 meta até dezembro' }, { texto: '🔥 streak coletivo de 12 dias', teal: true }],
-      mural: [
-        { autor: 'Rafa', txt: 'achei um podcast ótimo pra quem tá on B1/B2, posso trazer trechos pra sala de sexta' },
-        { autor: 'Você', txt: 'gravei um áudio de 2min contando meu dia em inglês, adoraria feedback' },
-      ] },
-    { tipo: 'estudo', badge: 'filosofia', titulo: 'Filosofia às quintas', desc: 'um texto curto por semana, discussão às quintas às 20h, sem pressa nenhuma.', membros: 15, live: false,
-      mesaEyebrow: 'texto da semana', mesaTitulo: 'Sêneca — Sobre a brevidade da vida', mesaSub: '', meuStatus: 'lendo devagar',
-      metaChips: [{ texto: '📅 próximo encontro quinta 20h' }],
-      mural: [
-        { autor: 'Bia', txt: 'esse trecho sobre "perder tempo" bateu forte, alguém mais sentiu isso?' },
-      ] },
+  const CATEGORIAS_COMUNIDADE_ESTUDO = [
+    { valor: 'vestibular', label: '🎓 vestibular' },
+    { valor: 'concurso', label: '📝 concurso' },
+    { valor: 'idioma', label: '🗣 idioma' },
+    { valor: 'filosofia', label: '💭 filosofia' },
+    { valor: 'geral', label: '📚 geral' },
   ];
 
   function iniciaisNome(nome) { return nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
 
-  function renderComunidades() {
+  window.ITENS_COMUNIDADES_ESTUDO_ATUAIS = [];
+
+  async function renderComunidades() {
     const lista = document.getElementById('livrosList');
+    lista.innerHTML = skeletonCardsHtml(3);
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const [{ data: clubes, error: erroClubes }, { data: estudos, error: erroEstudos }] = await Promise.all([
+      supabaseClient.from('clubes_livro').select('*, clube_membros(usuario_id)').order('criado_em', { ascending: false }),
+      supabaseClient.from('comunidades_estudo').select('*, comunidade_estudo_membros(usuario_id)').order('criado_em', { ascending: false }),
+    ]);
+
+    if (erroClubes && erroEstudos) {
+      lista.innerHTML = `<div class="visitor-lock-note">Não consegui carregar as comunidades agora${erroEstudos.message.includes('comunidades_estudo') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
+      return;
+    }
+
+    window.ITENS_CLUBES_ATUAIS = clubes || [];
+    window.ITENS_COMUNIDADES_ESTUDO_ATUAIS = estudos || [];
+
+    const itensUnificados = [
+      ...(clubes || []).map((c, idx) => ({ tipo: 'livro', idx, criado_em: c.criado_em, card: c })),
+      ...(estudos || []).map((c, idx) => ({ tipo: 'estudo', idx, criado_em: c.criado_em, card: c })),
+    ].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
+
+    const totalComunidades = itensUnificados.length;
+    const minhas = itensUnificados.filter(it => it.tipo === 'livro'
+      ? (it.card.clube_membros || []).some(m => m.usuario_id === meuId)
+      : (it.card.comunidade_estudo_membros || []).some(m => m.usuario_id === meuId)
+    ).length;
+
     lista.innerHTML = `
       <div class="clube-lista-wrap">
         <svg class="clube-watermark" viewBox="0 0 100 100">
@@ -6455,75 +6529,218 @@ window.trocarModoDescobrir = function (modo) {
         </svg>
         <div class="clube-kicker">gente estudando e lendo junto</div>
         <div class="clube-titulo-grande">Comunidades</div>
-        <div class="clube-sub-grande">${COMUNIDADES_MOCK.length} comunidades · clubes de livro e grupos de estudo, tudo no mesmo lugar</div>
+        <div class="clube-sub-grande">${totalComunidades} comunidade${totalComunidades === 1 ? '' : 's'}${minhas ? ` · você participa de ${minhas}` : ''}</div>
         <button class="clube-criar-btn" onclick="abrirCriarComunidade()">+ criar comunidade</button>
-        ${COMUNIDADES_MOCK.map((c, i) => cardComunidadeHtml(c, i)).join('')}
+        ${totalComunidades
+          ? itensUnificados.map((it, i) => cardComunidadeHtml(it, i, meuId)).join('')
+          : estadoVazio('nenhuma comunidade ainda', 'crie a primeira — um clube de livro ou um grupo de estudo', '+ criar comunidade', 'abrirCriarComunidade()')}
       </div>`;
   }
 
-  function cardComunidadeHtml(c, i) {
+  function cardComunidadeHtml(it, i, meuId) {
     const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
-    const iconeTipo = c.tipo === 'livro' ? icone('livro', 18, i, '#fff') : icone('comunidades', 18, i, '#fff');
-    const nomesAvatares = ['M', 'L', 'J'];
-    const avatares = [0, 1, 2].map(n => `<div class="comunidade-mini-avatar" style="background:${CORES_COMUNIDADE[(i + n + 1) % CORES_COMUNIDADE.length]}">${nomesAvatares[n]}</div>`).join('');
-    const acao = c.live ? `abrirComunidadeSalaDireto(${i})` : `abrirComunidadeDetalhe(${i})`;
+    const c = it.card;
+    const setaOuCadeado = (privado) => privado
+      ? icone('cadeado', 13)
+      : `<span class="icon-svg" style="width:15px;height:15px; color:var(--ink-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>`;
+
+    if (it.tipo === 'livro') {
+      const membros = c.clube_membros || [];
+      const souMembro = membros.some(m => m.usuario_id === meuId);
+      return `
+        <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirClube(${it.idx})">
+          <div class="comunidade-card-top">
+            <div class="comunidade-icone" style="background:${cor}">${icone('livro', 18, i, '#fff')}</div>
+            <div style="flex:1; min-width:0;">
+              <span class="comunidade-badge">leitura · clube do livro</span>
+              <div class="comunidade-titulo">${c.nome}</div>
+            </div>
+          </div>
+          <div class="comunidade-desc">${c.livro_titulo ? `lendo agora: ${c.livro_titulo}` : 'sem livro definido ainda'}</div>
+          <div class="comunidade-footer">
+            <span class="comunidade-membros-txt" style="margin-left:0;">${icone('pessoas', 12)} ${membros.length}${souMembro ? ' · você' : ''}</span>
+            ${setaOuCadeado(c.privado)}
+          </div>
+        </div>`;
+    }
+
+    const membros = c.comunidade_estudo_membros || [];
+    const souMembro = membros.some(m => m.usuario_id === meuId);
+    const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
     return `
-      <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="${acao}">
+      <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirComunidadeDetalhe(${it.idx})">
         <div class="comunidade-card-top">
-          <div class="comunidade-icone" style="background:${cor}">${iconeTipo}</div>
+          <div class="comunidade-icone" style="background:${cor}">${icone('comunidades', 18, i, '#fff')}</div>
           <div style="flex:1; min-width:0;">
-            <span class="comunidade-badge">${c.badge}</span>
+            <span class="comunidade-badge">${categoria ? categoria.label : c.categoria}</span>
             <div class="comunidade-titulo">${c.titulo}</div>
           </div>
         </div>
-        <div class="comunidade-desc">${c.desc}</div>
+        <div class="comunidade-desc">${c.descricao || 'sem descrição ainda'}</div>
         <div class="comunidade-footer">
-          <div style="display:flex; align-items:center;">
-            <div class="comunidade-avatar-stack">${avatares}</div>
-            <span class="comunidade-membros-txt">${c.membros} membros</span>
-          </div>
-          ${c.live
-            ? `<div class="ao-vivo-pill"><span class="live-dot"></span> ao vivo agora</div>`
-            : `<span class="icon-svg" style="width:15px;height:15px; color:var(--ink-faint);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>`}
+          <span class="comunidade-membros-txt" style="margin-left:0;">${icone('pessoas', 12)} ${membros.length}${souMembro ? ' · você' : ''}</span>
+          ${setaOuCadeado(c.privada)}
         </div>
       </div>`;
   }
 
+  // ---------- criar comunidade: escolhe o tipo primeiro, depois reaproveita
+  // o abrirCriarClube() que já existe (clube) ou abre o formulário novo
+  // (comunidade de estudo) ----------
   window.abrirCriarComunidade = function () {
-    mostrarToast('🎨 em breve — por enquanto dá pra navegar pelas comunidades de exemplo');
+    document.getElementById('escolherTipoComunidadeOverlay').classList.add('open');
   };
 
-  let comunidadeAtualParaSala = null;
+  let categoriaComunidadeEstudoSelecionada = CATEGORIAS_COMUNIDADE_ESTUDO[0].valor;
 
-  window.abrirComunidadeDetalhe = function (i) {
-    const c = COMUNIDADES_MOCK[i];
+  window.escolherTipoComunidade = function (tipo) {
+    closeOverlay('escolherTipoComunidadeOverlay');
+    if (tipo === 'livro') { abrirCriarClube(); return; }
+    document.getElementById('criarComunidadeEstudoTitulo').value = '';
+    document.getElementById('criarComunidadeEstudoDesc').value = '';
+    document.getElementById('criarComunidadeEstudoPrivada').checked = false;
+    categoriaComunidadeEstudoSelecionada = CATEGORIAS_COMUNIDADE_ESTUDO[0].valor;
+    document.querySelectorAll('.categoria-comunidade-chip').forEach((el, idx) => el.classList.toggle('on', idx === 0));
+    document.getElementById('criarComunidadeEstudoOverlay').classList.add('open');
+  };
+
+  window.escolherCategoriaComunidadeEstudo = function (valor, el) {
+    categoriaComunidadeEstudoSelecionada = valor;
+    document.querySelectorAll('.categoria-comunidade-chip').forEach(e => e.classList.remove('on'));
+    el.classList.add('on');
+  };
+
+  window.salvarNovaComunidadeEstudo = async function () {
+    const titulo = document.getElementById('criarComunidadeEstudoTitulo').value.trim();
+    if (!titulo) { mostrarToast('❌ dá um nome pra comunidade'); return; }
+    const descricao = document.getElementById('criarComunidadeEstudoDesc').value.trim();
+    const privada = document.getElementById('criarComunidadeEstudoPrivada').checked;
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+
+    const { data, error } = await supabaseClient.from('comunidades_estudo').insert({
+      titulo, descricao: descricao || null, categoria: categoriaComunidadeEstudoSelecionada, privada, criador_id: usuarioId,
+    }).select().single();
+
+    if (error) {
+      mostrarToast('❌ erro: ' + error.message + (error.message.includes('comunidades_estudo') ? ' — falta rodar a migração do banco' : ''));
+      return;
+    }
+
+    await supabaseClient.from('comunidade_estudo_membros').insert({ comunidade_id: data.id, usuario_id: usuarioId, papel: 'admin' });
+
+    mostrarToast('✨ Comunidade criada!');
+    closeOverlay('criarComunidadeEstudoOverlay');
+    renderComunidades();
+  };
+
+  // ---------- detalhe de comunidade de estudo ----------
+  let comunidadeEstudoAtualId = null;
+  let muralComunidadeMeuId = null;
+
+  window.abrirComunidadeDetalhe = async function (i) {
+    const c = window.ITENS_COMUNIDADES_ESTUDO_ATUAIS[i];
     if (!c) return;
-    comunidadeAtualParaSala = c;
-    document.getElementById('comunidadeDetalheTitulo').textContent = c.titulo;
-    document.getElementById('comunidadeDetalheSub').textContent = `${c.membros} membros · comunidade pública`;
-    document.getElementById('comunidadeDetalheMetaChips').innerHTML = (c.metaChips || [])
-      .map(m => `<div class="comunidade-meta-chip${m.teal ? ' teal' : ''}">${m.texto}</div>`).join('')
-      || `<div class="comunidade-meta-chip">${icone('pessoas', 12)} ${c.membros} membros</div>`;
-    document.getElementById('comunidadeDetalheMural').innerHTML = (c.mural && c.mural.length)
-      ? c.mural.map(p => `<div class="mural-post-demo" style="background:var(--card); border:1px solid var(--card-b); border-radius:16px; padding:12px; margin-bottom:10px;">
-          <div style="font-size:11.5px; font-weight:800; color:var(--ink); font-family:'DM Sans',sans-serif; margin-bottom:3px;">${p.autor}</div>
-          <div style="font-size:12.5px; color:var(--ink-dim); line-height:1.5;">${p.txt}</div>
-        </div>`).join('')
-      : estadoVazio('mural vazio ainda', 'seja a primeira pessoa a postar algo por aqui');
+    comunidadeEstudoAtualId = c.id;
     document.getElementById('comunidadeDetalheOverlay').classList.add('open');
+    await renderComunidadeEstudoDetalhe();
   };
 
-  window.abrirComunidadeSalaDireto = function (i) {
-    const c = COMUNIDADES_MOCK[i];
+  async function renderComunidadeEstudoDetalhe() {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const { data: c, error } = await supabaseClient
+      .from('comunidades_estudo')
+      .select('*, comunidade_estudo_membros(usuario_id, papel)')
+      .eq('id', comunidadeEstudoAtualId)
+      .single();
+
+    if (error || !c) { mostrarToast('❌ não consegui abrir essa comunidade'); closeOverlay('comunidadeDetalheOverlay'); return; }
+
+    const membros = c.comunidade_estudo_membros || [];
+    const souMembro = membros.some(m => m.usuario_id === meuId);
+    const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
+
+    document.getElementById('comunidadeDetalheTitulo').textContent = c.titulo;
+    document.getElementById('comunidadeDetalheSub').textContent = `${membros.length} membro${membros.length === 1 ? '' : 's'} · ${c.privada ? 'comunidade privada' : 'comunidade pública'}`;
+
+    document.getElementById('comunidadeDetalheMetaChips').innerHTML = `
+      <div class="comunidade-meta-chip">${categoria ? categoria.label : c.categoria}</div>
+      ${c.tema_atual ? `<div class="comunidade-meta-chip teal">📌 ${c.tema_atual}</div>` : ''}`;
+
+    document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
+      ? ''
+      : `<button class="post-btn" style="width:100%;" onclick="entrarNaComunidadeEstudo()">entrar na comunidade</button>`;
+
+    document.getElementById('comunidadeIniciarSalaBtn').style.display = souMembro ? 'flex' : 'none';
+    document.getElementById('comunidadeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
+
+    await renderMuralComunidadeEstudo();
+  }
+
+  window.entrarNaComunidadeEstudo = async function () {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    const { error } = await supabaseClient.from('comunidade_estudo_membros').insert({ comunidade_id: comunidadeEstudoAtualId, usuario_id: usuarioId, papel: 'membro' });
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('🎉 você entrou na comunidade');
+    renderComunidadeEstudoDetalhe();
+  };
+
+  async function renderMuralComunidadeEstudo() {
+    const wrap = document.getElementById('comunidadeDetalheMural');
+    wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    muralComunidadeMeuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const { data, error } = await supabaseClient
+      .from('posts')
+      .select('*, usuarios(handle, avatar_url)')
+      .eq('comunidade_estudo_id', comunidadeEstudoAtualId)
+      .order('criado_em', { ascending: true });
+
+    if (error) { wrap.innerHTML = `<div class="visitor-lock-note">Não consegui carregar o mural.</div>`; return; }
+
+    const posts = data || [];
+    // reaproveita o mesmo componente de bolha de mensagem que o mural do
+    // clube do livro já usa (postClubeHtml) — os campos que ele não usa
+    // aqui (capitulo_livro/tem_spoiler) simplesmente vêm undefined/false
+    wrap.innerHTML = posts.length
+      ? posts.map(p => postClubeHtml(p)).join('')
+      : estadoVazio('mural vazio ainda', 'seja a primeira pessoa a postar algo por aqui');
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  window.publicarNoMuralComunidadeEstudo = async function () {
+    const texto = document.getElementById('comunidadeComposerText').value.trim();
+    if (!texto) return;
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+
+    const { error } = await supabaseClient.from('posts').insert({
+      autor_id: usuarioId, texto, tipo: 'Comunidade', privado: false, comunidade_estudo_id: comunidadeEstudoAtualId,
+    });
+
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    document.getElementById('comunidadeComposerText').value = '';
+    renderMuralComunidadeEstudo();
+  };
+
+  window.abrirSalaDaComunidadeAtual = async function () {
+    const { data: c } = await supabaseClient.from('comunidades_estudo').select('*').eq('id', comunidadeEstudoAtualId).single();
     if (!c) return;
-    iniciarSalaEstudo(c);
+    closeOverlay('comunidadeDetalheOverlay');
+    iniciarSalaEstudo({
+      titulo: c.titulo,
+      mesaEyebrow: c.tema_atual ? 'na mesa agora' : 'sem tema definido ainda',
+      mesaTitulo: c.tema_atual || 'defina um tema pra essa sessão',
+      mesaSub: '',
+      meuStatus: 'por aqui',
+    });
   };
 
-  window.abrirSalaDaComunidadeAtual = function () {
-    if (!comunidadeAtualParaSala) return;
-    closeOverlay('comunidadeDetalheOverlay');
-    iniciarSalaEstudo(comunidadeAtualParaSala);
-  };
 
   // ---------- sala de call de estudo ao vivo (visual/protótipo por enquanto) ----------
   const participantesDemoSala = [
