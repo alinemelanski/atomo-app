@@ -1498,6 +1498,36 @@ app.get('/api/horoscopo', async (req, res) => {
   }
 });
 
+// tema clima - clima real via lat/lon (API Ninjas, mesma chave do horoscopo),
+// devolve só o essencial que o app precisa pra decidir o estado visual.
+app.get('/api/clima', async (req, res) => {
+  if (!process.env.API_NINJAS_KEY) {
+    return res.status(500).json({ erro: 'faltou configurar API_NINJAS_KEY no servidor.env' });
+  }
+  const { lat, lon } = req.query;
+  if (!lat || !lon) return res.status(400).json({ erro: 'lat e lon são obrigatórios' });
+  try {
+    const resposta = await fetch(`https://api.api-ninjas.com/v1/weather?lat=${lat}&lon=${lon}`, {
+      headers: { 'X-Api-Key': process.env.API_NINJAS_KEY },
+    });
+    const dados = await resposta.json();
+    if (!dados || dados.error) {
+      console.log('clima sem retorno da API Ninjas — status:', resposta.status, 'corpo:', JSON.stringify(dados));
+      return res.status(500).json({ erro: 'falha ao buscar clima' });
+    }
+    res.json({
+      weather: dados.weather || dados.weather_description || '',
+      weather_description: dados.weather_description || '',
+      is_day: typeof dados.is_day === 'boolean' ? dados.is_day : null,
+      cloud_pct: dados.cloud_pct,
+      temp: dados.temp,
+    });
+  } catch (erro) {
+    console.log('erro ao buscar clima:', erro.message);
+    res.status(500).json({ erro: 'falha ao buscar clima' });
+  }
+});
+
 app.get('/api/noticias-em-alta', async (req, res) => {
   try {
     const resposta = await fetch(

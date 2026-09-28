@@ -33,6 +33,8 @@
     --pink-soft: #F7E0DA;
     --yellow: #E8A83D;
     --bg-tela-suave: #FBF7EE;
+    --vidro-fosco: 46%;
+    --vidro-fosco-leve: 41%;
     --raiva: #B33F30;
     --shadow: 0 3px 14px rgba(90,60,30,0.10);
   }
@@ -51,6 +53,13 @@
     --yellow: #E0A83D;
     --raiva: #C2503E;
     --shadow: 0 3px 14px rgba(0,0,0,0.5);
+    /* fundo suave do Explorar/Livros/Mensagens no escuro -- sem isso ele
+       ficava fixo no creme claro, e os cards de vidro (que usam --card
+       escuro em transparencia) misturavam com esse fundo claro e viravam
+       um cinza sujo em vez de vidro escuro de verdade */
+    --bg-tela-suave: #17140F;
+    --vidro-fosco: 84%;
+    --vidro-fosco-leve: 78%;
   }
 
   [data-theme="dark"] .tabbar:not(.textura-couro) { background: #161616; border-color: #2C2C2C; }
@@ -132,6 +141,60 @@
 
   .device { width: 390px; height: 844px; background: var(--bg); border-radius: 46px; position: relative; overflow: hidden;
     box-shadow: 0 30px 70px rgba(0,0,0,0.5); margin: 20px; border: 8px solid #0B0F14; transition: background .3s ease; }
+
+  /* ==========================================================================
+     TEMA CLIMA — inspirado na Princesa Mononoke (floresta magica, espiritos,
+     luz filtrando pela mata). Fica atras de todas as .screen (que nao tem
+     fundo opaco proprio, exceto Explorar/Livros/Mensagens que ganham
+     "clima-ativo" pra deixar o fundo passar o vidro por cima igual sempre).
+     5 estados dinamicos, nada estatico: sol, nublado, chuva, noite, primavera
+     (ipe amarelo, so aparece em vez de "sol" durante a primavera de verdade).
+     Mutuamente exclusivo com o modo escuro nativo -- ver toggleTemaClima().
+     ========================================================================== */
+  .clima-overlay { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    opacity: 0; transition: opacity .8s ease, background 1.2s ease; }
+  .clima-overlay.on { opacity: 1; }
+  .device.clima-ativo #screen-descobrir, .device.clima-ativo #screen-livros, .device.clima-ativo #screen-mensagens {
+    background: color-mix(in srgb, var(--card) 8%, transparent) !important;
+  }
+
+  .clima-overlay[data-estado="sol"] { background: radial-gradient(600px circle at 50% -10%, rgba(255,244,198,.55), transparent 55%),
+    linear-gradient(160deg, #cfe0a3 0%, #8fb36b 22%, #4f8a52 46%, #2c5c3f 72%, #16382b 100%); }
+  .clima-raio { position:absolute; top:-20%; width:90px; height:160%; background:linear-gradient(180deg, rgba(255,248,210,.5), rgba(255,248,210,0) 70%);
+    filter: blur(6px); mix-blend-mode: screen; animation: climaRaioBalanco 8s ease-in-out infinite; }
+  @keyframes climaRaioBalanco { 0%,100% { transform: rotate(12deg) translateX(0); } 50% { transform: rotate(7deg) translateX(16px); } }
+  .clima-mote { position:absolute; width:4px; height:4px; border-radius:50%; background: rgba(255,250,220,.9); box-shadow:0 0 8px 2px rgba(255,240,180,.8);
+    animation: climaMoteFlutua 6s ease-in-out infinite; }
+  @keyframes climaMoteFlutua { 0% { transform: translateY(0); opacity:0; } 15% { opacity:1; } 100% { transform: translateY(-160px); opacity:0; } }
+
+  .clima-overlay[data-estado="nublado"] { background: linear-gradient(160deg, #aab3a4 0%, #838f7c 28%, #5c685a 58%, #333d33 100%); }
+  .clima-nuvem { position:absolute; height:44px; border-radius:50%; background: radial-gradient(ellipse, rgba(255,255,255,.8), rgba(255,255,255,0) 72%);
+    filter: blur(4px); animation: climaNuvemAndar linear infinite; }
+  @keyframes climaNuvemAndar { from { transform: translateX(-200px); } to { transform: translateX(430px); } }
+
+  .clima-overlay[data-estado="chuva"] { background: linear-gradient(160deg, #7e9a8f 0%, #4c6b62 30%, #2c453e 60%, #142521 100%); }
+  .clima-gota { position:absolute; top:-30px; width:2px; height:22px; background: linear-gradient(180deg, transparent, rgba(220,235,255,.75));
+    animation: climaGotaCair linear infinite; }
+  @keyframes climaGotaCair { from { transform: translate(0,0); opacity:0; } 8% { opacity:1; } to { transform: translate(-30px, 900px); opacity:.3; } }
+
+  .clima-overlay[data-estado="noite"] { background: linear-gradient(165deg, #16233a 0%, #14261f 35%, #0d1c17 60%, #070f0d 100%); }
+  .clima-lua { position:absolute; top:36px; width:48px; height:48px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fdfdf6, #eef0d8 60%, #dcdfc0 100%);
+    box-shadow: 0 0 34px 10px rgba(240,245,210,.35); animation: climaLuaAndar 90s ease-in-out infinite; }
+  @keyframes climaLuaAndar { 0% { left:20px; } 50% { left:280px; } 100% { left:20px; } }
+  .clima-vagalume { position:absolute; width:4px; height:4px; border-radius:50%; background:#eaffb0; box-shadow:0 0 10px 3px rgba(210,255,140,.85);
+    animation: climaVagalumeFlutua ease-in-out infinite; }
+  @keyframes climaVagalumeFlutua { 0% { transform: translate(0,0); opacity:.2; } 25% { opacity:1; } 50% { transform: translate(22px,-26px); opacity:.4; }
+    75% { opacity:1; } 100% { transform: translate(-12px,-8px); opacity:.2; } }
+
+  .clima-overlay[data-estado="primavera"] { background: linear-gradient(160deg, #fdf0c4 0%, #f0cf5c 18%, #a9c15a 55%, #4c7a4a 100%); }
+  .clima-folha { position:absolute; top:-20px; width:9px; height:9px; background:#f6d94a; border-radius:0 60% 0 60%;
+    animation: climaFolhaCair linear infinite; }
+  .clima-folha.verde { background:#c7dd6e; }
+  @keyframes climaFolhaCair { from { transform: translate(0,0) rotate(0deg); opacity:0; } 8% { opacity:1; }
+    to { transform: translate(40px, 900px) rotate(340deg); opacity:.6; } }
+
+  .toggle-sw.desabilitado { opacity: .4; pointer-events: none; }
 
   .screen { position: absolute; inset: 0; padding: calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom));
     overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; opacity: 0; pointer-events: none;
@@ -472,8 +535,9 @@
   .dm-swipe-btn.fixar { background: var(--accent-b); }
   .dm-swipe-btn.deletar { background: var(--pink); }
   #screen-mensagens .dm-list-row { border-bottom: none; margin-bottom: 0; padding: 9px 12px; border-radius: 14px;
-    border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 2px 8px rgba(60,40,15,.08);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent), 0 4px 14px rgba(60,40,15,.10);
     position: relative; z-index: 1; transition: transform .2s ease; touch-action: pan-y; }
   #screen-mensagens .dm-list-row.fixada { border-color: var(--accent-b); }
   #screen-mensagens .dm-list-row .friend-avatar { width: 44px; height: 44px; font-size: 15px; }
@@ -481,11 +545,11 @@
 
   #msgTopRow h1 { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex .3s ease, opacity .25s ease; }
   #msgTopRow.busca-aberta h1 { flex: 0; opacity: 0; }
-  .msg-busca-widget { flex: none; width: 38px; height: 38px; border-radius: 19px; background: var(--card);
-    background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent);
-    box-shadow: var(--shadow); display: flex; align-items: center; overflow: hidden; cursor: pointer;
+  .msg-busca-widget { flex: none; width: 38px; height: 38px; border-radius: 19px;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent), var(--shadow); display: flex; align-items: center; overflow: hidden; cursor: pointer;
     transition: width .35s cubic-bezier(.2,.8,.2,1), flex .35s cubic-bezier(.2,.8,.2,1); }
   .msg-busca-widget.aberto { flex: 1; width: auto; }
   .msg-busca-toggle-icone { width: 38px; height: 38px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -502,21 +566,26 @@
 
   #screen-mensagens {
     display: flex; flex-direction: column; padding-bottom: calc(112px + env(safe-area-inset-bottom));
-    background: var(--bg-tela-suave);
+    background:
+      radial-gradient(340px circle at 20% 4%, color-mix(in srgb, var(--yellow) 30%, transparent), transparent 60%),
+      radial-gradient(300px circle at 78% 10%, color-mix(in srgb, var(--accent-a) 26%, transparent), transparent 58%),
+      radial-gradient(360px circle at 90% 55%, color-mix(in srgb, var(--accent-b) 24%, transparent), transparent 62%),
+      radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
+      var(--bg-tela-suave);
   }
   .pote-amigos-wrap { position: relative; margin: 2px 0 0; border-radius: 26px; overflow-x: hidden; overflow-y: auto; touch-action: pan-y;
     flex: 1; min-height: 150px;
-    background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); box-shadow: inset 0 3px 12px rgba(60,40,15,.10), var(--shadow); }
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent), inset 0 3px 12px rgba(60,40,15,.06); }
   .pote-amigos-inner { position: relative; width: 100%; min-height: 100%; }
   .pote-filtro-tabs { display: flex; gap: 8px; margin: 10px 0 8px; flex: none; }
   .pote-filtro-tab { flex: 1; text-align: center; padding: 8px; border-radius: 12px; font-size: 11.5px; font-weight: 800;
-    color: var(--ink-faint); background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    border: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); cursor: pointer;
+    color: var(--ink-faint); background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); cursor: pointer;
     font-family: 'DM Sans', sans-serif; }
-  .pote-filtro-tab.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); color: #fff; border-color: transparent; }
+  .pote-filtro-tab.on { background: var(--accent-a); color: #fff; border-color: transparent; }
   .pote-amigos-vazio { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     color: var(--ink-faint); font-size: 12px; text-align: center; padding: 0 34px; line-height: 1.5; pointer-events: none; }
   .bolha-amigo { position: absolute; top: 0; left: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -897,44 +966,59 @@
     text-transform:uppercase; letter-spacing:.09em; margin-bottom:2px; }
   .explorar-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:26px; color:var(--ink); margin:0; }
   .explorar-add-btn svg { color: var(--accent-a); }
-  /* Explorar ganha o tratamento de vidro/transparente do app -- cartoes
-     (inclusive os posts de amigos, .post), o composer, chips de modo e busca --
-     mesmo estilo "vidro" do popup de Suporte e feedback (composer-glass-card).
-     Fundo em pastel claro e liso (--bg-tela-suave), espacamento lateral igual
-     ao da Home (16px padrao de .screen, sem reducao) -- o vidro dos cartoes
-     continua por cima, so a cor de fundo da tela mudou. */
+  /* Explorar ganha o tratamento de vidro "forte" (referencia dela: app de
+     mensagens com vidro fosco sobre luzes desfocadas) -- fundo com clarões
+     grandes e bem desfocados nas cores da marca (fazem o papel das luzes
+     desfocadas da referencia), cartoes com blur+saturacao (efeito vibrancy
+     do iOS) e uma linha clara no topo simulando o brilho pegando na borda
+     curva do vidro. Teste pedido por ela so no Explorar antes de aplicar
+     em Livros/Mensagens. */
   #screen-descobrir {
-    background: var(--bg-tela-suave);
+    background:
+      radial-gradient(340px circle at 20% 4%, color-mix(in srgb, var(--yellow) 30%, transparent), transparent 60%),
+      radial-gradient(300px circle at 78% 10%, color-mix(in srgb, var(--accent-a) 26%, transparent), transparent 58%),
+      radial-gradient(360px circle at 90% 55%, color-mix(in srgb, var(--accent-b) 24%, transparent), transparent 62%),
+      radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
+      var(--bg-tela-suave);
   }
-  #screen-descobrir .composer { background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); }
-  #screen-descobrir .post { background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); }
+  #screen-descobrir .composer, #screen-descobrir .post, #screen-descobrir .discover-card {
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent), 0 4px 14px rgba(60,40,15,.10);
+  }
   #screen-descobrir .composer, #screen-descobrir .post, #screen-descobrir .discover-card { border-radius: 26px; }
-  #screen-descobrir .discover-card { background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent); }
   #screen-descobrir .discover-card-destaque { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 78%, transparent); border: 1px solid var(--card-b); }
-  #screen-descobrir .feed-modo-chip { background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
-  #screen-descobrir .feed-modo-chip.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
-  #screen-descobrir .busca-input { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-soft) 62%, transparent);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  #screen-descobrir .feed-modo-chip { background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); }
+  #screen-descobrir .feed-modo-chip.on { background: var(--accent-a); border-color: transparent; }
+  #screen-descobrir .busca-input { background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); }
 
-  /* ---------- livros/estante: mesmo tratamento de vidro do Explorar, calendario
-     de leitura, contadores e prateleira de epubs -- fundo pastel claro, mesmo
-     espacamento lateral da Home (16px padrao de .screen) ---------- */
+  /* ---------- livros/estante: mesmo tratamento de vidro "forte" do Explorar,
+     calendario de leitura, contadores e prateleira de epubs ---------- */
   #screen-livros {
-    background: var(--bg-tela-suave);
+    background:
+      radial-gradient(340px circle at 20% 4%, color-mix(in srgb, var(--yellow) 30%, transparent), transparent 60%),
+      radial-gradient(300px circle at 78% 10%, color-mix(in srgb, var(--accent-b) 26%, transparent), transparent 58%),
+      radial-gradient(360px circle at 90% 55%, color-mix(in srgb, var(--accent-a) 24%, transparent), transparent 62%),
+      radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
+      var(--bg-tela-suave);
   }
   #screen-livros .discover-card, #screen-livros .bio-box, #screen-livros .busca-input {
-    background: var(--card); background: color-mix(in srgb, var(--card) 60%, transparent);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid color-mix(in srgb, var(--card-b) 75%, transparent);
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 55%, transparent), 0 4px 14px rgba(60,40,15,.10);
   }
   #screen-livros .discover-card, #screen-livros .bio-box { border-radius: 22px; }
   #screen-livros .bio-box { padding: 15px; }
-  #screen-livros .feed-modo-chip { background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-color: color-mix(in srgb, var(--card-b) 70%, transparent); }
-  #screen-livros .feed-modo-chip.on { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
+  #screen-livros .feed-modo-chip { background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 35%, transparent); }
+  #screen-livros .feed-modo-chip.on { background: var(--accent-a); border-color: transparent; }
 
   /* ---------- calendario de leitura animado: celulas entram com um "pop" em
      cascata, e o dia de hoje pulsa suavemente quando ainda nao foi lido ---------- */
@@ -955,17 +1039,17 @@
     50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-a) 0%, transparent); }
   }
 
-  /* ---------- botao de enviar epub: pill com gradiente, em vez do botao solido
-     generico que ficava perdido no meio dos cards ---------- */
+  /* ---------- botao de enviar epub: mesma cor solida dos outros botoes do
+     Clube do Livro (.clube-criar-btn), sem gradiente ---------- */
   .btn-enviar-epub {
     width: 100%; margin-bottom: 14px; padding: 13px 18px; border-radius: 999px; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center; gap: 8px;
     font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg, var(--accent-a), var(--accent-b));
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-a) 35%, transparent);
+    background: var(--accent-a);
+    box-shadow: var(--shadow);
     transition: transform .15s ease, box-shadow .2s ease;
   }
-  .btn-enviar-epub:active { transform: scale(.97); box-shadow: 0 3px 8px color-mix(in srgb, var(--accent-a) 30%, transparent); }
+  .btn-enviar-epub:active { transform: scale(.97); }
 
   /* ---------- estante: prateleira de madeira de verdade pros epubs enviados,
      livros em pe lado a lado como lombadas, em vez de uma lista de linhas ---------- */
@@ -1251,6 +1335,21 @@
   .checklist-texto { flex:1; min-width:0; font-family:'Nunito', sans-serif; font-size:13.5px; color:var(--ink); word-break:break-word; cursor:pointer; transition: color .18s ease; }
   .checklist-item.feito .checklist-texto { text-decoration: line-through; color:var(--ink-faint); }
   .checklist-horario { flex:none; font-family:'Nunito', sans-serif; font-size:10px; font-weight:700; color:var(--accent-a); background:var(--accent-soft); border-radius:8px; padding:3px 6px; white-space:nowrap; }
+
+  /* ---------- checkbox customizado (mesma linguagem visual do .checklist-check,
+     circulo com borda cor de destaque + check aparecendo quando marcado) --
+     usado nos lugares que ainda usavam <input type="checkbox"> nativo, tipo
+     "clube privado" e "esse post é spoiler" ---------- */
+  .check-custom-input { position:absolute; opacity:0; width:18px; height:18px; margin:0; cursor:pointer; z-index:1; }
+  .check-mini { width:18px; height:18px; border-radius:50%; border:2px solid var(--accent-a); background:none;
+    display:inline-flex; align-items:center; justify-content:center; flex:none; color:#fff;
+    transition: background .15s ease, transform .12s ease; }
+  .check-mini.check-mini-sm { width:14px; height:14px; border-width:1.6px; }
+  .check-custom-input:checked + .check-mini { background: var(--accent-a); }
+  .check-custom-input:active + .check-mini { transform: scale(.86); }
+  .check-mini svg { width:11px; height:11px; opacity:0; transform:scale(.5); transition: opacity .15s ease, transform .15s ease; }
+  .check-mini.check-mini-sm svg { width:8px; height:8px; }
+  .check-custom-input:checked + .check-mini svg { opacity:1; transform:scale(1); }
   .checklist-lembrete-btn, .checklist-del-btn { flex:none; width:26px; height:26px; border:none; background:none; padding:0;
     display:flex; align-items:center; justify-content:center; color:var(--ink-faint); cursor:pointer; }
   .checklist-add-row { display:flex; align-items:center; gap:8px; margin-top:4px; padding-top:10px; border-top:1px dashed var(--card-b); }
@@ -1269,6 +1368,7 @@
 </head>
 <body>
   <div class="device" id="device">
+    <div class="clima-overlay" id="climaOverlay"></div>
     <div class="pull-refresh-indicator" id="pullRefreshIndicator">
       <svg class="pull-refresh-papel" viewBox="0 0 100 100">
         <path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z" fill="#EDE4D3" stroke="#CBBFA0" stroke-width="1.2"/>
@@ -2073,8 +2173,8 @@
       <input type="text" id="criarClubeNome" class="busca-input" placeholder="ex: Clube das Quintas" />
       <div class="edit-field-label">Descrição (opcional)</div>
       <textarea id="criarClubeDesc" class="edit-bio-textarea" placeholder="sobre o que é esse clube..."></textarea>
-      <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim);">
-        <input type="checkbox" id="criarClubePrivado" /> clube privado (só quem você convidar)
+      <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim); position:relative;">
+        <input type="checkbox" id="criarClubePrivado" class="check-custom-input" /><span class="check-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> clube privado (só quem você convidar)
       </label>
       <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovoClube()">Criar clube</button>
     </div>
@@ -2122,8 +2222,8 @@
       <div id="clubeDetalheMural" style="overflow-y:auto; flex:1;"></div>
 
       <div id="clubeDetalheComposerWrap" style="margin-top:10px;">
-        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:11px; color:var(--ink-dim); white-space:nowrap; margin-bottom:6px;">
-          <input type="checkbox" id="clubeComposerSpoiler" style="margin:0;" /> <span class="icon-svg" style="width:12px;height:12px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 21 19.5H3Z" stroke-linejoin="round"/><path d="M12 10v4.3"/><circle cx="12" cy="16.9" r=".15" fill="currentColor" stroke="none"/></svg></span> esse post é spoiler
+        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:11px; color:var(--ink-dim); white-space:nowrap; margin-bottom:6px; position:relative;">
+          <input type="checkbox" id="clubeComposerSpoiler" class="check-custom-input" style="position:absolute;" /><span class="check-mini check-mini-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> <span class="icon-svg" style="width:12px;height:12px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 21 19.5H3Z" stroke-linejoin="round"/><path d="M12 10v4.3"/><circle cx="12" cy="16.9" r=".15" fill="currentColor" stroke="none"/></svg></span> esse post é spoiler
         </label>
         <div class="dm-input-row">
           <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('clube')"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.2s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
@@ -2449,9 +2549,13 @@
         <h2 style="font-size:17px;">Configurações</h2>
       </div>
 
-      <div class="settings-row">
-    <div><div class="t">🌙 Modo escuro</div><div class="s">troca a paleta clara pela escura</div></div>
+      <div class="settings-row" id="darkModeRow">
+    <div><div class="t">🌙 Modo escuro</div><div class="s" id="darkModeDesc">troca a paleta clara pela escura</div></div>
     <div class="toggle-sw" id="darkSwitch" onclick="toggleDarkMode()"><div class="dot"></div></div>
+  </div>
+  <div class="settings-row">
+    <div><div class="t">🌦️ Tema Clima</div><div class="s">o fundo do app muda com o clima real e a hora do dia — sol, nuvens, chuva, noite com vaga-lumes e primavera</div></div>
+    <div class="toggle-sw" id="climaSwitch" onclick="toggleTemaClima()"><div class="dot"></div></div>
   </div>
   <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -9431,6 +9535,170 @@ let darkMode = false;
     console.log('4. resultado do update:', resultado);
   };
 
+  // ==========================================================================
+  // TEMA CLIMA -- fundo dinamico baseado no clima real (localizacao) + hora do
+  // dia + estacao, inspirado na Princesa Mononoke. Mutuamente exclusivo com o
+  // modo escuro nativo: ligar o Clima desliga o escuro (e trava o toggle
+  // dele); desligar o Clima volta pro claro normal do Átomo.
+  // ==========================================================================
+  let climaAtivo = false;
+  let climaIntervalId = null;
+
+  function atualizarDisponibilidadeModoEscuro() {
+    const sw = document.getElementById('darkSwitch');
+    const desc = document.getElementById('darkModeDesc');
+    if (!sw) return;
+    sw.classList.toggle('desabilitado', climaAtivo);
+    if (desc) desc.textContent = climaAtivo ? 'desative o Tema Clima pra poder usar' : 'troca a paleta clara pela escura';
+  }
+
+  window.toggleTemaClima = async function (semSalvar) {
+    climaAtivo = !climaAtivo;
+    document.getElementById('climaSwitch').classList.toggle('on', climaAtivo);
+    document.getElementById('device').classList.toggle('clima-ativo', climaAtivo);
+    atualizarDisponibilidadeModoEscuro();
+
+    if (climaAtivo) {
+      // clima manda no visual -- se tava no escuro, volta pro claro nativo por baixo
+      if (darkMode) {
+        darkMode = false;
+        document.getElementById('device').setAttribute('data-theme', 'light');
+        document.getElementById('darkSwitch').classList.remove('on');
+      }
+      iniciarTemaClima();
+    } else {
+      pararTemaClima();
+      document.getElementById('climaOverlay').classList.remove('on');
+    }
+
+    if (!semSalvar) {
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      await supabaseClient.from('usuarios').update({ tema_clima: climaAtivo, modo_escuro: climaAtivo ? false : darkMode }).eq('id', sessionData.session.user.id);
+    }
+  };
+
+  function iniciarTemaClima() {
+    atualizarClimaAgora();
+    if (climaIntervalId) clearInterval(climaIntervalId);
+    climaIntervalId = setInterval(atualizarClimaAgora, 30 * 60 * 1000);
+  }
+
+  function pararTemaClima() {
+    if (climaIntervalId) { clearInterval(climaIntervalId); climaIntervalId = null; }
+  }
+
+  async function atualizarClimaAgora() {
+    if (!navigator.geolocation) { avisarClimaSemLocalizacao(); return; }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      try {
+        const { latitude, longitude } = pos.coords;
+        const resposta = await fetch(`${API_BASE}/api/clima?lat=${latitude}&lon=${longitude}`);
+        const dados = await resposta.json();
+        if (dados && !dados.erro) aplicarEstadoClima(dados);
+      } catch (erro) {
+        console.log('erro ao buscar clima:', erro.message);
+      }
+    }, (erro) => {
+      console.log('permissao de localizacao negada pro tema clima:', erro.message);
+      avisarClimaSemLocalizacao();
+    }, { maximumAge: 20 * 60 * 1000, timeout: 10000 });
+  }
+
+  function avisarClimaSemLocalizacao() {
+    mostrarToast('preciso da sua localização pra mostrar o clima — ative a permissão e tenta ligar de novo');
+    if (climaAtivo) toggleTemaClima();
+  }
+
+  // hemisferio sul (Brasil) -- so usada pra saber quando trocar "sol" por
+  // "primavera" (o resto do ano o dia claro continua com o visual de sol)
+  function calcularEstacaoAtual() {
+    const agora = new Date();
+    const mes = agora.getMonth() + 1;
+    const dia = agora.getDate();
+    if ((mes === 9 && dia >= 23) || mes === 10 || mes === 11 || (mes === 12 && dia < 21)) return 'primavera';
+    if ((mes === 12 && dia >= 21) || mes === 1 || mes === 2 || (mes === 3 && dia < 20)) return 'verao';
+    if ((mes === 3 && dia >= 20) || mes === 4 || mes === 5 || (mes === 6 && dia < 21)) return 'outono';
+    return 'inverno';
+  }
+
+  function aplicarEstadoClima(dados) {
+    let estado;
+    if (dados.is_day === false) {
+      estado = 'noite';
+    } else {
+      const categoria = (dados.weather || '').toLowerCase();
+      if (categoria.includes('rain') || categoria.includes('drizzle') || categoria.includes('thunderstorm')) estado = 'chuva';
+      else if (categoria.includes('cloud') || categoria.includes('mist') || categoria.includes('fog') || categoria.includes('haze') || categoria.includes('snow')) estado = 'nublado';
+      else estado = (calcularEstacaoAtual() === 'primavera') ? 'primavera' : 'sol';
+    }
+    renderClimaOverlay(estado);
+  }
+
+  let climaEstadoAtual = null;
+  function renderClimaOverlay(estado) {
+    const overlay = document.getElementById('climaOverlay');
+    if (!overlay) return;
+    overlay.classList.add('on');
+    if (climaEstadoAtual === estado) return; // já tá nesse estado, não recria as particulas à toa
+    climaEstadoAtual = estado;
+    overlay.dataset.estado = estado;
+    overlay.innerHTML = '';
+
+    if (estado === 'sol') {
+      const raiosPos = [12, 45, 72, 90];
+      raiosPos.forEach((esq, i) => {
+        const r = document.createElement('div'); r.className = 'clima-raio';
+        r.style.left = esq + '%'; r.style.width = (50 + (i % 2) * 30) + 'px';
+        r.style.opacity = (0.8 - i * 0.12).toFixed(2);
+        r.style.animationDelay = (i * 1.3) + 's';
+        overlay.appendChild(r);
+      });
+      for (let i = 0; i < 10; i++) {
+        const m = document.createElement('div'); m.className = 'clima-mote';
+        m.style.left = (Math.random() * 100) + '%'; m.style.top = (40 + Math.random() * 50) + '%';
+        m.style.animationDuration = (5 + Math.random() * 3) + 's';
+        m.style.animationDelay = (-Math.random() * 6) + 's';
+        overlay.appendChild(m);
+      }
+    } else if (estado === 'nublado') {
+      for (let i = 0; i < 10; i++) {
+        const n = document.createElement('div'); n.className = 'clima-nuvem';
+        n.style.top = (Math.random() * 80) + '%';
+        n.style.width = (70 + Math.random() * 110) + 'px';
+        n.style.opacity = (0.45 + Math.random() * 0.5).toFixed(2);
+        n.style.animationDuration = (14 + Math.random() * 18) + 's';
+        n.style.animationDelay = (-Math.random() * 25) + 's';
+        overlay.appendChild(n);
+      }
+    } else if (estado === 'chuva') {
+      for (let i = 0; i < 34; i++) {
+        const g = document.createElement('div'); g.className = 'clima-gota';
+        g.style.left = (Math.random() * 100) + '%';
+        g.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+        g.style.animationDelay = (-Math.random() * 1) + 's';
+        overlay.appendChild(g);
+      }
+    } else if (estado === 'noite') {
+      const lua = document.createElement('div'); lua.className = 'clima-lua';
+      overlay.appendChild(lua);
+      for (let i = 0; i < 7; i++) {
+        const v = document.createElement('div'); v.className = 'clima-vagalume';
+        v.style.left = (Math.random() * 90) + '%'; v.style.top = (35 + Math.random() * 55) + '%';
+        v.style.animationDuration = (4 + Math.random() * 2.5) + 's';
+        v.style.animationDelay = (-Math.random() * 6) + 's';
+        overlay.appendChild(v);
+      }
+    } else if (estado === 'primavera') {
+      for (let i = 0; i < 18; i++) {
+        const f = document.createElement('div'); f.className = 'clima-folha' + (i % 2 ? ' verde' : '');
+        f.style.left = (Math.random() * 100) + '%';
+        f.style.animationDuration = (5 + Math.random() * 5) + 's';
+        f.style.animationDelay = (-Math.random() * 8) + 's';
+        overlay.appendChild(f);
+      }
+    }
+  }
+
 let notifAtivo = true;
   window.toggleNotif = async function () {
     notifAtivo = !notifAtivo;
@@ -9709,7 +9977,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
 
     iniciarHeartbeatPresenca(session.user.id);
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, horario_dormir_min, meu_signo, signo_ativado, formato_hora_12h, viu_convite_match').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, horario_dormir_min, meu_signo, signo_ativado, formato_hora_12h, viu_convite_match, tema_clima').eq('id', session.user.id).maybeSingle();
 
     // conta nova OU conta antiga que nunca completou essas 2 perguntas
     // (bug antigo escondia o onboarding cedo demais, então gente que já
@@ -9746,7 +10014,11 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       if (perfil.handle) document.getElementById('profHandle').textContent = '@' + perfil.handle;
       if (perfil.bio) document.getElementById('profBio').textContent = perfil.bio;
       if (perfil.avatar_url) aplicarFotoPerfil(perfil.avatar_url);
-      if (perfil.modo_escuro) toggleDarkMode();
+      if (perfil.tema_clima) {
+        toggleTemaClima(true);
+      } else if (perfil.modo_escuro) {
+        toggleDarkMode();
+      }
       if (perfil.assuntos_favoritos) assuntosFavoritos = perfil.assuntos_favoritos;
       if (perfil.match_preferencia) minhaMatchPref = perfil.match_preferencia;
       if (perfil.genero) meuGenero = perfil.genero;
