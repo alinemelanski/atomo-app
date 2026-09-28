@@ -1179,7 +1179,11 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   // so o tempo da mais lenta das 3). Cada uma continua com seu try/catch
   // isolado: se uma falhar ou demorar mais, as outras aparecem normal.
   const [itensGoogle, itensOpenLibrary, itensGutendex, itensWikisource] = await Promise.all([
-    (async () => {
+    // Google Books só entra na listagem quando somenteGoogle=1 for pedido
+    // explicitamente (ex: escolher o "livro atual" do clube) — na aba normal
+    // de "livros gratuitos" ele saía da lista quase sempre como amostra, sem
+    // deixar a pessoa ler o livro inteiro, então não faz sentido aparecer lá.
+    !somenteGoogle ? Promise.resolve([]) : (async () => {
       const out = [];
       try {
         const queryGoogle = buscando ? `q=${encodeURIComponent(termo)}` : `q=${encodeURIComponent('inauthor:"' + autorVitrine + '"')}`;
