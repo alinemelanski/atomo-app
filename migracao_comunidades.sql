@@ -77,3 +77,58 @@ create policy "sair da comunidade" on comunidade_estudo_membros for delete using
 -- de voz, igual já dá pra fazer no chat direto) -- soma coluna nova em
 -- "posts" pra guardar a URL do audio gravado
 alter table posts add column if not exists audio_url text;
+
+-- 28/09: capa da comunidade, prazo (contagem regressiva) já existia desde
+-- o começo (meta_prazo) mas nunca tinha sido usado -- agora tem campo na
+-- criação, mostra no card e na tela da comunidade
+alter table comunidades_estudo add column if not exists capa_url text;
+
+-- 28/09: admin da comunidade agora consegue promover outro membro a admin
+-- e remover gente da comunidade (antes só dava pra cada um sair sozinho)
+drop policy if exists "admin promove membros" on comunidade_estudo_membros;
+create policy "admin promove membros" on comunidade_estudo_membros for update using (
+  exists (
+    select 1 from comunidades_estudo c
+    where c.id = comunidade_estudo_membros.comunidade_id
+      and (
+        c.criador_id = auth.uid()
+        or exists (
+          select 1 from comunidade_estudo_membros m2
+          where m2.comunidade_id = comunidade_estudo_membros.comunidade_id
+            and m2.usuario_id = auth.uid()
+            and m2.papel = 'admin'
+        )
+      )
+  )
+) with check (
+  exists (
+    select 1 from comunidades_estudo c
+    where c.id = comunidade_estudo_membros.comunidade_id
+      and (
+        c.criador_id = auth.uid()
+        or exists (
+          select 1 from comunidade_estudo_membros m2
+          where m2.comunidade_id = comunidade_estudo_membros.comunidade_id
+            and m2.usuario_id = auth.uid()
+            and m2.papel = 'admin'
+        )
+      )
+  )
+);
+
+drop policy if exists "admin remove membros" on comunidade_estudo_membros;
+create policy "admin remove membros" on comunidade_estudo_membros for delete using (
+  exists (
+    select 1 from comunidades_estudo c
+    where c.id = comunidade_estudo_membros.comunidade_id
+      and (
+        c.criador_id = auth.uid()
+        or exists (
+          select 1 from comunidade_estudo_membros m2
+          where m2.comunidade_id = comunidade_estudo_membros.comunidade_id
+            and m2.usuario_id = auth.uid()
+            and m2.papel = 'admin'
+        )
+      )
+  )
+);

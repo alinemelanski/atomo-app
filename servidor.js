@@ -1491,70 +1491,98 @@ app.get('/api/livro-texto', async (req, res) => {
 // pega o texto integral (domínio público, transcrição da Wikisource) de uma
 // página pra mostrar no mesmo leitor de verdade usado pro Gutendex — o
 // front-end é quem divide isso em páginas pro modo de leitura com deslizar
+// busca o texto de UMA página da Wikisource -- acha subpáginas de capítulo
+// (via action=parse, que preserva a ordem em que os links aparecem na
+// página, importante pq ordem alfabética quebra numeração romana:
+// "Capítulo IX" viria antes de "Capítulo V") e concatena tudo; se não achar
+// capítulo nenhum, cai pro texto direto da própria página. Devolve também
+// os links da página, pra quem chamou decidir se essa página é uma
+// DESAMBIGUAÇÃO (ex: "A Caridade (Machado de Assis)" que só lista variantes
+// tipo "A caridade (Machado de Assis, 1864)" em vez do poema em si).
+async function buscarTextoPaginaWikisource(titulo) {
+  const respParse = await fetch(
+    `https://pt.wikisource.org/w/api.php?action=parse&page=${encodeURIComponent(titulo)}&prop=links&redirects=1&format=json&formatversion=2`,
+    { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+  );
+  const dadosParse = await respParse.json();
+  const prefixoSubpagina = titulo + '/';
+  const todosLinks = (dadosParse.parse && dadosParse.parse.links) || [];
+  const titulosCapitulos = todosLinks
+    .filter(l => l.ns === 0 && l.exists && l.title && l.title.startsWith(prefixoSubpagina))
+    .map(l => l.title);
+
+  console.log(`[wikisource] titulo="${titulo}" | links na página: ${todosLinks.length} | subpáginas de capítulo achadas: ${titulosCapitulos.length}${dadosParse.parse ? ` | título real após redirect: "${dadosParse.parse.title}"` : ' | ATENÇÃO: action=parse não achou essa página'}`);
+
+  let textoFinal = '';
+
+  if (titulosCapitulos.length) {
+    const LOTE = 20; // a API aceita várias "titles" numa chamada só, separadas por |
+    const textoPorTitulo = {};
+    for (let i = 0; i < titulosCapitulos.length; i += LOTE) {
+      const lote = titulosCapitulos.slice(i, i + LOTE);
+      const respLote = await fetch(
+        `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=${encodeURIComponent(lote.join('|'))}&format=json&formatversion=2`,
+        { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+      );
+      const dadosLote = await respLote.json();
+      ((dadosLote.query && dadosLote.query.pages) || []).forEach(p => {
+        textoPorTitulo[p.title] = (p.extract || '').trim();
+      });
+    }
+    // remonta na ORDEM certa dos capítulos (não na ordem que a API devolveu)
+    textoFinal = titulosCapitulos.map(t => textoPorTitulo[t]).filter(Boolean).join('\n\n');
+  }
+
+  if (!textoFinal) {
+    // não é um livro dividido em capítulos (ou os capítulos vieram vazios)
+    // — usa o texto direto da própria página, do jeito que já fazia antes
+    const resposta = await fetch(
+      `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(titulo)}&format=json&formatversion=2`,
+      { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
+    );
+    const dados = await resposta.json();
+    const pagina = dados.query && dados.query.pages && dados.query.pages[0];
+    textoFinal = (pagina && pagina.extract || '').trim();
+    console.log(`[wikisource] caiu no fallback de página única | texto direto veio com ${textoFinal.length} caracteres`);
+  }
+
+  return { texto: textoFinal, todosLinks };
+}
+
+// tira o "(...)" do final do título pra comparar só a parte do nome —
+// "A Caridade (Machado de Assis)" e "A caridade (Machado de Assis, 1864)"
+// viram os dois "a caridade", o que deixa achar as variantes certas
+function baseDoTitulo(titulo) {
+  return titulo.replace(/\s*\([^)]*\)\s*$/, '').trim().toLowerCase();
+}
+
 app.get('/api/livro-texto-wikisource', async (req, res) => {
   const titulo = (req.query.titulo || '').trim();
   if (!titulo) return res.status(400).json({ erro: 'faltou o parâmetro titulo' });
 
   try {
-    // muita obra na Wikisource é dividida em subpáginas por capítulo (ex:
-    // "Obra/Capítulo I", "Obra/Capítulo II"...) e a página "capa" (o título
-    // que a busca devolve) é só um SUMÁRIO com link pra cada capítulo — o
-    // extracts dela sozinha vem vazio de história de verdade (só a lista de
-    // capítulos), foi exatamente o bug que ela viu ("Ressurreição" com 1
-    // página só, cheia de "Capítulo I", "Capítulo II"...).
-    // Solução: usa action=parse (preserva a ORDEM em que os links aparecem
-    // na página — importante, porque ordem alfabética quebra numeração
-    // romana: "Capítulo IX" viria antes de "Capítulo V") pra achar as
-    // subpáginas de capítulo, busca o texto de cada uma e concatena tudo.
-    // redirects=1: se o título que a busca devolveu for na verdade um
-    // redirecionamento pra outra página (comum quando o nome exibido tem
-    // um desambiguador tipo "(Machado de Assis)"), segue o redirect antes
-    // de tentar achar os capítulos — sem isso a API só devolve os dados
-    // (vazios) da própria página de redirecionamento
-    const respParse = await fetch(
-      `https://pt.wikisource.org/w/api.php?action=parse&page=${encodeURIComponent(titulo)}&prop=links&redirects=1&format=json&formatversion=2`,
-      { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
-    );
-    const dadosParse = await respParse.json();
-    const prefixoSubpagina = titulo + '/';
-    const todosLinks = (dadosParse.parse && dadosParse.parse.links) || [];
-    const titulosCapitulos = todosLinks
-      .filter(l => l.ns === 0 && l.exists && l.title && l.title.startsWith(prefixoSubpagina))
-      .map(l => l.title);
+    let { texto: textoFinal, todosLinks } = await buscarTextoPaginaWikisource(titulo);
 
-    console.log(`[wikisource] titulo="${titulo}" | links na página: ${todosLinks.length} | subpáginas de capítulo achadas: ${titulosCapitulos.length}${dadosParse.parse ? ` | título real após redirect: "${dadosParse.parse.title}"` : ' | ATENÇÃO: action=parse não achou essa página'}`);
+    // ALGUMAS páginas não são o texto em si, são uma DESAMBIGUAÇÃO — uma
+    // lista de variantes (ex: "A Caridade (Machado de Assis)" que só
+    // aponta pra "A caridade (..., ortografia atualizada)" e "A caridade
+    // (..., 1864)"). A wikisource sempre usa a frase "pode estar à procura
+    // de" nessas páginas, é um jeito confiável de detectar isso. Quando
+    // acontece, segue pro primeiro link da própria página que compartilha
+    // o mesmo nome base (preferindo a versão com ortografia atualizada,
+    // que costuma ser a mais completa/legível).
+    if (textoFinal && /pode estar à procura de/i.test(textoFinal)) {
+      const baseAlvo = baseDoTitulo(titulo);
+      const candidatos = todosLinks
+        .filter(l => l.ns === 0 && l.exists && l.title && l.title !== titulo && baseDoTitulo(l.title) === baseAlvo)
+        .map(l => l.title);
+      const escolhido = candidatos.find(t => /ortografia atualizada/i.test(t)) || candidatos[0];
 
-    let textoFinal = '';
-
-    if (titulosCapitulos.length) {
-      const LOTE = 20; // a API aceita várias "titles" numa chamada só, separadas por |
-      const textoPorTitulo = {};
-      for (let i = 0; i < titulosCapitulos.length; i += LOTE) {
-        const lote = titulosCapitulos.slice(i, i + LOTE);
-        const respLote = await fetch(
-          `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=${encodeURIComponent(lote.join('|'))}&format=json&formatversion=2`,
-          { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
-        );
-        const dadosLote = await respLote.json();
-        ((dadosLote.query && dadosLote.query.pages) || []).forEach(p => {
-          textoPorTitulo[p.title] = (p.extract || '').trim();
-        });
+      if (escolhido) {
+        console.log(`[wikisource] "${titulo}" é página de desambiguação | seguindo para "${escolhido}"`);
+        const seguido = await buscarTextoPaginaWikisource(escolhido);
+        if (seguido.texto) textoFinal = seguido.texto;
       }
-      // remonta na ORDEM certa dos capítulos (não na ordem que a API devolveu)
-      textoFinal = titulosCapitulos.map(t => textoPorTitulo[t]).filter(Boolean).join('\n\n');
-    }
-
-    if (!textoFinal) {
-      // não é um livro dividido em capítulos (ou os capítulos vieram vazios)
-      // — usa o texto direto da própria página, do jeito que já fazia antes
-      const resposta = await fetch(
-        `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(titulo)}&format=json&formatversion=2`,
-        { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
-      );
-      const dados = await resposta.json();
-      const pagina = dados.query && dados.query.pages && dados.query.pages[0];
-      textoFinal = (pagina && pagina.extract || '').trim();
-      console.log(`[wikisource] caiu no fallback de página única | texto direto veio com ${textoFinal.length} caracteres`);
     }
 
     if (!textoFinal) {

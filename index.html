@@ -970,6 +970,20 @@
     font-family: 'DM Sans', sans-serif; }
   .comunidade-mini-avatar:first-child { margin-left: 0; }
   .comunidade-membros-txt { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; margin-left: 6px; font-family: 'DM Sans', sans-serif; }
+  .comunidade-prazo-txt { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; font-family: 'DM Sans', sans-serif;
+    display: inline-flex; align-items: center; gap: 3px; }
+  .comunidade-capa-picker { width: 100%; height: 108px; border-radius: 16px; background: var(--accent-soft);
+    color: var(--accent-a); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    overflow: hidden; margin-bottom: 12px; border: 1px dashed color-mix(in srgb, var(--accent-a) 35%, transparent); }
+  .comunidade-capa-picker img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .comunidade-capa-picker-vazio { display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px; font-weight: 700; }
+  .comunidade-membro-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px;
+    border-bottom: 1px solid var(--card-b); }
+  .comunidade-membro-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; flex: none; }
+  .comunidade-membro-handle { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink); }
+  .comunidade-membro-papel { font-size: 10.5px; color: var(--ink-faint); text-transform: capitalize; }
   .ao-vivo-pill { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--pink);
     font-family: 'DM Sans', sans-serif; }
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); animation: pulseDotComunidade 1.4s infinite; }
@@ -2419,10 +2433,12 @@
         <div class="clube-overflow-wrap" id="comunidadeDetalheOverflowWrap" style="display:none;">
           <button class="clube-overflow-btn" onclick="toggleComunidadeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
           <div class="clube-overflow-menu" id="comunidadeDetalheOverflowMenu">
+            <div class="item" onclick="toggleComunidadeOverflowMenu(); abrirMembrosComunidade();">ver membros</div>
             <div class="item" onclick="toggleComunidadeOverflowMenu(); sairDaComunidadeEstudo();">sair da comunidade</div>
           </div>
         </div>
       </div>
+      <div id="comunidadeDetalheCapaWrap"></div>
       <div class="discover-desc" id="comunidadeDetalheSub" style="margin-bottom:12px;"></div>
       <div class="comunidade-meta-chip-row" id="comunidadeDetalheMetaChips"></div>
       <div id="comunidadeDetalheAcoes" style="margin-bottom:8px;"></div>
@@ -2450,6 +2466,11 @@
         <button class="back-btn" onclick="closeOverlay('criarComunidadeEstudoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;">Criar comunidade de estudo</h2>
       </div>
+      <div class="comunidade-capa-picker" id="comunidadeCapaPickerWrap" onclick="document.getElementById('comunidadeCapaInput').click()">
+        <img id="comunidadeCapaPreview" style="display:none;" />
+        <div class="comunidade-capa-picker-vazio" id="comunidadeCapaPickerVazio"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span> adicionar capa (opcional)</div>
+      </div>
+      <input type="file" id="comunidadeCapaInput" accept="image/*" onchange="previewCapaComunidade(this)" style="display:none;" />
       <div class="edit-field-label">Nome da comunidade</div>
       <input type="text" id="criarComunidadeEstudoTitulo" class="busca-input" placeholder="ex: Vestibular 2027" />
       <div class="edit-field-label">Descrição (opcional)</div>
@@ -2462,10 +2483,21 @@
         <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('filosofia', this)">💭 filosofia</div>
         <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('geral', this)">📚 geral</div>
       </div>
+      <div class="edit-field-label">Prazo (opcional)</div>
+      <input type="date" id="criarComunidadeEstudoPrazo" class="busca-input" />
       <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim); position:relative;">
         <input type="checkbox" id="criarComunidadeEstudoPrivada" class="check-custom-input" /><span class="check-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> comunidade privada (só quem você convidar)
       </label>
       <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovaComunidadeEstudo()">Criar comunidade</button>
+    </div>
+
+    <!-- OVERLAY: MEMBROS DA COMUNIDADE -->
+    <div class="dm-chat-overlay" id="comunidadeMembrosOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('comunidadeMembrosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Membros</h2>
+      </div>
+      <div id="comunidadeMembrosLista" style="overflow-y:auto; flex:1;"></div>
     </div>
 
     <!-- OVERLAY: SALA DE CALL DE ESTUDO AO VIVO (protótipo aprovado por ela — visual por enquanto, sem áudio real) -->
@@ -6572,10 +6604,14 @@ window.trocarModoDescobrir = function (modo) {
     const membros = c.comunidade_estudo_membros || [];
     const souMembro = membros.some(m => m.usuario_id === meuId);
     const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
+    const capaHtml = c.capa_url
+      ? `<img src="${c.capa_url}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" />`
+      : icone('comunidades', 18, i, '#fff');
+    const contagem = formatarContagemComunidade(c.meta_prazo);
     return `
       <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirComunidadeDetalhe(${i})">
         <div class="comunidade-card-top">
-          <div class="comunidade-icone" style="background:${cor}">${icone('comunidades', 18, i, '#fff')}</div>
+          <div class="comunidade-icone" style="${c.capa_url ? '' : `background:${cor}`}">${capaHtml}</div>
           <div style="flex:1; min-width:0;">
             <span class="comunidade-badge">${categoria ? categoria.label : c.categoria}</span>
             <div class="comunidade-titulo">${c.titulo}</div>
@@ -6583,7 +6619,10 @@ window.trocarModoDescobrir = function (modo) {
         </div>
         <div class="comunidade-desc">${c.descricao || 'sem descrição ainda'}</div>
         <div class="comunidade-footer">
-          <span class="comunidade-membros-txt" style="margin-left:0;">${icone('pessoas', 12)} ${membros.length}${souMembro ? ' · você' : ''}</span>
+          <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+            <span class="comunidade-membros-txt" style="margin-left:0;">${icone('pessoas', 12)} ${membros.length}${souMembro ? ' · você' : ''}</span>
+            ${contagem ? `<span class="comunidade-prazo-txt">${icone('relogio', 11)} ${contagem}</span>` : ''}
+          </div>
           ${setaOuCadeado(c.privada)}
         </div>
       </div>`;
@@ -6593,14 +6632,44 @@ window.trocarModoDescobrir = function (modo) {
   // botão de criar, separado, na aba "clube do livro") ----------
   let categoriaComunidadeEstudoSelecionada = CATEGORIAS_COMUNIDADE_ESTUDO[0].valor;
 
+  let arquivoCapaComunidade = null;
+
+  window.previewCapaComunidade = function (el) {
+    if (!el.files || !el.files[0]) return;
+    arquivoCapaComunidade = el.files[0];
+    const url = URL.createObjectURL(arquivoCapaComunidade);
+    const img = document.getElementById('comunidadeCapaPreview');
+    img.src = url;
+    img.style.display = 'block';
+    document.getElementById('comunidadeCapaPickerVazio').style.display = 'none';
+  };
+
   window.abrirCriarComunidade = function () {
     document.getElementById('criarComunidadeEstudoTitulo').value = '';
     document.getElementById('criarComunidadeEstudoDesc').value = '';
     document.getElementById('criarComunidadeEstudoPrivada').checked = false;
+    document.getElementById('criarComunidadeEstudoPrazo').value = '';
+    arquivoCapaComunidade = null;
+    document.getElementById('comunidadeCapaInput').value = '';
+    document.getElementById('comunidadeCapaPreview').style.display = 'none';
+    document.getElementById('comunidadeCapaPreview').removeAttribute('src');
+    document.getElementById('comunidadeCapaPickerVazio').style.display = 'flex';
     categoriaComunidadeEstudoSelecionada = CATEGORIAS_COMUNIDADE_ESTUDO[0].valor;
     document.querySelectorAll('.categoria-comunidade-chip').forEach((el, idx) => el.classList.toggle('on', idx === 0));
     document.getElementById('criarComunidadeEstudoOverlay').classList.add('open');
   };
+
+  // faltam N dias / é hoje / prazo já passou -- usado no card e na tela da comunidade
+  function formatarContagemComunidade(prazo) {
+    if (!prazo) return '';
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    const alvo = new Date(prazo); alvo.setHours(0, 0, 0, 0);
+    const dias = Math.round((alvo - hoje) / 86400000);
+    if (dias > 1) return `faltam ${dias} dias`;
+    if (dias === 1) return 'falta 1 dia';
+    if (dias === 0) return 'é hoje!';
+    return 'prazo já passou';
+  }
 
   window.escolherCategoriaComunidadeEstudo = function (valor, el) {
     categoriaComunidadeEstudoSelecionada = valor;
@@ -6613,12 +6682,16 @@ window.trocarModoDescobrir = function (modo) {
     if (!titulo) { mostrarToast('❌ dá um nome pra comunidade'); return; }
     const descricao = document.getElementById('criarComunidadeEstudoDesc').value.trim();
     const privada = document.getElementById('criarComunidadeEstudoPrivada').checked;
+    const prazoValor = document.getElementById('criarComunidadeEstudoPrazo').value;
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const usuarioId = sessionData.session.user.id;
 
+    const capaUrl = await subirFotoParaStorage(usuarioId, arquivoCapaComunidade);
+
     const { data, error } = await supabaseClient.from('comunidades_estudo').insert({
       titulo, descricao: descricao || null, categoria: categoriaComunidadeEstudoSelecionada, privada, criador_id: usuarioId,
+      meta_prazo: prazoValor || null, capa_url: capaUrl,
     }).select().single();
 
     if (error) {
@@ -6669,21 +6742,29 @@ window.trocarModoDescobrir = function (modo) {
     const souMembro = membros.some(m => m.usuario_id === meuId);
     const souAdmin = c.criador_id === meuId || membros.some(m => m.usuario_id === meuId && m.papel === 'admin');
     const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
-    comunidadeTemaAtual = { tema: c.tema_atual || null };
+    comunidadeTemaAtual = { tema: c.tema_atual || null, prazo: c.meta_prazo || null };
+    const contagemDetalhe = formatarContagemComunidade(c.meta_prazo);
 
     document.getElementById('comunidadeDetalheTitulo').textContent = c.titulo;
     document.getElementById('comunidadeDetalheSub').textContent = `${membros.length} membro${membros.length === 1 ? '' : 's'} · ${c.privada ? 'comunidade privada' : 'comunidade pública'}`;
     document.getElementById('comunidadeDetalheOverflowWrap').style.display = souMembro ? 'flex' : 'none';
 
+    document.getElementById('comunidadeDetalheCapaWrap').innerHTML = c.capa_url
+      ? `<img src="${c.capa_url}" style="width:100%;height:130px;object-fit:cover;border-radius:16px;margin-bottom:10px;display:block;" />`
+      : '';
+
     document.getElementById('comunidadeDetalheMetaChips').innerHTML = `
       <div class="comunidade-meta-chip">${categoria ? categoria.label : c.categoria}</div>
-      ${c.descricao ? `<div class="comunidade-meta-chip">${c.descricao}</div>` : ''}`;
+      ${c.descricao ? `<div class="comunidade-meta-chip">${c.descricao}</div>` : ''}
+      ${contagemDetalhe ? `<div class="comunidade-meta-chip teal">${icone('relogio',10)} ${contagemDetalhe}</div>` : ''}`;
 
     document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
       ? (c.privada ? '' : `<div class="livro-link-externo" onclick="abrirCompartilharComunidade()">${icone('compartilhar',10)} convidar pra comunidade</div>`)
       : `<button class="post-btn" style="width:100%;" onclick="entrarNaComunidadeEstudo()">entrar na comunidade</button>`;
 
-    document.getElementById('comunidadeDetalheFerramentas').innerHTML = souMembro ? temaComunidadeCardHtml(souAdmin) : '';
+    document.getElementById('comunidadeDetalheFerramentas').innerHTML = souMembro
+      ? temaComunidadeCardHtml(souAdmin) + prazoComunidadeCardHtml(souAdmin)
+      : '';
 
     document.getElementById('comunidadeIniciarSalaBtn').style.display = souMembro ? 'flex' : 'none';
     document.getElementById('comunidadeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
@@ -6702,6 +6783,88 @@ window.trocarModoDescobrir = function (modo) {
 
   window.toggleComunidadeOverflowMenu = function () {
     document.getElementById('comunidadeDetalheOverflowMenu').classList.toggle('show');
+  };
+
+  // ---------- lista de membros da comunidade (admin promove/remove) ----------
+  window.abrirMembrosComunidade = async function () {
+    document.getElementById('comunidadeMembrosOverlay').classList.add('open');
+    await renderMembrosComunidade();
+  };
+
+  window.toggleMembroMenu = function (btn) {
+    const menu = btn.nextElementSibling;
+    document.querySelectorAll('.comunidade-membro-row .clube-overflow-menu.show').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+    menu.classList.toggle('show');
+  };
+
+  async function renderMembrosComunidade() {
+    const wrap = document.getElementById('comunidadeMembrosLista');
+    wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const { data: c } = await supabaseClient.from('comunidades_estudo').select('criador_id').eq('id', comunidadeEstudoAtualId).single();
+
+    const { data: membros, error } = await supabaseClient
+      .from('comunidade_estudo_membros')
+      .select('usuario_id, papel, entrou_em, usuarios(handle, avatar_url)')
+      .eq('comunidade_id', comunidadeEstudoAtualId)
+      .order('entrou_em', { ascending: true });
+
+    if (error) { wrap.innerHTML = `<div class="visitor-lock-note">Não consegui carregar os membros.</div>`; return; }
+
+    const souAdmin = !!(c && ((c.criador_id === meuId) || (membros || []).some(m => m.usuario_id === meuId && m.papel === 'admin')));
+
+    wrap.innerHTML = (membros && membros.length ? membros.map((m, i) => {
+      const handle = m.usuarios ? m.usuarios.handle : 'alguém';
+      const ehCriador = !!(c && m.usuario_id === c.criador_id);
+      const ehEu = m.usuario_id === meuId;
+      const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
+      return `
+        <div class="comunidade-membro-row">
+          <div class="comunidade-membro-avatar" style="background:${cor}">${iniciaisNome(handle)}</div>
+          <div style="flex:1; min-width:0;">
+            <div class="comunidade-membro-handle">@${handle}${ehEu ? ' (você)' : ''}</div>
+            <div class="comunidade-membro-papel">${ehCriador ? 'criador' : (m.papel === 'admin' ? 'admin' : 'membro')}</div>
+          </div>
+          ${souAdmin && !ehCriador && !ehEu ? `
+          <div class="clube-overflow-wrap">
+            <button class="clube-overflow-btn" onclick="toggleMembroMenu(this)">${icone('maisOpcoes',15)}</button>
+            <div class="clube-overflow-menu">
+              ${m.papel === 'admin'
+                ? `<div class="item" onclick="rebaixarAdminComunidade('${m.usuario_id}')">tirar admin</div>`
+                : `<div class="item" onclick="promoverAdminComunidade('${m.usuario_id}')">tornar admin</div>`}
+              <div class="item" onclick="removerMembroComunidade('${m.usuario_id}')">remover da comunidade</div>
+            </div>
+          </div>` : ''}
+        </div>`;
+    }).join('') : estadoVazio('sem membros ainda', ''));
+  }
+
+  window.promoverAdminComunidade = async function (usuarioId) {
+    const { error } = await supabaseClient.from('comunidade_estudo_membros')
+      .update({ papel: 'admin' }).eq('comunidade_id', comunidadeEstudoAtualId).eq('usuario_id', usuarioId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('⭐ agora é admin');
+    renderMembrosComunidade();
+  };
+
+  window.rebaixarAdminComunidade = async function (usuarioId) {
+    const { error } = await supabaseClient.from('comunidade_estudo_membros')
+      .update({ papel: 'membro' }).eq('comunidade_id', comunidadeEstudoAtualId).eq('usuario_id', usuarioId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('admin removido');
+    renderMembrosComunidade();
+  };
+
+  window.removerMembroComunidade = async function (usuarioId) {
+    const { error } = await supabaseClient.from('comunidade_estudo_membros')
+      .delete().eq('comunidade_id', comunidadeEstudoAtualId).eq('usuario_id', usuarioId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('👋 removido da comunidade');
+    renderMembrosComunidade();
+    renderComunidadeEstudoDetalhe();
   };
 
   window.sairDaComunidadeEstudo = async function () {
@@ -6744,9 +6907,44 @@ window.trocarModoDescobrir = function (modo) {
     const { error } = await supabaseClient.from('comunidades_estudo')
       .update({ tema_atual: tema || null }).eq('id', comunidadeEstudoAtualId);
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
-    comunidadeTemaAtual = { tema: tema || null };
+    comunidadeTemaAtual.tema = tema || null;
     mostrarToast('📌 tema atualizado');
-    document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true);
+    document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true) + prazoComunidadeCardHtml(true);
+  };
+
+  // ---------- ferramentas da comunidade: card do prazo (só admin muda) ----------
+  function prazoComunidadeCardHtml(souAdmin) {
+    const prazo = comunidadeTemaAtual.prazo;
+    const contagem = formatarContagemComunidade(prazo);
+    return `
+      <div class="clube-cap-card" style="margin-top:8px;">
+        <div class="clube-cap-info">
+          <div class="clube-cap-kicker">${icone('relogio',10)} prazo</div>
+          <div class="clube-cap-valor" style="font-size:17px;">${contagem || 'sem prazo definido'}</div>
+        </div>
+        ${souAdmin ? `<button class="clube-cap-editar" onclick="abrirEditarPrazoComunidade()">${icone('editar',15)}</button>` : ''}
+      </div>
+      <div class="clube-cap-form" id="comunidadePrazoFormWrap" style="display:none;">
+        <div class="clube-cap-form-row">
+          <input type="date" id="comunidadePrazoInput" class="busca-input" style="flex:1;" value="${prazo ? prazo.slice(0,10) : ''}" />
+        </div>
+        <button class="post-btn" onclick="salvarPrazoComunidade()">salvar prazo</button>
+      </div>`;
+  }
+
+  window.abrirEditarPrazoComunidade = function () {
+    const f = document.getElementById('comunidadePrazoFormWrap');
+    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+  };
+
+  window.salvarPrazoComunidade = async function () {
+    const prazo = document.getElementById('comunidadePrazoInput').value;
+    const { error } = await supabaseClient.from('comunidades_estudo')
+      .update({ meta_prazo: prazo || null }).eq('id', comunidadeEstudoAtualId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    comunidadeTemaAtual.prazo = prazo || null;
+    mostrarToast('⏱ prazo atualizado');
+    document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true) + prazoComunidadeCardHtml(true);
   };
 
   // ---------- convidar pra comunidade (mesmo padrão do convite de clube) ----------
