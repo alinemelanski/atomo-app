@@ -72,3 +72,8 @@ create policy "sair da comunidade" on comunidade_estudo_membros for delete using
 -- obs: não precisa de policy nova em "posts" pra comunidade_estudo_id —
 -- o mural usa privado=false igual o clube do livro já faz (dá pra ver o
 -- select "posts visiveis" que já existe hoje, sem mudar nada nele).
+
+-- 28/09: audio no mural do clube e da comunidade (gravar e mandar mensagem
+-- de voz, igual já dá pra fazer no chat direto) -- soma coluna nova em
+-- "posts" pra guardar a URL do audio gravado
+alter table posts add column if not exists audio_url text;

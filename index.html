@@ -699,6 +699,9 @@
     font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 11px; gap: 4px; }
   .dm-send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-a);
     border: none; color: #fff; font-size: 15px; cursor: pointer; flex: none; }
+  .dm-send-btn.gravando { width: auto; padding: 0 12px; border-radius: 20px; background: var(--pink) !important;
+    color: #fff !important; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 11.5px; display: flex;
+    align-items: center; justify-content: center; gap: 4px; }
   .back-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--card-b); cursor: pointer;
     display: flex; align-items: center; justify-content: center; }
 
@@ -980,7 +983,7 @@
   .iniciar-sala-fab { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 5; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 14px;
     font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex;
-    align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-a) 40%, transparent); }
+    align-items: center; justify-content: center; gap: 8px; }
   .iniciar-sala-fab:active { transform: scale(.98); }
 
   /* ---------- sala de call de estudo ao vivo ---------- */
@@ -2399,6 +2402,7 @@
         </label>
         <div class="dm-input-row">
           <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('clube')"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.2s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
+          <button class="dm-send-btn" id="btnGravarAudioMuralClube" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudioMural('clube')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
           <textarea id="clubeComposerText" placeholder="o que você achou até aqui?" rows="1"
             style="flex:1; background:var(--card); background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; max-height:90px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralClube(); }"></textarea>
@@ -2430,6 +2434,8 @@
       </button>
       <div id="comunidadeDetalheComposerWrap" style="position:absolute; left:16px; right:16px; bottom:calc(70px + env(safe-area-inset-bottom));">
         <div class="dm-input-row">
+          <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('comunidade')"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
+          <button class="dm-send-btn" id="btnGravarAudioMuralComunidade" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudioMural('comunidade')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
           <textarea id="comunidadeComposerText" placeholder="o que você quer compartilhar com a comunidade?" rows="1"
             style="flex:1; background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; max-height:90px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralComunidadeEstudo(); }"></textarea>
@@ -2778,6 +2784,8 @@
         <input type="file" id="dmFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoDm(this)" style="display:none;" />
         <input type="file" id="clubeFotoInput" accept="image/*" onchange="enviarFotoClube(this)" style="display:none;" />
         <input type="file" id="clubeFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoClube(this)" style="display:none;" />
+        <input type="file" id="comunidadeFotoInput" accept="image/*" onchange="enviarFotoComunidade(this)" style="display:none;" />
+        <input type="file" id="comunidadeFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoComunidade(this)" style="display:none;" />
         <input type="file" id="uploadEpubInput" accept=".epub" onchange="escolherArquivoEpub()" style="display:none;" />
         <input type="file" id="explorarComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
@@ -3167,6 +3175,7 @@ async function carregarPostsReais() {
     .select('*, usuarios(handle, avatar_url)')
     .eq('privado', false)
     .is('clube_id', null)
+    .is('comunidade_estudo_id', null)
     .order('criado_em', { ascending: false });
 
   if (error) { console.log('erro ao carregar posts:', error.message); return; }
@@ -3319,6 +3328,7 @@ const MAPA_FOTO_INPUTS = {
   avatar: { galeria: 'editAvatarInput', camera: 'editAvatarInputCamera' },
   dm: { galeria: 'dmFotoInput', camera: 'dmFotoInputCamera' },
   clube: { galeria: 'clubeFotoInput', camera: 'clubeFotoInputCamera' },
+  comunidade: { galeria: 'comunidadeFotoInput', camera: 'comunidadeFotoInputCamera' },
   explorar: { galeria: 'explorarComposerFotoInput', camera: 'explorarComposerFotoInputCamera' },
 };
 let fotoOrigemAtual = null;
@@ -4146,6 +4156,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     .eq('autor_id', sessionData.session.user.id)
     .eq('privado', diaryTabAtiva === 'privado')
     .is('clube_id', null)
+    .is('comunidade_estudo_id', null)
     .order('fixado', { ascending: false })
     .order('criado_em', { ascending: false });
 
@@ -5615,7 +5626,7 @@ window.abrirPerfilAlheio = async function (autorId) {
   document.getElementById('perfilAlheioSeguindoCount').textContent = countSeguindo || 0;
 
   const { data: posts } = await supabaseClient
-    .from('posts').select('*').eq('autor_id', autorId).eq('privado', false).is('clube_id', null)
+    .from('posts').select('*').eq('autor_id', autorId).eq('privado', false).is('clube_id', null).is('comunidade_estudo_id', null)
     .order('criado_em', { ascending: false });
 
   const idsPosts = (posts || []).map(p => p.id);
@@ -7134,6 +7145,36 @@ window.trocarModoDescobrir = function (modo) {
     renderMuralClube();
   };
 
+  window.enviarFotoComunidade = async function (el) {
+    const input = el || document.getElementById('comunidadeFotoInput');
+    if (!input.files || !input.files[0]) return;
+    const arquivo = input.files[0];
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session.user.id;
+
+    const extensao = arquivo.name.split('.').pop();
+    const caminho = `${meuId}/comunidade-${Date.now()}.${extensao}`;
+
+    const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, arquivo);
+    if (erroUpload) { mostrarToast('❌ erro no upload: ' + erroUpload.message); return; }
+
+    const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+
+    const { error } = await supabaseClient.from('posts').insert({
+      autor_id: meuId,
+      texto: '',
+      tipo: 'Comunidade',
+      privado: false,
+      comunidade_estudo_id: comunidadeEstudoAtualId,
+      imagem_url: data.publicUrl,
+    });
+
+    input.value = '';
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    renderMuralComunidadeEstudo();
+  };
+
   // abre um clube direto pelo id (usado pelo link de convite), sem depender
   // do índice da lista já carregada na tela
   window.abrirClubePorId = async function (id) {
@@ -7441,13 +7482,15 @@ window.trocarModoDescobrir = function (modo) {
     const revelado = spoilersRevelados.has(p.id);
     const ehOwn = p.autor_id === muralClubeMeuId;
     const imagem = p.imagem_url ? `<img src="${p.imagem_url}" style="max-width:170px; border-radius:12px; display:block; ${corpo ? 'margin-bottom:6px;' : ''}" />` : '';
+    const audio = p.audio_url ? vozBubbleHtml({ id: 'mural-' + p.id, texto: p.audio_url }) : '';
+    const temSoMidia = !corpo && (p.imagem_url || p.audio_url);
     const conteudo = p.tem_spoiler && !revelado
       ? `<span style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;" onclick="revelarSpoilerMural('${p.id}')">${icone('alerta',13)} esse post tem spoiler — toca pra ver</span>`
-      : imagem + corpo;
+      : audio + imagem + corpo;
     return `
       <div class="clube-msg-row ${ehOwn ? 'own' : 'other'}">
         ${!ehOwn ? `<div class="clube-msg-autor">@${handle}</div>` : ''}
-        <div class="clube-msg-bolha"${!corpo && p.imagem_url ? ' style="padding:4px;"' : ''}>${conteudo}</div>
+        <div class="clube-msg-bolha"${temSoMidia && p.imagem_url ? ' style="padding:4px;"' : ''}>${conteudo}</div>
         <div class="clube-msg-meta">${formatarTempoRelativo(p.criado_em)}${p.capitulo_livro ? ` · ${p.capitulo_livro}` : ''}</div>
       </div>`;
   }
@@ -9913,6 +9956,88 @@ window.pularParaPontoVoz = function (e, id) {
   const fill = document.getElementById(id + '-fill');
   if (fill) fill.style.clipPath = `inset(0 ${100 - pct * 100}% 0 0)`;
 };
+
+// ---------- audio no mural (clube/comunidade) -- grava e sobe como post,
+// reaproveitando o mesmo player de onda sonora (vozBubbleHtml) que as
+// mensagens de audio da DM ja usam ----------
+let mediaRecorderMural = null;
+let chunksAudioMural = [];
+let gravandoAudioMural = false;
+let inicioGravacaoMuralTs = null;
+let intervaloGravacaoMuralUi = null;
+
+const BTN_GRAVAR_MURAL_ID = { clube: 'btnGravarAudioMuralClube', comunidade: 'btnGravarAudioMuralComunidade' };
+const ICONE_MIC_MURAL = '<span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span>';
+
+window.alternarGravacaoAudioMural = async function (origem) {
+  if (gravandoAudioMural) { pararGravacaoAudioMural(origem); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    mostrarToast('❌ esse navegador não permite gravar áudio');
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chunksAudioMural = [];
+    mediaRecorderMural = new MediaRecorder(stream);
+    mediaRecorderMural.ondataavailable = e => { if (e.data.size > 0) chunksAudioMural.push(e.data); };
+    mediaRecorderMural.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunksAudioMural, { type: 'audio/webm' });
+      if (blob.size > 0) enviarAudioGravadoMural(blob, origem);
+    };
+    mediaRecorderMural.start();
+    gravandoAudioMural = true;
+    inicioGravacaoMuralTs = Date.now();
+    atualizarBotaoGravacaoMural(origem);
+    intervaloGravacaoMuralUi = setInterval(() => atualizarBotaoGravacaoMural(origem), 500);
+  } catch (e) {
+    mostrarToast('❌ não consegui acessar o microfone');
+  }
+};
+
+function pararGravacaoAudioMural(origem) {
+  if (mediaRecorderMural && gravandoAudioMural) mediaRecorderMural.stop();
+  gravandoAudioMural = false;
+  clearInterval(intervaloGravacaoMuralUi);
+  atualizarBotaoGravacaoMural(origem);
+}
+
+function atualizarBotaoGravacaoMural(origem) {
+  const btn = document.getElementById(BTN_GRAVAR_MURAL_ID[origem]);
+  if (!btn) return;
+  if (gravandoAudioMural) {
+    const seg = Math.floor((Date.now() - inicioGravacaoMuralTs) / 1000);
+    const m = Math.floor(seg / 60);
+    const s = (seg % 60).toString().padStart(2, '0');
+    btn.innerHTML = `⏺ ${m}:${s}`;
+    btn.classList.add('gravando');
+  } else {
+    btn.innerHTML = ICONE_MIC_MURAL;
+    btn.classList.remove('gravando');
+  }
+}
+
+async function enviarAudioGravadoMural(blob, origem) {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session.user.id;
+  const caminho = `${meuId}/audio-mural-${Date.now()}.webm`;
+
+  mostrarToast('🎙️ enviando áudio...');
+  const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, blob, { contentType: 'audio/webm' });
+  if (erroUpload) { mostrarToast('❌ erro no envio: ' + erroUpload.message); return; }
+
+  const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+
+  const payload = origem === 'clube'
+    ? { autor_id: meuId, texto: '', tipo: 'Clube', privado: false, clube_id: clubeAtualId,
+        capitulo_livro: clubeCapituloAtual.capitulo || null, tem_spoiler: false, audio_url: data.publicUrl }
+    : { autor_id: meuId, texto: '', tipo: 'Comunidade', privado: false, comunidade_estudo_id: comunidadeEstudoAtualId, audio_url: data.publicUrl };
+
+  const { error } = await supabaseClient.from('posts').insert(payload);
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+
+  if (origem === 'clube') renderMuralClube(); else renderMuralComunidadeEstudo();
+}
 
 window.enviarDmMsg = async function () {
   const input = document.getElementById('dmChatInput');
