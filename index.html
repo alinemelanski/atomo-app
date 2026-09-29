@@ -1143,6 +1143,40 @@
   .prazo-popup-check input { width: 15px; height: 15px; accent-color: var(--accent-a); }
   .prazo-popup-acoes { display: flex; gap: 8px; }
 
+  /* ---------- botao que abre o calendario proprio (no lugar do <input type="date"> generico) ---------- */
+  .data-picker-btn { width: 100%; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 999px;
+    padding: 10px 15px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink-faint); outline: none;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer; text-align: left; box-sizing: border-box; }
+  .data-picker-btn.preenchido { color: var(--ink); font-weight: 700; }
+  .data-picker-btn .icon-svg { color: var(--accent-a); flex: none; }
+
+  /* ---------- popup do calendario proprio -- mesma cara das outras popups delicadas do app ---------- */
+  .calendario-popup-overlay { position: fixed; inset: 0; z-index: 99; display: none; align-items: center; justify-content: center;
+    background: rgba(20,14,8,0.45); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); padding: 20px; }
+  .calendario-popup-overlay.show { display: flex; }
+  .calendario-popup-card { width: 100%; max-width: 300px; background: color-mix(in srgb, var(--card) 94%, transparent);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius: 22px; padding: 18px 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: prazoPopupEntrada .2s ease-out; }
+  .calendario-popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .calendario-nav-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: var(--accent-soft);
+    color: var(--accent-a); display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+  .calendario-popup-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 15.5px; color: var(--ink); text-transform: capitalize; }
+  .calendario-popup-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+  .calendario-popup-semana span { text-align: center; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+    color: var(--ink-faint); text-transform: uppercase; padding: 4px 0; display: block; }
+  .calendario-popup-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 14px; }
+  .calendario-dia { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); cursor: pointer;
+    transition: background .15s ease, color .15s ease; }
+  .calendario-dia.fora { color: var(--ink-faint); opacity: .35; cursor: default; pointer-events: none; }
+  .calendario-dia.hoje { color: var(--accent-a); box-shadow: inset 0 0 0 1.5px var(--accent-a); }
+  .calendario-dia.selecionado { background: var(--accent-a); color: #fff; box-shadow: none; }
+  .calendario-popup-acoes { display: flex; justify-content: space-between; padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); }
+  .calendario-popup-link { background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px; font-weight: 800; color: var(--accent-a); padding: 4px 6px; }
+
   /* ---------- clube: fileira de ações rolável (arrasta o dedo pro lado) ---------- */
   .clube-acoes-scroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 4px; }
   .clube-acoes-scroll::-webkit-scrollbar { display: none; }
@@ -2540,11 +2574,29 @@
         <div class="onboard-topic-chip categoria-comunidade-chip" onclick="escolherCategoriaComunidadeEstudo('geral', this)">📚 geral</div>
       </div>
       <div class="edit-field-label">Prazo (opcional)</div>
-      <input type="date" id="criarComunidadeEstudoPrazo" class="busca-input" />
+      <input type="date" id="criarComunidadeEstudoPrazo" style="display:none;" />
+      <button type="button" class="data-picker-btn" id="criarComunidadeEstudoPrazoBtn" onclick="abrirCalendarioPicker('criarComunidadeEstudoPrazo')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="14" rx="2.4"/><path d="M4 10.5h16"/><path d="M8.3 4v4M15.7 4v4"/></svg></span><span id="criarComunidadeEstudoPrazoTxt" data-placeholder="escolher data (opcional)">escolher data (opcional)</span></button>
       <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim); position:relative;">
         <input type="checkbox" id="criarComunidadeEstudoPrivada" class="check-custom-input" /><span class="check-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> comunidade privada (só quem você convidar)
       </label>
       <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovaComunidadeEstudo()">Criar comunidade</button>
+    </div>
+
+    <!-- POPUP: SELETOR DE DATA (calendario proprio, com a cara do app -- reutilizado por qualquer campo de data) -->
+    <div class="calendario-popup-overlay" id="calendarioPopupOverlay" onclick="if (event.target === this) fecharCalendarioPicker()">
+      <div class="calendario-popup-card">
+        <div class="calendario-popup-header">
+          <button type="button" class="calendario-nav-btn" onclick="calendarioMudarMes(-1)"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+          <div class="calendario-popup-titulo" id="calendarioPopupTitulo">-</div>
+          <button type="button" class="calendario-nav-btn" onclick="calendarioMudarMes(1)"><span class="icon-svg" style="width:16px;height:16px; transform:scaleX(-1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        </div>
+        <div class="calendario-popup-semana"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+        <div class="calendario-popup-grade" id="calendarioPopupGrade"></div>
+        <div class="calendario-popup-acoes">
+          <button type="button" class="calendario-popup-link" onclick="calendarioLimpar()">limpar</button>
+          <button type="button" class="calendario-popup-link" onclick="calendarioIrHoje()">hoje</button>
+        </div>
+      </div>
     </div>
 
     <!-- OVERLAY: MEMBROS DA COMUNIDADE -->
@@ -3111,6 +3163,7 @@
     enviar: '<path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/>',
     compartilhar: '<path d="M8 16 16 8"/><path d="M9.5 8H16v6.5"/>',
     convite: '<rect x="4" y="6" width="16" height="12" rx="2.3"/><path d="M4.6 7l7.4 5.4L19.4 7"/>',
+    calendario: '<rect x="4" y="6" width="16" height="14" rx="2.4"/><path d="M4 10.5h16"/><path d="M8.3 4v4M15.7 4v4"/>',
     link: '<path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/>',
     repostar: '<path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/>',
     responder: '<path d="M10.3 8.3 5.5 12l4.8 3.8"/><path d="M5.5 12H14a4.8 4.8 0 0 1 4.8 4.8v.9"/>',
@@ -6668,11 +6721,108 @@ window.trocarModoDescobrir = function (modo) {
     document.getElementById('comunidadeCapaPickerVazio').style.display = 'none';
   };
 
+  // ---------- seletor de data proprio (calendario com a cara do app, no lugar do <input type="date"> generico do navegador) ----------
+  let calendarioPickerEstado = { targetId: null, ano: 0, mes: 0, selecionado: null };
+
+  function fmtDataISOLocal(ano, mes, dia) {
+    return `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+  }
+
+  function atualizarBotaoDataPicker(targetId) {
+    const input = document.getElementById(targetId);
+    const txt = document.getElementById(targetId + 'Txt');
+    if (!input || !txt) return;
+    const nomesMesCurto = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    if (input.value) {
+      const d = new Date(input.value + 'T00:00:00');
+      txt.textContent = `${d.getDate()} de ${nomesMesCurto[d.getMonth()]}. de ${d.getFullYear()}`;
+      txt.closest('.data-picker-btn').classList.add('preenchido');
+    } else {
+      txt.textContent = txt.dataset.placeholder || 'escolher data';
+      txt.closest('.data-picker-btn').classList.remove('preenchido');
+    }
+  }
+
+  window.abrirCalendarioPicker = function (targetId) {
+    const input = document.getElementById(targetId);
+    const valor = input ? input.value : '';
+    const base = valor ? new Date(valor + 'T00:00:00') : new Date();
+    calendarioPickerEstado = { targetId, ano: base.getFullYear(), mes: base.getMonth(), selecionado: valor || null };
+    renderCalendarioPicker();
+    document.getElementById('calendarioPopupOverlay').classList.add('show');
+  };
+
+  window.fecharCalendarioPicker = function () {
+    document.getElementById('calendarioPopupOverlay').classList.remove('show');
+  };
+
+  window.calendarioMudarMes = function (delta) {
+    let { ano, mes } = calendarioPickerEstado;
+    mes += delta;
+    if (mes < 0) { mes = 11; ano--; }
+    if (mes > 11) { mes = 0; ano++; }
+    calendarioPickerEstado.ano = ano;
+    calendarioPickerEstado.mes = mes;
+    renderCalendarioPicker();
+  };
+
+  function renderCalendarioPicker() {
+    const { ano, mes, selecionado } = calendarioPickerEstado;
+    const nomesMes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    document.getElementById('calendarioPopupTitulo').textContent = `${nomesMes[mes]} de ${ano}`;
+
+    const offsetInicio = new Date(ano, mes, 1).getDay();
+    const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
+    const totalDiasMesAnterior = new Date(ano, mes, 0).getDate();
+    const hoje = new Date();
+    const hojeISO = fmtDataISOLocal(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+    let html = '';
+    for (let i = offsetInicio - 1; i >= 0; i--) html += `<div class="calendario-dia fora">${totalDiasMesAnterior - i}</div>`;
+    for (let dia = 1; dia <= totalDiasMes; dia++) {
+      const iso = fmtDataISOLocal(ano, mes, dia);
+      let classes = 'calendario-dia';
+      if (iso === hojeISO) classes += ' hoje';
+      if (iso === selecionado) classes += ' selecionado';
+      html += `<div class="${classes}" onclick="calendarioEscolherDia(${dia})">${dia}</div>`;
+    }
+    const restante = (7 - ((offsetInicio + totalDiasMes) % 7)) % 7;
+    for (let i = 1; i <= restante; i++) html += `<div class="calendario-dia fora">${i}</div>`;
+
+    document.getElementById('calendarioPopupGrade').innerHTML = html;
+  }
+
+  window.calendarioEscolherDia = function (dia) {
+    const { ano, mes, targetId } = calendarioPickerEstado;
+    const iso = fmtDataISOLocal(ano, mes, dia);
+    const input = document.getElementById(targetId);
+    input.value = iso;
+    atualizarBotaoDataPicker(targetId);
+    fecharCalendarioPicker();
+  };
+
+  window.calendarioLimpar = function () {
+    const input = document.getElementById(calendarioPickerEstado.targetId);
+    input.value = '';
+    atualizarBotaoDataPicker(calendarioPickerEstado.targetId);
+    fecharCalendarioPicker();
+  };
+
+  window.calendarioIrHoje = function () {
+    const hoje = new Date();
+    const iso = fmtDataISOLocal(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    const input = document.getElementById(calendarioPickerEstado.targetId);
+    input.value = iso;
+    atualizarBotaoDataPicker(calendarioPickerEstado.targetId);
+    fecharCalendarioPicker();
+  };
+
   window.abrirCriarComunidade = function () {
     document.getElementById('criarComunidadeEstudoTitulo').value = '';
     document.getElementById('criarComunidadeEstudoDesc').value = '';
     document.getElementById('criarComunidadeEstudoPrivada').checked = false;
     document.getElementById('criarComunidadeEstudoPrazo').value = '';
+    atualizarBotaoDataPicker('criarComunidadeEstudoPrazo');
     arquivoCapaComunidade = null;
     document.getElementById('comunidadeCapaInput').value = '';
     document.getElementById('comunidadeCapaPreview').style.display = 'none';
@@ -6944,11 +7094,21 @@ window.trocarModoDescobrir = function (modo) {
   function prazoComunidadeCardHtml() {
     const prazo = comunidadeTemaAtual.prazo;
     const temporizador = comunidadeTemaAtual.temporizador !== false;
+    const prazoISO = prazo ? prazo.slice(0, 10) : '';
+    let prazoLabel = 'escolher data';
+    if (prazoISO) {
+      const nomesMesCurto = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+      const d = new Date(prazoISO + 'T00:00:00');
+      prazoLabel = `${d.getDate()} de ${nomesMesCurto[d.getMonth()]}. de ${d.getFullYear()}`;
+    }
     return `
       <div class="prazo-popup-overlay" id="comunidadePrazoPopupOverlay" onclick="if (event.target === this) fecharPopupPrazoComunidade()">
         <div class="prazo-popup-card">
           <div class="prazo-popup-titulo">Editar prazo</div>
-          <div class="prazo-popup-campo"><input type="date" id="comunidadePrazoInput" class="busca-input" style="width:100%; box-sizing:border-box;" value="${prazo ? prazo.slice(0,10) : ''}" /></div>
+          <div class="prazo-popup-campo">
+            <input type="date" id="comunidadePrazoInput" style="display:none;" value="${prazoISO}" />
+            <button type="button" class="data-picker-btn ${prazoISO ? 'preenchido' : ''}" id="comunidadePrazoInputBtn" onclick="abrirCalendarioPicker('comunidadePrazoInput')">${icone('calendario',15)}<span id="comunidadePrazoInputTxt" data-placeholder="escolher data">${prazoLabel}</span></button>
+          </div>
           <label class="prazo-popup-check"><input type="checkbox" id="comunidadePrazoTimerCheck" ${temporizador ? 'checked' : ''}/> ${icone('relogio',13)} ligar temporizador</label>
           <div class="prazo-popup-acoes">
             <button class="post-btn" style="flex:1; background:var(--card-b); color:var(--ink);" onclick="fecharPopupPrazoComunidade()">cancelar</button>
