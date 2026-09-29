@@ -1748,14 +1748,57 @@ async function traduzirHoroscopoComIA(texto) {
   }
 }
 
-// horoscopo diario (cartao "signo" na Home) - via API Ninjas (só devolve em
-// inglês), traduzido pro português antes de mandar pro app.
+// escreve o horoscopo direto em portugues natural com o Gemini -- em vez de
+// pedir pra API Ninjas (que so devolve em ingles, tom de horoscopo de jornal
+// americano, cheio de clichê de "revise seu orçamento") e depois traduzir,
+// o que sempre soava esquisito/estrangeiro mesmo depois de traduzido. Sem
+// GEMINI_API_KEY, ou se a chamada falhar (cota, rede etc.), volta null e quem
+// chamou cai pro fallback antigo (API Ninjas + tradução) logo abaixo.
+async function gerarHoroscopoComIA(signo) {
+  if (!process.env.GEMINI_API_KEY) return null;
+  try {
+    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{
+            text: 'Você escreve o horóscopo diário de um app de diário pessoal chamado Átomo, em português do Brasil '
+              + 'bem natural — do jeito que um horóscopo brasileiro de verdade seria escrito, nunca traduzido do inglês '
+              + 'e nunca cheio de clichê genérico sobre dinheiro/contas/orçamento. Tom leve e acolhedor, com uma sugestão '
+              + 'ou reflexão pro dia. No máximo 4 frases curtas, sem markdown, sem aspas, sem comentário extra — só o '
+              + 'texto final do horóscopo de hoje pro signo indicado.'
+          }]
+        },
+        contents: [{ parts: [{ text: `Escreva o horóscopo de hoje pra ${signo}.` }] }],
+        generationConfig: { maxOutputTokens: 220, temperature: 0.9 }
+      })
+    });
+    if (!resp.ok) { console.log('gemini horoscopo direto: status', resp.status, await resp.text()); return null; }
+    const data = await resp.json();
+    const texto = data && data.candidates && data.candidates[0] && data.candidates[0].content
+      && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
+      && data.candidates[0].content.parts[0].text;
+    return texto ? texto.trim() : null;
+  } catch (erro) {
+    console.log('erro ao gerar horoscopo com IA:', erro.message);
+    return null;
+  }
+}
+
+// horoscopo diario (cartao "signo" na Home) - 1a opcao: Gemini escreve direto
+// em portugues (gerarHoroscopoComIA acima). Só cai pra API Ninjas (inglês,
+// traduzido) se a chave do Gemini não estiver configurada ou a chamada falhar.
 app.get('/api/horoscopo', async (req, res) => {
+  const zodiac = SIGNO_PARA_ZODIAC[req.query.signo];
+  if (!zodiac) return res.status(400).json({ erro: 'signo inválido' });
+
+  const textoIA = await gerarHoroscopoComIA(req.query.signo);
+  if (textoIA) return res.json({ texto: textoIA });
+
   if (!process.env.API_NINJAS_KEY) {
     return res.status(500).json({ erro: 'faltou configurar API_NINJAS_KEY no servidor.env' });
   }
-  const zodiac = SIGNO_PARA_ZODIAC[req.query.signo];
-  if (!zodiac) return res.status(400).json({ erro: 'signo inválido' });
   try {
     const resposta = await fetch(`https://api.api-ninjas.com/v1/horoscope?zodiac=${zodiac}`, {
       headers: { 'X-Api-Key': process.env.API_NINJAS_KEY },
