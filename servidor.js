@@ -1510,7 +1510,14 @@ async function buscarTextoPaginaWikisource(titulo) {
     { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
   );
   const dadosParse = await respParse.json();
-  const prefixoSubpagina = titulo + '/';
+  // action=parse com redirects=1 pode resolver pra um titulo diferente do
+  // que a gente mandou (ex: "Helena" redireciona pra "Helena (Machado de
+  // Assis)") -- se a gente continuar filtrando subpaginas pelo titulo
+  // ORIGINAL, nunca acha "Helena (Machado de Assis)/Capitulo I" e cai no
+  // fallback de pagina unica, que fica vazio (pagina so tem indice). Usa o
+  // titulo resolvido (dadosParse.parse.title) pra montar o prefixo.
+  const tituloResolvido = (dadosParse.parse && dadosParse.parse.title) || titulo;
+  const prefixoSubpagina = tituloResolvido + '/';
   const todosLinks = (dadosParse.parse && dadosParse.parse.links) || [];
   const titulosCapitulos = todosLinks
     .filter(l => l.ns === 0 && l.exists && l.title && l.title.startsWith(prefixoSubpagina))
@@ -1542,7 +1549,7 @@ async function buscarTextoPaginaWikisource(titulo) {
     // não é um livro dividido em capítulos (ou os capítulos vieram vazios)
     // — usa o texto direto da própria página, do jeito que já fazia antes
     const resposta = await fetch(
-      `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(titulo)}&format=json&formatversion=2`,
+      `https://pt.wikisource.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&titles=${encodeURIComponent(tituloResolvido)}&format=json&formatversion=2`,
       { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
     );
     const dados = await resposta.json();
