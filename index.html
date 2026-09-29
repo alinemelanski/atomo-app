@@ -1001,6 +1001,7 @@
   .comunidade-meta-chip { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 7px 12px;
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-family: 'DM Sans', sans-serif; }
   .comunidade-meta-chip.teal { background: color-mix(in srgb, var(--accent-b) 16%, transparent); color: var(--accent-b); }
+  .comunidade-meta-chip.teal .icon-svg svg { stroke-width: 2.3; }
   .iniciar-sala-fab { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
     z-index: 5; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 10px;
     font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; cursor: pointer; display: flex;
@@ -6780,7 +6781,7 @@ window.trocarModoDescobrir = function (modo) {
     document.getElementById('comunidadeDetalheMetaChips').innerHTML = `
       <div class="comunidade-meta-chip">${categoria ? categoria.label : c.categoria}</div>
       ${c.descricao ? `<div class="comunidade-meta-chip">${c.descricao}</div>` : ''}
-      ${contagemDetalhe ? `<div class="comunidade-meta-chip teal">${comunidadeTemaAtual.temporizador ? icone('relogio',13) + ' ' : ''}${contagemDetalhe}</div>` : ''}
+      ${contagemDetalhe ? `<div class="comunidade-meta-chip teal">${comunidadeTemaAtual.temporizador ? icone('relogio',15) + ' ' : ''}${contagemDetalhe}</div>` : ''}
       ${(souMembro && !c.privada) ? `<button class="comunidade-convite-btn" onclick="abrirCompartilharComunidade()" title="convidar pra comunidade">${icone('convite',14)}</button>` : ''}`;
 
     document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
