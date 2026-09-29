@@ -1319,7 +1319,12 @@ app.get('/api/livros-em-destaque', async (req, res) => {
         if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
         const dados = await resposta.json();
         const resultados = (dados.query && dados.query.search) || [];
-        const resultadosComTexto = resultados.filter(r => (r.wordcount || 0) >= 30);
+        // 30 palavras era baixo demais -- deixava passar pagina-indice/stub
+        // (ex.: uma pagina de sumario com so titulos de capitulo) como se
+        // fosse o livro em si, dai o leitor abria e mostrava um monte de
+        // '=====' e titulo solto em vez do texto de verdade. 400 palavras
+        // corta esse tipo de pagina sem tirar livro/conto real da lista.
+        const resultadosComTexto = resultados.filter(r => (r.wordcount || 0) >= 400);
 
         // Wikisource divide muita obra em subpáginas por capítulo/seção
         // (ex: "Ressurreição (Machado de Assis)/Advertência") e a busca por
