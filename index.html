@@ -703,6 +703,8 @@
     box-shadow: inset 0 1px 0 color-mix(in srgb, white 20%, transparent); }
   .dm-bubble.own { align-self: flex-end; background: var(--dm-tema-cor, var(--accent-a)); color: #fff; border-bottom-right-radius: 4px; }
   .dm-input-row { display: flex; gap: 8px; align-items: center; }
+  #comunidadeDetalheComposerWrap .dm-send-btn { width: 34px; height: 34px; }
+  #comunidadeDetalheComposerWrap textarea { padding: 8px 12px !important; font-size: 12.5px !important; }
   .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; border-radius: 999px; padding: 10px 14px;
     color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none;
     background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
@@ -1019,9 +1021,9 @@
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-family: 'DM Sans', sans-serif; }
   .comunidade-meta-chip.teal { background: color-mix(in srgb, var(--accent-b) 16%, transparent); color: var(--accent-b); }
   .iniciar-sala-fab { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
-    z-index: 5; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 14px;
-    font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex;
-    align-items: center; justify-content: center; gap: 8px; }
+    z-index: 5; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 10px;
+    font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 6px; }
   .iniciar-sala-fab:active { transform: scale(.98); }
 
   /* ---------- sala de call de estudo ao vivo ---------- */
@@ -1128,7 +1130,10 @@
 
   /* ---------- clube: card grande de capitulo/pagina atual (só admin edita) ---------- */
   .clube-cap-card { display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 16px 18px; box-shadow: var(--shadow); }
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 60%, transparent); border-radius: 18px; padding: 14px 16px; box-shadow: var(--shadow); }
+  #comunidadeDetalheAcoes .livro-link-externo { padding: 8px 16px; font-size: 11px; margin: 4px auto 0;
+    background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
   .clube-cap-info .clube-cap-kicker { font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
   .clube-cap-info .clube-cap-valor { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 700; color: var(--ink); line-height: 1.15; }
@@ -1138,9 +1143,28 @@
   .clube-cap-form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
   .clube-cap-form-row { display: flex; gap: 8px; }
 
+  /* ---------- popup delicada de editar prazo (data + opcao de temporizador) ---------- */
+  .prazo-popup-overlay { position: fixed; inset: 0; z-index: 96; display: none; align-items: center; justify-content: center;
+    background: rgba(20,14,8,0.45); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); padding: 20px; }
+  .prazo-popup-overlay.show { display: flex; }
+  .prazo-popup-card { width: 100%; max-width: 290px; background: color-mix(in srgb, var(--card) 90%, transparent);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius: 22px; padding: 20px 18px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: marco-entrada .4s cubic-bezier(.34,1.56,.64,1); }
+  .prazo-popup-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 16.5px; color: var(--ink);
+    margin-bottom: 14px; text-align: center; }
+  .prazo-popup-campo { margin-bottom: 12px; }
+  .prazo-popup-check { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-dim);
+    font-family: 'Nunito', sans-serif; margin-bottom: 16px; cursor: pointer; }
+  .prazo-popup-check input { width: 15px; height: 15px; accent-color: var(--accent-a); }
+  .prazo-popup-acoes { display: flex; gap: 8px; }
+
   /* ---------- clube: fileira de ações rolável (arrasta o dedo pro lado) ---------- */
   .clube-acoes-scroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 4px; }
   .clube-acoes-scroll::-webkit-scrollbar { display: none; }
+  /* barras de rolagem escondidas em todo o app -- fica com cara de app nativo em vez de pagina web */
+  .device * { scrollbar-width: none; }
+  .device *::-webkit-scrollbar { display: none; width: 0; height: 0; }
   .clube-acoes-scroll > * { flex: none; margin: 0 !important; }
   .clube-acoes-scroll .post-btn, .clube-acoes-scroll .livro-link-externo { font-size: 10.5px; padding: 6px 12px; gap: 4px;
     box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .15s ease;
@@ -1151,9 +1175,13 @@
 
   /* ---------- clube: menu de tres pontinhos (sair do clube etc, sem ocupar espaco) ---------- */
   .clube-overflow-wrap { position: relative; margin-left: auto; }
-  .clube-overflow-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--card-b);
+  .clube-overflow-btn { width: 32px; height: 32px; border-radius: 50%;
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent);
     cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
-  .clube-overflow-menu { position: absolute; top: 40px; right: 0; background: var(--card); border: 1px solid var(--card-b);
+  .clube-overflow-menu { position: absolute; top: 38px; right: 0;
+    background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 60%, transparent);
     border-radius: 12px; box-shadow: var(--shadow); padding: 6px; min-width: 150px; z-index: 5; display: none; }
   .clube-overflow-menu.show { display: block; }
   .clube-overflow-menu .item { padding: 9px 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12.5px;
@@ -6752,7 +6780,7 @@ window.trocarModoDescobrir = function (modo) {
     const souMembro = membros.some(m => m.usuario_id === meuId);
     const souAdmin = c.criador_id === meuId || membros.some(m => m.usuario_id === meuId && m.papel === 'admin');
     const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
-    comunidadeTemaAtual = { tema: c.tema_atual || null, prazo: c.meta_prazo || null };
+    comunidadeTemaAtual = { tema: c.tema_atual || null, prazo: c.meta_prazo || null, temporizador: c.temporizador_ativo !== false };
     const contagemDetalhe = formatarContagemComunidade(c.meta_prazo);
 
     document.getElementById('comunidadeDetalheTitulo').textContent = c.titulo;
@@ -6769,7 +6797,7 @@ window.trocarModoDescobrir = function (modo) {
       ${contagemDetalhe ? `<div class="comunidade-meta-chip teal">${icone('relogio',10)} ${contagemDetalhe}</div>` : ''}`;
 
     document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
-      ? (c.privada ? '' : `<div class="livro-link-externo" onclick="abrirCompartilharComunidade()">${icone('compartilhar',10)} convidar pra comunidade</div>`)
+      ? (c.privada ? '' : `<div class="livro-link-externo" onclick="abrirCompartilharComunidade()">${icone('convite',12)} convidar pra comunidade</div>`)
       : `<button class="post-btn" style="width:100%;" onclick="entrarNaComunidadeEstudo()">entrar na comunidade</button>`;
 
     document.getElementById('comunidadeDetalheFerramentas').innerHTML = souMembro
@@ -6925,34 +6953,46 @@ window.trocarModoDescobrir = function (modo) {
   // ---------- ferramentas da comunidade: card do prazo (só admin muda) ----------
   function prazoComunidadeCardHtml(souAdmin) {
     const prazo = comunidadeTemaAtual.prazo;
+    const temporizador = comunidadeTemaAtual.temporizador !== false;
     const contagem = formatarContagemComunidade(prazo);
+    const mostraRelogio = contagem && temporizador;
     return `
       <div class="clube-cap-card" style="margin-top:8px;">
         <div class="clube-cap-info">
           <div class="clube-cap-kicker">${icone('relogio',10)} prazo</div>
-          <div class="clube-cap-valor" style="font-size:17px;">${contagem || 'sem prazo definido'}</div>
+          <div class="clube-cap-valor" style="font-size:17px;">${mostraRelogio ? icone('relogio',15) + ' ' : ''}${contagem || 'sem prazo definido'}</div>
         </div>
         ${souAdmin ? `<button class="clube-cap-editar" onclick="abrirEditarPrazoComunidade()">${icone('editar',15)}</button>` : ''}
       </div>
-      <div class="clube-cap-form" id="comunidadePrazoFormWrap" style="display:none;">
-        <div class="clube-cap-form-row">
-          <input type="date" id="comunidadePrazoInput" class="busca-input" style="flex:1;" value="${prazo ? prazo.slice(0,10) : ''}" />
+      <div class="prazo-popup-overlay" id="comunidadePrazoPopupOverlay" onclick="if (event.target === this) fecharPopupPrazoComunidade()">
+        <div class="prazo-popup-card">
+          <div class="prazo-popup-titulo">Editar prazo</div>
+          <div class="prazo-popup-campo"><input type="date" id="comunidadePrazoInput" class="busca-input" style="width:100%; box-sizing:border-box;" value="${prazo ? prazo.slice(0,10) : ''}" /></div>
+          <label class="prazo-popup-check"><input type="checkbox" id="comunidadePrazoTimerCheck" ${temporizador ? 'checked' : ''}/> ${icone('relogio',13)} ligar temporizador</label>
+          <div class="prazo-popup-acoes">
+            <button class="post-btn" style="flex:1; background:var(--card-b); color:var(--ink);" onclick="fecharPopupPrazoComunidade()">cancelar</button>
+            <button class="post-btn" style="flex:1;" onclick="salvarPrazoComunidade()">salvar prazo</button>
+          </div>
         </div>
-        <button class="post-btn" onclick="salvarPrazoComunidade()">salvar prazo</button>
       </div>`;
   }
 
   window.abrirEditarPrazoComunidade = function () {
-    const f = document.getElementById('comunidadePrazoFormWrap');
-    f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+    document.getElementById('comunidadePrazoPopupOverlay').classList.add('show');
+  };
+
+  window.fecharPopupPrazoComunidade = function () {
+    document.getElementById('comunidadePrazoPopupOverlay').classList.remove('show');
   };
 
   window.salvarPrazoComunidade = async function () {
     const prazo = document.getElementById('comunidadePrazoInput').value;
+    const temporizador = document.getElementById('comunidadePrazoTimerCheck').checked;
     const { error } = await supabaseClient.from('comunidades_estudo')
-      .update({ meta_prazo: prazo || null }).eq('id', comunidadeEstudoAtualId);
+      .update({ meta_prazo: prazo || null, temporizador_ativo: temporizador }).eq('id', comunidadeEstudoAtualId);
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
     comunidadeTemaAtual.prazo = prazo || null;
+    comunidadeTemaAtual.temporizador = temporizador;
     mostrarToast('⏱ prazo atualizado');
     document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true) + prazoComunidadeCardHtml(true);
   };
