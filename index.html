@@ -1577,6 +1577,24 @@
   .resumo-acao-btn.dispensar { background: var(--accent-soft); color: var(--accent-a); }
   .resumo-acao-btn.compartilhar { background: var(--accent-a); color: #fff; }
 
+  /* ---------- pressionar e segurar pra reorganizar os blocos da Home (estilo tela inicial do iPhone) ---------- */
+  .home-organizavel { position: relative; }
+  .home-organizavel-handle { display: none; position: absolute; top: 8px; right: 8px; width: 30px; height: 30px;
+    border-radius: 50%; background: color-mix(in srgb, var(--card) 88%, transparent); border: 1px solid var(--card-b);
+    align-items: center; justify-content: center; z-index: 6; cursor: grab; touch-action: none; -webkit-touch-callout: none;
+    user-select: none; color: var(--ink-faint); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .home-organizavel-handle svg { width: 15px; height: 15px; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel { animation: homeBlocoJiggle .26s ease-in-out infinite; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel:nth-child(even) { animation-delay: .13s; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel-handle { display: flex; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel > *:not(.home-organizavel-handle) { pointer-events: none; }
+  .home-organizavel.arrastando { animation: none !important; opacity: .85; box-shadow: 0 10px 24px rgba(0,0,0,.22); border-radius: 18px; }
+  @keyframes homeBlocoJiggle { 0%, 100% { transform: rotate(-0.6deg); } 50% { transform: rotate(0.6deg); } }
+  .home-organizar-pronto-btn { display: none; position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 60; padding: 11px 26px; border-radius: 999px;
+    background: var(--accent-a); color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px;
+    border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); align-items: center; justify-content: center; }
+
   /* ---------- checklist minimalista (Home) ---------- */
   .home-checklist-wrap { margin-bottom: 18px; }
   .home-checklist-card { background:var(--card); border:1px solid var(--card-b); border-radius:18px; padding:6px 16px 14px; box-shadow:var(--shadow); }
@@ -1860,6 +1878,9 @@
       <div class="home-diario-wrap" id="homeDiarioWrap">
         <div class="home-semana-row" id="homeSemanaRow"></div>
 
+        <div id="homeBlocosOrganizaveis">
+        <div class="home-organizavel" data-home-key="diario">
+          <div class="home-organizavel-handle"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></div>
         <div class="home-diario-card" onclick="abrirPaginaDiario()">
           <svg class="home-diario-atomo" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
             <path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z"/>
@@ -1869,7 +1890,10 @@
           <div class="home-diario-sub">Pausa, respira, e guarda um espaço pras coisas que importam.</div>
           <div class="home-diario-abrir"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.3s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span></div>
         </div>
+        </div>
 
+        <div class="home-organizavel" data-home-key="quick">
+          <div class="home-organizavel-handle"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></div>
         <div class="home-quick-row">
           <div class="home-quick-titulo-row"><div class="home-section-titulo">Diário rápido</div></div>
           <div class="home-quick-cards">
@@ -1877,7 +1901,10 @@
             <div class="home-quick-card alt" onclick="abrirQuickGratidao()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/></svg><div>Uma coisa que você é grato(a) hoje.</div></div>
           </div>
         </div>
+        </div>
 
+        <div class="home-organizavel" data-home-key="humor">
+          <div class="home-organizavel-handle"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></div>
         <div class="home-emocoes-wrap">
           <div class="home-quick-titulo-row"><div class="home-section-titulo">Humor</div><div class="discover-desc" style="opacity:.6;" id="homeHumorTag">hoje</div></div>
           <div class="home-emocoes-card" id="homeEmocoesCard"></div>
@@ -1989,7 +2016,10 @@
           </div>
         </div>
       </div>
+      </div>
 
+      <div class="home-organizavel" data-home-key="checklist">
+        <div class="home-organizavel-handle"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/></svg></div>
       <div class="home-checklist-wrap">
         <div class="home-quick-titulo-row"><div class="home-section-titulo">Checklist</div><div class="discover-desc" style="opacity:.6;" id="checklistContagem"></div></div>
         <div class="home-checklist-card">
@@ -1999,6 +2029,8 @@
             <button class="checklist-add-btn" onclick="adicionarItemChecklist()"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
           </div>
         </div>
+      </div>
+      </div>
       </div>
 
       <div class="home-resumo-wrap" id="homeResumoWrap" style="display:none;">
@@ -3034,6 +3066,8 @@
     </div>
 
     <div class="world-toast2" id="toast2"></div>
+
+    <button class="home-organizar-pronto-btn" id="homeOrganizarProntoBtn" onclick="sairModoOrganizarHome()">Pronto</button>
 
     <!-- CELEBRAÇÃO DE MARCO -->
     <div class="marco-celebracao" id="marcoCelebracao">
@@ -5180,6 +5214,126 @@ window.fecharSeloIndividual = function () {
     if (error) { mostrarToast('❌ ' + error.message); return; }
     abrirCaixinhaPandora();
   };
+
+  // ---------- pressionar e segurar pra reorganizar os blocos da Home (estilo tela inicial do iPhone) ----------
+  const ORDEM_HOME_PADRAO = ['diario', 'quick', 'humor', 'checklist'];
+  let organizarHomeAtivo = false;
+  let pressTimerHome = null;
+  let arrastandoBlocoHome = null;
+
+  function aplicarOrdemHomeSalva() {
+    const wrap = document.getElementById('homeBlocosOrganizaveis');
+    if (!wrap) return;
+    let ordem = ORDEM_HOME_PADRAO;
+    try {
+      const salva = JSON.parse(localStorage.getItem('atomo_ordem_home') || 'null');
+      if (Array.isArray(salva) && salva.length) {
+        ordem = salva.filter(k => ORDEM_HOME_PADRAO.includes(k));
+        ORDEM_HOME_PADRAO.forEach(k => { if (!ordem.includes(k)) ordem.push(k); });
+      }
+    } catch (e) {}
+    ordem.forEach(chave => {
+      const bloco = wrap.querySelector(`.home-organizavel[data-home-key="${chave}"]`);
+      if (bloco) wrap.appendChild(bloco);
+    });
+  }
+
+  function salvarOrdemHomeAtual() {
+    const wrap = document.getElementById('homeBlocosOrganizaveis');
+    if (!wrap) return;
+    const ordem = Array.from(wrap.children)
+      .filter(el => el.classList.contains('home-organizavel'))
+      .map(el => el.dataset.homeKey);
+    try { localStorage.setItem('atomo_ordem_home', JSON.stringify(ordem)); } catch (e) {}
+  }
+
+  function entrarModoOrganizarHome() {
+    if (organizarHomeAtivo) return;
+    organizarHomeAtivo = true;
+    const wrap = document.getElementById('homeBlocosOrganizaveis');
+    if (wrap) wrap.classList.add('modo-organizar');
+    const btn = document.getElementById('homeOrganizarProntoBtn');
+    if (btn) btn.style.display = 'flex';
+    if (navigator.vibrate) navigator.vibrate(12);
+  }
+
+  window.sairModoOrganizarHome = function () {
+    organizarHomeAtivo = false;
+    const wrap = document.getElementById('homeBlocosOrganizaveis');
+    if (wrap) wrap.classList.remove('modo-organizar');
+    const btn = document.getElementById('homeOrganizarProntoBtn');
+    if (btn) btn.style.display = 'none';
+    salvarOrdemHomeAtual();
+  };
+
+  function iniciarArrastoHome(bloco) {
+    arrastandoBlocoHome = bloco;
+    bloco.classList.add('arrastando');
+  }
+
+  function moverArrastoHome(clientY) {
+    if (!arrastandoBlocoHome) return;
+    const wrap = document.getElementById('homeBlocosOrganizaveis');
+    if (!wrap) return;
+    const blocos = Array.from(wrap.children).filter(el => el.classList.contains('home-organizavel'));
+    const indiceArrasto = blocos.indexOf(arrastandoBlocoHome);
+    for (let i = 0; i < blocos.length; i++) {
+      const outro = blocos[i];
+      if (outro === arrastandoBlocoHome) continue;
+      const r = outro.getBoundingClientRect();
+      const centro = r.top + r.height / 2;
+      if (i < indiceArrasto && clientY < centro) { wrap.insertBefore(arrastandoBlocoHome, outro); return; }
+      if (i > indiceArrasto && clientY > centro) { wrap.insertBefore(arrastandoBlocoHome, outro.nextSibling); return; }
+    }
+  }
+
+  function finalizarArrastoHome() {
+    if (!arrastandoBlocoHome) return;
+    arrastandoBlocoHome.classList.remove('arrastando');
+    arrastandoBlocoHome = null;
+    salvarOrdemHomeAtual();
+  }
+
+  (function iniciarReorganizarHome() {
+    const wrap = document.getElementById('homeBlocosOrganizaveis');
+    if (!wrap) return;
+    aplicarOrdemHomeSalva();
+
+    wrap.addEventListener('pointerdown', (e) => {
+      const bloco = e.target.closest('.home-organizavel');
+      if (!bloco) return;
+      const ehAlca = e.target.closest('.home-organizavel-handle');
+      if (organizarHomeAtivo) {
+        if (ehAlca) iniciarArrastoHome(bloco);
+        return;
+      }
+      // fora do modo organizar: pressiona e segura por 500ms sem mexer o dedo pra entrar no modo
+      const startY = e.clientY;
+      let moveu = false;
+      const onMove = (ev) => { if (Math.abs(ev.clientY - startY) > 10) moveu = true; };
+      const cancelar = () => {
+        clearTimeout(pressTimerHome);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', cancelar);
+        window.removeEventListener('pointercancel', cancelar);
+      };
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', cancelar);
+      window.addEventListener('pointercancel', cancelar);
+      pressTimerHome = setTimeout(() => {
+        if (moveu) return;
+        cancelar();
+        entrarModoOrganizarHome();
+        iniciarArrastoHome(bloco);
+      }, 500);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (arrastandoBlocoHome) moverArrastoHome(e.clientY);
+    });
+    window.addEventListener('pointerup', () => { if (arrastandoBlocoHome) finalizarArrastoHome(); });
+    window.addEventListener('pointercancel', () => { if (arrastandoBlocoHome) finalizarArrastoHome(); });
+  })();
 
   // ---------- checklist minimalista do Home ----------
   window.CHECKLIST_ITENS = [];
