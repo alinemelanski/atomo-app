@@ -711,6 +711,28 @@
   .back-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--card-b); cursor: pointer;
     display: flex; align-items: center; justify-content: center; }
 
+  /* ---------- teste: botões estilo nativo (iOS), só na tela de Mensagens ---------- */
+  /* se ficar bom, isso vira padrão pro app todo depois */
+  #screen-mensagens .pote-filtro-tabs {
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    border-radius: 11px; padding: 2px; gap: 0;
+  }
+  #screen-mensagens .pote-filtro-tab {
+    background: transparent; border: none; border-radius: 9px; font-weight: 700;
+    color: var(--ink-faint); transition: color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+  #screen-mensagens .pote-filtro-tab.on {
+    background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.18);
+  }
+  #dmChatOverlay .dm-chat-header .back-btn {
+    background: transparent; border: none; box-shadow: none; width: 30px; height: 30px; color: var(--accent-a);
+  }
+  #dmChatOverlay .dm-input-icons .dm-send-btn {
+    background: transparent !important; color: var(--ink-faint) !important;
+  }
+
   /* ---------- leitor de livro (Gutendex, texto integral, folheável tipo Kindle) ---------- */
   .leitor-livro-barra { height: 3px; border-radius: 999px; background: var(--card-b); margin-bottom: 10px; overflow: hidden; flex: none; }
   .leitor-livro-barra-preenchida { height: 100%; background: var(--accent-a); border-radius: 999px;
