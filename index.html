@@ -5012,9 +5012,11 @@ window.fecharSeloIndividual = function () {
   }
 
   // humor do dia: cada bichinho que a pessoa toca (ou cada "diario rapido" bom que ela
-  // guarda, tipo o Sorriso do dia) soma pontos numa emocao especifica, guardado numa linha
+  // guarda, tipo o Sorriso do dia) soma +1 numa emocao especifica, guardado numa linha
   // por dia em humor_diario. a barra de cima e essas carinhas sao a mesma fonte de dados.
-  const PONTOS_POR_TOQUE_HUMOR = 20;
+  // sem teto: a % mostrada e sempre a proporcao sobre o total de toques do dia, entao
+  // clicar de novo sempre move o numero (nunca "trava" depois de bater 100%).
+  const PONTOS_POR_TOQUE_HUMOR = 1;
   const HUMOR_CORES = { feliz: 'var(--accent-a)', calma: 'var(--accent-b)', triste: 'var(--ink-faint)', ansiosa: 'var(--pink)', brava: 'var(--raiva)' };
 
   async function buscarHumorHoje() {
@@ -5038,8 +5040,9 @@ window.fecharSeloIndividual = function () {
 
   async function renderHomeHumor(emocaoMudou) {
     const humorHoje = await buscarHumorHoje();
+    const totalToques = (humorHoje.feliz || 0) + (humorHoje.calma || 0) + (humorHoje.triste || 0) + (humorHoje.ansiosa || 0) + (humorHoje.brava || 0);
     const emocoes = ['feliz', 'calma', 'triste', 'ansiosa', 'brava'].map(nome => ({
-      nome, pct: humorHoje[nome], cor: HUMOR_CORES[nome],
+      nome, pct: totalToques > 0 ? Math.round((humorHoje[nome] || 0) / totalToques * 100) : 0, cor: HUMOR_CORES[nome],
     }));
     const el = document.getElementById('homeEmocoesCard');
     if (!el) return;
@@ -5069,11 +5072,10 @@ window.fecharSeloIndividual = function () {
     if (tag) tag.textContent = 'hoje';
   }
 
-  const TODAS_EMOCOES = ['feliz', 'calma', 'triste', 'ansiosa', 'brava'];
-
-  // soma pontos numa emocao especifica de hoje (upsert por usuario+dia) e re-renderiza a barra.
-  // tambem balanceia: ninguem fica 100% em tudo ao mesmo tempo — quando uma emocao sobe,
-  // as outras cedem um pouco de espaco (feito uma respiração real, nunca tudo no maximo junto).
+  // soma um toque numa emocao especifica de hoje (upsert por usuario+dia) e re-renderiza a barra.
+  // sem teto por emocao e sem banco compartilhado: cada toque so incrementa +1 na contagem
+  // bruta do dia, entao pode clicar quantas vezes quiser — a % (calculada em renderHomeHumor)
+  // e sempre a proporcao sobre o total, entao sempre responde ao toque, nunca trava.
   // retorna o valor de ANTES do toque, pra quem chamou saber se já era a 2a+ vez no dia.
   async function somarPontoHumor(emocao, pontos) {
     const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -5083,28 +5085,10 @@ window.fecharSeloIndividual = function () {
 
     const humorAtual = await buscarHumorHoje();
     const valorAntes = humorAtual[emocao] || 0;
-    const novoValor = Math.min(100, valorAntes + pontos);
-    const ganhoReal = novoValor - valorAntes;
+    const novoValor = valorAntes + (pontos || 1);
 
     const payload = { usuario_id: usuarioId, data: hojeStr, atualizado_em: new Date().toISOString() };
     payload[emocao] = novoValor;
-
-    if (ganhoReal > 0) {
-      // "banco" compartilhado: a soma das 5 emoções não passa de 100 no dia — se uma
-      // sobe, as outras cedem espaço proporcionalmente (nunca dá pra ficar tudo no talo)
-      const outras = TODAS_EMOCOES.filter(e => e !== emocao);
-      const totalOutras = outras.reduce((s, e) => s + (humorAtual[e] || 0), 0);
-      const excedente = (novoValor + totalOutras) - 100;
-      if (excedente > 0 && totalOutras > 0) {
-        outras.forEach(e => {
-          const valorE = humorAtual[e] || 0;
-          if (valorE <= 0) return;
-          const fatia = valorE / totalOutras;
-          const reduz = Math.min(valorE, Math.round(excedente * fatia));
-          payload[e] = Math.max(0, valorE - reduz);
-        });
-      }
-    }
 
     const { error } = await supabaseClient
       .from('humor_diario')
