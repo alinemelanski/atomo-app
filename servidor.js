@@ -320,6 +320,14 @@ const MIN_EVENTOS_PRO_RESUMO = 3; // dia com poucos toques de humor não rende r
 // (humor_eventos), em ordem cronológica. Regra: 2+ toques da mesma emoção
 // negativa (brava/ansiosa/triste) dentro de 90min vira "pico"; senão, so aponta
 // a emoção que mais apareceu no dia.
+const ELOGIOS_RESUMO_PADRAO = [
+  'você apareceu pra você mesma hoje — isso já conta muito.',
+  'parar pra sentir o que sentiu hoje foi um cuidado com você mesma.',
+  'mais um dia em que você não se ignorou. bonito isso.',
+  'reparar nas próprias emoções é um exercício e você fez o seu hoje.',
+  'seguir registrando seus dias é um jeito gentil de se acompanhar.',
+];
+
 function gerarTextoResumo(eventos) {
   if (!eventos || !eventos.length) return null;
   const NOMES = { feliz: 'feliz', calma: 'calma', triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
@@ -354,7 +362,10 @@ function gerarTextoResumo(eventos) {
   picos.slice(0, 2).forEach((p) => frases.push(`às ${formatarHora(p.hora)} você teve um pico de ${NOMES[p.emocao]}.`));
   if (!picos.length) frases.push(`você se manteve majoritariamente ${NOMES[dominante]} ao longo do dia.`);
   else frases.push(`no geral, ${NOMES[dominante]} foi o que mais apareceu.`);
-  return frases.join(' ');
+  return {
+    texto: frases.join(' '),
+    elogio: ELOGIOS_RESUMO_PADRAO[Math.floor(Math.random() * ELOGIOS_RESUMO_PADRAO.length)],
+  };
 }
 
 // versão "de verdade" do resumo do dia, escrita por IA (Gemini, plano gratuito
@@ -391,7 +402,10 @@ async function gerarResumoComIA(eventos, postsHoje) {
               + 'Tom: acolhedor e natural, como uma amiga observadora — nunca clínico, nunca soando como diagnóstico psicológico. '
               + 'Baseie-se nos toques de humor registrados e no que a pessoa escreveu/postou no dia (cite algo específico do que ela escreveu, se houver). '
               + 'Feche sempre com uma dica prática e curta (um exercício, respiração, alongamento, ou pequena atitude) que combine com o humor predominante do dia. '
-              + 'No máximo 5 frases curtas, sem markdown, sem listas, no máximo 1 emoji.'
+              + 'No máximo 5 frases curtas, sem markdown, sem listas, no máximo 1 emoji. '
+              + 'Responda em EXATAMENTE duas partes separadas por uma linha contendo só "---": '
+              + 'na primeira parte, um elogio curtinho (1 frase, no máximo 12 palavras) reconhecendo a pessoa por ter parado pra se observar/registrar o dia hoje; '
+              + 'na segunda parte, o resumo do dia descrito acima.'
           }]
         },
         contents: [{ parts: [{ text: prompt }] }],
@@ -401,10 +415,15 @@ async function gerarResumoComIA(eventos, postsHoje) {
 
     if (!resp.ok) { console.log('gemini resumo: status', resp.status, await resp.text()); return null; }
     const data = await resp.json();
-    const texto = data && data.candidates && data.candidates[0] && data.candidates[0].content
+    const bruto = data && data.candidates && data.candidates[0] && data.candidates[0].content
       && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
       && data.candidates[0].content.parts[0].text;
-    return texto ? texto.trim() : null;
+    if (!bruto) return null;
+    const partes = bruto.trim().split(/\n?---\n?/);
+    if (partes.length >= 2) {
+      return { elogio: partes[0].trim(), texto: partes.slice(1).join(' ').trim() };
+    }
+    return { elogio: null, texto: bruto.trim() };
   } catch (erro) {
     console.log('erro ao gerar resumo do dia com IA:', erro.message);
     return null;
@@ -563,9 +582,9 @@ async function rodarCronNotificacoes(req, res) {
           .from('posts').select('tipo, texto').eq('autor_id', usuarioId)
           .is('clube_id', null).gte('criado_em', inicioHojeUTC.toISOString());
 
-        const texto = (await gerarResumoComIA(eventosDoUsuario, postsHoje)) || gerarTextoResumo(eventosDoUsuario);
-        if (!texto) continue;
-        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto });
+        const resultado = (await gerarResumoComIA(eventosDoUsuario, postsHoje)) || gerarTextoResumo(eventosDoUsuario);
+        if (!resultado || !resultado.texto) continue;
+        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto: resultado.texto, elogio: resultado.elogio || null });
         totalEnviadas += await enviarPushParaUsuario(usuarioId, '📊 Seu resumo do dia chegou', 'toque pra ver como foi seu dia');
         resumosGerados++;
       }
