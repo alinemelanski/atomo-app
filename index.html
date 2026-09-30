@@ -14,7 +14,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Átomo">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
 <!-- daily-js: SDK do provedor de áudio ao vivo (Daily.co) usado na sala de
      call de estudo das comunidades — carrega o objeto global DailyIframe -->
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
@@ -254,11 +253,11 @@
     transform: translateY(8px); transition: opacity .25s ease, transform .25s ease;
     scrollbar-width: none; -ms-overflow-style: none; }
   .screen::-webkit-scrollbar { display: none; width: 0; height: 0; }
-  /* mesma escondida de barra nativa nas listas com scroll proprio dentro da
-     tela (lista de conversas recentes, pote de amigos) -- tinham barra visivel
-     mesmo com a barra da .screen ja escondida, por serem overflow proprio */
-  #dmListWrap, .pote-amigos-wrap { scrollbar-width: none; -ms-overflow-style: none; }
-  #dmListWrap::-webkit-scrollbar, .pote-amigos-wrap::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  /* mesma escondida de barra nativa na lista de conversas (scroll proprio dentro
+     da tela) -- tinha barra visivel mesmo com a barra da .screen ja escondida,
+     por ser overflow proprio */
+  #dmListWrap { scrollbar-width: none; -ms-overflow-style: none; }
+  #dmListWrap::-webkit-scrollbar { display: none; width: 0; height: 0; }
   .screen.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
   /* ---------- tela cheia em celular real / instalado como PWA ---------- */
@@ -577,7 +576,7 @@
   .dm-preview .n { font-size: 13.5px; font-weight: 800; color: var(--ink); }
   .dm-preview .msg { font-size: 11.5px; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* ---------- mensagens: cards grandes de vidro + pote de amigos ---------- */
+  /* ---------- mensagens: lista de conversas, cards grandes de vidro ---------- */
   .dm-swipe-wrap { position: relative; overflow: hidden; border-radius: 18px; margin-bottom: 8px; }
   .dm-swipe-wrap:last-child { margin-bottom: 0; }
   .dm-swipe-actions { position: absolute; inset: 0; display: flex; align-items: stretch; justify-content: flex-end;
@@ -626,30 +625,6 @@
       radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
       var(--bg-tela-suave);
   }
-  .pote-amigos-wrap { position: relative; margin: 2px 0 0; border-radius: 26px; overflow-x: hidden; overflow-y: auto; touch-action: pan-y;
-    flex: 1; min-height: 150px;
-    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
-    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
-    border: 1px solid color-mix(in srgb, white 10%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, white 40%, transparent), inset 0 3px 12px rgba(60,40,15,.06); }
-  .pote-amigos-inner { position: relative; width: 100%; min-height: 100%; }
-  .pote-filtro-tabs { display: flex; gap: 8px; margin: 10px 0 8px; flex: none; }
-  .pote-filtro-tab { flex: 1; text-align: center; padding: 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800;
-    color: var(--ink-faint); background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
-    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
-    border: 1px solid color-mix(in srgb, white 10%, transparent); cursor: pointer;
-    font-family: 'DM Sans', sans-serif; }
-  .pote-filtro-tab.on { background: var(--accent-a); color: #fff; border-color: transparent; }
-  .pote-amigos-vazio { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    color: var(--ink-faint); font-size: 12px; text-align: center; padding: 0 34px; line-height: 1.5; pointer-events: none; }
-  .bolha-amigo { position: absolute; top: 0; left: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    background: var(--accent-soft); border: 2px solid #fff; box-shadow: 0 3px 10px rgba(0,0,0,.2);
-    cursor: grab; transition: opacity .25s ease, filter .25s ease; overflow: hidden; touch-action: none; }
-  .bolha-amigo:active { cursor: grabbing; }
-  .bolha-amigo-nome { position: absolute; top: 0; left: 0; font-size: 9px; font-weight: 800; text-align: center;
-    color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    font-family: 'DM Sans', sans-serif; pointer-events: none; transition: opacity .25s ease; }
-  .bolha-amigo.fora-da-busca, .bolha-amigo.fora-da-busca + .bolha-amigo-nome { opacity: .1; filter: grayscale(1); pointer-events: none; }
-
   .dm-chat-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: none; flex-direction: column;
     padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)); }
   .dm-chat-overlay.open { display: flex; }
@@ -713,19 +688,6 @@
 
   /* ---------- teste: botões estilo nativo (iOS), só na tela de Mensagens ---------- */
   /* se ficar bom, isso vira padrão pro app todo depois */
-  #screen-mensagens .pote-filtro-tabs {
-    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
-    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
-    border: 1px solid color-mix(in srgb, white 10%, transparent);
-    border-radius: 11px; padding: 2px; gap: 0;
-  }
-  #screen-mensagens .pote-filtro-tab {
-    background: transparent; border: none; border-radius: 9px; font-weight: 700;
-    color: var(--ink-faint); transition: color .2s ease, background .2s ease, box-shadow .2s ease;
-  }
-  #screen-mensagens .pote-filtro-tab.on {
-    background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.18);
-  }
   #dmChatOverlay .dm-chat-header .back-btn {
     background: transparent; border: none; box-shadow: none; width: 30px; height: 30px; color: var(--accent-a);
   }
@@ -1861,21 +1823,12 @@
             <svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path id="msgAddBtnLinhaV" d="M12,4.6 L11.8,19.3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color:var(--accent-a); transition: transform .25s ease;"/><path d="M4.7,12.2 L19.2,11.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color:var(--accent-a)"/></svg>
           </div>
           <div class="msg-busca-campo-wrap">
-            <input type="text" id="msgBuscaInput" placeholder="buscar um amigo..." oninput="filtrarPoteAmigos()" />
+            <input type="text" id="msgBuscaInput" placeholder="buscar um amigo..." />
             <button class="msg-busca-lupa" onclick="confirmarBuscaOutrosUsuarios()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></button>
           </div>
         </div>
       </div>
-      <div id="dmListWrap" style="max-height:38vh; overflow-y:auto; overflow-x:hidden;"></div>
-      <div class="pote-filtro-tabs">
-        <div class="pote-filtro-tab on" data-filtro="recentes" onclick="trocarFiltroPote('recentes')">Recentes</div>
-        <div class="pote-filtro-tab" data-filtro="favoritos" onclick="trocarFiltroPote('favoritos')">Favoritos</div>
-        <div class="pote-filtro-tab" data-filtro="todos" onclick="trocarFiltroPote('todos')">Todos</div>
-      </div>
-      <div class="pote-amigos-wrap" id="poteAmigosWrap">
-        <div class="pote-amigos-inner" id="poteAmigosInner"></div>
-        <div class="pote-amigos-vazio" id="poteAmigosVazio" style="display:none;">seus amigos aparecem aqui como bolinhas — dá uma sacudida no celular pra ver elas rolarem 🫙</div>
-      </div>
+      <div id="dmListWrap" style="flex:1; overflow-y:auto; overflow-x:hidden;"></div>
     </div>
 
     <!-- PERFIL -->
@@ -5654,19 +5607,12 @@ window.favoritarUsuarioAtual = async function () {
     mostrarToast('☆ removido dos favoritos');
     if (btnPerfil) btnPerfil.innerHTML = icone('estrela',13) + ' Favoritar';
     if (labelChat) labelChat.textContent = 'Favoritar';
-    if (typeof AMIGOS_FAVORITOS !== 'undefined') AMIGOS_FAVORITOS.delete(autorId);
   } else {
     const { error } = await supabaseClient.from('amigos_favoritos').insert({ usuario_id: meuId, amigo_id: autorId });
     if (error) { mostrarToast('❌ ' + error.message); return; }
     mostrarToast('⭐ adicionado aos favoritos');
     if (btnPerfil) btnPerfil.innerHTML = icone('estrela',13) + ' Desfavoritar';
     if (labelChat) labelChat.textContent = 'Desfavoritar';
-    if (typeof AMIGOS_FAVORITOS !== 'undefined') AMIGOS_FAVORITOS.add(autorId);
-  }
-  // atualiza o pote de amigos na hora, sem precisar sair e voltar em Mensagens
-  // pra aba "Favoritos" refletir o que acabou de favoritar/desfavoritar
-  if (typeof poteFiltroAtual !== 'undefined' && poteFiltroAtual === 'favoritos' && typeof aplicarFiltroPote === 'function') {
-    aplicarFiltroPote();
   }
 };
 
@@ -9293,9 +9239,6 @@ window.carregarMaisDescobrir = async function () {
       return souUsuario1 ? !c.oculta_de_usuario1 : !c.oculta_de_usuario2;
     });
 
-    // guarda quem tem conversa ativa -- usado pela aba "Recentes" do pote de amigos
-    AMIGOS_COM_CONVERSA = new Set(conversasVisiveis.map(c => c.usuario1_id === meuId ? c.usuario2_id : c.usuario1_id));
-
     let totalNaoLidas = 0;
     const linhas = await Promise.all(conversasVisiveis.map(async (c) => {
       const outroId = c.usuario1_id === meuId ? c.usuario2_id : c.usuario1_id;
@@ -9334,7 +9277,7 @@ window.carregarMaisDescobrir = async function () {
 
     document.getElementById('dmListWrap').innerHTML = linhas.length
       ? linhas.map(l => l.html).join('')
-      : `<div class="visitor-lock-note">Nenhuma conversa ainda — vai em "amigos" no Perfil pra começar uma 💬</div>`;
+      : `<div class="visitor-lock-note">Nenhuma conversa ainda — toca no + aqui em cima pra começar uma 💬</div>`;
 
     const badge = document.getElementById('msgTabBadge');
     if (badge) badge.classList.toggle('on', totalNaoLidas > 0);
@@ -9422,217 +9365,10 @@ window.carregarMaisDescobrir = async function () {
     document.getElementById('confirmGenericoOverlay').classList.add('open');
   };
 
-  // ---------- pote de amigos: bolinhas soltas tipo bolinha de gude, que
-  // rolam com a fisica quando voce chacoalha o celular (ou arrasta com o dedo) ----------
-  let poteEngine = null, poteRunner = null, poteMouseConstraint = null;
-  let poteBodies = {};
-  let poteAmigosLista = [];
-  let poteTodosAmigos = []; // lista completa (sem filtro), pra recalcular quando troca a aba
-  let poteFiltroAtual = 'recentes';
-  let AMIGOS_COM_CONVERSA = new Set();
-  let AMIGOS_FAVORITOS = new Set();
-  let poteRaio = 29;
-  let poteAlturaLabel = 16;
-  let poteInicializado = false;
-  let poteArrastando = false;
-  let poteTiltAtivo = false;
-  let poteSyncRafId = null;
-
-  window.ativarTiltPote = function () {
-    if (poteTiltAtivo || typeof DeviceMotionEvent === 'undefined') return;
-    function onMotion(e) {
-      if (!poteEngine) return;
-      const g = e.accelerationIncludingGravity;
-      if (!g || (g.x == null && g.y == null)) return;
-      // sensibilidade reduzida -- movimento mais lento e suave, não reage a cada tremor
-      const gx = Math.max(-0.5, Math.min(0.5, ((g.x || 0) / 9.8) * 0.55));
-      const gy = Math.max(-0.5, Math.min(0.5, ((g.y || 0) / 9.8) * 0.55));
-      poteEngine.gravity.x = gx;
-      poteEngine.gravity.y = -gy;
-    }
-    if (typeof DeviceMotionEvent.requestPermission === 'function') {
-      DeviceMotionEvent.requestPermission().then(resp => {
-        if (resp === 'granted') { window.addEventListener('devicemotion', onMotion); poteTiltAtivo = true; }
-      }).catch(() => {});
-    } else {
-      window.addEventListener('devicemotion', onMotion);
-      poteTiltAtivo = true;
-    }
-  };
-
+  // ---------- mensagens: lista de conversas (sem física de bolinha, só busca por nome) ----------
   window.abrirTelaMensagens = async function () {
-    await carregarAmigosEsugestoes(); // repopula SEGUINDO/SEGUIDORES pra mim mesma
-    const mapa = new Map();
-    (SEGUINDO || []).forEach(a => mapa.set(a.id, a));
-    (SEGUIDORES || []).forEach(a => mapa.set(a.id, a));
-    poteTodosAmigos = Array.from(mapa.values());
-    await Promise.all([renderDmList(), carregarFavoritosAmigos()]);
-    aplicarFiltroPote();
+    await renderDmList();
   };
-
-  async function carregarFavoritosAmigos() {
-    const { data: sessionData } = await supabaseClient.auth.getSession();
-    if (!sessionData.session) return;
-    const meuId = sessionData.session.user.id;
-    const { data, error } = await supabaseClient.from('amigos_favoritos').select('amigo_id').eq('usuario_id', meuId);
-    if (error) { console.log('erro ao carregar favoritos:', error.message); AMIGOS_FAVORITOS = new Set(); return; }
-    AMIGOS_FAVORITOS = new Set((data || []).map(r => r.amigo_id));
-  }
-
-  // reaplica o filtro (recentes/favoritos/todos) em cima da lista completa de
-  // amigos e manda a fisica recalcular do zero (paredes/tamanho do canvas
-  // dependem de quantos amigos entram, entao um reset limpo evita bolinha
-  // grudada em parede antiga de quando a lista era menor/maior)
-  function aplicarFiltroPote() {
-    if (poteFiltroAtual === 'favoritos') {
-      poteAmigosLista = poteTodosAmigos.filter(a => AMIGOS_FAVORITOS.has(a.id));
-    } else if (poteFiltroAtual === 'recentes') {
-      poteAmigosLista = poteTodosAmigos.filter(a => AMIGOS_COM_CONVERSA.has(a.id));
-    } else {
-      poteAmigosLista = poteTodosAmigos;
-    }
-    iniciarOuAtualizarPoteAmigos();
-  }
-
-  window.trocarFiltroPote = function (filtro) {
-    if (filtro === poteFiltroAtual) return;
-    poteFiltroAtual = filtro;
-    document.querySelectorAll('.pote-filtro-tab').forEach(t => t.classList.toggle('on', t.dataset.filtro === filtro));
-    resetPoteFisica();
-    aplicarFiltroPote();
-  };
-
-  function resetPoteFisica() {
-    if (poteSyncRafId) { cancelAnimationFrame(poteSyncRafId); poteSyncRafId = null; }
-    if (poteRunner) Matter.Runner.stop(poteRunner);
-    if (poteEngine) { Matter.World.clear(poteEngine.world); Matter.Engine.clear(poteEngine); }
-    poteEngine = null; poteRunner = null; poteMouseConstraint = null;
-    poteBodies = {};
-    poteInicializado = false;
-    const inner = document.getElementById('poteAmigosInner');
-    if (inner) inner.innerHTML = '';
-  }
-
-  function inicializarMotorPote(wrap, inner) {
-    const { Engine, World, Bodies, Runner, Mouse, MouseConstraint, Events } = Matter;
-    const W = inner.clientWidth || wrap.clientWidth || 320;
-    const H = inner.clientHeight || wrap.clientHeight || 190;
-    const alturaUtil = H - poteAlturaLabel; // deixa espaco embaixo pro nome nao ser cortado
-    poteEngine = Engine.create();
-    poteEngine.gravity.y = 0.35; // mais devagar que o padrao (0.7)
-    const esp = 60;
-    World.add(poteEngine.world, [
-      Bodies.rectangle(W / 2, -esp / 2, W + esp * 2, esp, { isStatic: true, label: 'parede' }),
-      Bodies.rectangle(W / 2, alturaUtil + esp / 2, W + esp * 2, esp, { isStatic: true, label: 'parede' }),
-      Bodies.rectangle(-esp / 2, H / 2, esp, H + esp * 2, { isStatic: true, label: 'parede' }),
-      Bodies.rectangle(W + esp / 2, H / 2, esp, H + esp * 2, { isStatic: true, label: 'parede' }),
-    ]);
-    poteRunner = Runner.create();
-    Runner.run(poteRunner, poteEngine);
-
-    // arrastar com o dedo/mouse -- o Mouse escuta no elemento que rola, entao as
-    // coordenadas ja saem certas mesmo quando o pote rolou horizontalmente
-    const mouse = Mouse.create(inner);
-    mouse.pixelRatio = window.devicePixelRatio || 1;
-    poteMouseConstraint = MouseConstraint.create(poteEngine, {
-      mouse, constraint: { stiffness: 0.15, damping: 0.2, render: { visible: false } },
-    });
-    World.add(poteEngine.world, poteMouseConstraint);
-    Events.on(poteMouseConstraint, 'startdrag', () => { poteArrastando = true; });
-    Events.on(poteMouseConstraint, 'enddrag', () => { setTimeout(() => { poteArrastando = false; }, 80); });
-
-    requestAnimationFrame(sincronizarPote);
-  }
-
-  function sincronizarPote() {
-    Object.keys(poteBodies).forEach(id => {
-      const body = poteBodies[id];
-      const el = document.getElementById('bolha-' + id);
-      const label = document.getElementById('nomeBolha-' + id);
-      if (el) {
-        el.style.transform = `translate(${(body.position.x - poteRaio).toFixed(1)}px, ${(body.position.y - poteRaio).toFixed(1)}px) rotate(${body.angle}rad)`;
-      }
-      if (label) {
-        label.style.transform = `translate(${(body.position.x - 32).toFixed(1)}px, ${(body.position.y + poteRaio + 2).toFixed(1)}px)`;
-      }
-    });
-    poteSyncRafId = requestAnimationFrame(sincronizarPote);
-  }
-
-  function criarBolhaDom(a) {
-    const inner = document.getElementById('poteAmigosInner');
-    const el = document.createElement('div');
-    el.id = 'bolha-' + a.id;
-    el.className = 'bolha-amigo';
-    el.dataset.nome = (a.nome || '').toLowerCase();
-    el.style.width = (poteRaio * 2) + 'px';
-    el.style.height = (poteRaio * 2) + 'px';
-    el.style.cssText += avatarEstiloBg(a.avatar);
-    el.innerHTML = avatarConteudo(a.avatar);
-    const svgPadrao = el.querySelector('svg');
-    if (svgPadrao) { svgPadrao.style.width = '100%'; svgPadrao.style.height = '100%'; }
-    el.addEventListener('click', () => { if (!poteArrastando) abrirPerfilDoAmigo(a.id); });
-    inner.appendChild(el);
-
-    // legenda com o nome, FORA da bolinha (embaixo dela) -- em vez de por dentro
-    const label = document.createElement('div');
-    label.id = 'nomeBolha-' + a.id;
-    label.className = 'bolha-amigo-nome';
-    label.style.width = '64px';
-    label.textContent = a.nome;
-    inner.appendChild(label);
-  }
-
-  function iniciarOuAtualizarPoteAmigos() {
-    const wrap = document.getElementById('poteAmigosWrap');
-    const inner = document.getElementById('poteAmigosInner');
-    const vazio = document.getElementById('poteAmigosVazio');
-    if (!wrap || !inner) return;
-    vazio.style.display = poteAmigosLista.length ? 'none' : 'flex';
-    if (!poteAmigosLista.length) return;
-
-    if (!poteInicializado) {
-      // largura do "canvas" interno fica fixa (igual a da caixinha visivel); a
-      // altura que cresce com a quantidade de amigos, quebrando em linhas -- o
-      // pote rola na vertical quando nao cabe tudo de uma vez. a caixinha em si
-      // (wrap) agora estica sozinha pelo flex ate a barra de baixo, entao usamos
-      // a altura de verdade que ela ja ocupou na tela como base do calculo
-      const largura = wrap.clientWidth || 320;
-      const alturaVisivel = wrap.clientHeight || 175;
-      inner.style.width = largura + 'px';
-      const espacoPorBolha = poteRaio * 2 + 10;
-      const porLinha = Math.max(1, Math.floor(largura / espacoPorBolha));
-      const linhas = Math.ceil(poteAmigosLista.length / porLinha);
-      const alturaMinima = alturaVisivel - poteAlturaLabel;
-      const alturaCalculada = Math.max(alturaMinima, linhas * espacoPorBolha + 20);
-      inner.style.height = alturaCalculada + 'px';
-      inicializarMotorPote(wrap, inner);
-      poteInicializado = true;
-    }
-
-    const idsAtuais = new Set(poteAmigosLista.map(a => a.id));
-    Object.keys(poteBodies).forEach(id => {
-      if (!idsAtuais.has(id)) {
-        Matter.World.remove(poteEngine.world, poteBodies[id]);
-        delete poteBodies[id];
-        const el = document.getElementById('bolha-' + id);
-        if (el) el.remove();
-        const label = document.getElementById('nomeBolha-' + id);
-        if (label) label.remove();
-      }
-    });
-
-    const W = inner.clientWidth, H = inner.clientHeight - poteAlturaLabel;
-    poteAmigosLista.forEach(a => {
-      if (poteBodies[a.id]) return; // ja existe, nao mexe na fisica dela
-      const x = poteRaio + Math.random() * Math.max(10, W - poteRaio * 2);
-      const y = poteRaio + Math.random() * Math.max(10, H * 0.6);
-      const body = Matter.Bodies.circle(x, y, poteRaio, { restitution: 0.4, friction: 0.12, frictionAir: 0.03, density: 0.002 });
-      poteBodies[a.id] = body;
-      Matter.World.add(poteEngine.world, body);
-      criarBolhaDom(a);
-    });
-  }
 
   window.toggleBuscaPoteAmigos = function () {
     const widget = document.getElementById('msgBuscaWidget');
@@ -9642,17 +9378,6 @@ window.carregarMaisDescobrir = async function () {
     if (topRow) topRow.classList.toggle('busca-aberta', vaiAbrir);
     const input = document.getElementById('msgBuscaInput');
     if (vaiAbrir) { input.value = ''; setTimeout(() => input.focus(), 200); }
-    filtrarPoteAmigos();
-  };
-
-  window.filtrarPoteAmigos = function () {
-    const widget = document.getElementById('msgBuscaWidget');
-    const aberto = widget && widget.classList.contains('aberto');
-    const termo = aberto ? document.getElementById('msgBuscaInput').value.trim().toLowerCase() : '';
-    document.querySelectorAll('.bolha-amigo').forEach(el => {
-      const bate = !termo || (el.dataset.nome || '').includes(termo);
-      el.classList.toggle('fora-da-busca', !bate);
-    });
   };
 
   // lupa da busca do pote: abre a busca completa de outras pessoas (com foto e bio),
@@ -10483,7 +10208,6 @@ window.abrirPerfilDoAmigo = async function (id) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.screen === id));
 
     if (id === 'mensagens') {
-      ativarTiltPote(); // precisa ser chamado direto no toque, sem await antes, pro iOS aceitar o pedido de permissão
       abrirTelaMensagens();
     }
 
