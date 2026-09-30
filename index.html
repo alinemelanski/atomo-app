@@ -708,7 +708,6 @@
   .config-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: none;
     padding: calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; }
   .config-overlay.open { display: flex; flex-direction: column; }
-  .config-overlay, .config-overlay * { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif !important; }
   .settings-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--card-b);
     border-radius: 16px; padding: 13px 15px; margin-bottom: 10px; }
   .settings-row .t { font-size: 13px; font-weight: 800; color: var(--ink); }
@@ -2957,16 +2956,16 @@
       </div>
 
       <div class="settings-row" id="darkModeRow">
-    <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/></svg></span> Modo escuro</div><div class="s" id="darkModeDesc">troca a paleta clara pela escura</div></div>
+    <div><div class="t">Modo escuro</div><div class="s" id="darkModeDesc">troca a paleta clara pela escura</div></div>
     <div class="toggle-sw" id="darkSwitch" onclick="toggleDarkMode()"><div class="dot"></div></div>
   </div>
   <div class="settings-row">
-    <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.22s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 17.3a4 4 0 0 1-.4-8 5.3 5.3 0 0 1 10.2-1.5A4.1 4.1 0 0 1 17 17.3Z"/></svg></span> Tema Clima</div><div class="s">o fundo do app muda com o clima real e a hora do dia — sol, nuvens, chuva, noite com vaga-lumes e primavera</div></div>
+    <div><div class="t">Tema Clima</div><div class="s">o fundo do app muda com o clima real e a hora do dia — sol, nuvens, chuva, noite com vaga-lumes e primavera</div></div>
     <div class="toggle-sw" id="climaSwitch" onclick="toggleTemaClima()"><div class="dot"></div></div>
   </div>
   <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:10px;">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.10s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/></svg></span> Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
+      <div><div class="t">Match por interesse</div><div class="s">mostra a aba de conhecer gente com gosto parecido</div></div>
       <div class="toggle-sw" id="matchSwitch" onclick="toggleMatch()"><div class="dot"></div></div>
     </div>
     <div id="matchPrefRow" style="display:none;">
@@ -2976,27 +2975,27 @@
   </div>
 
       <div class="settings-row">
-        <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.22s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2a5 5 0 0 0-5 5v3.3c0 .8-.3 1.6-.9 2.2L5 16h14l-1.1-1.3a3 3 0 0 1-.9-2.2V9.2a5 5 0 0 0-5-5Z"/><path d="M10.1 19a1.9 1.9 0 0 0 3.8 0"/></svg></span> Notificações de amigos</div><div class="s">avisa quando um amigo posta ou comenta</div></div>
+        <div><div class="t">Notificações de amigos</div><div class="s">avisa quando um amigo posta ou comenta</div></div>
         <div class="toggle-sw on" id="notifSwitch" onclick="toggleNotif()"><div class="dot"></div></div>
       </div>
   <div class="settings-row">
-    <div><div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M12 7.5v5l3.3 2"/></svg></span> Horário em 12h (AM/PM)</div><div class="s">mostra os horários tipo 09:00pm em vez de 21:00</div></div>
+    <div><div class="t">Horário em 12h (AM/PM)</div><div class="s">mostra os horários tipo 09:00pm em vez de 21:00</div></div>
     <div class="toggle-sw" id="formatoHoraSwitch" onclick="toggleFormatoHora()"><div class="dot"></div></div>
   </div>
       <div class="settings-row settings-nav-row" onclick="abrirBloqueados()">
-        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Pessoas bloqueadas</div>
+        <div class="t">Pessoas bloqueadas</div>
         <div class="nav-chevron">›</div>
       </div>
       <div class="settings-row settings-nav-row" onclick="abrirReordenarTipos()">
-        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.8s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v13"/><path d="M4 7l3-3 3 3"/><path d="M17 20V7"/><path d="M14 17l3 3 3-3"/></svg></span> Reordenar tipos de post</div>
+        <div class="t">Reordenar tipos de post</div>
         <div class="nav-chevron">›</div>
       </div>
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
-        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="7.3"/><path d="M5.5 10c3.4 2 9.6 2 13 0M4.9 14.5c4 2.3 10.2 2.3 14.2 0M7.3 18c2.6 1.3 6.8 1.3 9.4 0"/></svg></span> Emoji da sequência</div>
+        <div class="t">Emoji da sequência</div>
         <div id="emojiStreakGrid" style="display:flex; gap:8px; justify-content:center;"></div>
       </div>
       <div class="settings-row settings-nav-row" onclick="abrirFeedbackOverlay()">
-        <div class="t"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.6s;animation-delay:0.7s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H7l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg></span> Suporte e feedback</div>
+        <div class="t">Suporte e feedback</div>
         <div class="nav-chevron">›</div>
       </div>
 
@@ -4987,11 +4986,10 @@ window.fecharSeloIndividual = function () {
   }
 
   // humor do dia: cada bichinho que a pessoa toca (ou cada "diario rapido" bom que ela
-  // guarda, tipo o Sorriso do dia) soma +1 numa emocao especifica, guardado numa linha
+  // guarda, tipo o Sorriso do dia) soma pontos numa emocao especifica, guardado numa linha
   // por dia em humor_diario. a barra de cima e essas carinhas sao a mesma fonte de dados.
-  // sem teto: a % mostrada e sempre a proporcao sobre o total de toques do dia, entao
-  // clicar de novo sempre move o numero (nunca "trava" depois de bater 100%).
-  const PONTOS_POR_TOQUE_HUMOR = 1;
+  // 10 pontos por toque -- leva 10 toques pra encher uma emocao (antes eram 5).
+  const PONTOS_POR_TOQUE_HUMOR = 10;
   const HUMOR_CORES = { feliz: 'var(--accent-a)', calma: 'var(--accent-b)', triste: 'var(--ink-faint)', ansiosa: 'var(--pink)', brava: 'var(--raiva)' };
 
   async function buscarHumorHoje() {
@@ -5015,9 +5013,8 @@ window.fecharSeloIndividual = function () {
 
   async function renderHomeHumor(emocaoMudou) {
     const humorHoje = await buscarHumorHoje();
-    const totalToques = (humorHoje.feliz || 0) + (humorHoje.calma || 0) + (humorHoje.triste || 0) + (humorHoje.ansiosa || 0) + (humorHoje.brava || 0);
     const emocoes = ['feliz', 'calma', 'triste', 'ansiosa', 'brava'].map(nome => ({
-      nome, pct: totalToques > 0 ? Math.round((humorHoje[nome] || 0) / totalToques * 100) : 0, cor: HUMOR_CORES[nome],
+      nome, pct: humorHoje[nome], cor: HUMOR_CORES[nome],
     }));
     const el = document.getElementById('homeEmocoesCard');
     if (!el) return;
@@ -5047,10 +5044,11 @@ window.fecharSeloIndividual = function () {
     if (tag) tag.textContent = 'hoje';
   }
 
-  // soma um toque numa emocao especifica de hoje (upsert por usuario+dia) e re-renderiza a barra.
-  // sem teto por emocao e sem banco compartilhado: cada toque so incrementa +1 na contagem
-  // bruta do dia, entao pode clicar quantas vezes quiser — a % (calculada em renderHomeHumor)
-  // e sempre a proporcao sobre o total, entao sempre responde ao toque, nunca trava.
+  const TODAS_EMOCOES = ['feliz', 'calma', 'triste', 'ansiosa', 'brava'];
+
+  // soma pontos numa emocao especifica de hoje (upsert por usuario+dia) e re-renderiza a barra.
+  // tambem balanceia: ninguem fica 100% em tudo ao mesmo tempo — quando uma emocao sobe,
+  // as outras cedem um pouco de espaco (feito uma respiração real, nunca tudo no maximo junto).
   // retorna o valor de ANTES do toque, pra quem chamou saber se já era a 2a+ vez no dia.
   async function somarPontoHumor(emocao, pontos) {
     const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -5060,10 +5058,28 @@ window.fecharSeloIndividual = function () {
 
     const humorAtual = await buscarHumorHoje();
     const valorAntes = humorAtual[emocao] || 0;
-    const novoValor = valorAntes + (pontos || 1);
+    const novoValor = Math.min(100, valorAntes + pontos);
+    const ganhoReal = novoValor - valorAntes;
 
     const payload = { usuario_id: usuarioId, data: hojeStr, atualizado_em: new Date().toISOString() };
     payload[emocao] = novoValor;
+
+    if (ganhoReal > 0) {
+      // "banco" compartilhado: a soma das 5 emoções não passa de 100 no dia — se uma
+      // sobe, as outras cedem espaço proporcionalmente (nunca dá pra ficar tudo no talo)
+      const outras = TODAS_EMOCOES.filter(e => e !== emocao);
+      const totalOutras = outras.reduce((s, e) => s + (humorAtual[e] || 0), 0);
+      const excedente = (novoValor + totalOutras) - 100;
+      if (excedente > 0 && totalOutras > 0) {
+        outras.forEach(e => {
+          const valorE = humorAtual[e] || 0;
+          if (valorE <= 0) return;
+          const fatia = valorE / totalOutras;
+          const reduz = Math.min(valorE, Math.round(excedente * fatia));
+          payload[e] = Math.max(0, valorE - reduz);
+        });
+      }
+    }
 
     const { error } = await supabaseClient
       .from('humor_diario')
