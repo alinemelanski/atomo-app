@@ -757,10 +757,24 @@ function gerarLegendaSugestaoFilme(filme, generoLabel) {
   return texto;
 }
 
-// legenda pra post de LISTA (vários filmes no mesmo post) — usada no especial
-// de domingo, com a abertura pedida por ela (pipoca, domingão, crush)
+// abertura do post de LISTA varia com o dia da semana (o cron roda TODO dia às
+// 21h, não só domingo -- antes ficava fixo em "domingão" mesmo numa terça)
+const ABERTURAS_LISTA_FILME_POR_DIA = [
+  '🍿 domingão pede sofá, pipoca e um crush novo de cinema', // 0 = domingo
+  '🎬 pra amenizar a segunda, um filminho cai bem',          // 1 = segunda
+  '🍿 terça também merece sessão de cinema',                 // 2 = terça
+  '🎬 meio da semana pede uma pausa com filme bom',          // 3 = quarta
+  '🍿 quinta de esquentar pro fim de semana com um filme',   // 4 = quinta
+  '🎉 sextou! hora de maratonar',                            // 5 = sexta
+  '🍿 sabadão pede sofá, pipoca e um filme bom',             // 6 = sábado
+];
+
+// legenda pra post de LISTA (vários filmes no mesmo post) -- a abertura muda
+// de acordo com o dia da semana (ver ABERTURAS_LISTA_FILME_POR_DIA acima)
 function gerarLegendaListaFilmes(filmes, generoLabel) {
-  const abertura = `🍿 domingão pede sofá, pipoca e um crush novo de cinema — ${filmes.length} sugestões de ${generoLabel || 'filme'} pra hoje:`;
+  const agoraBrasiliaStr = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const diaSemana = new Date(agoraBrasiliaStr).getDay();
+  const abertura = `${ABERTURAS_LISTA_FILME_POR_DIA[diaSemana]} — ${filmes.length} sugestões de ${generoLabel || 'filme'} pra hoje:`;
   const linhas = filmes.map((f, i) => {
     const ano = f.release_date ? f.release_date.slice(0, 4) : '';
     const nota = f.vote_average ? f.vote_average.toFixed(1) : null;

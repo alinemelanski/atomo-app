@@ -3357,8 +3357,10 @@ async function carregarPostsReais() {
 
   renderFeed();
 
-  // feed com poucos posts de amigos: completa os espaços com conteúdo curado do Descobrir (busca só 1x)
-  if (feedPosts.length < LIMIAR_PREENCHIMENTO_FEED && !itensPreenchimentoFeed.length) {
+  // intercala conteúdo curado do Descobrir a cada 2 posts do feed, sempre --
+  // antes só entrava quando o feed tinha poucos posts de amigo, agora entra
+  // sempre pra ele nunca ficar com cara de vazio (busca só 1x)
+  if (!itensPreenchimentoFeed.length) {
     try {
       const itens = await buscarPaginaDescobrir(1);
       itensPreenchimentoFeed = ordenarItensDescobrir(itens);
@@ -3370,7 +3372,6 @@ async function carregarPostsReais() {
 
  let feedPosts = [];
  let itensPreenchimentoFeed = [];
- const LIMIAR_PREENCHIMENTO_FEED = 6; // abaixo disso, o feed passa a completar os espaços com conteúdo do Descobrir
 
   let diaryEntries = {
     publico: [
@@ -3791,12 +3792,9 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         : conteudoPost;
     });
 
-    const deveCompletar = feedPosts.length < LIMIAR_PREENCHIMENTO_FEED && itensPreenchimentoFeed.length > 0;
-    // não despeja tudo que o Descobrir trouxe — só o suficiente pra chegar num feed de tamanho normal
-    const qtdCurados = Math.max(0, LIMIAR_PREENCHIMENTO_FEED - feedPosts.length);
-    const curadosParaMostrar = itensPreenchimentoFeed.slice(0, qtdCurados);
+    const deveCompletar = itensPreenchimentoFeed.length > 0;
     const listaFinal = deveCompletar
-      ? intercalarPreenchimentoFeed(postsHtml, curadosParaMostrar.map((d, i) => cardPreenchimentoFeedHtml(d, i)))
+      ? intercalarPreenchimentoFeed(postsHtml, itensPreenchimentoFeed.map((d, i) => cardPreenchimentoFeedHtml(d, i)))
       : postsHtml;
 
     document.getElementById('feedList').innerHTML = listaFinal.join('');
