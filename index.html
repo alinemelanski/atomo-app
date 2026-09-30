@@ -6161,7 +6161,7 @@ window.buscarLivroReal = async function () {
         const info = l.volumeInfo;
         const titulo = (info.title || 'Sem título').replace(/'/g, "\\'");
         const autores = (info.authors ? info.authors.join(', ') : 'Autor desconhecido').replace(/'/g, "\\'");
-        return `<div class="friend-row" style="cursor:pointer;" onclick="escolherLivro('${titulo}', '${autores}', '${(l.volumeInfo.imageLinks && (l.volumeInfo.imageLinks.large || l.volumeInfo.imageLinks.medium || l.volumeInfo.imageLinks.small || l.volumeInfo.imageLinks.thumbnail)) || ''}')"
+        return `<div class="friend-row" style="cursor:pointer;" onclick="escolherLivro('${titulo}', '${autores}', '${(l.volumeInfo.imageLinks && (l.volumeInfo.imageLinks.large || l.volumeInfo.imageLinks.medium || l.volumeInfo.imageLinks.small || l.volumeInfo.imageLinks.thumbnail)) || ''}')">
           <div class="friend-info"><div class="n">${info.title || 'Sem título'}</div><div class="s">${info.authors ? info.authors.join(', ') : ''}</div></div>
         </div>`;
       }).join('')
