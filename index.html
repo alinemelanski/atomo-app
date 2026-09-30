@@ -2161,6 +2161,7 @@
   <div class="dm-chat-header">
     <button class="back-btn" onclick="closeOverlay('meuDiarioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Meu Diário</h2>
+    <button class="back-btn" onclick="abrirCaixinhaPandora()" title="Caixinha de Pandora"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5h17v9a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 3.5 18.5v-9Z"/><path d="M2.5 9.5l2-4.5h15l2 4.5"/><path d="M12 9.5v3"/></svg></span></button>
   </div>
   <div class="diario-page-scroll" id="diarioPageScroll">
     <div class="diario-page-intro">
@@ -2188,6 +2189,16 @@
     </div>
     <div id="diaryList"></div>
   </div>
+</div>
+
+<!-- OVERLAY: CAIXINHA DE PANDORA (motivos guardados de triste/ansiosa/brava) -->
+<div class="dm-chat-overlay" id="pandoraOverlay">
+  <div class="dm-chat-header">
+    <button class="back-btn" onclick="closeOverlay('pandoraOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Caixinha de Pandora</h2>
+  </div>
+  <div class="visitor-lock-note" style="margin-bottom:14px;">Tudo que você guardou sobre o que te deixou triste, ansiosa ou brava — só você vê isso aqui. Releia quando quiser, ou apague quando não quiser mais carregar.</div>
+  <div id="pandoraList" style="overflow-y:auto;"></div>
 </div>
 
 <!-- OVERLAY: COMPARTILHAR ENTRADA DO DIARIO -->
@@ -3148,6 +3159,7 @@
     estante: '<path d="M4 19.5h16"/><path d="M6.5 19.5V6.5a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v13"/><path d="M12.3 19.5V8.2a1 1 0 0 1 1-1h1.4a1 1 0 0 1 1 1v11.3"/><path d="M17.9 19.5V5.5a1 1 0 0 1 1-1h.6a1 1 0 0 1 1 1v14"/>',
     pessoas: '<circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/>',
     microfone: '<path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/>',
+    caixa: '<path d="M3.5 9.5h17v9a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 3.5 18.5v-9Z"/><path d="M2.5 9.5l2-4.5h15l2 4.5"/><path d="M12 9.5v3"/>',
     sticker: '<path d="M4.4 8.2c-.6-2.5 1.3-4.4 3.8-3.9 2.6-1.7 5.9-.7 6.7 2 2.7.3 4 3.3 2.2 5.5-.4 2.7-3.3 4-5.5 2.7-2.6 1.1-5.3-.9-5.1-3.7-2.4-.7-3.4-3.4-1.5-5.2Z"/><path d="M14.6 14.1c.2 1.8 1.7 2.9 3.4 2.5"/>',
     sol: '<circle cx="12" cy="12.2" r="4.1"/><path d="M12 3.6v2.3M12 18.3v2.3M4.8 12h2.3M16.9 12h2.3M6.9 6.9l1.6 1.6M15.5 15.5l1.6 1.6M6.9 17.3l1.6-1.6M15.5 8.7l1.6-1.6"/>',
     nublado: '<path d="M7.4 17.3a4 4 0 0 1-.4-8 5.3 5.3 0 0 1 10.2-1.5A4.1 4.1 0 0 1 17 17.3Z"/>',
@@ -5129,6 +5141,44 @@ window.fecharSeloIndividual = function () {
     const { error } = await supabaseClient.from('humor_motivos').insert({ usuario_id: meuId, emocao, motivo });
     if (error) { console.log('erro ao salvar motivo do humor:', error.message); return; }
     mostrarToast('💜 guardado no seu perfil');
+  };
+
+  // ---------- caixinha de pandora: motivos de triste/ansiosa/brava guardados
+  // em humor_motivos, pra reler (ou apagar) quando quiser ----------
+  const PANDORA_EMOCAO_LABEL = { triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
+
+  window.abrirCaixinhaPandora = async function () {
+    document.getElementById('pandoraOverlay').classList.add('open');
+    const lista = document.getElementById('pandoraList');
+    lista.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData || !sessionData.session) return;
+    const meuId = sessionData.session.user.id;
+
+    const { data: motivos, error } = await supabaseClient
+      .from('humor_motivos').select('*').eq('usuario_id', meuId)
+      .order('criado_em', { ascending: false });
+
+    if (error) { console.log('erro ao carregar caixinha de pandora:', error.message); lista.innerHTML = `<div class="visitor-lock-note">Não deu pra carregar agora.</div>`; return; }
+
+    lista.innerHTML = (motivos && motivos.length)
+      ? motivos.map(m => `
+        <div class="friend-row" style="align-items:flex-start;">
+          <div class="friend-info">
+            <div class="n" style="color:${HUMOR_CORES[m.emocao] || 'var(--ink)'};">${PANDORA_EMOCAO_LABEL[m.emocao] || m.emocao}</div>
+            <div class="s" style="white-space:normal; line-height:1.4;">${m.motivo}</div>
+            <div class="s" style="opacity:.6; margin-top:2px;">${formatarTempoRelativo(m.criado_em)} · ${formatarDataCurta(m.criado_em)}</div>
+          </div>
+          <span class="post-action" onclick="apagarMotivoPandora(${m.id})" style="cursor:pointer;">${icone('lixeira',14)}</span>
+        </div>`).join('')
+      : `<div class="visitor-lock-note">Nada guardado aqui ainda.</div>`;
+  };
+
+  window.apagarMotivoPandora = async function (id) {
+    const { error } = await supabaseClient.from('humor_motivos').delete().eq('id', id);
+    if (error) { mostrarToast('❌ ' + error.message); return; }
+    abrirCaixinhaPandora();
   };
 
   // ---------- checklist minimalista do Home ----------
