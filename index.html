@@ -724,6 +724,7 @@
   .config-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: none;
     padding: calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; }
   .config-overlay.open { display: flex; flex-direction: column; }
+  .config-overlay, .config-overlay * { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif !important; }
   .settings-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--card-b);
     border-radius: 16px; padding: 13px 15px; margin-bottom: 10px; }
   .settings-row .t { font-size: 13px; font-weight: 800; color: var(--ink); }
