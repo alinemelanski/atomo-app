@@ -1017,6 +1017,11 @@
     justify-content: center; color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; flex: none; }
   .comunidade-membro-handle { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink); }
   .comunidade-membro-papel { font-size: 10.5px; color: var(--ink-faint); text-transform: capitalize; }
+  .ranking-posicao { width: 24px; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800;
+    font-size: 14px; color: var(--ink-faint); flex: none; }
+  .ranking-paginas { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--accent-a); flex: none; white-space: nowrap; }
+  .ranking-paginas small { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 9.5px; color: var(--ink-faint); margin-left: 2px; }
+  .ranking-periodo-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .ao-vivo-pill { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--pink);
     font-family: 'DM Sans', sans-serif; }
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); animation: pulseDotComunidade 1.4s infinite; }
@@ -2698,6 +2703,16 @@
       <div id="comunidadeMembrosLista" style="overflow-y:auto; flex:1;"></div>
     </div>
 
+    <!-- OVERLAY: RANKING DE LEITURA DA COMUNIDADE -->
+    <div class="dm-chat-overlay" id="comunidadeRankingOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" onclick="closeOverlay('comunidadeRankingOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <h2 style="font-size:16px;">Ranking de leitura</h2>
+      </div>
+      <div class="ranking-periodo-row" id="comunidadeRankingPeriodoRow"></div>
+      <div id="comunidadeRankingLista" style="overflow-y:auto; flex:1;"></div>
+    </div>
+
     <!-- OVERLAY: SALA DE CALL DE ESTUDO AO VIVO (protótipo aprovado por ela — visual por enquanto, sem áudio real) -->
     <div class="sala-estudo-overlay" id="salaEstudoOverlay">
       <div class="sala-header-row">
@@ -3287,6 +3302,7 @@
     novelo: '<circle cx="12" cy="12.5" r="7.3"/><path d="M5.5 10c3.4 2 9.6 2 13 0M4.9 14.5c4 2.3 10.2 2.3 14.2 0M7.3 18c2.6 1.3 6.8 1.3 9.4 0"/>',
     fogo: '<path d="M12 3.4c.7 3-1.9 4.6-2.7 6.9-.5 1.6-.2 2.9.6 3.8a2.9 2.9 0 0 1-1.7-2.6c-1.3 1.4-2 3.1-2 4.8 0 3.4 2.6 5.9 5.8 5.9s5.8-2.5 5.8-5.9c0-3.1-1.7-4.9-3.2-6.8-1-1.3-2-2.7-2.6-6.1Z"/>',
     estrela: '<path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/>',
+    trofeu: '<path d="M7 4.5h10v4.3a5 5 0 0 1-10 0Z"/><path d="M7 5.5H4.5a2 2 0 0 0 0 4c.5 1.3 1.3 2.3 2.3 3M17 5.5h2.5a2 2 0 0 1 0 4c-.5 1.3-1.3 2.3-2.3 3"/><path d="M12 13.8v3M9 19.5h6M9.7 19.5c0-1.6.5-2.2 2.3-2.2s2.3.6 2.3 2.2"/>',
     broto: '<path d="M12 20.4V12.6"/><path d="M12 12.6c0-4-3.2-6.2-7.3-6 .1 4.1 3.3 6.8 7.3 6Z"/><path d="M12 14.4c0-3.6 3-5.7 6.7-5.4-.2 3.7-3.1 6.1-6.7 5.4Z"/>',
     xicara: '<path d="M5.3 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5Z"/><path d="M16.3 10.6h1.3a2.2 2.2 0 0 1 0 4.4h-1.3"/><path d="M9 5.4c-.5.8-.5 1.3 0 2.1M12.4 5.4c-.5.8-.5 1.3 0 2.1"/>',
     grafico: '<path d="M4.7 19.2V12.6"/><path d="M11.6 19.2V4.8"/><path d="M18.5 19.2v-8.6"/>',
@@ -7362,7 +7378,7 @@ window.trocarModoDescobrir = function (modo) {
       : `<button class="post-btn" style="width:100%;" onclick="entrarNaComunidadeEstudo()">entrar na comunidade</button>`;
 
     document.getElementById('comunidadeDetalheFerramentas').innerHTML = souMembro
-      ? temaComunidadeCardHtml(souAdmin) + prazoComunidadeCardHtml()
+      ? temaComunidadeCardHtml(souAdmin) + prazoComunidadeCardHtml() + rankingComunidadeCardHtml()
       : '';
 
     document.getElementById('comunidadeIniciarSalaBtn').style.display = souMembro ? 'flex' : 'none';
@@ -7508,7 +7524,7 @@ window.trocarModoDescobrir = function (modo) {
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
     comunidadeTemaAtual.tema = tema || null;
     mostrarToast('📌 tema atualizado');
-    document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true) + prazoComunidadeCardHtml();
+    document.getElementById('comunidadeDetalheFerramentas').innerHTML = temaComunidadeCardHtml(true) + prazoComunidadeCardHtml() + rankingComunidadeCardHtml();
   };
 
   // ---------- prazo da comunidade: agora e so a popup (o card grande saiu da
@@ -7559,6 +7575,93 @@ window.trocarModoDescobrir = function (modo) {
     fecharPopupPrazoComunidade();
     renderComunidadeEstudoDetalhe();
   };
+
+  // ---------- ranking de leitura da comunidade (paginas lidas no periodo, por enquanto) ----------
+  function rankingComunidadeCardHtml() {
+    return `
+      <div class="clube-cap-card" style="cursor:pointer; margin-top:10px;" onclick="abrirRankingComunidade()">
+        <div class="clube-cap-info">
+          <div class="clube-cap-kicker">${icone('trofeu',10)} ranking</div>
+          <div class="clube-cap-valor" style="font-size:15px;">quem mais leu por aqui</div>
+        </div>
+      </div>`;
+  }
+
+  let comunidadeRankingPeriodoAtivo = 'semana';
+
+  window.abrirRankingComunidade = function () {
+    comunidadeRankingPeriodoAtivo = 'semana';
+    document.getElementById('comunidadeRankingOverlay').classList.add('open');
+    renderPeriodoRankingComunidade();
+    renderRankingComunidade();
+  };
+
+  function renderPeriodoRankingComunidade() {
+    const periodos = [['semana', 'semana'], ['mes', 'mês'], ['ano', 'ano']];
+    document.getElementById('comunidadeRankingPeriodoRow').innerHTML = periodos.map(([valor, label]) =>
+      `<div class="feed-modo-chip${comunidadeRankingPeriodoAtivo === valor ? ' on' : ''}" onclick="trocarPeriodoRankingComunidade('${valor}')">${label}</div>`
+    ).join('');
+  }
+
+  window.trocarPeriodoRankingComunidade = function (periodo) {
+    comunidadeRankingPeriodoAtivo = periodo;
+    renderPeriodoRankingComunidade();
+    renderRankingComunidade();
+  };
+
+  async function renderRankingComunidade() {
+    const wrap = document.getElementById('comunidadeRankingLista');
+    wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+    const { data: membros, error: erroMembros } = await supabaseClient
+      .from('comunidade_estudo_membros')
+      .select('usuario_id, usuarios(handle)')
+      .eq('comunidade_id', comunidadeEstudoAtualId);
+
+    if (erroMembros || !membros || !membros.length) { wrap.innerHTML = estadoVazio('sem membros ainda', ''); return; }
+
+    const idsMembros = membros.map(m => m.usuario_id);
+    const hoje = new Date();
+    const desde = new Date(hoje);
+    if (comunidadeRankingPeriodoAtivo === 'semana') desde.setDate(desde.getDate() - 6);
+    else if (comunidadeRankingPeriodoAtivo === 'mes') desde.setDate(desde.getDate() - 29);
+    else desde.setDate(desde.getDate() - 364);
+    const desdeISO = fmtDataISO(desde);
+
+    const { data: linhas, error: erroLinhas } = await supabaseClient
+      .from('leitura_diaria_paginas')
+      .select('usuario_id, paginas')
+      .in('usuario_id', idsMembros)
+      .gte('data', desdeISO);
+
+    if (erroLinhas) { wrap.innerHTML = `<div class="visitor-lock-note">Não consegui carregar o ranking.</div>`; return; }
+
+    const somaPorUsuario = {};
+    (linhas || []).forEach(l => { somaPorUsuario[l.usuario_id] = (somaPorUsuario[l.usuario_id] || 0) + l.paginas; });
+
+    const ranking = membros
+      .map(m => ({ usuarioId: m.usuario_id, handle: m.usuarios ? m.usuarios.handle : 'alguém', paginas: somaPorUsuario[m.usuario_id] || 0 }))
+      .sort((a, b) => b.paginas - a.paginas);
+
+    const medalhas = ['🥇', '🥈', '🥉'];
+
+    wrap.innerHTML = ranking.map((r, i) => {
+      const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
+      const ehEu = r.usuarioId === meuId;
+      return `
+        <div class="comunidade-membro-row">
+          <div class="ranking-posicao">${medalhas[i] || (i + 1)}</div>
+          <div class="comunidade-membro-avatar" style="background:${cor}">${iniciaisNome(r.handle)}</div>
+          <div style="flex:1; min-width:0;">
+            <div class="comunidade-membro-handle">@${r.handle}${ehEu ? ' (você)' : ''}</div>
+          </div>
+          <div class="ranking-paginas">${r.paginas}<small> pág.</small></div>
+        </div>`;
+    }).join('');
+  }
 
   // ---------- convidar pra comunidade (mesmo padrão do convite de clube) ----------
   let compartilharComunidadeContexto = { texto: '', link: '' };
@@ -9302,6 +9405,12 @@ window.trocarModoDescobrir = function (modo) {
     const paginas = (atual ? atual.paginas_lidas : 0) + (delta.paginas_lidas || 0);
     const minutos = (atual ? atual.minutos_leitura : 0) + (delta.minutos_leitura || 0);
     await supabaseClient.from('estatisticas_leitura').upsert({ usuario_id: usuarioId, paginas_lidas: paginas, minutos_leitura: minutos, atualizado_em: new Date().toISOString() });
+    if (delta.paginas_lidas) {
+      const hojeChave = fmtDataISO(new Date());
+      const { data: diaAtual } = await supabaseClient.from('leitura_diaria_paginas').select('paginas').eq('usuario_id', usuarioId).eq('data', hojeChave).maybeSingle();
+      const paginasHoje = (diaAtual ? diaAtual.paginas : 0) + delta.paginas_lidas;
+      await supabaseClient.from('leitura_diaria_paginas').upsert({ usuario_id: usuarioId, data: hojeChave, paginas: paginasHoje, atualizado_em: new Date().toISOString() });
+    }
   }
 
   // ---------- grifar: marca o trecho selecionado e abre o cartão de citação já preenchido ----------
