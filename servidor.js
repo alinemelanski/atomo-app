@@ -129,6 +129,8 @@ const MODELOS_NOTIFICACAO_PUSH = {
   apoio_abraco: (d) => ({ titulo: '🫂 Alguém te mandou um abraço', corpo: `@${d.de || 'alguém'} te mandou um abraço` }),
   apoio_conselho: (d) => ({ titulo: '💬 Você recebeu um conselho', corpo: `@${d.de || 'alguém'}: "${String(d.texto || '').slice(0, 80)}"` }),
   apoio_musica: (d) => ({ titulo: '🎵 Alguém te mandou uma música', corpo: `@${d.de || 'alguém'} te mandou uma música: "${String(d.texto || '').slice(0, 80)}"` }),
+  livro_autoral_aprovado: (d) => ({ titulo: '✅ Seu livro foi aprovado', corpo: `"${d.titulo || 'seu livro'}" já está na estante autoral` }),
+  livro_autoral_recusado: (d) => ({ titulo: '📬 Seu livro precisa de ajustes', corpo: `"${d.titulo || 'seu livro'}" foi recusado: ${String(d.motivo || '').slice(0, 100)}` }),
 };
 
 app.post('/api/push/notificar', async (req, res) => {
@@ -148,6 +150,96 @@ app.post('/api/push/notificar', async (req, res) => {
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
   }
+});
+
+// ============ ESTANTE AUTORAL (marketplace de autor independente) ============
+// qualquer leitor publica sem aprovação prévia; o livro fica "em_revisao" até
+// passar pela revisão. O banco trava (via trigger) quem pode mudar status/
+// motivo_recusa/revisado_em -- só dá pra escrever esses campos com a service
+// role, por isso aprovar/recusar/reenviar sempre passam por aqui, nunca por
+// escrita direta do client.
+const EMAIL_ADMIN_ESTANTE_AUTORAL = process.env.EMAIL_ADMIN_ESTANTE_AUTORAL || 'alinemelanski10@gmail.com';
+
+// pega o usuário a partir do token Bearer que o client manda -- mesmo padrão
+// já usado em /api/upload-avatar
+async function usuarioDoToken(req) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '').trim();
+  if (!token) return null;
+  const { data: userData, error } = await supabase.auth.getUser(token);
+  if (error || !userData || !userData.user) return null;
+  return userData.user;
+}
+
+app.post('/api/estante-autoral/reenviar', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'estante autoral não configurada no servidor (falta SUPABASE_SERVICE_ROLE_KEY)' });
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+
+  const { livroId } = req.body || {};
+  if (!livroId) return res.status(400).json({ erro: 'faltou livroId' });
+
+  const { data: livro, error: erroLivro } = await supabaseAdmin.from('livros_autorais').select('autor_id, status').eq('id', livroId).maybeSingle();
+  if (erroLivro || !livro) return res.status(404).json({ erro: 'livro não encontrado' });
+  if (livro.autor_id !== usuario.id) return res.status(403).json({ erro: 'esse livro não é seu' });
+  if (livro.status !== 'recusado') return res.status(400).json({ erro: 'só dá pra reenviar um livro recusado' });
+
+  const { error } = await supabaseAdmin.from('livros_autorais')
+    .update({ status: 'em_revisao', motivo_recusa: null, revisado_em: null }).eq('id', livroId);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ ok: true });
+});
+
+app.post('/api/estante-autoral/revisar', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'estante autoral não configurada no servidor (falta SUPABASE_SERVICE_ROLE_KEY)' });
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+  if ((usuario.email || '').toLowerCase() !== EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase()) {
+    return res.status(403).json({ erro: 'só quem revisa a estante autoral pode fazer isso' });
+  }
+
+  const { livroId, aprovado, motivo } = req.body || {};
+  if (!livroId) return res.status(400).json({ erro: 'faltou livroId' });
+  if (!aprovado && !(motivo || '').trim()) return res.status(400).json({ erro: 'recusar exige um motivo escrito' });
+
+  const { data: livro, error: erroLivro } = await supabaseAdmin.from('livros_autorais').select('autor_id, titulo').eq('id', livroId).maybeSingle();
+  if (erroLivro || !livro) return res.status(404).json({ erro: 'livro não encontrado' });
+
+  const patch = aprovado
+    ? { status: 'aprovado', motivo_recusa: null, revisado_em: new Date().toISOString() }
+    : { status: 'recusado', motivo_recusa: (motivo || '').trim(), revisado_em: new Date().toISOString() };
+
+  const { error } = await supabaseAdmin.from('livros_autorais').update(patch).eq('id', livroId);
+  if (error) return res.status(500).json({ erro: error.message });
+
+  enviarPushParaUsuario(
+    livro.autor_id,
+    ...(aprovado
+      ? [MODELOS_NOTIFICACAO_PUSH.livro_autoral_aprovado({ titulo: livro.titulo }).titulo, MODELOS_NOTIFICACAO_PUSH.livro_autoral_aprovado({ titulo: livro.titulo }).corpo]
+      : [MODELOS_NOTIFICACAO_PUSH.livro_autoral_recusado({ titulo: livro.titulo, motivo }).titulo, MODELOS_NOTIFICACAO_PUSH.livro_autoral_recusado({ titulo: livro.titulo, motivo }).corpo]),
+    { tipo: aprovado ? 'livro_autoral_aprovado' : 'livro_autoral_recusado' }
+  ).catch(() => {});
+
+  res.json({ ok: true });
+});
+
+// compra com split via Asaas -- ainda NÃO configurado (falta ela criar conta no
+// Asaas, colar ASAAS_API_KEY aqui, e cada autor linkar o próprio asaas_wallet_id).
+// Por enquanto responde 503 sem quebrar o app, mesmo padrão do /api/sala/entrar
+// com o Daily antes da chave existir.
+// Quando for ligar de verdade: criar cobrança Pix/cartão no Asaas com
+// split: [{ walletId: autor.asaas_wallet_id, percentualValue: 100 }] (0% pra
+// gente, a taxa do Asaas já sai da parte do autor), esperar confirmação via
+// webhook e só AÍ gravar vendas_autorais com status 'pago' (nunca antes).
+const ASAAS_API_KEY = process.env.ASAAS_API_KEY || '';
+
+app.post('/api/estante-autoral/comprar', async (req, res) => {
+  if (!ASAAS_API_KEY) {
+    return res.status(503).json({ erro: 'pagamento ainda não configurado' });
+  }
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+  res.status(501).json({ erro: 'integração com Asaas ainda não implementada' });
 });
 
 // ============ SUPORTE E FEEDBACK (caixinha em Configurações) ============
