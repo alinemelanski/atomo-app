@@ -2363,10 +2363,10 @@
 <div class="composer-glass-bg" id="checklistLembreteOverlay" onclick="if(event.target===this) closeOverlay('checklistLembreteOverlay')">
   <div class="composer-glass-card" style="max-width:340px;">
     <div class="composer-glass-header">
-      <h2>Avisar em que horário?</h2>
+      <h2 id="lembretePickerTitulo">Avisar em que horário?</h2>
       <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('checklistLembreteOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     </div>
-    <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">o app avisa nesse horário até você marcar como feito.</div>
+    <div id="lembretePickerDesc" style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">o app avisa nesse horário até você marcar como feito.</div>
     <div class="tempo-picker">
       <div class="tempo-picker-col">
         <button class="tempo-picker-btn" onclick="ajustarTempoPicker('h',1)"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V7"/><path d="M8 11l4-4 4 4"/></svg></span></button>
@@ -2383,9 +2383,20 @@
     </div>
     <input type="hidden" id="checklistLembreteInput" />
     <div style="display:flex; gap:8px; margin-top:14px;">
-      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="removerLembreteChecklist()">não quero</button>
-      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px;" onclick="salvarLembreteChecklist()">Salvar</button>
+      <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="window.MODO_LEMBRETE_ATUAL === 'leitura' ? removerLembreteLeitura() : removerLembreteChecklist()">não quero</button>
+      <button class="post-btn" style="flex:1; min-width:0; padding:12px 16px;" onclick="window.MODO_LEMBRETE_ATUAL === 'leitura' ? salvarLembreteLeitura() : salvarLembreteChecklist()">Salvar</button>
     </div>
+  </div>
+</div>
+
+<!-- OVERLAY: LIVRO CONCLUÍDO -->
+<div class="composer-glass-bg" id="livroConcluidoOverlay" onclick="if(event.target===this) closeOverlay('livroConcluidoOverlay')">
+  <div class="composer-glass-card" style="max-width:340px; text-align:center;">
+    <div style="font-size:38px; margin-bottom:4px;">🎉</div>
+    <h2 style="margin-bottom:6px;">Você terminou o livro!</h2>
+    <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin-bottom:16px; line-height:1.55;">ler fortalece sua sequência e seu hábito. que tal configurar um lembrete pra continuar lendo outros dias?</div>
+    <button class="post-btn" style="width:100%; margin-bottom:8px; justify-content:center;" onclick="closeOverlay('livroConcluidoOverlay'); abrirLembreteLeitura();">configurar lembrete</button>
+    <button class="livro-link-externo" style="width:100%; justify-content:center; margin:0;" onclick="closeOverlay('livroConcluidoOverlay')">agora não</button>
   </div>
 </div>
 
@@ -5553,6 +5564,9 @@ window.fecharSeloIndividual = function () {
   };
 
   window.abrirLembreteItem = function (id) {
+    window.MODO_LEMBRETE_ATUAL = 'checklist';
+    document.getElementById('lembretePickerTitulo').textContent = 'Avisar em que horário?';
+    document.getElementById('lembretePickerDesc').textContent = 'o app avisa nesse horário até você marcar como feito.';
     window.CHECKLIST_ITEM_LEMBRETE_ATUAL = id;
     const item = (window.CHECKLIST_ITENS || []).find(i => i.id === id);
     if (item && item.horario_lembrete_min != null) {
@@ -5584,6 +5598,34 @@ window.fecharSeloIndividual = function () {
     renderChecklist();
     closeOverlay('checklistLembreteOverlay');
     await supabaseClient.from('checklist_itens').update({ horario_lembrete_min: null }).eq('id', id);
+  };
+
+  // ---------- lembrete diario de leitura (sugerido quando termina um livro) ----------
+  window.abrirLembreteLeitura = function () {
+    window.MODO_LEMBRETE_ATUAL = 'leitura';
+    document.getElementById('lembretePickerTitulo').textContent = 'Que horas você quer ler?';
+    document.getElementById('lembretePickerDesc').textContent = 'todo dia nesse horário, um lembrete gentil pra você continuar lendo.';
+    window.TEMPO_PICKER_MIN = horarioLembreteLeituraMin != null ? horarioLembreteLeituraMin : 1200;
+    renderTempoPicker();
+    document.getElementById('checklistLembreteOverlay').classList.add('open');
+  };
+
+  window.salvarLembreteLeitura = async function () {
+    const min = window.TEMPO_PICKER_MIN;
+    horarioLembreteLeituraMin = min;
+    closeOverlay('checklistLembreteOverlay');
+    mostrarToast('📚 lembrete de leitura configurado!');
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return;
+    await supabaseClient.from('usuarios').update({ horario_lembrete_leitura_min: min, ultimo_lembrete_leitura_data: null }).eq('id', sessionData.session.user.id);
+  };
+
+  window.removerLembreteLeitura = async function () {
+    horarioLembreteLeituraMin = null;
+    closeOverlay('checklistLembreteOverlay');
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return;
+    await supabaseClient.from('usuarios').update({ horario_lembrete_leitura_min: null }).eq('id', sessionData.session.user.id);
   };
 
   // ---------- radio atomo: vinil compacto que estica no cabecalho e toca em loop ----------
@@ -8954,12 +8996,15 @@ window.trocarModoDescobrir = function (modo) {
       if (!leitorEpubAtual) return;
       const patch = { progresso_percentual: pct, ultima_posicao: cfi };
       // primeira vez que passa de 95%, marca a data de conclusão (usada no resumo de leitura)
+      let acabouDeTerminar = false;
       if (pct >= 95 && !leitorEpubAtual.item.finalizado_em) {
         patch.finalizado_em = new Date().toISOString();
         leitorEpubAtual.item.finalizado_em = patch.finalizado_em;
+        acabouDeTerminar = true;
       }
       await supabaseClient.from('estante_pessoal').update(patch).eq('id', leitorEpubAtual.item.id);
       registrarLeituraHoje();
+      if (acabouDeTerminar) document.getElementById('livroConcluidoOverlay').classList.add('open');
     }, 1500);
   }
 
@@ -11295,6 +11340,7 @@ let notifAtivo = true;
 
   // ---------- onboarding: horário de acordar ----------
   let horarioAcordarMin = 440; // minutos desde meia-noite (7h20 por padrão)
+  let horarioLembreteLeituraMin = null; // null = sem lembrete de leitura configurado
   let horarioDormirMin = 1350; // minutos desde meia-noite (22h30 por padrão)
   let formatoHora12h = false; // preferência de exibição de horário (12h AM/PM vs 24h)
 
@@ -11336,7 +11382,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
 
     iniciarHeartbeatPresenca(session.user.id);
 
-       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, horario_dormir_min, formato_hora_12h, viu_convite_match, tema_clima').eq('id', session.user.id).maybeSingle();
+       const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, horario_dormir_min, formato_hora_12h, viu_convite_match, tema_clima, horario_lembrete_leitura_min').eq('id', session.user.id).maybeSingle();
 
     // conta nova OU conta antiga que nunca completou essas 2 perguntas
     // (bug antigo escondia o onboarding cedo demais, então gente que já
@@ -11410,6 +11456,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         document.getElementById('notifSwitch').classList.toggle('on', notifAtivo);
       }
       if (perfil.horario_acordar_min != null) horarioAcordarMin = perfil.horario_acordar_min;
+      if (perfil.horario_lembrete_leitura_min != null) horarioLembreteLeituraMin = perfil.horario_lembrete_leitura_min;
       if (perfil.horario_dormir_min != null) horarioDormirMin = perfil.horario_dormir_min;
       if (perfil.formato_hora_12h) {
         formatoHora12h = true;

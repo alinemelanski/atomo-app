@@ -311,6 +311,12 @@ const MENSAGENS_NOITE = [
   'De dia o Senhor mandará a sua benignidade, e de noite a sua canção estará comigo. — Salmos 42:8',
   'Aquietai-vos, e sabei que eu sou Deus. — Salmos 46:10',
 ];
+const MENSAGENS_LEMBRETE_LEITURA = [
+  '📚 que tal ler um pouquinho agora?',
+  '📖 um capítulo já ajuda a manter o hábito vivo.',
+  '📚 hora de voltar pro seu livro.',
+  '📖 alguns minutos de leitura fazem bem pro seu dia.',
+];
 const OFFSET_MANHA_MIN = 15; // "bom dia" chega 15min DEPOIS do horário de acordar de cada um
 const OFFSET_NOITE_MIN = 30; // "reflexão do dia" chega 30min ANTES do horário de dormir de cada um
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
@@ -548,6 +554,23 @@ async function rodarCronNotificacoes(req, res) {
     for (const it of precisamLembrete) {
       totalEnviadas += await enviarPushParaUsuario(it.usuario_id, '✅ Lembrete', it.texto);
       await supabaseAdmin.from('checklist_itens').update({ ultimo_lembrete_data: hojeBrasilia }).eq('id', it.id);
+    }
+
+    // lembrete diario de leitura — oferecido pra pessoa logo que ela termina um
+    // livro (ver salvarProgressoEpub no front); mesma lógica de janela/piso do
+    // lembrete de checklist acima, só que lendo de usuarios em vez de itens.
+    const { data: usuariosLembreteLeitura } = await supabaseAdmin
+      .from('usuarios')
+      .select('id, horario_lembrete_leitura_min, ultimo_lembrete_leitura_data')
+      .not('horario_lembrete_leitura_min', 'is', null)
+      .lt('horario_lembrete_leitura_min', minutosAgora + JANELA_CRON_MIN);
+
+    const precisamLembreteLeitura = (usuariosLembreteLeitura || []).filter(u => u.ultimo_lembrete_leitura_data !== hojeBrasilia);
+
+    for (const u of precisamLembreteLeitura) {
+      const msg = MENSAGENS_LEMBRETE_LEITURA[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_LEMBRETE_LEITURA.length)];
+      totalEnviadas += await enviarPushParaUsuario(u.id, 'Lembrete de leitura', msg);
+      await supabaseAdmin.from('usuarios').update({ ultimo_lembrete_leitura_data: hojeBrasilia }).eq('id', u.id);
     }
 
     // resumo do dia — gerado uma vez, no fim do dia (mesma janela da notificação
