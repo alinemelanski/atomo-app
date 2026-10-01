@@ -556,6 +556,20 @@
   .estado-vazio .sub { font-size: 12px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 16px; }
   /* ---------- descobrir (@) ---------- */
   .discover-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  /* ---------- grade de livros gratuitos (capa grande, estilo "Aya Books") ---------- */
+  .livros-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .livro-grid-card { cursor: pointer; }
+  .livro-grid-capa { aspect-ratio: 2/3; border-radius: 12px; background-size: cover; background-position: center; position: relative;
+    overflow: hidden; box-shadow: var(--shadow); display: flex; align-items: flex-end; padding: 7px; }
+  .livro-grid-capa .capa-fallback-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 10.5px; color: #fff; line-height: 1.22;
+    text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .livro-grid-ribbon { position: absolute; top: 9px; right: -28px; width: 104px; text-align: center; transform: rotate(40deg);
+    background: var(--accent-a); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 8.5px; font-weight: 800;
+    letter-spacing: .03em; padding: 3px 0; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+  .livro-grid-meta { padding: 7px 1px 0; }
+  .livro-grid-titulo { font-size: 11.5px; font-weight: 800; color: var(--ink); line-height: 1.3; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .livro-grid-fonte { font-size: 9.5px; color: var(--ink-faint); font-weight: 700; margin-top: 2px; }
   .skeleton-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .skeleton-bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-b) 25%, var(--bg) 50%, var(--card-b) 75%);
     background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease-in-out infinite; }
@@ -1581,18 +1595,6 @@
     font-weight: 800; color: var(--accent-a); background: var(--accent-soft); padding: 5px 10px 5px 8px; border-radius: 999px; }
   .home-resumo-elogio { font-size: 12.5px; font-style: italic; color: var(--accent-a); margin: 0 0 8px; line-height: 1.5; }
 
-  /* ---------- agua do dia (Home) ---------- */
-  .home-agua-wrap { margin-bottom: 18px; }
-  .home-agua-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 12px 14px 12px 16px;
-    display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: var(--shadow); }
-  .home-agua-info { display: flex; align-items: center; gap: 10px; }
-  .home-agua-copo-num { font-family: 'Baloo 2', sans-serif; font-size: 22px; font-weight: 800; color: #3E9FC9; line-height: 1; }
-  .home-agua-label { font-size: 11.5px; color: var(--ink-faint); font-weight: 700; }
-  .home-agua-btn { flex: none; width: 42px; height: 42px; border-radius: 50%; border: none; background: #3E9FC9; color: #fff;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s ease;
-    box-shadow: 0 2px 8px rgba(62,159,201,.35); }
-  .home-agua-btn:active { transform: scale(.85); }
-
   /* ---------- pressionar e segurar pra reorganizar os blocos da Home (estilo tela inicial do iPhone) ---------- */
   .home-organizavel { position: relative; }
   .home-organizavel-handle { display: none; position: absolute; top: 8px; right: 8px; width: 30px; height: 30px;
@@ -2047,17 +2049,6 @@
         </div>
       </div>
       </div>
-      </div>
-
-      <div class="home-agua-wrap">
-        <div class="home-quick-titulo-row"><div class="home-section-titulo"><span class="icon-svg" style="width:15px;height:15px;vertical-align:-2px;margin-right:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3 4 6.5 8 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 11.5 9 7.5 12 3.5Z"/></svg></span>Água</div></div>
-        <div class="home-agua-card">
-          <div class="home-agua-info">
-            <div class="home-agua-copo-num" id="aguaCoposNum">0</div>
-            <div class="home-agua-label" id="aguaCoposLabel">copos hoje</div>
-          </div>
-          <button class="home-agua-btn" onclick="registrarCopoAgua()" title="+1 copo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-        </div>
       </div>
 
       <div class="home-resumo-wrap" id="homeResumoWrap" style="display:none;">
@@ -8133,6 +8124,27 @@ window.trocarModoDescobrir = function (modo) {
       </div>`).join('');
   }
 
+  function cardLivroGridHtml(d, i) {
+    const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
+    const fonteTxt = d.fonte === 'Google Books' && !d.leituraCompleta
+      ? 'amostra'
+      : (d.fonte === 'Open Library' && d.leituraCompleta
+        ? 'leitura completa'
+        : (d.fonte === 'Wikisource' ? 'domínio público' : ''));
+    const capaEstilo = d.capa ? `background-image:url('${d.capa}');` : `background:${cor};`;
+    return `
+        <div class="livro-grid-card" onclick="abrirLivroPreview(${i})">
+          <div class="livro-grid-capa" style="${capaEstilo}">
+            ${!d.capa ? `<div class="capa-fallback-titulo">${d.title}</div>` : ''}
+            <span class="livro-grid-ribbon">Gratuito</span>
+          </div>
+          <div class="livro-grid-meta">
+            <div class="livro-grid-titulo">${d.title}</div>
+            ${fonteTxt ? `<div class="livro-grid-fonte">${fonteTxt}</div>` : ''}
+          </div>
+        </div>`;
+  }
+
   function cardLivroHtml(d, i) {
     const selinhoAmostra = d.fonte === 'Google Books' && !d.leituraCompleta
       ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">apenas amostra</span>`
@@ -8193,7 +8205,7 @@ window.trocarModoDescobrir = function (modo) {
 
     window.ITENS_LIVROS_ATUAIS = itens;
     lista.innerHTML = itens.length
-      ? itens.map((d, i) => cardLivroHtml(d, i)).join('')
+      ? `<div class="livros-grid">${itens.map((d, i) => cardLivroGridHtml(d, i)).join('')}</div>`
       : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
   }
 
@@ -8205,7 +8217,7 @@ window.trocarModoDescobrir = function (modo) {
     const novos = await buscarPaginaLivros(livrosPagina);
     window.ITENS_LIVROS_ATUAIS = [...(window.ITENS_LIVROS_ATUAIS || []), ...novos];
     document.getElementById('livrosList').innerHTML = window.ITENS_LIVROS_ATUAIS.length
-      ? window.ITENS_LIVROS_ATUAIS.map((d, i) => cardLivroHtml(d, i)).join('')
+      ? `<div class="livros-grid">${window.ITENS_LIVROS_ATUAIS.map((d, i) => cardLivroGridHtml(d, i)).join('')}</div>`
       : `<div class="visitor-lock-note">Nenhum livro encontrado ainda — tenta buscar por outro termo.</div>`;
     livrosCarregandoMais = false;
   };
@@ -10604,34 +10616,6 @@ window.selecionarGenero = function (g) {
   renderGeneroGrid();
 };
 
-// ---------- agua do dia: botao "+1 copo" na Home, reseta sozinho (uma linha por dia na agua_diario) ----------
-async function carregarAguaHoje() {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  if (!sessionData || !sessionData.session) return;
-  const meuId = sessionData.session.user.id;
-  const hojeStr = new Date().toISOString().slice(0, 10);
-  const { data } = await supabaseClient.from('agua_diario').select('copos').eq('usuario_id', meuId).eq('data', hojeStr).maybeSingle();
-  window.AGUA_HOJE_COPOS = (data && data.copos) || 0;
-  renderAguaHoje();
-}
-
-function renderAguaHoje() {
-  const copos = window.AGUA_HOJE_COPOS || 0;
-  document.getElementById('aguaCoposNum').textContent = copos;
-  document.getElementById('aguaCoposLabel').textContent = copos === 1 ? 'copo hoje' : 'copos hoje';
-}
-
-window.registrarCopoAgua = async function () {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  if (!sessionData || !sessionData.session) return;
-  const meuId = sessionData.session.user.id;
-  const hojeStr = new Date().toISOString().slice(0, 10);
-  window.AGUA_HOJE_COPOS = (window.AGUA_HOJE_COPOS || 0) + 1;
-  renderAguaHoje();
-  await supabaseClient.from('agua_diario')
-    .upsert({ usuario_id: meuId, data: hojeStr, copos: window.AGUA_HOJE_COPOS, atualizado_em: new Date().toISOString() }, { onConflict: 'usuario_id,data' });
-};
-
 // ---------- resumo do dia (gerado pelo servidor, so le/dispensa/compartilha aqui) ----------
 async function carregarResumoDia() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -10652,10 +10636,8 @@ async function carregarResumoDia() {
   else { elElogio.style.display = 'none'; }
 
   const livrosLidos = livrosResp.count || 0;
-  const aguaHoje = window.AGUA_HOJE_COPOS || 0;
   const stats = [
     { n: streakAtual, l: streakAtual === 1 ? 'dia seguido' : 'dias seguidos', ic: 'fogo' },
-    { n: aguaHoje, l: aguaHoje === 1 ? 'copo d\'água' : 'copos d\'água', ic: 'gota' },
     { n: livrosLidos, l: livrosLidos === 1 ? 'livro lido' : 'livros lidos', ic: 'livro' },
   ];
   document.getElementById('resumoDiaStats').innerHTML = stats.map(s => `<div class="home-resumo-stat">${icone(s.ic, 12)} ${s.n} ${s.l}</div>`).join('');
@@ -11453,7 +11435,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     await carregarAmigosParaMencao();
     window.ativarMencaoEmTodosComposers();
     carregarChecklist();
-    carregarAguaHoje().then(carregarResumoDia);
+    carregarResumoDia();
     renderDmList();
     carregarPostsReais();
     atualizarBadgePerguntasPendentes();
