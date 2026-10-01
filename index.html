@@ -539,6 +539,34 @@
   .friend-info .n { font-size: 13px; font-weight: 800; color: var(--ink); }
   .friend-info .s { font-size: 10.5px; color: var(--ink-faint); }
 
+  /* ---------- "o que eu preciso agora" -- pedidos de apoio entre amigos ---------- */
+  .apoio-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .apoio-card-titulo { font-size: 11.5px; font-weight: 800; color: var(--ink-dim); margin-bottom: 9px; }
+  .apoio-input-row { display: flex; gap: 8px; }
+  .apoio-input-row input { flex: 1; min-width: 0; border: 1px solid var(--card-b); background: var(--bg-tela-suave); border-radius: 999px;
+    padding: 9px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); }
+  .apoio-input-row input:focus { outline: none; border-color: var(--accent-a); }
+  .apoio-pedir-btn { flex: none; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 9px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .apoio-texto-atual { font-size: 13px; color: var(--ink); margin-bottom: 10px; line-height: 1.5; }
+  .apoio-contagens { display: flex; gap: 12px; margin-bottom: 10px; }
+  .apoio-contagem-chip { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--ink-dim); }
+  .apoio-acoes-row { display: flex; gap: 8px; }
+  .apoio-acao-btn { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 700; padding: 8px; border-radius: 999px;
+    border: none; cursor: pointer; background: var(--accent-soft); color: var(--accent-a); }
+  .apoio-resposta-btns { display: flex; gap: 8px; margin-top: 2px; }
+  .apoio-resposta-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 700; padding: 9px 4px; border-radius: 14px; border: none; cursor: pointer;
+    background: var(--accent-soft); color: var(--accent-a); }
+  .apoio-resposta-btn:active { transform: scale(.94); }
+  .apoio-resposta-caixa { display: none; margin-top: 8px; gap: 6px; }
+  .apoio-resposta-caixa.on { display: flex; }
+  .apoio-resposta-caixa input { flex: 1; min-width: 0; border: 1px solid var(--card-b); background: var(--bg-tela-suave); border-radius: 999px;
+    padding: 8px 12px; font-family: 'Nunito', sans-serif; font-size: 12px; color: var(--ink); }
+  .apoio-resposta-caixa input:focus { outline: none; border-color: var(--accent-a); }
+  .apoio-resposta-enviar { flex: none; background: var(--accent-a); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
   .visitor-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--card-b); }
   .visitor-row:last-child { border-bottom: none; }
   .visitor-lock-note { font-size: 10.5px; color: var(--ink-faint); text-align: center; margin-top: 10px; line-height: 1.5; }
@@ -2074,6 +2102,7 @@
       </div>
 
       <div id="meuPerguntasArea" style="margin-top:16px;"></div>
+      <div id="meuApoioArea" style="margin-top:16px;"></div>
     </div>
 
     <!-- OVERLAY: PERFIL (avatar, bio, seguindo/seguidores, selos) -->
@@ -2205,6 +2234,7 @@
   </div>
   <div id="perfilAlheioPosts" style="margin-top:18px;"></div>
   <div id="perfilAlheioPerguntasArea" style="margin-top:16px;"></div>
+  <div id="perfilAlheioApoioArea" style="margin-top:16px;"></div>
   </div>
 </div>
 
@@ -2260,6 +2290,15 @@
   </div>
   <div class="visitor-lock-note" style="margin-bottom:14px;">Tudo que você guardou sobre o que te deixou triste, ansiosa ou brava — só você vê isso aqui. Releia quando quiser, ou apague quando não quiser mais carregar.</div>
   <div id="pandoraList" style="overflow-y:auto;"></div>
+</div>
+
+<!-- OVERLAY: RESPOSTAS DO PEDIDO DE APOIO -->
+<div class="dm-chat-overlay" id="respostasApoioOverlay">
+  <div class="dm-chat-header">
+    <button class="back-btn" onclick="closeOverlay('respostasApoioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Quem te respondeu</h2>
+  </div>
+  <div id="respostasApoioList" style="overflow-y:auto;"></div>
 </div>
 
 <!-- OVERLAY: COMPARTILHAR ENTRADA DO DIARIO -->
@@ -3236,6 +3275,7 @@
     microfone: '<path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/>',
     caixa: '<path d="M3.5 9.5h17v9a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 3.5 18.5v-9Z"/><path d="M2.5 9.5l2-4.5h15l2 4.5"/><path d="M12 9.5v3"/>',
     gota: '<path d="M12 3.5c3 4 6.5 8 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 11.5 9 7.5 12 3.5Z"/>',
+    nota: '<path d="M9.5 17V5.3l9-1.8v10.7"/><circle cx="6.8" cy="17" r="2.7"/><circle cx="15.8" cy="15.2" r="2.7"/>',
     sticker: '<path d="M4.4 8.2c-.6-2.5 1.3-4.4 3.8-3.9 2.6-1.7 5.9-.7 6.7 2 2.7.3 4 3.3 2.2 5.5-.4 2.7-3.3 4-5.5 2.7-2.6 1.1-5.3-.9-5.1-3.7-2.4-.7-3.4-3.4-1.5-5.2Z"/><path d="M14.6 14.1c.2 1.8 1.7 2.9 3.4 2.5"/>',
     sol: '<circle cx="12" cy="12.2" r="4.1"/><path d="M12 3.6v2.3M12 18.3v2.3M4.8 12h2.3M16.9 12h2.3M6.9 6.9l1.6 1.6M15.5 15.5l1.6 1.6M6.9 17.3l1.6-1.6M15.5 8.7l1.6-1.6"/>',
     nublado: '<path d="M7.4 17.3a4 4 0 0 1-.4-8 5.3 5.3 0 0 1 10.2-1.5A4.1 4.1 0 0 1 17 17.3Z"/>',
@@ -5988,6 +6028,7 @@ window.abrirPerfilAlheio = async function (autorId) {
 
   await supabaseClient.from('visitas').insert({ visitante_id: meuId, visitado_id: autorId });
   await renderPerguntasPublicas(autorId, 'perfilAlheioPerguntasArea');
+  await renderPedidoApoioAlheio(autorId);
 
   document.getElementById('perfilAlheioOverlay').classList.add('open');
 };
@@ -6155,6 +6196,162 @@ async function carregarPerguntasPublicasMinhas() {
   if (!window.MEU_USUARIO_ID) return;
   await renderPerguntasPublicas(window.MEU_USUARIO_ID, 'meuPerguntasArea');
 }
+
+// ---------- "o que eu preciso agora" -- pedidos de apoio entre amigos (seção
+// separada das perguntas anônimas: aqui a pessoa aparece, e os amigos ajudam
+// de verdade com abraço, conselho ou música) ----------
+async function renderMeuPedidoApoio() {
+  const container = document.getElementById('meuApoioArea');
+  if (!container || !window.MEU_USUARIO_ID) return;
+
+  const { data: pedido } = await supabaseClient.from('pedidos_apoio')
+    .select('id, texto, criado_em').eq('usuario_id', window.MEU_USUARIO_ID).eq('ativo', true)
+    .order('criado_em', { ascending: false }).limit(1).maybeSingle();
+
+  if (!pedido) {
+    container.innerHTML = `
+      <div class="apoio-card">
+        <div class="apoio-card-titulo">💛 o que você precisa agora?</div>
+        <div class="apoio-input-row">
+          <input type="text" id="apoioNovoInput" placeholder="ex: um conselho, uma música, um abraço..." maxlength="140" onkeydown="if(event.key==='Enter') criarPedidoApoio()" />
+          <button class="apoio-pedir-btn" onclick="criarPedidoApoio()">pedir</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const { data: respostas } = await supabaseClient.from('respostas_apoio').select('tipo').eq('pedido_id', pedido.id);
+  const porTipo = { abraco: 0, conselho: 0, musica: 0 };
+  (respostas || []).forEach(r => { if (porTipo[r.tipo] != null) porTipo[r.tipo]++; });
+
+  container.innerHTML = `
+    <div class="apoio-card">
+      <div class="apoio-card-titulo">💛 o que você precisa agora</div>
+      <div class="apoio-texto-atual">${pedido.texto}</div>
+      <div class="apoio-contagens">
+        <div class="apoio-contagem-chip">${icone('curtir', 12)} ${porTipo.abraco}</div>
+        <div class="apoio-contagem-chip">${icone('comentar', 12)} ${porTipo.conselho}</div>
+        <div class="apoio-contagem-chip">${icone('nota', 12)} ${porTipo.musica}</div>
+      </div>
+      <div class="apoio-acoes-row">
+        <button class="apoio-acao-btn" onclick="abrirRespostasApoio(${pedido.id})">ver respostas</button>
+        <button class="apoio-acao-btn" onclick="encerrarPedidoApoio(${pedido.id})">não preciso mais</button>
+      </div>
+    </div>`;
+}
+
+window.criarPedidoApoio = async function () {
+  const input = document.getElementById('apoioNovoInput');
+  const texto = input ? input.value.trim() : '';
+  if (!texto) { mostrarToast('escreve o que você precisa antes de pedir'); return; }
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session) return;
+  const meuId = sessionData.session.user.id;
+  await supabaseClient.from('pedidos_apoio').update({ ativo: false }).eq('usuario_id', meuId).eq('ativo', true);
+  const { error } = await supabaseClient.from('pedidos_apoio').insert({ usuario_id: meuId, texto, ativo: true });
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  mostrarToast('💛 pedido publicado no seu perfil');
+  renderMeuPedidoApoio();
+};
+
+window.encerrarPedidoApoio = async function (id) {
+  await supabaseClient.from('pedidos_apoio').update({ ativo: false }).eq('id', id);
+  renderMeuPedidoApoio();
+};
+
+window.abrirRespostasApoio = async function (pedidoId) {
+  const { data: respostas } = await supabaseClient.from('respostas_apoio')
+    .select('tipo, conteudo, criado_em, usuario_id').eq('pedido_id', pedidoId).order('criado_em', { ascending: false });
+
+  const idsUsuarios = [...new Set((respostas || []).map(r => r.usuario_id))];
+  let perfis = {};
+  if (idsUsuarios.length) {
+    const { data: usuarios } = await supabaseClient.from('usuarios').select('id, handle, nome').in('id', idsUsuarios);
+    (usuarios || []).forEach(u => { perfis[u.id] = u; });
+  }
+
+  const LABEL_TIPO = { abraco: '🫂 mandou um abraço', conselho: '💬 deixou um conselho', musica: '🎵 mandou uma música' };
+  document.getElementById('respostasApoioList').innerHTML = (respostas && respostas.length)
+    ? respostas.map(r => {
+        const p = perfis[r.usuario_id];
+        const nome = p ? (p.nome || ('@' + p.handle)) : 'alguém';
+        return `
+          <div class="friend-row">
+            <div class="friend-info">
+              <div class="n">${nome}</div>
+              <div class="s" style="white-space:normal; line-height:1.4;">${LABEL_TIPO[r.tipo] || r.tipo}${r.conteudo ? ': ' + r.conteudo : ''}</div>
+              <div class="s" style="opacity:.6; margin-top:2px;">${formatarTempoRelativo(r.criado_em)}</div>
+            </div>
+          </div>`;
+      }).join('')
+    : `<div class="visitor-lock-note">Ninguém respondeu ainda.</div>`;
+  document.getElementById('respostasApoioOverlay').classList.add('open');
+};
+
+// ---------- pedido de apoio no perfil de outra pessoa (quem visita responde) ----------
+async function renderPedidoApoioAlheio(autorId) {
+  const container = document.getElementById('perfilAlheioApoioArea');
+  if (!container) return;
+
+  const { data: pedido } = await supabaseClient.from('pedidos_apoio')
+    .select('id, texto, usuario_id').eq('usuario_id', autorId).eq('ativo', true)
+    .order('criado_em', { ascending: false }).limit(1).maybeSingle();
+
+  if (!pedido) { container.innerHTML = ''; return; }
+
+  container.innerHTML = `
+    <div class="apoio-card">
+      <div class="apoio-card-titulo">💛 pediu apoio</div>
+      <div class="apoio-texto-atual">${pedido.texto}</div>
+      <div class="apoio-resposta-btns">
+        <button class="apoio-resposta-btn" onclick="enviarRespostaApoio(${pedido.id}, '${pedido.usuario_id}', 'abraco')">${icone('curtir', 18)} abraço</button>
+        <button class="apoio-resposta-btn" onclick="abrirCaixaRespostaApoio('conselho')">${icone('comentar', 18)} conselho</button>
+        <button class="apoio-resposta-btn" onclick="abrirCaixaRespostaApoio('musica')">${icone('nota', 18)} música</button>
+      </div>
+      <div class="apoio-resposta-caixa" id="apoioCaixaConselho">
+        <input type="text" id="apoioInputConselho" placeholder="escreve um conselho..." maxlength="280" />
+        <button class="apoio-resposta-enviar" onclick="enviarRespostaApoio(${pedido.id}, '${pedido.usuario_id}', 'conselho')">${icone('enviar', 14, 0, '#fff')}</button>
+      </div>
+      <div class="apoio-resposta-caixa" id="apoioCaixaMusica">
+        <input type="text" id="apoioInputMusica" placeholder="nome da música ou link..." maxlength="200" />
+        <button class="apoio-resposta-enviar" onclick="enviarRespostaApoio(${pedido.id}, '${pedido.usuario_id}', 'musica')">${icone('enviar', 14, 0, '#fff')}</button>
+      </div>
+    </div>`;
+}
+
+window.abrirCaixaRespostaApoio = function (tipo) {
+  document.getElementById('apoioCaixaConselho').classList.toggle('on', tipo === 'conselho');
+  document.getElementById('apoioCaixaMusica').classList.toggle('on', tipo === 'musica');
+};
+
+window.enviarRespostaApoio = async function (pedidoId, destinatarioId, tipo) {
+  let conteudo = null;
+  if (tipo === 'conselho') {
+    const input = document.getElementById('apoioInputConselho');
+    conteudo = input ? input.value.trim() : '';
+    if (!conteudo) { mostrarToast('escreve o conselho antes de enviar'); return; }
+  } else if (tipo === 'musica') {
+    const input = document.getElementById('apoioInputMusica');
+    conteudo = input ? input.value.trim() : '';
+    if (!conteudo) { mostrarToast('cola o nome ou link da música'); return; }
+  }
+
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session) return;
+  const meuId = sessionData.session.user.id;
+
+  const { error } = await supabaseClient.from('respostas_apoio').insert({ pedido_id: pedidoId, usuario_id: meuId, tipo, conteudo });
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+
+  const LABEL = { abraco: '🫂 abraço enviado', conselho: '💬 conselho enviado', musica: '🎵 música enviada' };
+  mostrarToast(LABEL[tipo] || 'enviado');
+  if (tipo === 'conselho') document.getElementById('apoioInputConselho').value = '';
+  if (tipo === 'musica') document.getElementById('apoioInputMusica').value = '';
+  document.getElementById('apoioCaixaConselho').classList.remove('on');
+  document.getElementById('apoioCaixaMusica').classList.remove('on');
+
+  notificarPushEvento(destinatarioId, 'apoio_' + tipo, { texto: conteudo });
+};
 
 async function atualizarBadgePerguntasPendentes(contagemConhecida) {
   let n = contagemConhecida;
@@ -11559,6 +11756,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     carregarPostsReais();
     atualizarBadgePerguntasPendentes();
     carregarPerguntasPublicasMinhas();
+    renderMeuPedidoApoio();
     // só dispara aqui pra quem NÃO está prestes a passar pelo onboarding agora —
     // pra conta nova/pendente, confirmarOnboarding() cuida disso no fim de
     // verdade da configuração, senão o guia abria por cima da escolha de tópicos

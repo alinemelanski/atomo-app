@@ -126,6 +126,9 @@ const MODELOS_NOTIFICACAO_PUSH = {
   comentario: (d) => ({ titulo: '💬 Novo comentário', corpo: `@${d.de || 'alguém'} comentou: "${String(d.texto || '').slice(0, 80)}"` }),
   seguidor: (d) => ({ titulo: '➕ Novo seguidor', corpo: `@${d.de || 'alguém'} começou a te seguir` }),
   mensagem: (d) => ({ titulo: '✉️ Nova mensagem', corpo: `@${d.de || 'alguém'} te mandou uma mensagem` }),
+  apoio_abraco: (d) => ({ titulo: '🫂 Alguém te mandou um abraço', corpo: `@${d.de || 'alguém'} te mandou um abraço` }),
+  apoio_conselho: (d) => ({ titulo: '💬 Você recebeu um conselho', corpo: `@${d.de || 'alguém'}: "${String(d.texto || '').slice(0, 80)}"` }),
+  apoio_musica: (d) => ({ titulo: '🎵 Alguém te mandou uma música', corpo: `@${d.de || 'alguém'} te mandou uma música: "${String(d.texto || '').slice(0, 80)}"` }),
 };
 
 app.post('/api/push/notificar', async (req, res) => {
