@@ -1306,6 +1306,15 @@
     transition: transform .15s ease, box-shadow .2s ease;
   }
   .btn-enviar-epub:active { transform: scale(.97); }
+  .estante-btns-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .estante-btns-row .btn-enviar-epub { margin-bottom: 0; flex: 1; }
+  .btn-importar-kindle {
+    flex: 1; padding: 13px 14px; border-radius: 999px; border: 1.5px solid var(--card-b); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink);
+    background: var(--card); transition: transform .15s ease;
+  }
+  .btn-importar-kindle:active { transform: scale(.97); }
 
   /* ---------- estante: prateleira de madeira de verdade pros epubs enviados,
      livros em pe lado a lado como lombadas, em vez de uma lista de linhas ---------- */
@@ -2970,6 +2979,7 @@
         <input type="file" id="comunidadeFotoInput" accept="image/*" onchange="enviarFotoComunidade(this)" style="display:none;" />
         <input type="file" id="comunidadeFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoComunidade(this)" style="display:none;" />
         <input type="file" id="uploadEpubInput" accept=".epub" onchange="escolherArquivoEpub()" style="display:none;" />
+<input type="file" id="importarKindleInput" accept=".txt" onchange="escolherArquivoKindle()" style="display:none;" />
         <input type="file" id="explorarComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <div class="dm-input-wrap">
@@ -8394,7 +8404,10 @@ window.trocarModoDescobrir = function (modo) {
     }
 
     window.ITENS_ESTANTE_ATUAIS = data || [];
-    lista.innerHTML = estatisticasHtml + streakHtml + `<button class="btn-enviar-epub" onclick="abrirUploadEpub()">${icone('instalar',17,0,'#fff')} enviar um epub</button>` +
+    lista.innerHTML = estatisticasHtml + streakHtml + `<div class="estante-btns-row">
+        <button class="btn-enviar-epub" onclick="abrirUploadEpub()">${icone('instalar',17,0,'#fff')} enviar um epub</button>
+        <button class="btn-importar-kindle" onclick="abrirImportarKindle()">${icone('livro',15)} destaques do Kindle</button>
+      </div>` +
       (data && data.length
         ? `<div class="estante-madeira">${data.map((d, i) => cardEstanteHtml(d, i)).join('')}</div>`
         : estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho'));
@@ -8448,6 +8461,65 @@ window.trocarModoDescobrir = function (modo) {
 
     mostrarToast('📘 livro enviado pra sua estante');
     renderEstante();
+  };
+
+  // ---------- importar destaques do Kindle (My Clippings.txt, sem precisar de senha/API) ----------
+  window.abrirImportarKindle = function () {
+    const input = document.getElementById('importarKindleInput');
+    input.value = '';
+    input.click();
+  };
+
+  // o My Clippings.txt separa cada destaque por uma linha "==========", no formato:
+  // Título (Autor)
+  // - Seu destaque na página X | local Y-Z | Adicionado em ...
+  // (linha em branco)
+  // texto do destaque
+  function parseKindleClippings(textoArquivo) {
+    const blocos = textoArquivo.split(/\r?\n==========\r?\n?/).map(b => b.trim()).filter(Boolean);
+    const destaques = [];
+    for (const bloco of blocos) {
+      const linhas = bloco.split(/\r?\n/).map(l => l.trim()).filter((l, idx) => !(idx > 0 && l === '' ));
+      if (linhas.length < 2) continue;
+      const linhaTitulo = linhas[0];
+      const linhaMeta = linhas[1] || '';
+      if (!/highlight|destaque/i.test(linhaMeta)) continue; // pula anotações e marcadores, só importa destaques
+      const corpo = linhas.slice(2).join(' ').trim();
+      if (!corpo) continue;
+      const m = linhaTitulo.match(/^(.*?)\s*\(([^()]+)\)\s*$/);
+      destaques.push({
+        titulo: m ? m[1].trim() : linhaTitulo,
+        autor: m ? m[2].trim() : null,
+        texto: corpo,
+      });
+    }
+    return destaques;
+  }
+
+  window.escolherArquivoKindle = async function () {
+    const input = document.getElementById('importarKindleInput');
+    if (!input.files || !input.files[0]) return;
+    const arquivo = input.files[0];
+
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData.session) return;
+    const usuarioId = sessionData.session.user.id;
+
+    const textoArquivo = await arquivo.text();
+    const destaques = parseKindleClippings(textoArquivo);
+    if (!destaques.length) { mostrarToast('não achei destaques nesse arquivo — confere se é o My Clippings.txt do seu Kindle'); return; }
+
+    mostrarToast(`importando ${destaques.length} destaque${destaques.length === 1 ? '' : 's'}...`);
+    const linhas = destaques.map(d => ({
+      usuario_id: usuarioId,
+      estante_id: null,
+      livro_titulo: d.titulo,
+      livro_autor: d.autor,
+      texto: d.texto,
+    }));
+    const { error } = await supabaseClient.from('grifos_livro').insert(linhas);
+    if (error) { mostrarToast('❌ erro ao importar: ' + error.message); return; }
+    mostrarToast(`📚 ${destaques.length} destaque${destaques.length === 1 ? '' : 's'} do Kindle importado${destaques.length === 1 ? '' : 's'}!`);
   };
 
   window.excluirDoEstante = async function (i) {
