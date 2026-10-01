@@ -3349,6 +3349,7 @@
     pessoas: '<circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/>',
     microfone: '<path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/>',
     caixa: '<path d="M3.5 9.5h17v9a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 3.5 18.5v-9Z"/><path d="M2.5 9.5l2-4.5h15l2 4.5"/><path d="M12 9.5v3"/>',
+    moeda: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5v9M14.8 9.6c0-1-1-1.8-2.3-1.8-1.4 0-2.5.8-2.5 1.9 0 2.7 5 1.3 5 4 0 1.1-1.1 1.9-2.5 1.9-1.3 0-2.3-.8-2.3-1.8"/>',
     gota: '<path d="M12 3.5c3 4 6.5 8 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 11.5 9 7.5 12 3.5Z"/>',
     nota: '<path d="M9.5 17V5.3l9-1.8v10.7"/><circle cx="6.8" cy="17" r="2.7"/><circle cx="15.8" cy="15.2" r="2.7"/>',
     sticker: '<path d="M4.4 8.2c-.6-2.5 1.3-4.4 3.8-3.9 2.6-1.7 5.9-.7 6.7 2 2.7.3 4 3.3 2.2 5.5-.4 2.7-3.3 4-5.5 2.7-2.6 1.1-5.3-.9-5.1-3.7-2.4-.7-3.4-3.4-1.5-5.2Z"/><path d="M14.6 14.1c.2 1.8 1.7 2.9 3.4 2.5"/>',
@@ -8906,6 +8907,7 @@ window.trocarModoDescobrir = function (modo) {
   function estanteAutoralCabecalhoHtml() {
     const abas = [['comprar', 'descobrir']];
     if (window.TEM_LIVROS_AUTORAIS_PROPRIOS) abas.push(['meus', 'meus livros']);
+    if (window.TEM_COMPRAS_AUTORAIS) abas.push(['compras', 'comprados']);
     if (souAdminEstanteAutoral) abas.push(['revisao', 'revisão']);
     return `<div class="autoral-sub-row">${abas.map(([v, l]) =>
       `<div class="feed-modo-chip${subModoAutoral === v ? ' on' : ''}" onclick="trocarSubModoAutoral('${v}')">${l}</div>`
@@ -8929,14 +8931,20 @@ window.trocarModoDescobrir = function (modo) {
     const usuarioId = sessionData.session.user.id;
     souAdminEstanteAutoral = sessionData.session.user.email === 'alinemelanski10@gmail.com';
 
-    const { count: meusEnvios } = await supabaseClient.from('livros_autorais').select('id', { count: 'exact', head: true }).eq('autor_id', usuarioId);
+    const [{ count: meusEnvios }, { count: minhasCompras }] = await Promise.all([
+      supabaseClient.from('livros_autorais').select('id', { count: 'exact', head: true }).eq('autor_id', usuarioId),
+      supabaseClient.from('vendas_autorais').select('id', { count: 'exact', head: true }).eq('comprador_id', usuarioId).eq('status', 'pago'),
+    ]);
     window.TEM_LIVROS_AUTORAIS_PROPRIOS = (meusEnvios || 0) > 0;
+    window.TEM_COMPRAS_AUTORAIS = (minhasCompras || 0) > 0;
 
     if (subModoAutoral === 'meus' && !window.TEM_LIVROS_AUTORAIS_PROPRIOS) subModoAutoral = 'comprar';
     if (subModoAutoral === 'revisao' && !souAdminEstanteAutoral) subModoAutoral = 'comprar';
+    if (subModoAutoral === 'compras' && !window.TEM_COMPRAS_AUTORAIS) subModoAutoral = 'comprar';
 
     if (subModoAutoral === 'meus') return renderMeusLivrosAutorais(usuarioId);
     if (subModoAutoral === 'revisao') return renderRevisaoLivrosAutorais();
+    if (subModoAutoral === 'compras') return renderComprasAutorais(usuarioId);
     return renderVitrineLivrosAutorais();
   }
 
@@ -8991,11 +8999,21 @@ window.trocarModoDescobrir = function (modo) {
     notaAutoralEscolhida = 0;
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const meuId = sessionData.session ? sessionData.session.user.id : null;
+    const souAutor = !!(meuId && meuId === d.autor_id);
+
+    let jaComprou = false;
+    if (meuId && !souAutor) {
+      const { data: venda } = await supabaseClient.from('vendas_autorais').select('id').eq('livro_id', d.id).eq('comprador_id', meuId).eq('status', 'pago').maybeSingle();
+      jaComprou = !!venda;
+    }
 
     const notas = (d.avaliacoes_autorais || []).map(a => a.nota);
     const media = notas.length ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(1) : null;
     const preco = (d.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
+    const botaoAcao = souAutor ? '' : (jaComprou
+      ? `<button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="baixarLivroAutoralComprado(${d.id})">baixar epub</button>`
+      : `<button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="comprarLivroAutoral(${d.id})">comprar por R$ ${preco}</button>`);
 
     document.getElementById('livroAutoralDetalheConteudo').innerHTML = `
       <div class="livro-grid-capa" style="${d.capa_url ? `background-image:url('${d.capa_url}');` : `background:${cor};`} height:220px; border-radius:16px; margin-bottom:14px;">
@@ -9004,8 +9022,8 @@ window.trocarModoDescobrir = function (modo) {
       <div style="font-family:'Fraunces',serif; font-size:21px; font-weight:700;">${d.titulo}</div>
       <div style="color:var(--ink-faint); font-size:13px; margin:2px 0 10px;">@${d.usuarios ? d.usuarios.handle : 'alguém'}${media ? ` · ⭐ ${media} (${notas.length})` : ''}</div>
       ${d.descricao ? `<div style="font-size:13.5px; line-height:1.5; margin-bottom:14px;">${d.descricao}</div>` : ''}
-      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="comprarLivroAutoral(${d.id})">comprar por R$ ${preco}</button>
-      ${meuId && meuId !== d.autor_id ? avaliarLivroAutoralHtml() : ''}
+      ${botaoAcao}
+      ${jaComprou ? avaliarLivroAutoralHtml() : ''}
       <div id="livroAutoralAvaliacoesLista"></div>`;
 
     document.getElementById('livroAutoralDetalheOverlay').classList.add('open');
@@ -9056,7 +9074,7 @@ window.trocarModoDescobrir = function (modo) {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
     if (!token) { mostrarToast('entra na sua conta primeiro'); return; }
-    mostrarToast('processando...');
+    mostrarToast('abrindo pagamento...');
     try {
       const resp = await fetch(`${API_BASE}/api/estante-autoral/comprar`, {
         method: 'POST',
@@ -9064,10 +9082,29 @@ window.trocarModoDescobrir = function (modo) {
         body: JSON.stringify({ livroId }),
       });
       const resultado = await resp.json().catch(() => ({}));
-      if (!resp.ok) { mostrarToast('💳 ' + (resultado.erro || 'pagamento ainda não disponível')); return; }
-      mostrarToast('✅ compra realizada');
+      if (!resp.ok || !resultado.checkoutUrl) { mostrarToast('💳 ' + (resultado.erro || 'pagamento ainda não disponível')); return; }
+      window.location.href = resultado.checkoutUrl;
     } catch (e) {
       mostrarToast('❌ erro ao processar a compra');
+    }
+  };
+
+  window.baixarLivroAutoralComprado = async function (livroId) {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
+    if (!token) { mostrarToast('entra na sua conta primeiro'); return; }
+    mostrarToast('gerando link...');
+    try {
+      const resp = await fetch(`${API_BASE}/api/estante-autoral/arquivo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ livroId }),
+      });
+      const resultado = await resp.json().catch(() => ({}));
+      if (!resp.ok || !resultado.url) { mostrarToast('❌ ' + (resultado.erro || 'não consegui gerar o link')); return; }
+      window.open(resultado.url, '_blank');
+    } catch (e) {
+      mostrarToast('❌ erro ao baixar o livro');
     }
   };
 
@@ -9144,13 +9181,40 @@ window.trocarModoDescobrir = function (modo) {
 
   async function renderMeusLivrosAutorais(usuarioId) {
     const lista = document.getElementById('livrosList');
-    const { data, error } = await supabaseClient.from('livros_autorais').select('*').eq('autor_id', usuarioId).order('criado_em', { ascending: false });
+    const [{ data, error }, { data: perfil }] = await Promise.all([
+      supabaseClient.from('livros_autorais').select('*').eq('autor_id', usuarioId).order('criado_em', { ascending: false }),
+      supabaseClient.from('usuarios').select('asaas_wallet_id').eq('id', usuarioId).maybeSingle(),
+    ]);
     if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
     window.MEUS_LIVROS_AUTORAIS = data || [];
     lista.innerHTML = estanteAutoralCabecalhoHtml() +
+      carteiraAutoralCardHtml(perfil) +
       `<button class="post-btn" style="width:100%; margin-bottom:12px;" onclick="abrirEnviarLivroAutoral()">+ enviar outro livro</button>` +
       (data && data.length ? data.map((d, i) => cardMeuLivroAutoralHtml(d, i)).join('') : estadoVazio('nenhum livro enviado ainda', ''));
   }
+
+  function carteiraAutoralCardHtml(perfil) {
+    const wallet = perfil && perfil.asaas_wallet_id ? perfil.asaas_wallet_id : '';
+    return `<div class="clube-cap-card" style="flex-direction:column; align-items:flex-start; margin-bottom:12px;">
+        <div class="clube-cap-info" style="margin-bottom:8px;">
+          <div class="clube-cap-kicker">${icone('moeda',10)} recebimento</div>
+          <div class="clube-cap-valor" style="font-size:14px;">pra receber suas vendas, cola aqui sua wallet id do Asaas</div>
+        </div>
+        <input id="autoralWalletInput" class="busca-input" style="width:100%; margin-bottom:8px;" placeholder="wallet id do Asaas" value="${wallet}">
+        <button class="post-btn" style="width:100%;" onclick="salvarWalletAutoral()">salvar</button>
+      </div>`;
+  }
+
+  window.salvarWalletAutoral = async function () {
+    const valor = document.getElementById('autoralWalletInput').value.trim();
+    if (!valor) { mostrarToast('cola sua wallet id primeiro'); return; }
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session ? sessionData.session.user.id : null;
+    if (!usuarioId) return;
+    const { error } = await supabaseClient.from('usuarios').update({ asaas_wallet_id: valor }).eq('id', usuarioId);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('💰 wallet salva');
+  };
 
   function cardMeuLivroAutoralHtml(d, i) {
     const preco = (d.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -9178,14 +9242,52 @@ window.trocarModoDescobrir = function (modo) {
     renderEstanteAutoral();
   };
 
+  async function renderComprasAutorais(usuarioId) {
+    const lista = document.getElementById('livrosList');
+    const { data, error } = await supabaseClient.from('vendas_autorais').select('id, livro_id, pago_em, livros_autorais(titulo, capa_url)').eq('comprador_id', usuarioId).eq('status', 'pago').order('pago_em', { ascending: false });
+    if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
+    window.MINHAS_COMPRAS_AUTORAIS = data || [];
+    lista.innerHTML = estanteAutoralCabecalhoHtml() +
+      (data && data.length ? data.map((d, i) => cardCompraAutoralHtml(d, i)).join('') : estadoVazio('nenhuma compra ainda', ''));
+  }
+
+  function cardCompraAutoralHtml(d, i) {
+    const livro = d.livros_autorais || {};
+    const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
+    const capaEstilo = livro.capa_url ? `background-image:url('${livro.capa_url}');` : `background:${cor};`;
+    return `<div class="clube-cap-card" style="align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;" onclick="baixarLivroAutoralComprado(${d.livro_id})">
+        <div class="livro-grid-capa" style="${capaEstilo} width:46px; height:62px; border-radius:6px; flex-shrink:0;"></div>
+        <div class="clube-cap-info"><div class="clube-cap-valor" style="font-size:15px;">${livro.titulo || 'livro'}</div><div class="clube-cap-pagina">toque pra baixar</div></div>
+      </div>`;
+  }
+
   async function renderRevisaoLivrosAutorais() {
     const lista = document.getElementById('livrosList');
     const { data, error } = await supabaseClient.from('livros_autorais').select('*, usuarios(handle)').eq('status', 'em_revisao').order('criado_em', { ascending: true });
     if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
     window.FILA_REVISAO_AUTORAL = data || [];
-    lista.innerHTML = estanteAutoralCabecalhoHtml() +
+    const configWebhook = `<button class="post-btn" style="width:100%; margin-bottom:12px; background:var(--card-b); color:var(--ink);" onclick="configurarWebhookAsaas()">configurar webhook do Asaas (uma vez só)</button>`;
+    lista.innerHTML = estanteAutoralCabecalhoHtml() + configWebhook +
       (data && data.length ? data.map((d, i) => cardRevisaoAutoralHtml(d, i)).join('') : estadoVazio('fila vazia', 'nenhum livro esperando revisão agora'));
   }
+
+  window.configurarWebhookAsaas = async function () {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
+    if (!token) return;
+    mostrarToast('configurando...');
+    try {
+      const resp = await fetch(`${API_BASE}/api/estante-autoral/configurar-webhook`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      const resultado = await resp.json().catch(() => ({}));
+      if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'erro ao configurar')); return; }
+      mostrarToast('✅ ' + (resultado.mensagem || 'webhook configurado'));
+    } catch (e) {
+      mostrarToast('❌ erro ao configurar webhook');
+    }
+  };
 
   function cardRevisaoAutoralHtml(d, i) {
     const preco = (d.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });

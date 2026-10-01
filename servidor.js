@@ -131,6 +131,8 @@ const MODELOS_NOTIFICACAO_PUSH = {
   apoio_musica: (d) => ({ titulo: '🎵 Alguém te mandou uma música', corpo: `@${d.de || 'alguém'} te mandou uma música: "${String(d.texto || '').slice(0, 80)}"` }),
   livro_autoral_aprovado: (d) => ({ titulo: '✅ Seu livro foi aprovado', corpo: `"${d.titulo || 'seu livro'}" já está na estante autoral` }),
   livro_autoral_recusado: (d) => ({ titulo: '📬 Seu livro precisa de ajustes', corpo: `"${d.titulo || 'seu livro'}" foi recusado: ${String(d.motivo || '').slice(0, 100)}` }),
+  venda_autoral_vendedor: (d) => ({ titulo: '💰 Você vendeu um livro!', corpo: `"${d.titulo || 'seu livro'}" acabou de ser comprado` }),
+  venda_autoral_comprador: (d) => ({ titulo: '✅ Compra confirmada', corpo: `"${d.titulo || 'o livro'}" já está liberado na sua estante` }),
 };
 
 app.post('/api/push/notificar', async (req, res) => {
@@ -223,23 +225,189 @@ app.post('/api/estante-autoral/revisar', async (req, res) => {
   res.json({ ok: true });
 });
 
-// compra com split via Asaas -- ainda NÃO configurado (falta ela criar conta no
-// Asaas, colar ASAAS_API_KEY aqui, e cada autor linkar o próprio asaas_wallet_id).
-// Por enquanto responde 503 sem quebrar o app, mesmo padrão do /api/sala/entrar
-// com o Daily antes da chave existir.
-// Quando for ligar de verdade: criar cobrança Pix/cartão no Asaas com
-// split: [{ walletId: autor.asaas_wallet_id, percentualValue: 100 }] (0% pra
-// gente, a taxa do Asaas já sai da parte do autor), esperar confirmação via
-// webhook e só AÍ gravar vendas_autorais com status 'pago' (nunca antes).
+// compra com split via Asaas -- checkout hospedado pelo próprio Asaas (o
+// comprador preenche CPF/cartão/Pix LÁ, nunca no nosso app), com split de
+// 100% pro wallet da autora/autor (sem taxa de plataforma pra gente; a taxa
+// do próprio Asaas já sai da parte dela/dele). A venda só vira 'pago' quando
+// o webhook confirmar -- nunca antes, nunca só pela resposta do checkout.
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY || '';
+const ASAAS_API_BASE = process.env.ASAAS_API_BASE || 'https://api.asaas.com/v3';
+// token nosso (nada a ver com a API key do Asaas) que o Asaas devolve em todo
+// webhook no header "asaas-access-token" -- é assim que a gente confirma que
+// a notificação é real e não de qualquer um batendo nessa URL. Gerar com
+// algo tipo `openssl rand -hex 32` e colar aqui E em /configurar-webhook.
+const ASAAS_WEBHOOK_AUTH_TOKEN = process.env.ASAAS_WEBHOOK_AUTH_TOKEN || '';
+const FRONT_BASE_URL = process.env.FRONT_BASE_URL || 'https://atomoapp.netlify.app';
 
 app.post('/api/estante-autoral/comprar', async (req, res) => {
-  if (!ASAAS_API_KEY) {
-    return res.status(503).json({ erro: 'pagamento ainda não configurado' });
-  }
+  if (!ASAAS_API_KEY) return res.status(503).json({ erro: 'pagamento ainda não configurado' });
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'estante autoral não configurada no servidor' });
   const usuario = await usuarioDoToken(req);
   if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
-  res.status(501).json({ erro: 'integração com Asaas ainda não implementada' });
+
+  const { livroId } = req.body || {};
+  if (!livroId) return res.status(400).json({ erro: 'faltou livroId' });
+
+  const { data: livro, error: erroLivro } = await supabaseAdmin.from('livros_autorais').select('*').eq('id', livroId).eq('status', 'aprovado').maybeSingle();
+  if (erroLivro || !livro) return res.status(404).json({ erro: 'livro não encontrado' });
+  if (livro.autor_id === usuario.id) return res.status(400).json({ erro: 'você não pode comprar o próprio livro' });
+
+  const { data: autor, error: erroAutor } = await supabaseAdmin.from('usuarios').select('asaas_wallet_id').eq('id', livro.autor_id).maybeSingle();
+  if (erroAutor || !autor || !autor.asaas_wallet_id) {
+    return res.status(400).json({ erro: 'a pessoa que publicou esse livro ainda não configurou como recebe o pagamento' });
+  }
+
+  const { data: vendaPaga } = await supabaseAdmin.from('vendas_autorais').select('id').eq('livro_id', livroId).eq('comprador_id', usuario.id).eq('status', 'pago').maybeSingle();
+  if (vendaPaga) return res.status(400).json({ erro: 'você já comprou esse livro' });
+
+  const { data: vendaNova, error: erroVenda } = await supabaseAdmin.from('vendas_autorais').insert({
+    livro_id: livroId, comprador_id: usuario.id, autor_id: livro.autor_id, preco_centavos: livro.preco_centavos, status: 'pendente',
+  }).select().single();
+  if (erroVenda) return res.status(500).json({ erro: erroVenda.message });
+
+  try {
+    const respCheckout = await fetch(`${ASAAS_API_BASE}/checkouts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'access_token': ASAAS_API_KEY },
+      body: JSON.stringify({
+        billingTypes: ['PIX', 'CREDIT_CARD'],
+        chargeTypes: ['DETACHED'],
+        minutesToExpire: 60,
+        callback: {
+          successUrl: `${FRONT_BASE_URL}/?compra=sucesso`,
+          cancelUrl: `${FRONT_BASE_URL}/?compra=cancelada`,
+          expiredUrl: `${FRONT_BASE_URL}/?compra=expirada`,
+        },
+        items: [{ name: String(livro.titulo).slice(0, 100), description: 'Livro digital — Estante Autoral Átomo', quantity: 1, value: livro.preco_centavos / 100 }],
+        splits: [{ walletId: autor.asaas_wallet_id, percentualValue: 100 }],
+        externalReference: String(vendaNova.id),
+      }),
+    });
+    const dadosCheckout = await respCheckout.json();
+    if (!respCheckout.ok) {
+      console.log('erro ao criar checkout Asaas:', respCheckout.status, dadosCheckout);
+      await supabaseAdmin.from('vendas_autorais').update({ status: 'cancelado' }).eq('id', vendaNova.id);
+      return res.status(500).json({ erro: (dadosCheckout.errors && dadosCheckout.errors[0] && dadosCheckout.errors[0].description) || 'não consegui criar a cobrança' });
+    }
+
+    await supabaseAdmin.from('vendas_autorais').update({ asaas_payment_id: dadosCheckout.id }).eq('id', vendaNova.id);
+    res.json({ checkoutUrl: dadosCheckout.link });
+  } catch (erro) {
+    console.log('erro inesperado comprar estante autoral:', erro.message);
+    await supabaseAdmin.from('vendas_autorais').update({ status: 'cancelado' }).eq('id', vendaNova.id);
+    res.status(500).json({ erro: 'não consegui processar a compra agora' });
+  }
+});
+
+// Asaas manda aqui quando um checkout é pago. Responde 200 rápido (é o que o
+// Asaas exige pra não ficar reentregando) e só DEPOIS processa. Confere o
+// header asaas-access-token antes de confiar em qualquer coisa do corpo --
+// sem isso, qualquer um que descobrisse essa URL poderia fingir uma venda.
+app.post('/api/estante-autoral/webhook-asaas', async (req, res) => {
+  const tokenRecebido = req.headers['asaas-access-token'] || '';
+  if (!ASAAS_WEBHOOK_AUTH_TOKEN || tokenRecebido !== ASAAS_WEBHOOK_AUTH_TOKEN) {
+    console.log('webhook Asaas com token inválido ou não configurado');
+    return res.status(401).end();
+  }
+  res.status(200).end();
+
+  try {
+    if (!supabaseAdmin) return;
+    const evento = req.body || {};
+    const eventosQueConfirmamPagamento = ['CHECKOUT_PAID', 'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'];
+    if (!eventosQueConfirmamPagamento.includes(evento.event)) return;
+
+    const dadosPagamento = evento.payment || evento.checkout || {};
+    const vendaId = dadosPagamento.externalReference;
+    if (!vendaId) return;
+
+    const { data: venda } = await supabaseAdmin.from('vendas_autorais').select('*').eq('id', vendaId).maybeSingle();
+    if (!venda || venda.status === 'pago') return; // já processado (entrega "at least once") ou venda não existe
+
+    await supabaseAdmin.from('vendas_autorais').update({
+      status: 'pago', pago_em: new Date().toISOString(), asaas_payment_id: dadosPagamento.id || venda.asaas_payment_id,
+    }).eq('id', venda.id);
+
+    const { data: livro } = await supabaseAdmin.from('livros_autorais').select('titulo').eq('id', venda.livro_id).maybeSingle();
+    const dadosNotificacao = { titulo: livro ? livro.titulo : null };
+    const modeloVendedor = MODELOS_NOTIFICACAO_PUSH.venda_autoral_vendedor(dadosNotificacao);
+    const modeloComprador = MODELOS_NOTIFICACAO_PUSH.venda_autoral_comprador(dadosNotificacao);
+    enviarPushParaUsuario(venda.autor_id, modeloVendedor.titulo, modeloVendedor.corpo, { tipo: 'venda_autoral_vendedor' }).catch(() => {});
+    enviarPushParaUsuario(venda.comprador_id, modeloComprador.titulo, modeloComprador.corpo, { tipo: 'venda_autoral_comprador' }).catch(() => {});
+  } catch (erro) {
+    console.log('erro processando webhook Asaas:', erro.message);
+  }
+});
+
+// link assinado (expira em 1h) pro epub -- só pra quem comprou (ou é a
+// própria autora/autor). Nunca serve o arquivo público direto.
+app.post('/api/estante-autoral/arquivo', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'não configurado' });
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+
+  const { livroId } = req.body || {};
+  if (!livroId) return res.status(400).json({ erro: 'faltou livroId' });
+
+  const { data: livro } = await supabaseAdmin.from('livros_autorais').select('autor_id, arquivo_path').eq('id', livroId).maybeSingle();
+  if (!livro || !livro.arquivo_path) return res.status(404).json({ erro: 'livro não encontrado' });
+
+  let podeBaixar = livro.autor_id === usuario.id;
+  if (!podeBaixar) {
+    const { data: venda } = await supabaseAdmin.from('vendas_autorais').select('id').eq('livro_id', livroId).eq('comprador_id', usuario.id).eq('status', 'pago').maybeSingle();
+    podeBaixar = !!venda;
+  }
+  if (!podeBaixar) return res.status(403).json({ erro: 'você ainda não comprou esse livro' });
+
+  const { data: assinada, error } = await supabaseAdmin.storage.from('estante-autoral-epubs').createSignedUrl(livro.arquivo_path, 3600);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ url: assinada.signedUrl });
+});
+
+// configuração de uma vez só: registra nosso webhook no Asaas (ele reaproveita
+// se já existir um com essa mesma URL, então rodar de novo não duplica). Só a
+// conta administradora pode chamar isso.
+app.post('/api/estante-autoral/configurar-webhook', async (req, res) => {
+  if (!ASAAS_API_KEY) return res.status(503).json({ erro: 'ASAAS_API_KEY não configurada' });
+  if (!ASAAS_WEBHOOK_AUTH_TOKEN) return res.status(500).json({ erro: 'falta ASAAS_WEBHOOK_AUTH_TOKEN no servidor.env/Render' });
+  const usuario = await usuarioDoToken(req);
+  if (!usuario || (usuario.email || '').toLowerCase() !== EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase()) {
+    return res.status(403).json({ erro: 'só a conta administradora pode configurar isso' });
+  }
+
+  const urlWebhook = `${req.protocol}://${req.get('host')}/api/estante-autoral/webhook-asaas`;
+
+  try {
+    const respLista = await fetch(`${ASAAS_API_BASE}/webhooks`, { headers: { 'access_token': ASAAS_API_KEY } });
+    const listaAtual = await respLista.json();
+    if (!respLista.ok) return res.status(500).json({ erro: 'não consegui consultar os webhooks existentes' });
+    const jaExiste = (listaAtual.data || []).some((w) => w.url === urlWebhook);
+    if (jaExiste) return res.json({ ok: true, mensagem: 'webhook já estava configurado' });
+
+    const respCriar = await fetch(`${ASAAS_API_BASE}/webhooks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'access_token': ASAAS_API_KEY },
+      body: JSON.stringify({
+        name: 'Átomo - Estante Autoral',
+        url: urlWebhook,
+        email: EMAIL_ADMIN_ESTANTE_AUTORAL,
+        enabled: true,
+        interrupted: false,
+        apiVersion: 3,
+        authToken: ASAAS_WEBHOOK_AUTH_TOKEN,
+        sendType: 'SEQUENTIALLY',
+        events: ['CHECKOUT_PAID', 'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED'],
+      }),
+    });
+    const dadosCriar = await respCriar.json();
+    if (!respCriar.ok) {
+      console.log('erro ao criar webhook Asaas:', respCriar.status, dadosCriar);
+      return res.status(500).json({ erro: (dadosCriar.errors && dadosCriar.errors[0] && dadosCriar.errors[0].description) || 'erro ao criar webhook' });
+    }
+    res.json({ ok: true, mensagem: 'webhook configurado' });
+  } catch (erro) {
+    res.status(500).json({ erro: 'não consegui falar com o Asaas agora' });
+  }
 });
 
 // ============ SUPORTE E FEEDBACK (caixinha em Configurações) ============
