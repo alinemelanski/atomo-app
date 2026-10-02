@@ -937,7 +937,7 @@
   .clube-kicker { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700;
     letter-spacing: .12em; text-transform: uppercase; color: var(--accent-a); margin-bottom: 6px; }
   .clube-titulo-grande { position: relative; z-index: 1; font-family: 'Fraunces', serif; font-weight: 800;
-    font-size: 31px; line-height: 1.05; color: var(--ink); margin: 2px 0 4px; letter-spacing: -.01em; }
+    font-size: 25px; line-height: 1.1; color: var(--ink); margin: 2px 0 4px; letter-spacing: -.01em; white-space: nowrap; }
   .clube-sub-grande { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-dim); margin-bottom: 16px; }
 
   .clube-criar-btn { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -982,6 +982,41 @@
   .badge-novo-chip { background: var(--accent-b); color: #fff; font-size: 8.5px; font-weight: 800;
     padding: 1px 5px; border-radius: 999px; margin-left: 3px; letter-spacing: .03em; font-family: 'DM Sans', sans-serif; }
   .feed-modo-chip.on .badge-novo-chip { background: rgba(255,255,255,.28); }
+  .feed-modo-chip.icon-only { padding: 9px 11px; }
+
+  /* ---------- clube/comunidade: botoes de acao no cabecalho (ao lado dos 3 pontinhos), capa mini e bolhas por pessoa ---------- */
+  .clube-header-icons { display: flex; align-items: center; gap: 6px; }
+  .dm-header-icon-btn { width: 32px; height: 32px; border-radius: 50%; flex: none; border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent);
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); transition: transform .15s ease; }
+  .dm-header-icon-btn:active { transform: scale(.92); }
+  .dm-header-pill { width: auto; border-radius: 999px; padding: 0 10px; gap: 4px; font-size: 10.5px; font-weight: 800;
+    color: var(--accent-b); cursor: default; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+
+  .clube-hero-mini { display: flex; align-items: center; gap: 10px; border-radius: 14px; padding: 8px;
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent); }
+  .clube-hero-mini-capa { width: 40px; height: 56px; border-radius: 6px; background-size: cover; background-position: center;
+    flex: none; background-color: var(--accent-a); }
+  .clube-hero-mini-info { min-width: 0; }
+  .clube-hero-mini-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+  .clube-hero-mini-autor { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-dim); margin-top: 1px; }
+  .clube-hero-mini.sem-livro { justify-content: center; color: var(--ink-faint); font-size: 12px; padding: 14px;
+    font-family: 'DM Sans', sans-serif; }
+
+  .clube-msg-row.other .clube-msg-bolha.cor-0 { background: color-mix(in srgb, var(--accent-b) 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-1 { background: color-mix(in srgb, var(--pink) 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-2 { background: color-mix(in srgb, var(--yellow) 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-3 { background: color-mix(in srgb, #8B7EC8 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-4 { background: color-mix(in srgb, #7A9B6E 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-5 { background: color-mix(in srgb, var(--accent-a) 22%, var(--card)); }
+  .clube-msg-autor.cor-0 { color: color-mix(in srgb, var(--accent-b) 80%, var(--ink)); }
+  .clube-msg-autor.cor-1 { color: color-mix(in srgb, var(--pink) 80%, var(--ink)); }
+  .clube-msg-autor.cor-2 { color: color-mix(in srgb, var(--yellow) 75%, var(--ink)); }
+  .clube-msg-autor.cor-3 { color: color-mix(in srgb, #8B7EC8 80%, var(--ink)); }
+  .clube-msg-autor.cor-4 { color: color-mix(in srgb, #7A9B6E 80%, var(--ink)); }
+  .clube-msg-autor.cor-5 { color: color-mix(in srgb, var(--accent-a) 80%, var(--ink)); }
 
   /* ---------- comunidades: card da lista (protótipo aprovado por ela) ---------- */
   .comunidade-card { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px;
@@ -1899,11 +1934,11 @@
     <!-- LIVROS -->
     <div class="screen" id="screen-livros">
       <div class="feed-modo-row-scroll" style="margin-top:6px;">
-        <div class="feed-modo-chip on" data-modo-livros="clube" onclick="trocarModoLivros('clube')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/></svg></span> clube do livro</div>
-        <div class="feed-modo-chip" data-modo-livros="comunidades" onclick="trocarModoLivros('comunidades')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.05s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg></span> comunidades<span class="badge-novo-chip">novo</span></div>
-        <div class="feed-modo-chip" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/></svg></span> livros gratuitos</div>
-        <div class="feed-modo-chip" data-modo-livros="estante" onclick="trocarModoLivros('estante')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="M6.5 19.5V6.5a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v13"/><path d="M12.3 19.5V8.2a1 1 0 0 1 1-1h1.4a1 1 0 0 1 1 1v11.3"/><path d="M17.9 19.5V5.5a1 1 0 0 1 1-1h.6a1 1 0 0 1 1 1v14"/></svg></span> minha estante</div>
-        <div class="feed-modo-chip" data-modo-livros="autoral" onclick="trocarModoLivros('autoral')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.25s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 9.5h17v9a1.5 1.5 0 0 1-1.5 1.5h-14A1.5 1.5 0 0 1 3.5 18.5v-9Z"/><path d="M2.5 9.5l2-4.5h15l2 4.5"/><path d="M12 9.5v3"/></svg></span> estante autoral<span class="badge-novo-chip">novo</span></div>
+        <div class="feed-modo-chip icon-only on" data-modo-livros="clube" onclick="trocarModoLivros('clube')" title="clube do livro"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/></svg></span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="comunidades" onclick="trocarModoLivros('comunidades')" title="comunidades"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.05s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"/></svg></span><span class="badge-novo-chip">novo</span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')" title="livros gratuitos"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/></svg></span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="estante" onclick="trocarModoLivros('estante')" title="minha estante"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="M6.5 19.5V6.5a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v13"/><path d="M12.3 19.5V8.2a1 1 0 0 1 1-1h1.4a1 1 0 0 1 1 1v11.3"/><path d="M17.9 19.5V5.5a1 1 0 0 1 1-1h.6a1 1 0 0 1 1 1v14"/></svg></span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="autoral" onclick="trocarModoLivros('autoral')" title="estante autoral"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.25s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2.2l1.3 10.4a2 2 0 0 0 2 1.7h7.3a2 2 0 0 0 2-1.6L20.3 8H7.1"/><circle cx="10.2" cy="19.6" r="1.3" fill="currentColor" stroke="none"/><circle cx="17" cy="19.6" r="1.3" fill="currentColor" stroke="none"/></svg></span><span class="badge-novo-chip">novo</span></div>
       </div>
       <div class="busca-wrap" id="buscaLivrosWrap" style="display:none;"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaLivrosInput" class="busca-input" placeholder="Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" /></div>
       <div id="livrosList"></div>
@@ -2597,6 +2632,7 @@
       <div class="dm-chat-header">
         <button class="back-btn" onclick="fecharClubeDetalhe()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;" id="clubeDetalheTitulo">Clube</h2>
+        <div class="clube-header-icons" id="clubeDetalheHeaderIcones" style="display:none;"></div>
         <div class="clube-overflow-wrap" id="clubeDetalheOverflowWrap" style="display:none;">
           <button class="clube-overflow-btn" onclick="toggleClubeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
           <div class="clube-overflow-menu" id="clubeDetalheOverflowMenu">
@@ -2613,14 +2649,11 @@
       <div id="clubeDetalheMural" style="overflow-y:auto; flex:1;"></div>
 
       <div id="clubeDetalheComposerWrap" style="margin-top:10px;">
-        <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:11px; color:var(--ink-dim); white-space:nowrap; margin-bottom:6px; position:relative;">
-          <input type="checkbox" id="clubeComposerSpoiler" class="check-custom-input" style="position:absolute;" /><span class="check-mini check-mini-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> <span class="icon-svg" style="width:12px;height:12px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 21 19.5H3Z" stroke-linejoin="round"/><path d="M12 10v4.3"/><circle cx="12" cy="16.9" r=".15" fill="currentColor" stroke="none"/></svg></span> esse post é spoiler
-        </label>
         <div class="dm-input-row">
           <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('clube')"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.2s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
           <button class="dm-send-btn" id="btnGravarAudioMuralClube" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudioMural('clube')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
-          <textarea id="clubeComposerText" placeholder="o que você achou até aqui?" rows="1"
-            style="flex:1; background:var(--card); background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; max-height:90px;"
+          <textarea id="clubeComposerText" placeholder="o que você achou até aqui?" rows="2"
+            style="flex:1; background:var(--card); background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; min-height:44px; max-height:140px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralClube(); }"></textarea>
           <button class="dm-send-btn" onclick="publicarNoMuralClube()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
         </div>
@@ -2632,6 +2665,7 @@
       <div class="dm-chat-header">
         <button class="back-btn" onclick="closeOverlay('comunidadeDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
         <h2 style="font-size:16px;" id="comunidadeDetalheTitulo">Comunidade</h2>
+        <div class="clube-header-icons" id="comunidadeDetalheHeaderIcones" style="display:none;"></div>
         <div class="clube-overflow-wrap" id="comunidadeDetalheOverflowWrap" style="display:none;">
           <button class="clube-overflow-btn" onclick="toggleComunidadeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
           <div class="clube-overflow-menu" id="comunidadeDetalheOverflowMenu">
@@ -2655,8 +2689,8 @@
         <div class="dm-input-row">
           <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('comunidade')"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
           <button class="dm-send-btn" id="btnGravarAudioMuralComunidade" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudioMural('comunidade')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
-          <textarea id="comunidadeComposerText" placeholder="o que você quer compartilhar com a comunidade?" rows="1"
-            style="flex:1; background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; max-height:90px;"
+          <textarea id="comunidadeComposerText" placeholder="o que você quer compartilhar com a comunidade?" rows="2"
+            style="flex:1; background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; min-height:44px; max-height:140px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralComunidadeEstudo(); }"></textarea>
           <button class="dm-send-btn" onclick="publicarNoMuralComunidadeEstudo()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
         </div>
@@ -3345,6 +3379,8 @@
     curtir: '<path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/>',
     comentar: '<path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/>',
     livro: '<path d="M4 5.7c2.6-1.6 5.6-1.3 7.8.3.2.2.5.2.7 0 2.2-1.6 5.2-1.9 7.8-.3v11.7c-2.6-1.6-5.6-1.3-7.8.3-.2.2-.5.2-.7 0-2.2-1.6-5.2-1.9-7.8-.3Z"/><path d="M12.5 6.2v11.6"/>',
+    citacao: '<path d="M7 7.6c-2.1.9-3.3 2.6-3.3 4.9 0 2 1.4 3.4 3.1 3.4 1.8 0 3.1-1.3 3.1-3 0-1.6-1.1-2.8-2.6-3 .2-1 1-1.8 2.2-2.4L7 7.6Z"/><path d="M15.8 7.6c-2.1.9-3.3 2.6-3.3 4.9 0 2 1.4 3.4 3.1 3.4 1.8 0 3.1-1.3 3.1-3 0-1.6-1.1-2.8-2.6-3 .2-1 1-1.8 2.2-2.4L15.8 7.6Z"/>',
+    carrinho: '<path d="M4 5h2.2l1.3 10.4a2 2 0 0 0 2 1.7h7.3a2 2 0 0 0 2-1.6L20.3 8H7.1"/><circle cx="10.2" cy="19.6" r="1.3" fill="currentColor" stroke="none"/><circle cx="17" cy="19.6" r="1.3" fill="currentColor" stroke="none"/>',
     estante: '<path d="M4 19.5h16"/><path d="M6.5 19.5V6.5a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v13"/><path d="M12.3 19.5V8.2a1 1 0 0 1 1-1h1.4a1 1 0 0 1 1 1v11.3"/><path d="M17.9 19.5V5.5a1 1 0 0 1 1-1h.6a1 1 0 0 1 1 1v14"/>',
     pessoas: '<circle cx="8.6" cy="8" r="3"/><path d="M3.4 19.4a5.3 5.3 0 0 1 10.4-.3"/><circle cx="16.3" cy="9.2" r="2.4"/><path d="M14.8 12.3a4.6 4.6 0 0 1 5.8 3.6"/>',
     microfone: '<path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/>',
@@ -7089,10 +7125,9 @@ window.trocarModoDescobrir = function (modo) {
           <path class="scribble-marca" d="M3,52 C7,39 27,32 51,37 C73,31 98,43 94,52 C99,61 77,68 48,62 C21,69 1,58 3,52 Z" transform="rotate(15 50 50)"/>
           <path class="scribble-marca" d="M6,47 C3,37 29,34 53,36 C71,29 95,44 91,54 C97,57 73,67 47,60 C25,72 2,55 6,47 Z" transform="rotate(95 50 50)"/>
         </svg>
-        <div class="clube-kicker">encontre sua próxima conversa</div>
-        <div class="clube-titulo-grande">Clube do<br>Livro</div>
+        <div class="clube-titulo-grande">Clube do Livro</div>
         <div class="clube-sub-grande">${totalClubes} clube${totalClubes === 1 ? '' : 's'}${meusClubes ? ` · você participa de ${meusClubes}` : ''}</div>
-        <button class="clube-criar-btn" onclick="abrirCriarClube()">+ criar clube do livro</button>
+        <button class="clube-criar-btn" onclick="abrirCriarClube()">Criar novo clube</button>
         ${clubes && clubes.length
           ? clubes.map((c, i) => cardClubeHtml(c, i, meuId)).join('')
           : estadoVazio('nenhum clube ainda', 'crie o primeiro e chame gente pra discutir livro junto')}
@@ -7431,9 +7466,13 @@ window.trocarModoDescobrir = function (modo) {
 
     document.getElementById('comunidadeDetalheMetaChips').innerHTML = `
       <div class="comunidade-meta-chip">${categoria ? categoria.label : c.categoria}</div>
-      ${c.descricao ? `<div class="comunidade-meta-chip">${c.descricao}</div>` : ''}
-      ${contagemDetalhe ? `<div class="comunidade-meta-chip teal">${comunidadeTemaAtual.temporizador ? icone('relogio',15) + ' ' : ''}${contagemDetalhe}</div>` : ''}
-      ${(souMembro && !c.privada) ? `<button class="comunidade-convite-btn" onclick="abrirCompartilharComunidade()" title="convidar pra comunidade">${icone('convite',14)}</button>` : ''}`;
+      ${c.descricao ? `<div class="comunidade-meta-chip">${c.descricao}</div>` : ''}`;
+
+    document.getElementById('comunidadeDetalheHeaderIcones').style.display = souMembro ? 'flex' : 'none';
+    document.getElementById('comunidadeDetalheHeaderIcones').innerHTML = souMembro
+      ? `${(contagemDetalhe && comunidadeTemaAtual.temporizador) ? `<div class="dm-header-icon-btn dm-header-pill" title="${contagemDetalhe}">${icone('relogio',13)} ${contagemDetalhe.replace(/^(faltam?|falta)\s*/i, '')}</div>` : ''}
+         ${!c.privada ? `<button class="dm-header-icon-btn" title="convidar pra comunidade" onclick="abrirCompartilharComunidade()">${icone('convite',15)}</button>` : ''}`
+      : '';
 
     document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
       ? ''
@@ -8046,17 +8085,15 @@ window.trocarModoDescobrir = function (modo) {
     document.getElementById('clubeDetalheOverflowWrap').style.display = souMembro ? 'flex' : 'none';
 
     document.getElementById('clubeDetalheLivroAtual').innerHTML = c.livro_titulo ? `
-      <div class="clube-hero-glass"${c.livro_capa_url ? ` style="background-image:url('${c.livro_capa_url}');"` : ' style="background:var(--accent-a);"'}>
-        <div class="clube-hero-scrim"></div>
-        <div class="clube-hero-info">
-          <div class="clube-hero-titulo">${c.livro_titulo}</div>
-          ${c.livro_autor ? `<div class="clube-hero-autor">${c.livro_autor}</div>` : ''}
+      <div class="clube-hero-mini">
+        <div class="clube-hero-mini-capa"${c.livro_capa_url ? ` style="background-image:url('${c.livro_capa_url}');"` : ' style="background:var(--accent-a);"'}></div>
+        <div class="clube-hero-mini-info">
+          <div class="clube-hero-mini-titulo">${c.livro_titulo}</div>
+          ${c.livro_autor ? `<div class="clube-hero-mini-autor">${c.livro_autor}</div>` : ''}
         </div>
       </div>
     ` : `
-      <div class="clube-hero-glass sem-livro">
-        <div class="discover-desc" style="text-align:center;">nenhum livro definido ainda</div>
-      </div>
+      <div class="clube-hero-mini sem-livro">nenhum livro definido ainda</div>
     `;
 
     document.getElementById('clubeDetalheMeta').innerHTML = `
@@ -8066,12 +8103,15 @@ window.trocarModoDescobrir = function (modo) {
         ${c.privado ? `<span class="clube-meta-pill">${icone('cadeado',12)} privado</span>` : ''}
       </div>`;
 
+    document.getElementById('clubeDetalheHeaderIcones').style.display = souMembro ? 'flex' : 'none';
+    document.getElementById('clubeDetalheHeaderIcones').innerHTML = souMembro
+      ? `${souAdmin ? `<button class="dm-header-icon-btn" title="mudar livro atual" onclick="mudarLivroAtualClube()">${icone('livro',15)}</button>` : ''}
+         <button class="dm-header-icon-btn" title="gerar citação" onclick="abrirCartaoCitacaoClubeAtual()">${icone('citacao',15)}</button>
+         ${!c.privado ? `<button class="dm-header-icon-btn" title="convidar pro clube" onclick="abrirCompartilharClube()">${icone('convite',15)}</button>` : ''}`
+      : '';
+
     document.getElementById('clubeDetalheAcoes').innerHTML = souMembro
-      ? `<div class="clube-acoes-scroll">
-           ${souAdmin ? `<button class="post-btn" style="display:flex; align-items:center; gap:4px;" onclick="mudarLivroAtualClube()">${icone('livro',11)} mudar livro atual</button>` : ''}
-           <div class="livro-link-externo" onclick="abrirCartaoCitacaoClubeAtual()">${icone('compartilhar',10)} gerar citação</div>
-           ${!c.privado ? `<div class="livro-link-externo" onclick="abrirCompartilharClube()">${icone('compartilhar',10)} convidar pro clube</div>` : ''}
-         </div>`
+      ? ''
       : `<button class="post-btn" onclick="entrarNoClube()">entrar no clube</button>`;
 
     document.getElementById('clubeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
@@ -8452,11 +8492,21 @@ window.trocarModoDescobrir = function (modo) {
     return `<div class="feed-modo-row" style="margin-bottom:8px; flex-wrap:wrap;">${chips.join('')}</div>`;
   }
 
+  // cor consistente por pessoa (hash simples do id), pra distinguir quem
+  // escreveu o que num grupo com varias pessoas digitando
+  function corIndicePorUsuario(id) {
+    if (!id) return 0;
+    let soma = 0;
+    for (let i = 0; i < id.length; i++) soma += id.charCodeAt(i);
+    return soma % 6;
+  }
+
   function postClubeHtml(p) {
     const handle = p.usuarios ? p.usuarios.handle : 'alguem';
     const corpo = (p.texto || '').replace(/</g, '&lt;');
     const revelado = spoilersRevelados.has(p.id);
     const ehOwn = p.autor_id === muralClubeMeuId;
+    const corIdx = corIndicePorUsuario(p.autor_id);
     const imagem = p.imagem_url ? `<img src="${p.imagem_url}" style="max-width:170px; border-radius:12px; display:block; ${corpo ? 'margin-bottom:6px;' : ''}" />` : '';
     const audio = p.audio_url ? vozBubbleHtml({ id: 'mural-' + p.id, texto: p.audio_url }) : '';
     const temSoMidia = !corpo && (p.imagem_url || p.audio_url);
@@ -8465,8 +8515,8 @@ window.trocarModoDescobrir = function (modo) {
       : audio + imagem + corpo;
     return `
       <div class="clube-msg-row ${ehOwn ? 'own' : 'other'}">
-        ${!ehOwn ? `<div class="clube-msg-autor">@${handle}</div>` : ''}
-        <div class="clube-msg-bolha"${temSoMidia && p.imagem_url ? ' style="padding:4px;"' : ''}>${conteudo}</div>
+        ${!ehOwn ? `<div class="clube-msg-autor cor-${corIdx}">@${handle}</div>` : ''}
+        <div class="clube-msg-bolha${!ehOwn ? ' cor-' + corIdx : ''}"${temSoMidia && p.imagem_url ? ' style="padding:4px;"' : ''}>${conteudo}</div>
         <div class="clube-msg-meta">${formatarTempoRelativo(p.criado_em)}${p.capitulo_livro ? ` · ${p.capitulo_livro}` : ''}</div>
       </div>`;
   }
@@ -8511,7 +8561,6 @@ window.trocarModoDescobrir = function (modo) {
     if (!texto) return;
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const usuarioId = sessionData.session.user.id;
-    const temSpoiler = document.getElementById('clubeComposerSpoiler').checked;
 
     const { error } = await supabaseClient.from('posts').insert({
       autor_id: usuarioId,
@@ -8520,12 +8569,10 @@ window.trocarModoDescobrir = function (modo) {
       privado: false,
       clube_id: clubeAtualId,
       capitulo_livro: clubeCapituloAtual.capitulo || null,
-      tem_spoiler: temSpoiler,
     });
 
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
     document.getElementById('clubeComposerText').value = '';
-    document.getElementById('clubeComposerSpoiler').checked = false;
     renderMuralClube();
   };
 
