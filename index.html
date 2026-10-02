@@ -552,8 +552,6 @@
   .apoio-contagens { display: flex; gap: 12px; margin-bottom: 10px; }
   .apoio-contagem-chip { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--ink-dim); }
   .apoio-acoes-row { display: flex; gap: 8px; }
-  .apoio-acao-btn { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 700; padding: 8px; border-radius: 999px;
-    border: none; cursor: pointer; background: var(--accent-soft); color: var(--accent-a); }
   .apoio-resposta-btns { display: flex; gap: 8px; margin-top: 2px; }
   .apoio-resposta-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: 'DM Sans', sans-serif;
     font-size: 10px; font-weight: 700; padding: 9px 4px; border-radius: 14px; border: none; cursor: pointer;
@@ -619,8 +617,10 @@
   .dm-preview .msg { font-size: 11.5px; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ---------- mensagens: lista de conversas, cards grandes de vidro ---------- */
-  .dm-swipe-wrap { position: relative; overflow: hidden; border-radius: 18px; margin-bottom: 8px; }
-  .dm-swipe-wrap:last-child { margin-bottom: 0; }
+  /* lista de conversas estilo WhatsApp Web: linhas contínuas e compactas em
+     vez de cards flutuantes separados, pra caber mais conversa na tela e dar
+     uma resposta mais rápida pra quem tá escaneando a lista */
+  .dm-swipe-wrap { position: relative; overflow: hidden; border-radius: 0; margin-bottom: 0; }
   .dm-swipe-actions { position: absolute; inset: 0; display: flex; align-items: stretch; justify-content: flex-end;
     opacity: 0; pointer-events: none; transition: opacity .15s ease; }
   .dm-swipe-wrap.aberta .dm-swipe-actions { opacity: 1; pointer-events: auto; }
@@ -628,14 +628,14 @@
     font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; }
   .dm-swipe-btn.fixar { background: var(--accent-b); }
   .dm-swipe-btn.deletar { background: var(--pink); }
-  #screen-mensagens .dm-list-row { border-bottom: none; margin-bottom: 0; padding: 10px 13px; border-radius: 18px;
-    border: 1px solid color-mix(in srgb, white 10%, transparent); background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
-    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, white 25%, transparent), 0 4px 14px rgba(60,40,15,.10);
-    position: relative; z-index: 1; transition: transform .2s ease; touch-action: pan-y; }
-  #screen-mensagens .dm-list-row.fixada { border-color: var(--accent-b); }
-  #screen-mensagens .dm-list-row .friend-avatar { width: 44px; height: 44px; font-size: 15px; }
-  #screen-mensagens .dm-preview .n { font-size: 12.5px; }
+  #screen-mensagens .dm-list-row { border-bottom: 1px solid var(--card-b); margin-bottom: 0; padding: 8px 6px; border-radius: 0;
+    background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none;
+    position: relative; z-index: 1; transition: background .12s ease; touch-action: pan-y; }
+  #screen-mensagens .dm-list-row:active { background: color-mix(in srgb, var(--card) 55%, transparent); }
+  #screen-mensagens .dm-list-row.fixada { background: color-mix(in srgb, var(--accent-soft) 55%, transparent); }
+  #screen-mensagens .dm-list-row .friend-avatar { width: 46px; height: 46px; font-size: 15px; }
+  #screen-mensagens .dm-preview .n { font-size: 13.5px; font-weight: 700; }
+  #screen-mensagens .dm-preview .msg { font-size: 12px; }
 
   #msgTopRow h1 { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex .3s ease, opacity .25s ease; }
   #msgTopRow.busca-aberta h1 { flex: 0; opacity: 0; }
@@ -1680,8 +1680,8 @@
   .home-resumo-texto { font-size: 13px; line-height: 1.55; color: var(--ink); }
   /* botoes de acao do card de resumo -- teste de fonte mais fina (DM Sans, ja usada
      no app) no lugar do Nunito 800 padrao, pra ver se fica menos "grossa" */
-  .resumo-acao-btn { font-family: 'DM Sans', 'Nunito', sans-serif; font-weight: 600; font-size: 13px;
-    padding: 9px 20px; border-radius: 999px; border: none; cursor: pointer; }
+  .resumo-acao-btn { flex: 1; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px;
+    padding: 10px 16px; border-radius: 999px; border: none; cursor: pointer; }
   .resumo-acao-btn.dispensar { background: var(--accent-soft); color: var(--accent-a); }
   .resumo-acao-btn.compartilhar { background: var(--accent-a); color: #fff; }
   .home-resumo-stats { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -5345,15 +5345,22 @@ window.fecharSeloIndividual = function () {
       setTimeout(() => wrap.classList.remove('tocando'), 700);
     }
     const valorAntes = await somarPontoHumor(emocao, PONTOS_POR_TOQUE_HUMOR);
-    if ((emocao === 'brava' || emocao === 'ansiosa' || emocao === 'triste') && valorAntes > 0) {
-      window.abrirMotivoHumor(emocao);
+    if (emocao === 'brava' || emocao === 'ansiosa' || emocao === 'triste') {
+      // pergunta o motivo no 2o toque do dia (perfeito do jeito que já era),
+      // mas depois disso só de novo a cada 4 toques (6o, 10o, 14o...) -- senão
+      // fica chato de ficar perguntando toda hora que a pessoa toca de novo
+      const numToque = Math.round(valorAntes / PONTOS_POR_TOQUE_HUMOR) + 1;
+      const pergunta = numToque === 2 || (numToque > 2 && (numToque - 2) % 4 === 0);
+      if (pergunta) window.abrirMotivoHumor(emocao, numToque > 2);
     }
   };
 
-  window.abrirMotivoHumor = function (emocao) {
+  window.abrirMotivoHumor = function (emocao, abordagemSimples) {
     window.HUMOR_MOTIVO_EMOCAO_ATUAL = emocao;
     const titulosMotivo = { brava: 'O que te deixou brava?', ansiosa: 'O que te deixou ansiosa?', triste: 'O que te deixou triste?' };
-    document.getElementById('humorMotivoTitulo').textContent = titulosMotivo[emocao] || 'O que te deixou assim?';
+    // a partir da 2a pergunta do dia (6o toque em diante) muda a abordagem:
+    // em vez de perguntar o motivo nela de novo, só confirma se quer anotar
+    document.getElementById('humorMotivoTitulo').textContent = abordagemSimples ? 'deseja anotar?' : (titulosMotivo[emocao] || 'O que te deixou assim?');
     document.getElementById('humorMotivoInput').value = '';
     document.getElementById('humorMotivoOverlay').classList.add('open');
     setTimeout(() => document.getElementById('humorMotivoInput').focus(), 250);
@@ -6347,8 +6354,8 @@ async function renderMeuPedidoApoio() {
         <div class="apoio-contagem-chip">${icone('nota', 12)} ${porTipo.musica}</div>
       </div>
       <div class="apoio-acoes-row">
-        <button class="apoio-acao-btn" onclick="abrirRespostasApoio(${pedido.id})">ver respostas</button>
-        <button class="apoio-acao-btn" onclick="encerrarPedidoApoio(${pedido.id})">não preciso mais</button>
+        <button class="resumo-acao-btn compartilhar" onclick="abrirRespostasApoio(${pedido.id})">ver respostas</button>
+        <button class="resumo-acao-btn dispensar" onclick="encerrarPedidoApoio(${pedido.id})">não preciso mais</button>
       </div>
     </div>`;
 }
