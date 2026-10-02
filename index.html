@@ -438,7 +438,7 @@
 .post-swipe-wrap { position: relative; overflow: hidden; }
 .post-swipe-wrap .post { transition: transform .25s ease; touch-action: pan-y; }
 .post-swipe-fundo { position: absolute; inset: 0; background: #E06B6B; border-radius: 14px; display: flex; align-items: center; justify-content: flex-end;
-  padding-right: 20px; color: #fff; font-size: 18px; opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+  padding-right: 20px; color: #fff; font-size: 18px; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
 .reordenar-item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--card-b);
   border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: var(--ink); }
 .reordenar-item.oculto { opacity: 0.45; }
@@ -650,7 +650,7 @@
   .msg-busca-toggle-icone svg { transition: transform .25s ease; }
   .msg-busca-widget.aberto .msg-busca-toggle-icone svg { transform: rotate(45deg); }
   .msg-busca-campo-wrap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; opacity: 0;
-    transition: opacity .2s ease; padding-right: 6px; }
+    transition: opacity .25s ease; padding-right: 6px; }
   .msg-busca-widget.aberto .msg-busca-campo-wrap { opacity: 1; transition-delay: .15s; }
   .msg-busca-campo-wrap input { flex: 1; min-width: 0; border: none; background: transparent;
     font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); outline: none; }
@@ -670,9 +670,9 @@
   .dm-chat-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: flex; flex-direction: column;
     padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
     opacity: 0; pointer-events: none; visibility: hidden; transform: translateX(18px);
-    transition: opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear .3s; }
+    transition: opacity .25s ease, transform .4s cubic-bezier(.2,.8,.2,1), visibility 0s linear .4s; }
   .dm-chat-overlay.open { opacity: 1; pointer-events: auto; visibility: visible; transform: translateX(0);
-    transition: opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s; }
+    transition: opacity .25s ease, transform .4s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s; }
   .dm-chat-overlay.sem-transicao-swipe { transition: none !important; }
   .dm-chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .digitando-dots span { opacity: .25; animation: digitandoPulse 1.2s infinite; }
@@ -1566,17 +1566,17 @@
   .quick-sol-stage.bursting::after { animation: quickSolRing .9s ease-out forwards; }
   @keyframes quickSolRing { 0% { opacity:.9; transform:scale(.55); } 100% { opacity:0; transform:scale(2.1); } }
   .quick-diario-pergunta { font-family:'Fraunces', serif; font-weight:700; font-size:21px; color:var(--ink); text-align:center;
-    margin: 2px 22px 4px; transition: opacity .2s ease; }
+    margin: 2px 22px 4px; transition: opacity .25s ease; }
   .quick-diario-sub { font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); text-align:center;
-    margin: 0 30px 16px; line-height:1.45; transition: opacity .2s ease; }
-  .quick-diario-composer { width: calc(100% - 32px); margin: 0 16px 14px; transition: opacity .2s ease; }
+    margin: 0 30px 16px; line-height:1.45; transition: opacity .25s ease; }
+  .quick-diario-composer { width: calc(100% - 32px); margin: 0 16px 14px; transition: opacity .25s ease; }
   .quick-diario-composer textarea { min-height: 120px; }
-  .quick-diario-salvar { width: calc(100% - 32px); margin: 0 16px; padding:13px; transition: opacity .2s ease; }
+  .quick-diario-salvar { width: calc(100% - 32px); margin: 0 16px; padding:13px; transition: opacity .25s ease; }
 
   /* ---------- diario rapido: gratidao em forma de polaroid vintage ---------- */
   .polaroid-card { width: calc(100% - 64px); max-width: 250px; margin: 8px auto 18px; background:#FBF8F1;
     padding: 12px 12px 22px; border-radius: 3px; box-shadow: 0 12px 26px rgba(40,25,10,0.22), 0 1px 0 rgba(0,0,0,0.06);
-    transform: rotate(-1.6deg); transition: opacity .2s ease, transform .2s ease; }
+    transform: rotate(-1.6deg); transition: opacity .25s ease, transform .25s ease; }
   .polaroid-card:active { transform: rotate(-1.6deg) scale(0.98); }
   .polaroid-foto { position:relative; width:100%; aspect-ratio: 1/1; background: linear-gradient(160deg, #EDE3D3, #D8C6A0);
     border-radius:2px; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center; }
@@ -1611,7 +1611,7 @@
   .header-radio-widget.aberto .header-radio-disco svg { animation-play-state: running; }
   @keyframes vinilGirar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .header-radio-marquee-wrap { flex:1; min-width:0; height:100%; display:flex; align-items:center; gap:6px;
-    padding-right:8px; opacity:0; transition: opacity .2s ease; }
+    padding-right:8px; opacity:0; transition: opacity .25s ease; }
   .header-radio-widget.aberto .header-radio-marquee-wrap { opacity:1; transition-delay:.15s; }
   .header-radio-marquee { flex:1; min-width:0; height:100%; overflow:hidden; position:relative; }
   .header-radio-marquee span { position:absolute; white-space:nowrap; font-family:'DM Sans', sans-serif;
