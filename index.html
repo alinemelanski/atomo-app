@@ -322,7 +322,7 @@
   .clima-chip { display: none; align-items: center; gap: 6px; width: fit-content; margin: 0 0 10px; padding: 6px 12px 6px 10px;
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-size: 12px; font-weight: 700; }
   .composer { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
-  .composer textarea { width: 100%; border: none; background: none; resize: none; font-family: 'Nunito', sans-serif; font-size: 14px;
+  .composer textarea { width: 100%; border: none; background: none; resize: none; font-family: 'Nunito', sans-serif; font-size: 16px;
     color: var(--ink); min-height: 46px; outline: none; }
   /* quando o composer tem os icones de anexar/enviar flutuando (composer-foot
      posicionado no canto), reserva espaco na 1a linha do texto pra nao ficar
@@ -340,7 +340,7 @@
   .ref-form.show { display: block; }
   .ref-form .rf-label { font-size: 10.5px; font-weight: 800; color: var(--accent-a); margin-bottom: 6px; }
   .ref-form input, .ref-form textarea { width: 100%; border: 1px solid var(--card-b); background: var(--card); border-radius: 10px;
-    padding: 8px 10px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); margin-bottom: 6px; outline: none; }
+    padding: 8px 10px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); margin-bottom: 6px; outline: none; }
   .ref-form textarea { resize: none; min-height: 40px; }
 
   .ref-card { display: flex; gap: 10px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 18px; padding: 10px; margin-top: 10px; }
@@ -544,7 +544,7 @@
   .apoio-card-titulo { font-size: 11.5px; font-weight: 800; color: var(--ink-dim); margin-bottom: 9px; }
   .apoio-input-row { display: flex; gap: 8px; }
   .apoio-input-row input { flex: 1; min-width: 0; border: 1px solid var(--card-b); background: var(--bg-tela-suave); border-radius: 999px;
-    padding: 9px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); }
+    padding: 9px 14px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); }
   .apoio-input-row input:focus { outline: none; border-color: var(--accent-a); }
   .apoio-pedir-btn { flex: none; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 9px 16px;
     font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
@@ -560,7 +560,7 @@
   .apoio-resposta-caixa { display: none; margin-top: 8px; gap: 6px; }
   .apoio-resposta-caixa.on { display: flex; }
   .apoio-resposta-caixa input { flex: 1; min-width: 0; border: 1px solid var(--card-b); background: var(--bg-tela-suave); border-radius: 999px;
-    padding: 8px 12px; font-family: 'Nunito', sans-serif; font-size: 12px; color: var(--ink); }
+    padding: 8px 12px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); }
   .apoio-resposta-caixa input:focus { outline: none; border-color: var(--accent-a); }
   .apoio-resposta-enviar { flex: none; background: var(--accent-a); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -653,7 +653,7 @@
     transition: opacity .2s ease; padding-right: 6px; }
   .msg-busca-widget.aberto .msg-busca-campo-wrap { opacity: 1; transition-delay: .15s; }
   .msg-busca-campo-wrap input { flex: 1; min-width: 0; border: none; background: transparent;
-    font-family: 'Nunito', sans-serif; font-size: 13px; color: var(--ink); outline: none; }
+    font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); outline: none; }
   .msg-busca-lupa { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-a); color: #fff; border: none;
     display: flex; align-items: center; justify-content: center; flex: none; cursor: pointer; }
   .msg-busca-lupa:active { transform: scale(.9); }
@@ -667,9 +667,13 @@
       radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
       var(--bg-tela-suave);
   }
-  .dm-chat-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: none; flex-direction: column;
-    padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom)); }
-  .dm-chat-overlay.open { display: flex; }
+  .dm-chat-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: flex; flex-direction: column;
+    padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+    opacity: 0; pointer-events: none; visibility: hidden; transform: translateX(18px);
+    transition: opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear .3s; }
+  .dm-chat-overlay.open { opacity: 1; pointer-events: auto; visibility: visible; transform: translateX(0);
+    transition: opacity .25s ease, transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s; }
+  .dm-chat-overlay.sem-transicao-swipe { transition: none !important; }
   .dm-chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .digitando-dots span { opacity: .25; animation: digitandoPulse 1.2s infinite; }
   .digitando-dots span:nth-child(2) { animation-delay: .2s; }
@@ -702,16 +706,16 @@
   .dm-bubble.own { align-self: flex-end; background: var(--dm-tema-cor, var(--accent-a)); color: #fff; border-bottom-right-radius: 4px; }
   .dm-input-row { display: flex; gap: 8px; align-items: center; }
   #comunidadeDetalheComposerWrap .dm-send-btn { width: 34px; height: 34px; }
-  #comunidadeDetalheComposerWrap textarea { padding: 8px 12px !important; font-size: 12.5px !important; }
+  #comunidadeDetalheComposerWrap textarea { padding: 8px 12px !important; font-size: 16px !important; }
   .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; border-radius: 999px; padding: 10px 14px;
-    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 16px; outline: none;
     background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
     backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
     border: 1px solid color-mix(in srgb, white 10%, transparent); }
   .dm-input-row > input[type="text"]::placeholder { color: var(--ink-faint); }
   .dm-input-wrap { position: relative; flex: 1; min-width: 0; }
   .dm-input-wrap input { width: 100%; box-sizing: border-box; border-radius: 999px; padding: 10px 40px 10px 14px;
-    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 13px; outline: none;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 16px; outline: none;
     background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
     backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
     border: 1px solid color-mix(in srgb, white 10%, transparent); }
@@ -784,7 +788,7 @@
   .write-popup-title { font-size: 15px; font-weight: 800; color: var(--ink); }
   .write-popup-sub { font-size: 11.5px; color: var(--ink-faint); margin-bottom: 12px; }
   .write-popup textarea { width: 100%; min-height: 90px; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 16px;
-    padding: 12px 14px; font-family: 'Nunito', sans-serif; font-size: 13.5px; color: var(--ink); resize: none; outline: none; margin-bottom: 12px; }
+    padding: 12px 14px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); resize: none; outline: none; margin-bottom: 12px; }
   .write-popup-foot { display: flex; align-items: center; justify-content: space-between; }
   .write-popup-close { position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft);
     border: none; color: var(--ink-dim); font-size: 14px; cursor: pointer; }
@@ -841,7 +845,7 @@
     color: var(--ink); margin-bottom: 10px; cursor: pointer; }
 
   .busca-input { width: 100%; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 999px;
-    padding: 10px 15px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); outline: none; margin-bottom: 6px; }
+    padding: 10px 15px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); outline: none; margin-bottom: 6px; }
   .sugestoes-label { font-size: 10.5px; font-weight: 800; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .03em; margin: 14px 0 4px; }
   .seguir-btn { font-size: 10.5px; font-weight: 600; font-family: 'DM Sans', 'Nunito', sans-serif; padding: 6px 12px; border-radius: 999px; background: var(--accent-a);
     color: #fff; border: none; cursor: pointer; flex: none; }
@@ -869,10 +873,10 @@
      sem isso, cai no visual cru do navegador (fundo branco, borda quadrada),
      que destoa muito no modo escuro */
   textarea { width: 100%; min-height: 70px; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 14px;
-    padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); resize: none; outline: none; box-sizing: border-box; }
+    padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); resize: none; outline: none; box-sizing: border-box; }
   textarea::placeholder { color: var(--ink-faint); }
   .edit-bio-textarea { width: 100%; min-height: 70px; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 14px;
-    padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink); resize: none; outline: none; }
+    padding: 10px 14px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); resize: none; outline: none; }
   .pulse-highlight { animation: pulse-glow 0.9s ease; border-radius: 14px; }
   @keyframes pulse-glow { 0%,100% { box-shadow: none; } 40% { box-shadow: 0 0 0 6px var(--accent-soft); } }
 
@@ -1553,7 +1557,7 @@
   .polaroid-foto-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; color:#8A7860;
     font-family:'Nunito', sans-serif; font-size:11px; font-weight:700; text-align:center; padding: 0 14px; }
   .polaroid-legenda-input { width:100%; border:none; background:none; outline:none; text-align:center; margin-top:12px;
-    font-family:'Nunito', sans-serif; font-style:italic; font-size:13px; color:#3A2E22; }
+    font-family:'Nunito', sans-serif; font-style:italic; font-size:16px; color:#3A2E22; }
   .polaroid-legenda-input::placeholder { color:#B7A78D; }
   .polaroid-foto.revelando img { animation: polaroidRevelar 1.5s ease forwards; }
   @keyframes polaroidRevelar { 0% { filter: brightness(2.3) contrast(.5) saturate(.12) blur(3px) sepia(0); opacity:.3; }
@@ -1741,7 +1745,7 @@
   .checklist-lembrete-btn, .checklist-del-btn { flex:none; width:26px; height:26px; border:none; background:none; padding:0;
     display:flex; align-items:center; justify-content:center; color:var(--ink-faint); cursor:pointer; }
   .checklist-add-row { display:flex; align-items:center; gap:8px; margin-top:4px; padding-top:10px; border-top:1px dashed var(--card-b); }
-  .checklist-add-row input { flex:1; min-width:0; border:none; background:none; font-family:'Nunito', sans-serif; font-size:13px; color:var(--ink); padding:5px 0; }
+  .checklist-add-row input { flex:1; min-width:0; border:none; background:none; font-family:'Nunito', sans-serif; font-size:16px; color:var(--ink); padding:5px 0; }
   .checklist-add-row input:focus { outline:none; }
   .checklist-add-btn { flex:none; width:30px; height:30px; border-radius:50%; border:none; background:var(--accent-a); color:#fff;
     display:flex; align-items:center; justify-content:center; cursor:pointer; }
@@ -6978,6 +6982,50 @@ async function subirAvatar(usuarioId) {
     return null;
   }
 }
+// ---------- arrastar da borda esquerda pra voltar (swipe-back), mesma
+// sensação de navegação nativa do iOS/Android nas telas cheias ----------
+(function configurarSwipeBackOverlays() {
+  const LIMIAR_BORDA = 28;
+  const LIMIAR_ARRASTO = 70;
+  const LIMIAR_VERTICAL = 60;
+  let overlayAtual = null, inicioX = 0, inicioY = 0, arrastando = false;
+
+  document.addEventListener('touchstart', (e) => {
+    const overlay = e.target.closest('.dm-chat-overlay.open');
+    if (!overlay) return;
+    const toque = e.touches[0];
+    if (toque.clientX > LIMIAR_BORDA) return;
+    overlayAtual = overlay;
+    inicioX = toque.clientX;
+    inicioY = toque.clientY;
+    arrastando = true;
+    overlayAtual.classList.add('sem-transicao-swipe');
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!arrastando || !overlayAtual) return;
+    const toque = e.touches[0];
+    const dx = toque.clientX - inicioX;
+    const dy = Math.abs(toque.clientY - inicioY);
+    if (dy > LIMIAR_VERTICAL) { arrastando = false; overlayAtual.classList.remove('sem-transicao-swipe'); overlayAtual.style.transform = ''; return; }
+    if (dx > 0) overlayAtual.style.transform = `translateX(${Math.min(dx, 140)}px)`;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (!arrastando || !overlayAtual) return;
+    const toque = e.changedTouches[0];
+    const dx = toque.clientX - inicioX;
+    const overlayFechando = overlayAtual;
+    overlayFechando.classList.remove('sem-transicao-swipe');
+    overlayFechando.style.transform = '';
+    if (dx > LIMIAR_ARRASTO && typeof window.closeOverlay === 'function') {
+      window.closeOverlay(overlayFechando.id);
+    }
+    overlayAtual = null;
+    arrastando = false;
+  }, { passive: true });
+})();
+
 window.closeOverlay = function (id) {
   document.getElementById(id).classList.remove('open');
   // sair da conversa de DM sempre resincroniza a lista/bolinha de não lida —
