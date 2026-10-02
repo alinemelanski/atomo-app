@@ -309,7 +309,7 @@
   .tab-btn.active .tab-icon-wrap { background: radial-gradient(circle, var(--accent-soft) 0%, var(--accent-soft) 45%, transparent 78%);
     transform: scale(1.08); animation: tabGlowBreath 2.6s ease-in-out infinite; }
   .tab-btn.active svg { color: var(--accent-a); }
-  .tab-btn:active .tab-icon-wrap { transform: scale(0.86); }
+  .tab-btn:active .tab-icon-wrap { transform: scale(.9); }
   .tab-btn svg { width: 20px; height: 20px; transition: transform .2s ease; position: relative; z-index: 1; }
   .tab-btn[data-screen="descobrir"].active .tab-icon-wrap svg { animation: atomoGiraTab 7s linear infinite; }
   @keyframes tabGlowBreath { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
@@ -980,7 +980,7 @@
     padding: 13px 22px; margin-bottom: 16px; border: none; border-radius: 999px; cursor: pointer;
     background: var(--accent-a); color: #fff; font-size: 13.5px; font-weight: 800;
     font-family: 'DM Sans', sans-serif; box-shadow: var(--shadow); transition: transform .15s ease; }
-  .clube-criar-btn:active { transform: scale(.97); }
+  .clube-criar-btn:active { transform: scale(.94); }
 
   .clube-card-grande { position: relative; z-index: 1; aspect-ratio: 16 / 10; border-radius: 24px; overflow: hidden;
     margin-bottom: 16px; box-shadow: var(--shadow); cursor: pointer; background: var(--card-b);
@@ -1025,7 +1025,7 @@
   .dm-header-icon-btn { width: 32px; height: 32px; border-radius: 50%; flex: none; border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent);
     background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); transition: transform .15s ease; }
-  .dm-header-icon-btn:active { transform: scale(.92); }
+  .dm-header-icon-btn:active { transform: scale(.9); }
   .dm-header-pill { width: auto; border-radius: 999px; padding: 0 10px; gap: 4px; font-size: 10.5px; font-weight: 800;
     color: var(--accent-b); cursor: default; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
 
@@ -1058,7 +1058,7 @@
   .comunidade-card { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px;
     padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; transition: transform .15s ease;
     animation: clubeCardEntra .45s cubic-bezier(.2,.8,.2,1) backwards; }
-  .comunidade-card:active { transform: scale(.985); }
+  .comunidade-card:active { transform: scale(.98); }
   .comunidade-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
   .comunidade-icone { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center;
     justify-content: center; color: #fff; }
@@ -1186,7 +1186,7 @@
     align-items: center; justify-content: center; background: var(--bg); color: var(--ink); padding: 0; }
   .sala-ctrl-btn.on { background: var(--accent-b); color: #fff; }
   .sala-ctrl-btn.sair { background: var(--pink); color: #fff; width: 52px; }
-  .sala-ctrl-btn:active { transform: scale(.92); }
+  .sala-ctrl-btn:active { transform: scale(.9); }
 
   /* ---------- clube: tela de detalhe com a mesma cara (serifada + rotulos em caixa alta) ---------- */
   #clubeDetalheOverlay .dm-chat-header h2 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
@@ -1308,7 +1308,7 @@
     animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }
   .clube-acoes-scroll .post-btn:nth-child(2), .clube-acoes-scroll .livro-link-externo:nth-child(2) { animation-delay: .06s; }
   .clube-acoes-scroll .post-btn:nth-child(3), .clube-acoes-scroll .livro-link-externo:nth-child(3) { animation-delay: .12s; }
-  .clube-acoes-scroll .post-btn:active, .clube-acoes-scroll .livro-link-externo:active { transform: scale(.92) translateY(1px); box-shadow: none; }
+  .clube-acoes-scroll .post-btn:active, .clube-acoes-scroll .livro-link-externo:active { transform: scale(.94) translateY(1px); box-shadow: none; }
 
   /* ---------- clube: menu de tres pontinhos (sair do clube etc, sem ocupar espaco) ---------- */
   .clube-overflow-wrap { position: relative; margin-left: auto; }
@@ -1426,7 +1426,7 @@
     box-shadow: var(--shadow);
     transition: transform .15s ease, box-shadow .2s ease;
   }
-  .btn-enviar-epub:active { transform: scale(.97); }
+  .btn-enviar-epub:active { transform: scale(.94); }
   .estante-btns-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .estante-btns-row .btn-enviar-epub { margin-bottom: 0; flex: 1; }
   .btn-importar-kindle {
@@ -1435,7 +1435,7 @@
     font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink);
     background: var(--card); transition: transform .15s ease;
   }
-  .btn-importar-kindle:active { transform: scale(.97); }
+  .btn-importar-kindle:active { transform: scale(.94); }
 
   /* ---------- estante: prateleira de madeira de verdade pros epubs enviados,
      livros em pe lado a lado como lombadas, em vez de uma lista de linhas ---------- */
@@ -1484,7 +1484,7 @@
   .composer-glass-foot { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
   .composer-glass-send { width:40px; height:40px; border-radius:50%; background: var(--accent-a); border:none; cursor:pointer;
     display:flex; align-items:center; justify-content:center; color:#fff; transition: transform .15s ease; flex:none; }
-  .composer-glass-send:active { transform: scale(.88); }
+  .composer-glass-send:active { transform: scale(.9); }
   .composer-glass-send svg { width:17px; height:17px; }
   .composer-glass-send:disabled { opacity:.5; }
   .perfil-info-glass-card { max-height: 82vh; overflow-y: auto; }
@@ -1526,7 +1526,7 @@
   .home-diario-card:active { transform: scale(0.98); }
   .home-diario-abrir { position:absolute; bottom:14px; right:14px; width:30px; height:30px; border-radius:50%; background:var(--card);
     display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); color:var(--accent-a); transition: transform .15s ease; }
-  .home-diario-card:active .home-diario-abrir { transform: scale(0.88); }
+  .home-diario-card:active .home-diario-abrir { transform: scale(.9); }
 
   /* ---------- pagina "Meu Diario" (abre ao tocar no card, cheia de posts + composer vidro) ---------- */
   .diario-page-scroll { flex:1; overflow-y:auto; margin: 0 -16px; padding: 0 16px calc(16px + env(safe-area-inset-bottom));
@@ -1545,7 +1545,7 @@
   .home-quick-card svg { color: var(--accent-a); }
   .home-quick-card.alt { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-b) 18%, var(--card)); }
   .home-quick-card.alt svg { color: var(--accent-b); }
-  .home-quick-card:active { transform: scale(.96); }
+  .home-quick-card:active { transform: scale(.98); }
 
   /* ---------- diario rapido: pagina "o que te fez sorrir hoje" ---------- */
   .quick-diario-scroll { flex:1; overflow-y:auto; display:flex; flex-direction:column; align-items:center;
@@ -1605,7 +1605,7 @@
     border:1px solid var(--card-b); box-shadow:var(--shadow); display:flex; align-items:center; overflow:hidden;
     cursor:pointer; transition: width .35s cubic-bezier(.2,.8,.2,1); }
   .header-radio-widget.aberto { width:180px; }
-  .header-radio-widget:active { transform: scale(.96); }
+  .header-radio-widget:active { transform: scale(.94); }
   .header-radio-disco { width:36px; height:36px; flex:none; display:flex; align-items:center; justify-content:center; }
   .header-radio-disco svg { width:26px; height:26px; display:block; animation: vinilGirar 3s linear infinite; animation-play-state: paused; }
   .header-radio-widget.aberto .header-radio-disco svg { animation-play-state: running; }
@@ -1702,7 +1702,7 @@
   .tempo-picker-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--accent-soft);
     color: var(--accent-a); cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: transform .15s ease; }
-  .tempo-picker-btn:active { transform: scale(.85); background: var(--accent-a); color: #fff; }
+  .tempo-picker-btn:active { transform: scale(.9); background: var(--accent-a); color: #fff; }
   .tempo-picker-ampm { flex:none; align-self:center; padding:6px 10px; border-radius:999px; border:1px solid var(--card-b);
     background: var(--card); font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:800; color:var(--accent-a);
     cursor:pointer; user-select:none; transition: transform .15s ease; }
@@ -1752,7 +1752,7 @@
   .checklist-item:last-child { border-bottom:none; }
   .checklist-check { flex:none; width:22px; height:22px; border-radius:50%; border:2px solid var(--accent-a); background:none;
     display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; padding:0; transition: background .18s ease, transform .12s ease; }
-  .checklist-check:active { transform: scale(.86); }
+  .checklist-check:active { transform: scale(.9); }
   .checklist-item.feito .checklist-check { background:var(--accent-a); }
   .checklist-texto { flex:1; min-width:0; font-family:'Nunito', sans-serif; font-size:13.5px; color:var(--ink); word-break:break-word; cursor:pointer; transition: color .18s ease; }
   .checklist-item.feito .checklist-texto { text-decoration: line-through; color:var(--ink-faint); }
@@ -1768,7 +1768,7 @@
     transition: background .15s ease, transform .12s ease; }
   .check-mini.check-mini-sm { width:14px; height:14px; border-width:1.6px; }
   .check-custom-input:checked + .check-mini { background: var(--accent-a); }
-  .check-custom-input:active + .check-mini { transform: scale(.86); }
+  .check-custom-input:active + .check-mini { transform: scale(.9); }
   .check-mini svg { width:11px; height:11px; opacity:0; transform:scale(.5); transition: opacity .15s ease, transform .15s ease; }
   .check-mini.check-mini-sm svg { width:8px; height:8px; }
   .check-custom-input:checked + .check-mini svg { opacity:1; transform:scale(1); }
@@ -1785,7 +1785,7 @@
     display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-dim);
     transition: background .18s ease, transform .12s ease, color .18s ease; }
   .emoji-streak-opcao.on { background:var(--accent-a); color:#fff; }
-  .emoji-streak-opcao:active { transform: scale(.86); }
+  .emoji-streak-opcao:active { transform: scale(.9); }
   </style>
 </head>
 <body>
