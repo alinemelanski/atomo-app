@@ -5275,37 +5275,91 @@ window.abrirSeguidoresDe = async function (autorId, abaInicial) {
     document.getElementById('seqProgressLabel').textContent = faltam > 0
       ? `${faltam} dia${faltam > 1 ? 's' : ''} pro seu marco de ${proximo} dias`
       : `Marco de ${proximo} dias alcançado!`;
+    if (window.STREAK_EM_CHANCE) document.getElementById('seqProgressLabel').textContent += ' · 🛟 chance usada: escreva hoje pra manter';
     document.getElementById('sequenciaPopupBg').classList.add('show');
   };
   window.fecharSequenciaPopup = function () {
     document.getElementById('sequenciaPopupBg').classList.remove('show');
   };
 
+  // ofensiva (sequência de dias escrevendo) com UMA CHANCE de recuperação:
+  // se a pessoa esquecer exatamente 1 dia, a sequência não zera — esse dia em branco é perdoado
+  // (não conta como dia escrito). Cada chance só volta a valer depois de 7 dias escritos,
+  // então dá pra errar de vez em quando mas não vira regra. Dois dias seguidos em branco zera.
+  const DIAS_ENTRE_CHANCES = 7;
+  window.STREAK_EM_CHANCE = false;      // true = ontem passou em branco, hoje ainda dá pra salvar
+  window.MELHOR_STREAK_HISTORICO = 0;   // maior sequência já feita (pra nunca perder selo já ganho)
+
   async function calcularStreakReal(usuarioId) {
-  const { data: posts } = await supabaseClient
-    .from('posts')
-    .select('criado_em')
-    .eq('autor_id', usuarioId)
-    .order('criado_em', { ascending: false });
+    const { data: posts } = await supabaseClient
+      .from('posts')
+      .select('criado_em')
+      .eq('autor_id', usuarioId)
+      .order('criado_em', { ascending: false });
 
-  if (!posts || !posts.length) return 0;
+    window.STREAK_EM_CHANCE = false;
+    window.MELHOR_STREAK_HISTORICO = 0;
+    if (!posts || !posts.length) return 0;
 
-  const diasUnicos = [...new Set(posts.map(p => p.criado_em.slice(0, 10)))].sort().reverse();
+    const diasUnicos = [...new Set(posts.map(p => p.criado_em.slice(0, 10)))].sort().reverse(); // do mais novo pro mais antigo
+    const diffDias = (a, b) => Math.round((new Date(a) - new Date(b)) / 86400000);
 
-  const hoje = new Date().toISOString().slice(0, 10);
-  const ontem = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    // melhor sequência de todos os tempos (mesma regra da chance), do mais antigo pro mais novo
+    const crescente = [...diasUnicos].reverse();
+    let corrida = 1, desdeChance = DIAS_ENTRE_CHANCES, melhor = 1;
+    for (let i = 1; i < crescente.length; i++) {
+      const d = diffDias(crescente[i], crescente[i - 1]);
+      if (d === 1) { corrida++; desdeChance++; }
+      else if (d === 2 && desdeChance >= DIAS_ENTRE_CHANCES) { corrida++; desdeChance = 0; }
+      else { corrida = 1; desdeChance = DIAS_ENTRE_CHANCES; }
+      if (corrida > melhor) melhor = corrida;
+    }
+    window.MELHOR_STREAK_HISTORICO = melhor;
 
-  if (diasUnicos[0] !== hoje && diasUnicos[0] !== ontem) return 0;
-
-  let streak = 1;
-  for (let i = 0; i < diasUnicos.length - 1; i++) {
-    const diffDias = Math.round((new Date(diasUnicos[i]) - new Date(diasUnicos[i + 1])) / 86400000);
-    if (diffDias === 1) streak++;
-    else break;
+    // sequência de agora
+    const hoje = new Date().toISOString().slice(0, 10);
+    const atrasoTopo = diffDias(hoje, diasUnicos[0]); // 0 = escreveu hoje, 1 = ontem, 2 = ontem ficou em branco
+    if (atrasoTopo > 2) return 0;
+    let streak = 1;
+    let desdeUltimaChance = DIAS_ENTRE_CHANCES;
+    if (atrasoTopo === 2) { window.STREAK_EM_CHANCE = true; desdeUltimaChance = 0; }
+    for (let i = 0; i < diasUnicos.length - 1; i++) {
+      const d = diffDias(diasUnicos[i], diasUnicos[i + 1]);
+      if (d === 1) { streak++; desdeUltimaChance++; }
+      else if (d === 2 && desdeUltimaChance >= DIAS_ENTRE_CHANCES) { streak++; desdeUltimaChance = 0; }
+      else break;
+    }
+    return streak;
   }
-  return streak;
-}
-  
+
+  // ---------- selos conquistados ficam guardados (não dependem da sequência de agora) ----------
+  let selosGanhos = new Set(); // números 1..20, um por semana completa de sequência
+
+  async function carregarSelosGanhos(usuarioId) {
+    const chave = 'atomo_selos_' + usuarioId;
+    const conjunto = new Set();
+    try { JSON.parse(localStorage.getItem(chave) || '[]').forEach(n => conjunto.add(n)); } catch (e) { /* cache vazio */ }
+    const noBanco = new Set();
+    let leuBanco = false;
+    try {
+      const { data, error } = await supabaseClient.from('selos_desbloqueados').select('selo_numero').eq('usuario_id', usuarioId);
+      if (!error && data) { leuBanco = true; data.forEach(r => { conjunto.add(r.selo_numero); noBanco.add(r.selo_numero); }); }
+    } catch (e) { /* tabela indisponível: segue com o cache do aparelho */ }
+    // quem já fez 7+ dias seguidos em algum momento tem o selo, mesmo que a sequência tenha zerado depois
+    const maior = Math.max(streakAtual, window.MELHOR_STREAK_HISTORICO || 0);
+    for (let n = 1; n <= Math.min(Math.floor(maior / 7), SELOS.length); n++) conjunto.add(n);
+    selosGanhos = conjunto;
+    try { localStorage.setItem(chave, JSON.stringify([...conjunto])); } catch (e) { /* sem storage */ }
+    if (leuBanco) {
+      const faltando = [...conjunto].filter(n => !noBanco.has(n));
+      if (faltando.length) {
+        try { await supabaseClient.from('selos_desbloqueados').insert(faltando.map(n => ({ usuario_id: usuarioId, selo_numero: n }))); } catch (e) { /* tenta de novo na próxima entrada */ }
+      }
+    }
+    renderSelosPerfil();
+  }
+  const seloDesbloqueado = (indice, semanasCompletas) => selosGanhos.has(indice + 1) || indice < semanasCompletas;
+
   window.simularDiaSequencia = async function () {
   const antigo = streakAtual;
   streakAtual++;
@@ -5388,9 +5442,10 @@ window.fecharSeloIndividual = function () {
   window.abrirColecaoSelos = function () {
     document.getElementById('sequenciaPopupBg').classList.remove('show');
     const semanasCompletas = Math.floor(streakAtual / 7);
-    document.getElementById('selosSub').textContent = `${Math.min(semanasCompletas, SELOS.length)} de ${SELOS.length} selos desbloqueados`;
+    const totalDesbloqueados = SELOS.filter((s, i) => seloDesbloqueado(i, semanasCompletas)).length;
+    document.getElementById('selosSub').textContent = `${totalDesbloqueados} de ${SELOS.length} selos desbloqueados`;
     document.getElementById('selosGrid').innerHTML = SELOS.map((s, i) => {
-      const desbloqueado = i < semanasCompletas;
+      const desbloqueado = seloDesbloqueado(i, semanasCompletas);
       return `<div class="selo-item ${desbloqueado ? '' : 'bloqueado'}">
         <div class="selo-circulo">${conteudoSelo(s)}</div>
         ${desbloqueado ? '' : ICONE_CADEADO_SELO}
@@ -6142,7 +6197,7 @@ window.fecharSeloIndividual = function () {
 
   function renderSelosPerfil() {
     const semanasCompletas = Math.floor(streakAtual / 7);
-    const desbloqueados = SELOS.slice(0, semanasCompletas);
+    const desbloqueados = SELOS.filter((s, i) => seloDesbloqueado(i, semanasCompletas));
     document.getElementById('selosPerfilRow').innerHTML = desbloqueados.map(s =>
       `<div class="selo-circulo" onclick="abrirSeloIndividual('${s.nome}')" title="${s.nome}${s.frase ? ' — ' + s.frase : ''}">${conteudoSelo(s)}</div>`
     ).join('');
@@ -6158,10 +6213,15 @@ window.fecharSeloIndividual = function () {
     const selo = SELOS[semanasDepois - 1];
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
-    await supabaseClient.from('selos_desbloqueados').insert({
-      usuario_id: sessionData.session.user.id,
-      selo_numero: semanasDepois,
-    });
+    if (!selosGanhos.has(semanasDepois)) {
+      selosGanhos.add(semanasDepois);
+      try { localStorage.setItem('atomo_selos_' + sessionData.session.user.id, JSON.stringify([...selosGanhos])); } catch (e) { /* sem storage */ }
+      await supabaseClient.from('selos_desbloqueados').insert({
+        usuario_id: sessionData.session.user.id,
+        selo_numero: semanasDepois,
+      });
+      renderSelosPerfil();
+    }
 
     const svgGrandeEl = document.getElementById('seloGrandeSvg');
     svgGrandeEl.innerHTML = conteudoSelo(selo);
@@ -12597,6 +12657,10 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
         streakAtual = streakCalculado;
         atualizarStreakPill(streakAtual);
         renderSelosPerfil();
+        carregarSelosGanhos(session.user.id);
+        if (window.STREAK_EM_CHANCE) {
+          setTimeout(() => mostrarToast('🛟 Ontem ficou em branco, mas sua ofensiva foi salva por uma chance. Escreve hoje pra continuar!'), 2500);
+        }
 
         if (streakCalculado > streakAntigo) {
           setTimeout(async () => {
