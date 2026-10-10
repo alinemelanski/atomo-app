@@ -610,6 +610,7 @@
   .discover-desc { font-size: 12px; color: var(--ink-dim); line-height: 1.5; white-space: pre-wrap; }
 
   /* ---------- mensagens ---------- */
+  .dm-draft { color: var(--pink); font-weight: 700; }
   .dm-list-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--card-b); cursor: pointer; }
   .dm-list-row:last-child { border-bottom: none; }
   .dm-preview { flex: 1; min-width: 0; }
@@ -10699,6 +10700,37 @@ window.carregarMaisDescobrir = async function () {
     mostrarToast('↗ Compartilhado no seu feed');
   };
 
+  // ---------- rascunhos: o que a pessoa deixou escrito e não enviou fica guardado ----------
+  const RASCUNHO_CAMPOS = ['composerText', 'perfilComposerText', 'composerExplorarText', 'clubeComposerText', 'comunidadeComposerText'];
+  function rascunhoChave(campo) { return 'atomo_draft_' + (window.MEU_USUARIO_ID || 'anon') + '_' + campo; }
+  window.lerRascunho = function (campo) {
+    try { return localStorage.getItem(rascunhoChave(campo)) || ''; } catch (e) { return ''; }
+  };
+  window.salvarRascunho = function (campo, texto) {
+    try {
+      const k = rascunhoChave(campo);
+      if (texto && texto.trim()) localStorage.setItem(k, texto); else localStorage.removeItem(k);
+    } catch (e) { /* sem storage: só não guarda */ }
+  };
+  // os campos de escrita guardam sozinhos o que a pessoa digita; quando o app limpa o campo
+  // (depois de publicar) o rascunho some junto, porque o setter de .value também avisa
+  window.iniciarRascunhos = function () {
+    const desc = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
+    RASCUNHO_CAMPOS.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.rascunho) return;
+      el.dataset.rascunho = '1';
+      Object.defineProperty(el, 'value', {
+        configurable: true,
+        get() { return desc.get.call(this); },
+        set(v) { desc.set.call(this, v); window.salvarRascunho(id, v); }
+      });
+      el.addEventListener('input', () => window.salvarRascunho(id, desc.get.call(el)));
+      const salvo = window.lerRascunho(id);
+      if (salvo && !desc.get.call(el)) desc.set.call(el, salvo);
+    });
+  };
+
     // ---------- mensagens ----------
   const MAX_CONVERSAS_FIXADAS = 3;
 
@@ -10727,7 +10759,7 @@ window.carregarMaisDescobrir = async function () {
         .from('usuarios').select('handle, avatar_url').eq('id', outroId).maybeSingle();
 
       const { data: ultimaMsg } = await supabaseClient
-        .from('mensagens').select('texto').eq('conversa_id', c.id)
+        .from('mensagens').select('texto, criado_em').eq('conversa_id', c.id)
         .order('criado_em', { ascending: false }).limit(1).maybeSingle();
 
       const { count: naoLidas } = await supabaseClient
@@ -10739,21 +10771,26 @@ window.carregarMaisDescobrir = async function () {
       const nome = outroUsuario ? outroUsuario.handle : 'alguém';
       const avatarUrl = outroUsuario ? outroUsuario.avatar_url : null;
       const fixada = !!c.fixada;
-      return { fixada, html: `<div class="dm-swipe-wrap" id="swipeWrap-${c.id}">
+      // ordem de chegada: a conversa com a mensagem mais recente (minha ou dela) sobe pro topo
+      const ordem = new Date((ultimaMsg && ultimaMsg.criado_em) || c.criado_em || 0).getTime() || 0;
+      // texto que a pessoa deixou escrito e não enviou aparece como "draft:"
+      const rascunho = (window.lerRascunho && window.lerRascunho('dm_' + c.id)) || '';
+      const rascunhoSeguro = rascunho.slice(0, 80).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return { fixada, ordem, html: `<div class="dm-swipe-wrap" id="swipeWrap-${c.id}">
         <div class="dm-swipe-actions">
           <button class="dm-swipe-btn fixar" onclick="event.stopPropagation(); toggleFixarConversa('${c.id}', ${fixada})">${icone('estrela', 17)}${fixada ? 'desafixar' : 'fixar'}</button>
           <button class="dm-swipe-btn deletar" onclick="event.stopPropagation(); deletarConversa('${c.id}', ${c.usuario1_id === meuId})">${icone('lixeira', 17)}esconder</button>
         </div>
         <div class="dm-list-row dm-swipe-content ${fixada ? 'fixada' : ''}" onclick="abrirDm('${outroId}', '${nome}')">
           <div class="friend-avatar" style="${avatarEstiloBg(avatarUrl)}">${avatarConteudo(avatarUrl)}</div>
-          <div class="dm-preview"><div class="n">${fixada ? icone('estrela', 11) + ' ' : ''}@${nome}</div><div class="msg">${ultimaMsg ? ultimaMsg.texto : 'nenhuma mensagem ainda'}</div></div>
+          <div class="dm-preview"><div class="n">${fixada ? icone('estrela', 11) + ' ' : ''}@${nome}</div><div class="msg">${rascunho ? `<span class="dm-draft">draft:</span> ${rascunhoSeguro}` : (ultimaMsg ? ultimaMsg.texto : 'nenhuma mensagem ainda')}</div></div>
           ${qtdNaoLidas ? `<span class="dm-unread-badge">${qtdNaoLidas > 9 ? '9+' : qtdNaoLidas}</span>` : ''}
         </div>
       </div>` };
     }));
 
-    // conversas fixadas (ate 3) sempre no topo, o resto mantem a ordem que veio
-    linhas.sort((a, b) => (b.fixada ? 1 : 0) - (a.fixada ? 1 : 0));
+    // conversas fixadas (ate 3) sempre no topo; o resto por ordem de chegada (mais recente primeiro)
+    linhas.sort((a, b) => ((b.fixada ? 1 : 0) - (a.fixada ? 1 : 0)) || (b.ordem - a.ordem));
 
     document.getElementById('dmListWrap').innerHTML = linhas.length
       ? linhas.map(l => l.html).join('')
@@ -11073,6 +11110,16 @@ window.abrirDm = async function (outroId, outroNome) {
   document.getElementById('dmChatName').textContent = '@' + outroNome;
   document.getElementById('dmChatOverlay').classList.add('open');
   atualizarStatusChatHeader(outroId);
+
+  // rascunho: volta o que a pessoa tinha deixado escrito nessa conversa (e guarda o que ela digitar daqui pra frente)
+  const dmInput = document.getElementById('dmChatInput');
+  if (dmInput) {
+    if (!dmInput.dataset.rascunho) {
+      dmInput.dataset.rascunho = '1';
+      dmInput.addEventListener('input', () => { if (conversaAbertaId) window.salvarRascunho('dm_' + conversaAbertaId, dmInput.value); });
+    }
+    dmInput.value = window.lerRascunho('dm_' + conversaAbertaId);
+  }
 
   const { data: convData } = await supabaseClient.from('conversas').select('tema_cor').eq('id', conversaAbertaId).maybeSingle();
   aplicarTemaConversa(convData && convData.tema_cor);
@@ -11672,6 +11719,7 @@ window.enviarDmMsg = async function () {
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
 
   input.value = '';
+  window.salvarRascunho('dm_' + conversaAbertaId, '');
   await renderDmMsgs();
 
   // notificação in-app (funciona até nos dispositivos que ainda não pegaram
@@ -12587,6 +12635,7 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
     }
     window.MEU_USUARIO_ID = session.user.id;
     window.MEU_HANDLE = (perfil && perfil.handle) || '';
+    window.iniciarRascunhos();
            // nome de verdade em vez do e-mail inteiro — cai pro @handle se não tiver
            // nome salvo, e só usa "por aqui" como último recurso (nunca o e-mail)
            mostrarToast('✨ Bem-vinda de volta, ' + ((perfil && perfil.nome) || (perfil && perfil.handle && ('@' + perfil.handle)) || 'por aqui') + '!');
