@@ -9017,7 +9017,33 @@ window.trocarModoDescobrir = function (modo) {
         </div>`;
   }
 
+  // livros gratuitos mais rápidos depois da primeira leva: cada página fica guardada na memória
+  // (reabrir a aba ou voltar uma busca já feita é instantâneo) e a PRÓXIMA página já é buscada
+  // em segundo plano enquanto a pessoa olha a atual, então o "carregar mais" chega pronto
+  const CACHE_PAGINAS_LIVROS = new Map(); // "termo|pagina" -> { quando, promessa }
+  const CACHE_PAGINAS_LIVROS_TTL_MS = 10 * 60 * 1000;
+
+  function pedirPaginaLivros(pagina, termo) {
+    const chave = termo + '|' + pagina;
+    const guardada = CACHE_PAGINAS_LIVROS.get(chave);
+    if (guardada && Date.now() - guardada.quando < CACHE_PAGINAS_LIVROS_TTL_MS) return guardada.promessa;
+    if (CACHE_PAGINAS_LIVROS.size > 40) CACHE_PAGINAS_LIVROS.delete(CACHE_PAGINAS_LIVROS.keys().next().value);
+    const promessa = buscarPaginaLivrosRede(pagina, termo);
+    CACHE_PAGINAS_LIVROS.set(chave, { quando: Date.now(), promessa });
+    promessa.then(itens => { if (!itens.length) CACHE_PAGINAS_LIVROS.delete(chave); }); // não guarda falha
+    return promessa;
+  }
+
   async function buscarPaginaLivros(pagina) {
+    const termo = termoBuscaLivros;
+    const itens = await pedirPaginaLivros(pagina, termo);
+    if (itens.length && !(navigator.connection && navigator.connection.saveData)) {
+      setTimeout(() => { if (modoLivrosAtivo === 'gratuitos') pedirPaginaLivros(pagina + 1, termo); }, 600);
+    }
+    return itens;
+  }
+
+  async function buscarPaginaLivrosRede(pagina, termoBuscaLivros) {
     const url = termoBuscaLivros
       ? `${API_BASE}/api/livros-em-destaque?q=${encodeURIComponent(termoBuscaLivros)}&pagina=${pagina}`
       : `${API_BASE}/api/livros-em-destaque?pagina=${pagina}`;
@@ -9053,7 +9079,30 @@ window.trocarModoDescobrir = function (modo) {
     lista.innerHTML = skeletonCardsHtml(4);
     livrosPagina = 1;
 
+    // vitrine padrão (sem busca): mostra na hora a última leva guardada no aparelho e atualiza por baixo
+    const CHAVE_CACHE = 'atomo_livros_pagina1';
+    let mostrouCache = false;
+    if (!termoBuscaLivros) {
+      try {
+        const c = JSON.parse(localStorage.getItem(CHAVE_CACHE) || 'null');
+        if (c && Array.isArray(c.itens) && c.itens.length && Date.now() - c.t < 6 * 60 * 60 * 1000) {
+          window.ITENS_LIVROS_ATUAIS = c.itens;
+          lista.innerHTML = `<div class="livros-grid">${c.itens.map((d, i) => cardLivroGridHtml(d, i)).join('')}</div>`;
+          mostrouCache = true;
+        }
+      } catch (e) { /* cache ilegível: segue pela rede */ }
+    }
+
     const itens = await buscarPaginaLivros(1);
+
+    if (!termoBuscaLivros && itens.length) {
+      try { localStorage.setItem(CHAVE_CACHE, JSON.stringify({ t: Date.now(), itens })); } catch (e) { /* sem espaço/storage */ }
+    }
+    if (mostrouCache) {
+      // só troca a lista se a pessoa ainda não pediu mais livros e se algo realmente mudou
+      const mudou = JSON.stringify((window.ITENS_LIVROS_ATUAIS || []).map(d => d.title)) !== JSON.stringify(itens.map(d => d.title));
+      if (!itens.length || !mudou || livrosPagina !== 1) return;
+    }
 
     window.ITENS_LIVROS_ATUAIS = itens;
     lista.innerHTML = itens.length
@@ -9119,7 +9168,20 @@ window.trocarModoDescobrir = function (modo) {
     let streak = 0;
     let cursor = new Date(hoje);
     if (!datasParaStreak.has(fmtDataISO(cursor))) cursor.setDate(cursor.getDate() - 1);
-    while (datasParaStreak.has(fmtDataISO(cursor))) { streak++; cursor.setDate(cursor.getDate() - 1); }
+    // mesma chance de recuperação da ofensiva de escrita: 1 dia em branco é perdoado
+    // (não conta como lido), e a chance só volta depois de 7 dias lidos
+    let desdeChanceLeitura = 7;
+    while (true) {
+      if (datasParaStreak.has(fmtDataISO(cursor))) {
+        streak++; desdeChanceLeitura++;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        const antes = new Date(cursor);
+        antes.setDate(antes.getDate() - 1);
+        if (desdeChanceLeitura >= 7 && datasParaStreak.has(fmtDataISO(antes))) { desdeChanceLeitura = 0; cursor = antes; }
+        else break;
+      }
+    }
 
     const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
     let cabecalho = diasSemana.map(d => `<div style="text-align:center; font-size:10px; font-weight:700; color:var(--ink-faint); letter-spacing:0.5px;">${d}</div>`).join('');

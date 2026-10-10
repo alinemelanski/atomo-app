@@ -1451,6 +1451,31 @@ const AUTORES_BRASILEIROS_DESTAQUE = [
   'Ariano Suassuna', 'Raduan Nassar', 'Chico Buarque', 'Paulo Coelho',
 ];
 
+// cache em memória da vitrine de livros gratuitos: a primeira pessoa a pedir cada página/busca
+// paga o tempo das fontes externas (Open Library, Gutendex, Wikisource...), as seguintes recebem
+// a mesma resposta na hora. Só guarda resposta que veio com livros (nunca guarda falha) e some em 15 min.
+const CACHE_LIVROS = new Map(); // url -> { quando, corpo }
+const CACHE_LIVROS_TTL_MS = 15 * 60 * 1000;
+const CACHE_LIVROS_MAX = 300;
+app.use('/api/livros-em-destaque', (req, res, next) => {
+  const chave = req.originalUrl;
+  const guardado = CACHE_LIVROS.get(chave);
+  if (guardado && Date.now() - guardado.quando < CACHE_LIVROS_TTL_MS) {
+    res.set('X-Cache', 'HIT');
+    res.set('Cache-Control', 'public, max-age=300');
+    return res.json(guardado.corpo);
+  }
+  const jsonOriginal = res.json.bind(res);
+  res.json = (corpo) => {
+    if (res.statusCode === 200 && corpo && Array.isArray(corpo.items) && corpo.items.length) {
+      if (CACHE_LIVROS.size >= CACHE_LIVROS_MAX) CACHE_LIVROS.delete(CACHE_LIVROS.keys().next().value);
+      CACHE_LIVROS.set(chave, { quando: Date.now(), corpo });
+    }
+    return jsonOriginal(corpo);
+  };
+  next();
+});
+
 app.get('/api/livros-em-destaque', async (req, res) => {
   // junta 3 fontes de livro numa lista só, cada uma no seu try/catch — se uma
   // cair, as outras continuam aparecendo normal. Todo item vira o mesmo
