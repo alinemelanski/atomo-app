@@ -6532,7 +6532,7 @@ async function renderPerguntasPendentes() {
     ? pendentes.map(p => `
       <div class="post" style="margin-bottom:10px;">
         <div class="post-body" style="margin-bottom:8px;">❓ ${p.pergunta}</div>
-        <textarea id="respostaPergunta${p.id}" placeholder="Escreva sua resposta (vai aparecer pública no seu perfil)..." style="margin-bottom:8px;"></textarea>
+        <textarea id="respostaPergunta${p.id}" placeholder="Escreva sua resposta (vai aparecer pública no seu perfil e no feed)..." style="margin-bottom:8px;"></textarea>
         <div class="post-actions">
           <div class="post-action" onclick="responderPergunta(${p.id})">${icone('check',13)} Responder</div>
           <div class="post-action" onclick="descartarPergunta(${p.id})">${icone('lixeira',13)} Descartar</div>
@@ -6548,14 +6548,32 @@ window.responderPergunta = async function (id) {
   const resposta = campoResposta ? campoResposta.value.trim() : '';
   if (!resposta) { mostrarToast('Escreve uma resposta antes de enviar'); return; }
 
+  const { data: linhaPergunta } = await supabaseClient.from('perguntas_anonimas').select('pergunta').eq('id', id).maybeSingle();
+  const perguntaOriginal = linhaPergunta ? linhaPergunta.pergunta : '';
+
   const { error } = await supabaseClient.from('perguntas_anonimas')
     .update({ resposta, respondida: true, respondida_em: new Date().toISOString() })
     .eq('id', id);
 
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
-  mostrarToast('✅ Resposta publicada no seu perfil');
+
+  // a resposta também vai pro feed público (a pergunta continua anônima: quem perguntou não aparece)
+  try {
+    const { data: sessaoResp } = await supabaseClient.auth.getSession();
+    if (perguntaOriginal && sessaoResp.session) {
+      await supabaseClient.from('posts').insert({
+        autor_id: sessaoResp.session.user.id,
+        texto: `❓ ${perguntaOriginal}\n\n${resposta}`,
+        tipo: 'Assunto',
+        privado: false,
+      });
+    }
+  } catch (e) { console.log('não consegui publicar a resposta no feed:', e); }
+
+  mostrarToast('✅ Resposta publicada no seu perfil e no feed');
   await renderPerguntasPendentes();
   await carregarPerguntasPublicasMinhas();
+  if (typeof carregarPostsReais === 'function') carregarPostsReais();
 };
 
 window.descartarPergunta = async function (id) {
