@@ -1841,6 +1841,7 @@
         <svg class="sun-illustration" viewBox="0 0 100 100"><path d="M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z" fill="#EDE4D3" stroke="#CBBFA0" stroke-width="1.2"/><path class="scribble-line" pathLength="1" d="M3,52 C7,39 27,32 51,37 C73,31 98,43 94,52 C99,61 77,68 48,62 C21,69 1,58 3,52 Z" transform="rotate(15 50 50)" style="animation-delay:0.00s"/><path class="scribble-line" pathLength="1" d="M6,47 C3,37 29,34 53,36 C71,29 95,44 91,54 C97,57 73,67 47,60 C25,72 2,55 6,47 Z" transform="rotate(55 50 50)" style="animation-delay:0.15s"/><path class="scribble-line" pathLength="1" d="M4,53 C9,40 24,34 49,38 C76,33 96,42 93,49 C98,60 76,64 52,59 C22,66 0,57 4,53 Z" transform="rotate(95 50 50)" style="animation-delay:0.30s"/><path class="scribble-line" pathLength="1" d="M5,49 C2,41 28,33 50,37 C74,32 97,44 93,53 C96,58 78,67 49,61 C20,65 3,56 5,49 Z" transform="rotate(135 50 50)" style="animation-delay:0.45s"/></svg>
         <h2 class="onboard-title">Bem-vindo(a) ao Átomo</h2>
         <div class="onboard-sub">seu diário tem visitas.</div>
+        <div class="onboard-sub" id="conviteAuthAviso" style="display:none; color:var(--accent-a); font-weight:700;">Você tem um convite pra um grupo no Átomo 💛 — crie sua conta e a gente te leva até ele.</div>
         <button class="onboard-btn google-btn" onclick="loginComGoogle()">
   <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
   Continuar com Google
@@ -3388,6 +3389,16 @@
       const novaUrl = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
       history.replaceState(null, '', novaUrl);
     }
+  })();
+
+  // mostra um recado na tela de cadastro quando a pessoa chegou por um link de convite de grupo
+  (function mostrarAvisoConviteNoCadastro() {
+    try {
+      if (localStorage.getItem('atomoConviteClube') || localStorage.getItem('atomoConviteComunidade')) {
+        const aviso = document.getElementById('conviteAuthAviso');
+        if (aviso) aviso.style.display = 'block';
+      }
+    } catch (e) { /* sem storage: sem aviso */ }
   })();
 
   // ---------- paleta de icones (thin-line, com flutuacao lenta) ----------
@@ -8059,6 +8070,10 @@ window.trocarModoDescobrir = function (modo) {
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (!sessionData.session) return; // ainda não logou — deixa guardado pra tentar de novo depois
+    // cadastro/perguntas de boas-vindas ainda na tela: espera terminar, depois leva pro grupo
+    // (quem chama de novo é o fim do onboarding ou a entrada de quem já tinha tudo configurado)
+    const onboardEl = document.getElementById('onboardOverlay');
+    if (onboardEl && !onboardEl.classList.contains('hide')) return;
 
     localStorage.removeItem('atomoConviteComunidade');
     showScreen2('livros');
@@ -8493,6 +8508,10 @@ window.trocarModoDescobrir = function (modo) {
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (!sessionData.session) return; // ainda não logou — deixa guardado pra tentar de novo depois
+    // cadastro/perguntas de boas-vindas ainda na tela: espera terminar, depois leva pro grupo
+    // (quem chama de novo é o fim do onboarding ou a entrada de quem já tinha tudo configurado)
+    const onboardEl = document.getElementById('onboardOverlay');
+    if (onboardEl && !onboardEl.classList.contains('hide')) return;
 
     localStorage.removeItem('atomoConviteClube');
     showScreen2('livros');
@@ -12562,6 +12581,8 @@ supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
       avancarOnboard(2);
     } else {
       document.getElementById('onboardOverlay').classList.add('hide');
+      // quem já tinha conta e chegou por convite: leva pro grupo agora que a tela de entrada saiu
+      setTimeout(() => { verificarConviteClubePendente(); verificarConviteComunidadePendente(); }, 800);
     }
 
     if (perfil) {
@@ -12866,6 +12887,9 @@ window.loginComGoogle = async function () {
     // pede permissão de notificação externa já no cadastro, como combinado
     // (via banner com botão, pra não ser bloqueado silenciosamente pelo navegador)
     setTimeout(() => mostrarBannerNotificacao(), 1200);
+
+    // veio por convite de grupo? cadastro e perguntas já foram, agora leva ela até lá
+    setTimeout(() => { verificarConviteClubePendente(); verificarConviteComunidadePendente(); }, 1800);
   };
 
   // ---------- clima real do dia, mostrado no topo da tela de escrever ----------
