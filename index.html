@@ -348,6 +348,26 @@
     font-size: 18px; background: var(--accent-a); position: relative; }
   .ref-thumb .play-badge { position: absolute; inset: 0; background: rgba(0,0,0,0.25); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
   .ref-info { flex: 1; min-width: 0; }
+  /* ---------- prévias que tocam sozinhas (mudas) quando o card aparece na tela ---------- */
+  .auto-previa { position: relative; margin-top: 10px; border-radius: 14px; overflow: hidden; background: var(--accent-soft);
+    border: 1px solid var(--card-b); cursor: pointer; display: block; }
+  .auto-previa[data-tipo="Filme"] { aspect-ratio: 16 / 9; }
+  .auto-previa:not([data-tipo="Filme"]) { height: 40px; }
+  .auto-previa:empty::before { content: '▶ prévia'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 12.5px; font-weight: 700; color: var(--ink-dim); }
+  .auto-previa iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+  .auto-previa-toque { position: absolute; inset: 0; }
+  .auto-previa .som { position: absolute; right: 8px; bottom: 6px; background: rgba(0,0,0,.45); color: #fff; border-radius: 999px;
+    padding: 2px 8px; font-size: 12px; line-height: 1.4; pointer-events: none; }
+  .auto-previa.audio { display: flex; align-items: center; gap: 10px; padding: 0 12px; }
+  .auto-previa.audio .som { position: static; background: none; color: var(--ink-dim); padding: 0; }
+  .auto-previa .eq { display: flex; gap: 2px; align-items: flex-end; height: 16px; flex: none; }
+  .auto-previa .eq i { width: 3px; height: 30%; background: var(--accent-a); border-radius: 2px; animation: previaEq .9s ease-in-out infinite; }
+  .auto-previa .eq i:nth-child(2) { animation-delay: .2s; } .auto-previa .eq i:nth-child(3) { animation-delay: .4s; } .auto-previa .eq i:nth-child(4) { animation-delay: .1s; }
+  @keyframes previaEq { 0%, 100% { height: 30%; } 50% { height: 100%; } }
+  .auto-previa .trilha { flex: 1; height: 3px; border-radius: 3px; overflow: hidden; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+  .auto-previa .trilha .fill { height: 100%; width: 0; background: var(--accent-a); }
+  @media (prefers-reduced-motion: reduce) { .auto-previa .eq i { animation: none; height: 60%; } }
   .ref-info .rt { font-size: 12.5px; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ref-info .ra { font-size: 11px; color: var(--ink-dim); }
   .ref-info .rc { font-size: 11px; color: var(--ink-dim); font-style: italic; margin-top: 3px; line-height: 1.4; }
@@ -3049,7 +3069,7 @@
     <!-- POP-UP: TRAILER -->
 <div class="write-popup-bg" id="trailerPopupBg">
   <div class="write-popup" style="position:relative; padding-bottom:0;">
-    <button class="write-popup-close" onclick="document.getElementById('trailerPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+    <button class="write-popup-close" onclick="fecharTrailerPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     <div class="write-popup-head"><span class="pe">🎬</span><span class="write-popup-title" id="trailerPopupTituloTexto">Prévia</span></div>
     <div id="trailerCorpo"></div>
   </div>
@@ -3952,7 +3972,10 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
           ${ref.autor ? `<div class="ra">${ref.autor}</div>` : ''}
           ${ref.citacao ? `<div class="rc">"${ref.citacao}"</div>` : ''}
         </div>
-      </div>`;
+      </div>
+      ${(ref.trailer || (ref.tipo === 'Filme' && ref.filmeId)) && ['Filme', 'Música', 'Podcast'].includes(ref.tipo)
+        ? `<div class="auto-previa" data-auto-previa data-tipo="${ref.tipo}" ${ref.trailer ? `data-url="${ref.trailer}"` : ''} ${ref.filmeId ? `data-filme="${ref.filmeId}"` : ''} onclick="cliquePreviaAuto(this)"></div>`
+        : ''}`;
   }
 
   let modoFeedAtivo = 'interesse';
@@ -3996,7 +4019,7 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         ${modoFeedAtivo === 'interesse' && relevante ? '<div class="post-relevante-tag">✨ do seu interesse</div><br>' : ''}
         <div class="post-body">${formatarMencoesEVideo(p.texto)}</div>
         ${p.imagem_url ? `<img src="${p.imagem_url}" class="post-foto-fixa" loading="lazy" />` : ''}
-        ${p.video_url ? `<video src="${p.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block; background:#000;"></video>` : ''}
+        ${p.video_url ? `<video src="${p.video_url}" data-auto-video muted loop playsinline preload="metadata" style="width:100%; border-radius:12px; margin-top:8px; display:block; background:#000;"></video>` : ''}
         ${renderRefCard(p.ref)}
         <div class="post-actions">
           <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
@@ -4047,7 +4070,9 @@ if (tipo === 'Podcast' && podcastIdEscolhido) {
         ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin:8px 0; display:block;">` : ''}
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
-        ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewPreenchimentoFeed(${i})">▶ prévia</div>` : ''}
+        ${d.filmeId || d.previewUrl || d.collectionId
+          ? `<div class="auto-previa" data-auto-previa data-tipo="${d.filmeId ? 'Filme' : d.previewUrl ? 'Música' : 'Podcast'}" ${d.previewUrl ? `data-url="${d.previewUrl}"` : ''} ${d.filmeId ? `data-filme="${d.filmeId}"` : ''} ${d.collectionId && !d.filmeId && !d.previewUrl ? `data-podcast="${d.collectionId}"` : ''} onclick="cliquePreviaAuto(this)"></div>`
+          : ''}
         <div class="post-actions" style="margin-top:10px;">
           <div class="post-action" onclick="comentarPreenchimentoFeed(${i})">${icone('comentar',14,i)}</div>
           <div class="post-action" onclick="compartilharPreenchimentoFeed(${i})">${icone('compartilhar',14,i)}</div>
@@ -4533,7 +4558,7 @@ if (p.autor_id !== sessionData.session.user.id) {
     const ehPolaroidGratidao = e.tipo === 'Gratidão do dia' && e.imagem_url;
     const corpoHtml = ehPolaroidGratidao
       ? `<div class="polaroid-card polaroid-card-diario"><div class="polaroid-foto"><img src="${e.imagem_url}" /></div><div class="polaroid-legenda-display">${formatarMencoes(e.texto)}</div></div>`
-      : `<div class="body">${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" class="post-foto-fixa" loading="lazy" style="filter: sepia(.28) saturate(1.2) contrast(1.05) brightness(1.03);" />` : ''}${e.video_url ? `<video src="${e.video_url}" controls style="width:100%; border-radius:12px; margin-top:8px; display:block;"></video>` : ''}`;
+      : `<div class="body">${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" class="post-foto-fixa" loading="lazy" style="filter: sepia(.28) saturate(1.2) contrast(1.05) brightness(1.03);" />` : ''}${e.video_url ? `<video src="${e.video_url}" data-auto-video muted loop playsinline preload="metadata" style="width:100%; border-radius:12px; margin-top:8px; display:block;"></video>` : ''}`;
     return `
     <div class="diary-entry${e.fixado ? ' fixado' : ''}">
       <div class="tag">${e.fixado ? icone('fixar',10) + ' ' : ''}${diaryTabAtiva === 'privado' ? icone('cadeado',10) + ' Só eu · ' : ''}${e.tipo}</div>
@@ -4805,6 +4830,138 @@ if (p.autor_id !== sessionData.session.user.id) {
     }
     return '';
   };
+
+  // ---------- prévias (filme, música, podcast e vídeo de post) tocam sozinhas, mudas, quando aparecem na tela ----------
+  // regras: só uma prévia de cada vez (a mais visível), sempre começa muda (o navegador só
+  // libera autoplay assim), toque no card liga/desliga o som, para ao sair da tela / da aba
+  // e respeita o "economizar dados" do celular
+  const CACHE_URL_PREVIA = new Map();
+  let previaAutoAtiva = null;
+  const previasVisiveis = new Map();
+  const economizandoDados = () => !!(navigator.connection && navigator.connection.saveData);
+
+  window.pararPreviaAuto = function () {
+    if (!previaAutoAtiva) return;
+    const { el, audio } = previaAutoAtiva;
+    if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); }
+    el.innerHTML = '';
+    el.classList.remove('audio');
+    delete el.dataset.mudo;
+    previaAutoAtiva = null;
+  };
+
+  async function urlPreviaAuto(el) {
+    if (el.dataset.url) return el.dataset.url;
+    const chave = el.dataset.filme ? 'f' + el.dataset.filme : el.dataset.podcast ? 'p' + el.dataset.podcast : null;
+    if (!chave) return null;
+    if (CACHE_URL_PREVIA.has(chave)) return CACHE_URL_PREVIA.get(chave);
+    const rota = el.dataset.filme ? 'filme-trailer?id=' + el.dataset.filme : 'podcast-episodio?id=' + el.dataset.podcast;
+    let url = null;
+    try { const r = await fetch(API_BASE + '/api/' + rota); const d = await r.json(); url = d.url || null; } catch (e) { /* sem prévia */ }
+    CACHE_URL_PREVIA.set(chave, url);
+    return url;
+  }
+
+  async function tocarPreviaAuto(el) {
+    if (previaAutoAtiva && previaAutoAtiva.el === el) return;
+    if (economizandoDados() || document.hidden) return;
+    window.pararPreviaAuto();
+    const ficha = { el };
+    previaAutoAtiva = ficha;
+    const url = await urlPreviaAuto(el);
+    if (previaAutoAtiva !== ficha) return; // saiu da tela enquanto buscava
+    if (!url) { previaAutoAtiva = null; return; }
+    const tipo = el.dataset.tipo;
+    if (tipo === 'Música' || tipo === 'Podcast') {
+      el.classList.add('audio');
+      el.innerHTML = '<div class="eq"><i></i><i></i><i></i><i></i></div><div class="trilha"><div class="fill"></div></div><span class="som">🔇</span>';
+      const audio = new Audio(url);
+      audio.muted = true; audio.loop = true; audio.preload = 'auto';
+      audio.ontimeupdate = () => {
+        const fill = el.querySelector('.fill');
+        if (fill && audio.duration) fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      };
+      ficha.audio = audio;
+      audio.play().catch(() => {});
+    } else {
+      const id = (url.split('v=')[1] || '').split('&')[0];
+      if (!id) { previaAutoAtiva = null; return; }
+      el.dataset.mudo = '1';
+      el.innerHTML = '<iframe src="https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + id + '&enablejsapi=1" allow="autoplay; encrypted-media" tabindex="-1"></iframe><div class="auto-previa-toque"></div><span class="som">🔇</span>';
+    }
+  }
+
+  // toque no card: se já está tocando, liga/desliga o som; se não, abre o pop-up de sempre
+  window.cliquePreviaAuto = function (el) {
+    if (previaAutoAtiva && previaAutoAtiva.el === el) {
+      const som = el.querySelector('.som');
+      if (previaAutoAtiva.audio) {
+        const a = previaAutoAtiva.audio;
+        a.muted = !a.muted;
+        if (som) som.textContent = a.muted ? '🔇' : '🔊';
+      } else {
+        const iframe = el.querySelector('iframe');
+        const estavaMudo = el.dataset.mudo !== '0';
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: estavaMudo ? 'unMute' : 'mute', args: [] }), '*');
+        }
+        el.dataset.mudo = estavaMudo ? '0' : '1';
+        if (som) som.textContent = estavaMudo ? '🔊' : '🔇';
+      }
+      return;
+    }
+    urlPreviaAuto(el).then(u => {
+      if (u) { window.pararPreviaAuto(); abrirTrailerPopup(u, el.dataset.tipo); }
+      else mostrarToast('😕 sem prévia disponível');
+    });
+  };
+
+  function escolherPreviaMaisVisivel() {
+    let melhor = null, maior = 0;
+    previasVisiveis.forEach((ratio, el) => {
+      if (!el.isConnected) { previasVisiveis.delete(el); return; }
+      if (ratio > maior) { maior = ratio; melhor = el; }
+    });
+    if (melhor) tocarPreviaAuto(melhor); else window.pararPreviaAuto();
+  }
+
+  const observadorPrevias = new IntersectionObserver((entradas) => {
+    entradas.forEach(en => {
+      if (en.isIntersecting && en.intersectionRatio >= 0.6) previasVisiveis.set(en.target, en.intersectionRatio);
+      else previasVisiveis.delete(en.target);
+    });
+    escolherPreviaMaisVisivel();
+  }, { threshold: [0, 0.6, 0.8, 1] });
+
+  // vídeos enviados nos posts: tocam mudos em loop enquanto aparecem, pausam ao sair
+  const observadorVideoPost = new IntersectionObserver((entradas) => {
+    entradas.forEach(en => {
+      const v = en.target;
+      if (en.isIntersecting && !economizandoDados()) v.play().catch(() => {});
+      else v.pause();
+    });
+  }, { threshold: 0.55 });
+
+  document.addEventListener('click', (ev) => {
+    const v = ev.target.closest && ev.target.closest('video[data-auto-video]');
+    if (!v) return;
+    v.muted = !v.muted;
+    mostrarToast(v.muted ? '🔇 sem som' : '🔊 com som');
+  });
+
+  document.addEventListener('visibilitychange', () => { if (document.hidden) window.pararPreviaAuto(); });
+
+  function registrarPreviasAuto() {
+    document.querySelectorAll('[data-auto-previa]:not([data-obs])').forEach(el => { el.dataset.obs = '1'; observadorPrevias.observe(el); });
+    document.querySelectorAll('video[data-auto-video]:not([data-obs])').forEach(v => { v.dataset.obs = '1'; observadorVideoPost.observe(v); });
+  }
+  let registroAgendado = false;
+  new MutationObserver(() => {
+    if (registroAgendado) return;
+    registroAgendado = true;
+    requestAnimationFrame(() => { registroAgendado = false; registrarPreviasAuto(); });
+  }).observe(document.body, { childList: true, subtree: true });
+  registrarPreviasAuto();
 
   // ---------- autoplay do embed de video só quando o post passa pela tela ----------
   // (exige mudo: navegador só deixa autoplay sem gesto do usuario se comecar mudo)
@@ -6708,7 +6865,13 @@ window.buscarPreviaFilmePost = async function (filmeId, tipo) {
   }
 };
 
+window.fecharTrailerPopup = function () {
+  document.getElementById('trailerPopupBg').classList.remove('show');
+  document.getElementById('trailerCorpo').innerHTML = ''; // tira o player da tela: para o áudio/vídeo
+};
+
 window.abrirTrailerPopup = function (url, tipo) {
+  if (window.pararPreviaAuto) window.pararPreviaAuto();
   document.getElementById('trailerPopupTituloTexto').textContent = 'Prévia';
   const corpo = document.getElementById('trailerCorpo');
   if (tipo === 'Música' || tipo === 'Podcast') {
@@ -10382,7 +10545,9 @@ function cardDescobrirHtml(d, i) {
         ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="" loading="lazy" style="width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin:8px 0; display:block;">` : ''}
         <div class="discover-title">${d.title}</div>
         <div class="discover-desc">${d.desc}</div>
-        ${d.filmeId ? `<div class="post-action" style="margin-top:8px; cursor:pointer;" onclick="tocarPreviewDescobrir(${i})">▶ prévia</div>` : ''}
+        ${d.filmeId || d.previewUrl || d.collectionId
+          ? `<div class="auto-previa" data-auto-previa data-tipo="${d.filmeId ? 'Filme' : d.previewUrl ? 'Música' : 'Podcast'}" ${d.previewUrl ? `data-url="${d.previewUrl}"` : ''} ${d.filmeId ? `data-filme="${d.filmeId}"` : ''} ${d.collectionId && !d.filmeId && !d.previewUrl ? `data-podcast="${d.collectionId}"` : ''} onclick="cliquePreviaAuto(this)"></div>`
+          : ''}
             <div class="post-actions" style="margin-top:10px;">
           <div class="post-action" onclick="comentarItemDescobrir(${i})">${icone('comentar',14,i)}</div>
           <div class="post-action" onclick="compartilharItemDescobrir(${i})">${icone('compartilhar',14,i)}</div>
