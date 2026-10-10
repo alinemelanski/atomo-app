@@ -1083,6 +1083,16 @@
   .comunidade-capa-picker img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .comunidade-capa-picker-vazio { display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;
     font-size: 12.5px; font-weight: 700; }
+  /* foto de quem está no grupo, com um + pra seguir na hora (networking em clube do livro / comunidades) */
+  .avatar-seguir { position: relative; display: inline-flex; flex: none; vertical-align: middle; }
+  .avatar-seguir-foto { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 10px; overflow: hidden; }
+  .avatar-seguir-mais { position: absolute; right: -4px; bottom: -4px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--card);
+    background: var(--accent-a); color: #fff; font-size: 12px; line-height: 1; font-weight: 800; padding: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: transform .15s, background .25s; }
+  .avatar-seguir-mais::after { content: ''; position: absolute; inset: -10px; }
+  .avatar-seguir-mais:active { transform: scale(.90); }
+  .avatar-seguir-mais.ok { background: var(--accent-b); font-size: 9px; }
   .comunidade-membro-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px;
     border-bottom: 1px solid var(--card-b); }
   .comunidade-membro-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
@@ -7850,6 +7860,7 @@ window.trocarModoDescobrir = function (modo) {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     const meuId = sessionData.session ? sessionData.session.user.id : null;
 
+    await window.carregarSeguindoIds();
     const { data: c } = await supabaseClient.from('comunidades_estudo').select('criador_id').eq('id', comunidadeEstudoAtualId).single();
 
     const { data: membros, error } = await supabaseClient
@@ -7869,7 +7880,7 @@ window.trocarModoDescobrir = function (modo) {
       const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
       return `
         <div class="comunidade-membro-row">
-          <div class="comunidade-membro-avatar" style="background:${cor}">${iniciaisNome(handle)}</div>
+          ${avatarSeguirHtml(m.usuario_id, m.usuarios && m.usuarios.avatar_url, handle, 36, cor)}
           <div style="flex:1; min-width:0;">
             <div class="comunidade-membro-handle">@${handle}${ehEu ? ' (você)' : ''}</div>
             <div class="comunidade-membro-papel">${ehCriador ? 'criador' : (m.papel === 'admin' ? 'admin' : 'membro')}</div>
@@ -8167,6 +8178,7 @@ window.trocarModoDescobrir = function (modo) {
     // decidir se a bolha é "minha" ou "de outra pessoa" (o mural da
     // comunidade de estudo usa o mesmo componente de bolha do clube)
     muralClubeMeuId = sessionData.session ? sessionData.session.user.id : null;
+    await window.carregarSeguindoIds();
 
     const { data, error } = await supabaseClient
       .from('posts')
@@ -8839,6 +8851,46 @@ window.trocarModoDescobrir = function (modo) {
     return soma % 6;
   }
 
+  // ---------- seguir direto do grupo: + na foto de quem ainda não sigo ----------
+  window.SEGUINDO_IDS = new Set();
+  window.carregarSeguindoIds = async function () {
+    const { data: s } = await supabaseClient.auth.getSession();
+    if (!s.session) return;
+    const { data } = await supabaseClient.from('seguidores').select('seguido_id').eq('seguidor_id', s.session.user.id);
+    window.SEGUINDO_IDS = new Set((data || []).map(r => r.seguido_id));
+  };
+
+  window.avatarSeguirHtml = function (userId, avatarUrl, handle, tam, fundoFallback) {
+    const iniciais = String(handle || '?').replace('@', '').slice(0, 2).toUpperCase();
+    const mostrarMais = !!userId && userId !== window.MEU_USUARIO_ID && !window.SEGUINDO_IDS.has(userId);
+    let estilo = '';
+    if (avatarUrl) estilo = "background-image:url('" + avatarUrl + "');background-size:cover;background-position:center;color:transparent;";
+    else if (fundoFallback) estilo = 'background:' + fundoFallback + ';color:#fff;';
+    return '<span class="avatar-seguir" data-uid="' + userId + '" style="width:' + tam + 'px;height:' + tam + 'px;">'
+      + '<span class="avatar-seguir-foto" style="' + estilo + (tam >= 30 ? 'font-size:12px;' : '') + '">' + (avatarUrl ? '' : iniciais) + '</span>'
+      + (mostrarMais ? '<button class="avatar-seguir-mais" aria-label="seguir @' + handle + '" onclick="event.stopPropagation(); seguirDoGrupo(\'' + userId + '\', this)">+</button>' : '')
+      + '</span>';
+  };
+
+  window.seguirDoGrupo = async function (id, btn) {
+    if (navigator.vibrate) navigator.vibrate(10);
+    btn.classList.add('ok'); btn.textContent = '✓';
+    const { data: s } = await supabaseClient.auth.getSession();
+    if (!s.session) return;
+    const meuId = s.session.user.id;
+    const { error } = await supabaseClient.from('seguidores').insert({ seguidor_id: meuId, seguido_id: id });
+    if (error) { btn.classList.remove('ok'); btn.textContent = '+'; mostrarToast('❌ erro: ' + error.message); return; }
+    window.SEGUINDO_IDS.add(id);
+    mostrarToast('💛 Agora você segue essa pessoa');
+    notificarNovoSeguidor(id, meuId);
+    // o + some de todas as fotos dessa pessoa que estiverem na tela
+    document.querySelectorAll('.avatar-seguir[data-uid="' + id + '"] .avatar-seguir-mais').forEach(b => {
+      b.classList.add('ok'); b.textContent = '✓';
+      setTimeout(() => b.remove(), 900);
+    });
+    if (typeof carregarAmigosEsugestoes === 'function') carregarAmigosEsugestoes();
+  };
+
   function postClubeHtml(p) {
     const handle = p.usuarios ? p.usuarios.handle : 'alguem';
     const corpo = (p.texto || '').replace(/</g, '&lt;');
@@ -8853,7 +8905,7 @@ window.trocarModoDescobrir = function (modo) {
       : audio + imagem + corpo;
     return `
       <div class="clube-msg-row ${ehOwn ? 'own' : 'other'}">
-        ${!ehOwn ? `<div class="clube-msg-autor cor-${corIdx}">@${handle}</div>` : ''}
+        ${!ehOwn ? `<div class="clube-msg-autor cor-${corIdx}" style="display:flex; align-items:center; gap:7px;">${avatarSeguirHtml(p.autor_id, p.usuarios && p.usuarios.avatar_url, handle, 24)}<span>@${handle}</span></div>` : ''}
         <div class="clube-msg-bolha${!ehOwn ? ' cor-' + corIdx : ''}"${temSoMidia && p.imagem_url ? ' style="padding:4px;"' : ''}>${conteudo}</div>
         <div class="clube-msg-meta">${formatarTempoRelativo(p.criado_em)}${p.capitulo_livro ? ` · ${p.capitulo_livro}` : ''}</div>
       </div>`;
@@ -8880,6 +8932,7 @@ window.trocarModoDescobrir = function (modo) {
     wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
     const { data: sessionData } = await supabaseClient.auth.getSession();
     muralClubeMeuId = sessionData.session ? sessionData.session.user.id : null;
+    await window.carregarSeguindoIds();
     const { data, error } = await supabaseClient
       .from('posts')
       .select('*, usuarios(handle, avatar_url)')
