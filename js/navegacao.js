@@ -12,6 +12,8 @@ window.showScreen2 = function (id) {
   if (id === 'mensagens') {
     abrirTelaMensagens();
   }
+  // voltou pra Home: o card "Seu dia" se atualiza (e vira de dia sozinho à meia-noite)
+  if (id === 'perfil' && !jaEstavaNessaAba) atualizarResumoDiaDepois();
 
   // tocar de novo na aba Feed enquanto já tá nela = atualiza, igual outros apps
   if (id === 'descobrir' && jaEstavaNessaAba) {

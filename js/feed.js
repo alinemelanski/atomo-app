@@ -323,6 +323,7 @@ renderTypeChipsDiario();
 mostrarToast('🔒 Guardado só pra você');
 renderDiary();
 carregarPostsReais();
+atualizarResumoDiaDepois();
 };
 
 let arquivoFotoComposerExplorar = null;

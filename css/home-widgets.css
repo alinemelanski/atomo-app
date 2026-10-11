@@ -54,6 +54,18 @@
   .home-resumo-stat { display: flex; align-items: center; gap: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px;
     font-weight: 800; color: var(--accent-a); background: var(--accent-soft); padding: 5px 10px 5px 8px; border-radius: 999px; }
   .home-resumo-elogio { font-size: 12.5px; font-style: italic; color: var(--accent-a); margin: 0 0 8px; line-height: 1.5; }
+  .home-resumo-stats { margin-top: 10px; margin-bottom: 8px; }
+  .home-resumo-rotulo { font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 2px; }
+  .home-resumo-titulo { font-size: 17px; font-weight: 800; line-height: 1.25; color: var(--ink); margin-bottom: 12px; text-wrap: balance; }
+  .home-resumo-barra { display: flex; gap: 3px; height: 10px; border-radius: 999px; overflow: hidden; }
+  .home-resumo-barra-seg { display: block; min-width: 8px; border-radius: 999px; transition: flex .4s ease; }
+  .home-resumo-legenda { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 7px 0 12px; }
+  .home-resumo-leg { display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; font-size: 11px;
+    font-weight: 700; color: var(--ink-soft, var(--ink)); }
+  .home-resumo-leg i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .home-resumo-destaque { margin: 10px 0 0; padding: 4px 0 4px 12px; border-left: 3px solid var(--accent-a); font-size: 13px;
+    font-style: italic; line-height: 1.5; color: var(--ink); opacity: .85; }
 
   /* ---------- pressionar e segurar pra reorganizar os blocos da Home (estilo tela inicial do iPhone) ---------- */
   .home-organizavel { position: relative; }

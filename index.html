@@ -442,11 +442,18 @@
       </div>
 
       <div class="home-resumo-wrap" id="homeResumoWrap" style="display:none;">
-        <div class="home-quick-titulo-row"><div class="home-section-titulo"><span class="icon-svg" style="width:15px;height:15px;vertical-align:-2px;margin-right:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.7 19.2V12.6"/><path d="M11.6 19.2V4.8"/><path d="M18.5 19.2v-8.6"/></svg></span>Resumo do dia</div></div>
+        <div class="home-quick-titulo-row"><div class="home-section-titulo"><span class="icon-svg" style="width:15px;height:15px;vertical-align:-2px;margin-right:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.7 19.2V12.6"/><path d="M11.6 19.2V4.8"/><path d="M18.5 19.2v-8.6"/></svg></span>Seu dia</div></div>
         <div class="home-resumo-card">
+          <div class="home-resumo-rotulo" id="resumoDiaRotulo"></div>
+          <div class="home-resumo-titulo" id="resumoDiaTitulo"></div>
+          <div id="resumoDiaBarraWrap">
+            <div class="home-resumo-barra" id="resumoDiaBarra"></div>
+            <div class="home-resumo-legenda" id="resumoDiaBarraLegenda"></div>
+          </div>
+          <div class="home-resumo-texto" id="resumoDiaTexto"></div>
+          <div class="home-resumo-destaque" id="resumoDiaDestaque" style="display:none;"></div>
           <div class="home-resumo-stats" id="resumoDiaStats"></div>
           <div class="home-resumo-elogio" id="resumoDiaElogio" style="display:none;"></div>
-          <div class="home-resumo-texto" id="resumoDiaTexto"></div>
           <div style="display:flex; gap:10px; margin-top:12px; justify-content:center;">
             <button class="resumo-acao-btn dispensar" onclick="dispensarResumoDia()">dispensar</button>
             <button class="resumo-acao-btn compartilhar" onclick="compartilharResumoDia()">compartilhar</button>

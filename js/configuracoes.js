@@ -1,4 +1,4 @@
-/* js/configuracoes.js — Configurações: Match, resumo do dia, ícone de streak, ordem dos tipos, modo escuro
+/* js/configuracoes.js — Configurações: Match, seu dia (resumo), ícone de streak, ordem dos tipos, modo escuro
    Script comum (sem módulo): divide o escopo global com os outros arquivos de js/.
    A ordem dos <script> no index.html importa. */
 
@@ -28,114 +28,152 @@ meuGenero = (meuGenero === g) ? null : g;
 renderGeneroGrid();
 };
 
-// ---------- resumo do dia (gerado pelo servidor, so le/dispensa/compartilha aqui) ----------
-async function carregarResumoDia() {
-const { data: sessionData } = await supabaseClient.auth.getSession();
-if (!sessionData || !sessionData.session) return;
-const meuId = sessionData.session.user.id;
-const [{ data: resumo }, livrosResp] = await Promise.all([
-  supabaseClient.from('resumos_dia').select('*').eq('usuario_id', meuId).order('criado_em', { ascending: false }).limit(1).maybeSingle(),
-  supabaseClient.from('estante_pessoal').select('id', { count: 'exact', head: true }).eq('usuario_id', meuId).not('finalizado_em', 'is', null),
-]);
-const wrap = document.getElementById('homeResumoWrap');
-if (!resumo || resumo.dispensado) { wrap.style.display = 'none'; return; }
-const idadeHoras = (Date.now() - new Date(resumo.criado_em).getTime()) / 3600000;
-if (idadeHoras > 24) { wrap.style.display = 'none'; return; }
-document.getElementById('resumoDiaTexto').textContent = resumo.texto;
-
-const elElogio = document.getElementById('resumoDiaElogio');
-if (resumo.elogio) { elElogio.textContent = '✨ ' + resumo.elogio; elElogio.style.display = ''; }
-else { elElogio.style.display = 'none'; }
-
-const livrosLidos = livrosResp.count || 0;
-const stats = [
-  { n: streakAtual, l: streakAtual === 1 ? 'dia seguido' : 'dias seguidos', ic: 'fogo' },
-  { n: livrosLidos, l: livrosLidos === 1 ? 'livro lido' : 'livros lidos', ic: 'livro' },
-];
-document.getElementById('resumoDiaStats').innerHTML = stats.map(s => `<div class="home-resumo-stat">${icone(s.ic, 12)} ${s.n} ${s.l}</div>`).join('');
-
-window.RESUMO_DIA_ID_ATUAL = resumo.id;
-wrap.style.display = '';
-}
-
-window.dispensarResumoDia = async function () {
-document.getElementById('homeResumoWrap').style.display = 'none';
-if (window.RESUMO_DIA_ID_ATUAL) {
-  await supabaseClient.from('resumos_dia').update({ dispensado: true }).eq('id', window.RESUMO_DIA_ID_ATUAL);
-}
+// ---------- seu dia (montado aqui no aparelho, na hora, com o que a pessoa fez hoje) ----------
+// Não depende de servidor, agendador nem IA: junta os toques de humor, o que foi escrito, a leitura
+// e a sequência de hoje num cartão com título, barra de humor, texto e uma dica pro fim do dia.
+const SUBSTANTIVO_HUMOR = { feliz: 'alegria', calma: 'calma', triste: 'tristeza', ansiosa: 'ansiedade', brava: 'raiva' };
+const TITULOS_DIA = {
+  feliz: ['Um dia de brilho', 'Hoje teve leveza', 'Dia bom de guardar'],
+  calma: ['Um dia sereno', 'Hoje foi de respirar fundo', 'Um dia de ritmo calmo'],
+  triste: ['Um dia mais pesado', 'Hoje pediu delicadeza', 'Dia de sentir devagar'],
+  ansiosa: ['Um dia de mente acelerada', 'Hoje a cabeça correu', 'Dia de muitas voltas por dentro'],
+  brava: ['Um dia de faíscas', 'Hoje teve intensidade', 'Dia de sentimento forte'],
+  misto: ['Um dia de várias estações', 'Hoje teve de tudo um pouco'],
+  escrita: ['Seu dia em palavras', 'Hoje você escreveu'],
+};
+const DICAS_DIA = {
+  feliz: ['Guarde esse momento: escreva em uma linha o que fez o dia bom.', 'Conte a alguém o que te deixou bem hoje. Alegria dividida rende mais.', 'Anote o que ajudou o dia a ser bom, assim dá pra repetir amanhã.'],
+  calma: ['Aproveite o embalo: dez minutos de leitura antes de dormir fecham bem o dia.', 'Repare no que trouxe essa calma hoje e deixe anotado.', 'Dia calmo é bom pra planejar o amanhã com leveza. Escolha uma coisa só.'],
+  triste: ['Beba água, abra a janela e, se der, dê uma volta curta. O corpo ajuda a cabeça.', 'Escrever sobre o que pesou, mesmo em poucas linhas, costuma aliviar.', 'Hoje o mínimo já basta. Descansar também conta.'],
+  ansiosa: ['Respire em quatro tempos: inspire contando 4, segure 4, solte contando 6. Repita cinco vezes.', 'Escreva as três coisas que mais ocupam a cabeça e escolha só uma pra amanhã.', 'Alongue pescoço e ombros por um minuto antes de dormir.'],
+  brava: ['Escreva sem filtro o que irritou e depois feche o caderno. Sai da cabeça pro papel.', 'Uma caminhada curta ajuda a soltar a tensão do corpo.', 'Água fria no rosto e três respirações lentas ajudam a baixar a temperatura.'],
+  misto: ['Dia cheio de emoções pede um fim de noite simples: luz baixa e alguns minutos sem tela.'],
+  escrita: ['Releia o que escreveu hoje. Costuma mostrar o que realmente importou.'],
 };
 
-window.compartilharResumoDia = async function () {
-const texto = document.getElementById('resumoDiaTexto').textContent;
-if (navigator.share) {
-  try { await navigator.share({ text: '📊 ' + texto }); return; } catch (e) { return; }
+// escolhe por rotação do dia (não por sorteio), pra não mudar de texto toda vez que o card recarrega
+function escolherDoDia(lista, deslocamento) {
+  const diaDoAno = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000);
+  return lista[(diaDoAno + (deslocamento || 0)) % lista.length];
 }
-try { await navigator.clipboard.writeText(texto); mostrarToast('📋 copiado! cola onde quiser'); }
-catch (e) { mostrarToast('não deu pra copiar dessa vez'); }
-};
 
-// monta a narrativa do resumo a partir dos toques de humor de hoje (mesma
-// lógica de gerarTextoResumo do servidor, só que aqui é pra testar na hora
-// pelo console, sem esperar a janela das 21h do cron)
-function gerarTextoResumoClient(eventos) {
-const NOMES = { feliz: 'feliz', calma: 'calma', triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
-const negativas = ['brava', 'ansiosa', 'triste'];
-const contagem = {};
-eventos.forEach((e) => { contagem[e.emocao] = (contagem[e.emocao] || 0) + 1; });
-const dominante = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0][0];
-
-const picos = [];
-let streakEmocao = null, streakInicio = null, streakCount = 0;
-eventos.forEach((e) => {
-  if (negativas.includes(e.emocao)) {
-    if (streakEmocao === e.emocao && (new Date(e.criado_em) - new Date(streakInicio)) <= 90 * 60 * 1000) {
-      streakCount++;
-    } else {
-      streakEmocao = e.emocao; streakInicio = e.criado_em; streakCount = 1;
-    }
-    if (streakCount === 2) picos.push({ emocao: e.emocao, hora: e.criado_em });
-  } else {
-    streakEmocao = null; streakCount = 0;
-  }
-});
-
-const formatarHora = (iso) => {
+function horaCurta(iso) {
   const d = new Date(iso);
   return String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
+}
+
+function limparTrecho(texto, max) {
+  const t = String(texto || '').replace(/\s+/g, ' ').trim();
+  return t.length > max ? t.slice(0, max).replace(/\s+\S*$/, '') + '…' : t;
+}
+
+// monta o conteúdo (puro: recebe dados, devolve título/texto/dica/contagens) — fácil de testar
+function montarResumoDoDia({ eventos, posts, leuHoje, hora }) {
+  const n = eventos.length;
+  const contagem = {};
+  eventos.forEach(e => { contagem[e.emocao] = (contagem[e.emocao] || 0) + 1; });
+  const ordenadas = Object.entries(contagem).sort((a, b) => b[1] - a[1]);
+  const dominante = ordenadas.length ? ordenadas[0][0] : null;
+  const misto = ordenadas.length >= 4 || (ordenadas.length >= 3 && ordenadas[0][1] / n < 0.45);
+
+  const chaveTitulo = !n ? 'escrita' : (misto ? 'misto' : dominante);
+  const titulo = escolherDoDia(TITULOS_DIA[chaveTitulo] || TITULOS_DIA.escrita, 0);
+  const dica = escolherDoDia(DICAS_DIA[chaveTitulo] || DICAS_DIA.escrita, 1);
+
+  const frases = [];
+  if (n === 1) {
+    frases.push(`Você registrou um momento hoje: ${SUBSTANTIVO_HUMOR[eventos[0].emocao]}, às ${horaCurta(eventos[0].criado_em)}.`);
+  } else if (n > 1 && ordenadas.length === 1) {
+    frases.push(`Você registrou ${n} momentos e todos de ${SUBSTANTIVO_HUMOR[dominante]}: esse foi o tom do dia.`);
+  } else if (n > 1) {
+    const primeiro = eventos[0], ultimo = eventos[n - 1];
+    frases.push(`Você registrou ${n} momentos. O dia começou com ${SUBSTANTIVO_HUMOR[primeiro.emocao]} (${horaCurta(primeiro.criado_em)}) e o último registro foi de ${SUBSTANTIVO_HUMOR[ultimo.emocao]} (${horaCurta(ultimo.criado_em)}).`);
+    // horário mais movimentado, se algum horário teve 2+ toques
+    const porHora = {};
+    eventos.forEach(e => { const h = new Date(e.criado_em).getHours(); (porHora[h] = porHora[h] || []).push(e); });
+    const pico = Object.entries(porHora).sort((a, b) => b[1].length - a[1].length)[0];
+    if (pico && pico[1].length >= 2) {
+      const emocoesPico = {};
+      pico[1].forEach(e => { emocoesPico[e.emocao] = (emocoesPico[e.emocao] || 0) + 1; });
+      const emocaoPico = Object.entries(emocoesPico).sort((a, b) => b[1] - a[1])[0][0];
+      frases.push(`Perto das ${String(pico[0]).padStart(2, '0')}h foi o momento mais movimentado, com ${SUBSTANTIVO_HUMOR[emocaoPico]}.`);
+    }
+    if (!misto) frases.push(`${SUBSTANTIVO_HUMOR[dominante][0].toUpperCase() + SUBSTANTIVO_HUMOR[dominante].slice(1)} foi o que mais apareceu.`);
+  }
+
+  let trechoDestaque = null;
+  if (posts.length) {
+    frases.push(`Você escreveu ${posts.length === 1 ? 'uma vez' : posts.length + ' vezes'} hoje.`);
+    const maior = posts.slice().sort((a, b) => String(b.texto || '').length - String(a.texto || '').length)[0];
+    if (maior && String(maior.texto || '').trim().length >= 12) trechoDestaque = limparTrecho(maior.texto, 90);
+  }
+  if (leuHoje) frases.push('E ainda passou pelos seus livros hoje.');
+
+  return { titulo, texto: frases.join(' '), dica, destaque: trechoDestaque, contagem: ordenadas, total: n, escritas: posts.length, saudacao: hora < 19 ? 'seu dia até agora' : 'seu dia' };
+}
+
+async function carregarResumoDia() {
+  const wrap = document.getElementById('homeResumoWrap');
+  if (!wrap) return;
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData || !sessionData.session) return;
+  const meuId = sessionData.session.user.id;
+
+  const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
+  const hojeISO = fmtDataISO(new Date());
+  try { if (localStorage.getItem('atomo_resumo_dispensado') === hojeISO) { wrap.style.display = 'none'; return; } } catch (e) { /* sem storage */ }
+
+  const [respEventos, respPosts, respLeitura] = await Promise.all([
+    supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', inicioHoje.toISOString()).order('criado_em', { ascending: true }),
+    supabaseClient.from('posts').select('texto, tipo, privado').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', inicioHoje.toISOString()),
+    supabaseClient.from('logs_leitura').select('data', { count: 'exact', head: true }).eq('usuario_id', meuId).eq('data', hojeISO),
+  ]);
+  const eventos = respEventos.data || [];
+  const posts = (respPosts.data || []).filter(p => String(p.texto || '').trim());
+  if (!eventos.length && !posts.length) { wrap.style.display = 'none'; return; }
+
+  const r = montarResumoDoDia({ eventos, posts, leuHoje: (respLeitura.count || 0) > 0, hora: new Date().getHours() });
+  window.RESUMO_DIA_ATUAL = r;
+
+  document.getElementById('resumoDiaRotulo').textContent = r.saudacao;
+  document.getElementById('resumoDiaTitulo').textContent = r.titulo;
+  document.getElementById('resumoDiaBarra').innerHTML = r.total
+    ? r.contagem.map(([emo, qtd]) => `<span class="home-resumo-barra-seg" style="flex:${qtd}; background:${HUMOR_CORES[emo] || 'var(--accent-a)'};" title="${SUBSTANTIVO_HUMOR[emo]}: ${qtd}"></span>`).join('')
+      + '' : '';
+  document.getElementById('resumoDiaBarraLegenda').innerHTML = r.total
+    ? r.contagem.map(([emo, qtd]) => `<span class="home-resumo-leg"><i style="background:${HUMOR_CORES[emo] || 'var(--accent-a)'};"></i>${SUBSTANTIVO_HUMOR[emo]} ${qtd}</span>`).join('')
+    : '';
+  document.getElementById('resumoDiaBarraWrap').style.display = r.total ? '' : 'none';
+
+  document.getElementById('resumoDiaTexto').textContent = r.texto;
+  const elDestaque = document.getElementById('resumoDiaDestaque');
+  if (r.destaque) { elDestaque.textContent = '“' + r.destaque + '”'; elDestaque.style.display = ''; } else { elDestaque.style.display = 'none'; }
+  document.getElementById('resumoDiaElogio').textContent = r.dica;
+  document.getElementById('resumoDiaElogio').style.display = '';
+
+  const stats = [];
+  if (r.total) stats.push({ n: r.total, l: r.total === 1 ? 'momento' : 'momentos', ic: 'sol' });
+  if (r.escritas) stats.push({ n: r.escritas, l: r.escritas === 1 ? 'escrita' : 'escritas', ic: 'editar' });
+  stats.push({ n: streakAtual, l: streakAtual === 1 ? 'dia seguido' : 'dias seguidos', ic: 'fogo' });
+  document.getElementById('resumoDiaStats').innerHTML = stats.map(s => `<div class="home-resumo-stat">${icone(s.ic, 12)} ${s.n} ${s.l}</div>`).join('');
+  wrap.style.display = '';
+}
+
+window.dispensarResumoDia = function () {
+  document.getElementById('homeResumoWrap').style.display = 'none';
+  try { localStorage.setItem('atomo_resumo_dispensado', fmtDataISO(new Date())); } catch (e) { /* sem storage */ }
 };
 
-const frases = [];
-frases.push(`seu dia começou registrando ${NOMES[eventos[0].emocao]} às ${formatarHora(eventos[0].criado_em)}.`);
-picos.slice(0, 2).forEach((p) => frases.push(`às ${formatarHora(p.hora)} você teve um pico de ${NOMES[p.emocao]}.`));
-if (!picos.length) frases.push(`você se manteve majoritariamente ${NOMES[dominante]} ao longo do dia.`);
-else frases.push(`no geral, ${NOMES[dominante]} foi o que mais apareceu.`);
-return frases.join(' ');
-}
-
-// função de teste - chame window.simularResumoDia() pelo console pra gerar o
-// resumo de hoje na hora, sem esperar a janela das 21h do cron do servidor
-// (precisa ter tocado em pelo menos 1 carinha de humor hoje)
-window.simularResumoDia = async function () {
-const { data: sessionData } = await supabaseClient.auth.getSession();
-if (!sessionData || !sessionData.session) return;
-const meuId = sessionData.session.user.id;
-const hojeStr = new Date().toISOString().slice(0, 10);
-const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
-
-const { data: eventos } = await supabaseClient.from('humor_eventos')
-  .select('emocao, criado_em').eq('usuario_id', meuId)
-  .gte('criado_em', inicioHoje.toISOString()).order('criado_em', { ascending: true });
-
-if (!eventos || !eventos.length) {
-  mostrarToast('toque em pelo menos uma carinha de humor hoje antes de simular');
-  return;
-}
-const texto = gerarTextoResumoClient(eventos);
-const { error } = await supabaseClient.from('resumos_dia')
-  .upsert({ usuario_id: meuId, data: hojeStr, texto, dispensado: false }, { onConflict: 'usuario_id,data' });
-if (error) { mostrarToast('❌ erro ao simular: ' + error.message); return; }
-mostrarToast('📊 resumo simulado!');
-carregarResumoDia();
+// o texto compartilhado leva título, resumo e dica — nunca o trecho do que foi escrito (pode ser diário privado)
+window.compartilharResumoDia = async function () {
+  const r = window.RESUMO_DIA_ATUAL;
+  if (!r) return;
+  const texto = `📊 ${r.titulo}\n${r.texto}\n\n${r.dica}\n\nAtomo · meu diário tem visitas.`;
+  if (navigator.share) {
+    try { await navigator.share({ text: texto }); return; } catch (e) { return; }
+  }
+  try { await navigator.clipboard.writeText(texto); mostrarToast('📋 copiado! cola onde quiser'); }
+  catch (e) { mostrarToast('não deu pra copiar dessa vez'); }
 };
 
 function renderMatchPrefGrid() {

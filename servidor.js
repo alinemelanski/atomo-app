@@ -583,122 +583,6 @@ const MENSAGENS_LEMBRETE_LEITURA = [
 const OFFSET_MANHA_MIN = 15; // "bom dia" chega 15min DEPOIS do horário de acordar de cada um
 const OFFSET_NOITE_MIN = 30; // "reflexão do dia" chega 30min ANTES do horário de dormir de cada um
 const JANELA_CRON_MIN = 6; // tolerância entre disparos do agendador externo
-const MIN_EVENTOS_PRO_RESUMO = 3; // dia com poucos toques de humor não rende resumo que preste
-
-// monta a narrativa do "resumo do dia" a partir dos toques de humor registrados
-// (humor_eventos), em ordem cronológica. Regra: 2+ toques da mesma emoção
-// negativa (brava/ansiosa/triste) dentro de 90min vira "pico"; senão, so aponta
-// a emoção que mais apareceu no dia.
-const ELOGIOS_RESUMO_PADRAO = [
-  'você apareceu pra você mesma hoje — isso já conta muito.',
-  'parar pra sentir o que sentiu hoje foi um cuidado com você mesma.',
-  'mais um dia em que você não se ignorou. bonito isso.',
-  'reparar nas próprias emoções é um exercício e você fez o seu hoje.',
-  'seguir registrando seus dias é um jeito gentil de se acompanhar.',
-];
-
-function gerarTextoResumo(eventos) {
-  if (!eventos || !eventos.length) return null;
-  const NOMES = { feliz: 'feliz', calma: 'calma', triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
-  const negativas = ['brava', 'ansiosa', 'triste'];
-
-  const contagem = {};
-  eventos.forEach((e) => { contagem[e.emocao] = (contagem[e.emocao] || 0) + 1; });
-  const dominante = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0][0];
-
-  const picos = [];
-  let streakEmocao = null, streakInicio = null, streakCount = 0;
-  eventos.forEach((e) => {
-    if (negativas.includes(e.emocao)) {
-      if (streakEmocao === e.emocao && (new Date(e.criado_em) - new Date(streakInicio)) <= 90 * 60 * 1000) {
-        streakCount++;
-      } else {
-        streakEmocao = e.emocao; streakInicio = e.criado_em; streakCount = 1;
-      }
-      if (streakCount === 2) picos.push({ emocao: e.emocao, hora: e.criado_em });
-    } else {
-      streakEmocao = null; streakCount = 0;
-    }
-  });
-
-  const formatarHora = (iso) => {
-    const d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    return String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
-  };
-
-  const frases = [];
-  frases.push(`seu dia começou registrando ${NOMES[eventos[0].emocao]} às ${formatarHora(eventos[0].criado_em)}.`);
-  picos.slice(0, 2).forEach((p) => frases.push(`às ${formatarHora(p.hora)} você teve um pico de ${NOMES[p.emocao]}.`));
-  if (!picos.length) frases.push(`você se manteve majoritariamente ${NOMES[dominante]} ao longo do dia.`);
-  else frases.push(`no geral, ${NOMES[dominante]} foi o que mais apareceu.`);
-  return {
-    texto: frases.join(' '),
-    elogio: ELOGIOS_RESUMO_PADRAO[Math.floor(Math.random() * ELOGIOS_RESUMO_PADRAO.length)],
-  };
-}
-
-// versão "de verdade" do resumo do dia, escrita por IA (Gemini, plano gratuito
-// do Google AI Studio — basta gerar uma chave em aistudio.google.com e colar
-// em GEMINI_API_KEY no servidor.env). Olha não só os toques de humor, mas
-// também o que a pessoa escreveu no diário/postou hoje, e fecha sempre com
-// uma dica/exercício combinando com o humor do dia. Se a chave não estiver
-// configurada, ou a chamada falhar por qualquer motivo (rede, cota, etc.),
-// devolve null — quem chamou cai de volta pro gerarTextoResumo (template),
-// então o recurso nunca quebra o cron mesmo sem IA disponível.
-async function gerarResumoComIA(eventos, postsHoje) {
-  if (!process.env.GEMINI_API_KEY) return null;
-  try {
-    const NOMES = { feliz: 'feliz', calma: 'calma', triste: 'triste', ansiosa: 'ansiosa', brava: 'brava' };
-    const formatarHora = (iso) => {
-      const d = new Date(new Date(iso).toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-      return String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
-    };
-
-    const linhasHumor = eventos.map((e) => `- ${formatarHora(e.criado_em)}: sentiu-se ${NOMES[e.emocao] || e.emocao}`).join('\n');
-    const linhasPosts = (postsHoje && postsHoje.length)
-      ? postsHoje.map((p) => `- (${p.tipo || 'anotação'}) "${(p.texto || '').slice(0, 220)}"`).join('\n')
-      : '- (não escreveu nada no diário/feed hoje)';
-
-    const prompt = `Toques de humor de hoje (em ordem):\n${linhasHumor}\n\nO que a pessoa escreveu/postou hoje:\n${linhasPosts}\n\nEscreva o resumo do dia dessa pessoa.`;
-
-    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{
-            text: 'Você escreve o "resumo do dia" de um app de diário pessoal chamado Átomo, em português do Brasil. '
-              + 'Tom: acolhedor e natural, como uma amiga observadora — nunca clínico, nunca soando como diagnóstico psicológico. '
-              + 'Baseie-se nos toques de humor registrados e no que a pessoa escreveu/postou no dia (cite algo específico do que ela escreveu, se houver). '
-              + 'Feche sempre com uma dica prática e curta (um exercício, respiração, alongamento, ou pequena atitude) que combine com o humor predominante do dia. '
-              + 'No máximo 5 frases curtas, sem markdown, sem listas, no máximo 1 emoji. '
-              + 'Responda em EXATAMENTE duas partes separadas por uma linha contendo só "---": '
-              + 'na primeira parte, um elogio curtinho (1 frase, no máximo 12 palavras) reconhecendo a pessoa por ter parado pra se observar/registrar o dia hoje; '
-              + 'na segunda parte, o resumo do dia descrito acima.'
-          }]
-        },
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 300, temperature: 0.85 }
-      })
-    });
-
-    if (!resp.ok) { console.log('gemini resumo: status', resp.status, await resp.text()); return null; }
-    const data = await resp.json();
-    const bruto = data && data.candidates && data.candidates[0] && data.candidates[0].content
-      && data.candidates[0].content.parts && data.candidates[0].content.parts[0]
-      && data.candidates[0].content.parts[0].text;
-    if (!bruto) return null;
-    const partes = bruto.trim().split(/\n?---\n?/);
-    if (partes.length >= 2) {
-      return { elogio: partes[0].trim(), texto: partes.slice(1).join(' ').trim() };
-    }
-    return { elogio: null, texto: bruto.trim() };
-  } catch (erro) {
-    console.log('erro ao gerar resumo do dia com IA:', erro.message);
-    return null;
-  }
-}
-
 // escolhe a mensagem do dia por rotação (não por sorteio), pra nunca repetir
 // em dias seguidos — cada dia do calendário sempre cai num índice diferente
 // do anterior, e só volta a repetir depois de passar por todas as frases
@@ -836,42 +720,27 @@ async function rodarCronNotificacoes(req, res) {
       await supabaseAdmin.from('usuarios').update({ ultimo_lembrete_leitura_data: hojeBrasilia }).eq('id', u.id);
     }
 
-    // resumo do dia — gerado uma vez, no fim do dia (mesma janela da notificação
-    // da noite), a partir dos toques de humor registrados hoje (humor_eventos).
-    // dia com poucos toques não gera resumo nenhum (não tem narrativa que preste).
+    // "Seu dia" — o texto do resumo agora é montado no próprio app (js/configuracoes.js),
+    // na hora em que a pessoa abre a Home. O servidor só avisa, uma vez por dia, na
+    // mesma janela da notificação da noite, pra quem registrou ao menos um momento.
+    // A linha em resumos_dia (texto vazio) serve só pra não avisar duas vezes.
     let resumosGerados = 0;
     if (precisamNoite.length) {
       const inicioHojeUTC = new Date(Date.UTC(agoraBrasilia.getFullYear(), agoraBrasilia.getMonth(), agoraBrasilia.getDate(), 3, 0, 0));
       const idsNoiteAgora = precisamNoite.map(u => u.id);
       const { data: eventosHoje } = await supabaseAdmin
         .from('humor_eventos')
-        .select('usuario_id, emocao, criado_em')
+        .select('usuario_id')
         .in('usuario_id', idsNoiteAgora)
-        .gte('criado_em', inicioHojeUTC.toISOString())
-        .order('criado_em', { ascending: true });
+        .gte('criado_em', inicioHojeUTC.toISOString());
 
-      const porUsuario = {};
-      (eventosHoje || []).forEach((e) => {
-        if (!porUsuario[e.usuario_id]) porUsuario[e.usuario_id] = [];
-        porUsuario[e.usuario_id].push(e);
-      });
-
-      for (const usuarioId of Object.keys(porUsuario)) {
-        const eventosDoUsuario = porUsuario[usuarioId];
-        if (eventosDoUsuario.length < MIN_EVENTOS_PRO_RESUMO) continue;
-
-        const { data: jaTemResumo } = await supabaseAdmin
+      const idsComMomentos = [...new Set((eventosHoje || []).map(e => e.usuario_id))];
+      for (const usuarioId of idsComMomentos) {
+        const { data: jaAvisou } = await supabaseAdmin
           .from('resumos_dia').select('id').eq('usuario_id', usuarioId).eq('data', hojeBrasilia).maybeSingle();
-        if (jaTemResumo) continue;
-
-        const { data: postsHoje } = await supabaseAdmin
-          .from('posts').select('tipo, texto').eq('autor_id', usuarioId)
-          .is('clube_id', null).gte('criado_em', inicioHojeUTC.toISOString());
-
-        const resultado = (await gerarResumoComIA(eventosDoUsuario, postsHoje)) || gerarTextoResumo(eventosDoUsuario);
-        if (!resultado || !resultado.texto) continue;
-        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto: resultado.texto, elogio: resultado.elogio || null });
-        totalEnviadas += await enviarPushParaUsuario(usuarioId, '📊 Seu resumo do dia chegou', 'toque pra ver como foi seu dia');
+        if (jaAvisou) continue;
+        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto: '' });
+        totalEnviadas += await enviarPushParaUsuario(usuarioId, '📊 Seu dia no Átomo', 'abre o app pra ver como foi o seu dia');
         resumosGerados++;
       }
     }

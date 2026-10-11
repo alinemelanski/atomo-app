@@ -168,6 +168,7 @@ window.toggleWritePopupPrivado = function () {
   renderFeed();
   renderDiary();
   fecharWritePopup();
+  atualizarResumoDiaDepois();
 };
 
 // simula visualizações chegando AGRUPADAS (nunca uma por pessoa — isso vira MSN chato)

@@ -131,6 +131,13 @@ async function somarPontoHumor(emocao, pontos) {
 
 // toque numa carinha: reage na hora (bichinho ja cede no toque, feito bola apertada) e registra o ponto de humor.
 // se for a 2a+ vez do dia em brava/ansiosa, abre o popup perguntando o motivo.
+// atualiza o card "Seu dia" um instante depois do último toque/post (junta vários toques seguidos numa só consulta)
+let _resumoDiaTimer = null;
+window.atualizarResumoDiaDepois = function () {
+  clearTimeout(_resumoDiaTimer);
+  _resumoDiaTimer = setTimeout(() => { try { carregarResumoDia(); } catch (e) { /* sem rede, tudo bem */ } }, 1800);
+};
+
 window.tocarHumor = async function (emocao) {
   vibrar(8); // vibração bem sutil ao tocar numa emoção
   const wrap = document.getElementById('humorFaceWrap_' + emocao);
@@ -139,6 +146,7 @@ window.tocarHumor = async function (emocao) {
     setTimeout(() => wrap.classList.remove('tocando'), 700);
   }
   const valorAntes = await somarPontoHumor(emocao, PONTOS_POR_TOQUE_HUMOR);
+  atualizarResumoDiaDepois(); // o card "Seu dia" acompanha os toques
   if (emocao === 'brava' || emocao === 'ansiosa' || emocao === 'triste') {
     // pergunta o motivo no 2o toque do dia (perfeito do jeito que já era),
     // mas depois disso só de novo a cada 4 toques (6o, 10o, 14o...) -- senão
