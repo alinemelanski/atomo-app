@@ -1243,12 +1243,11 @@
       <div id="citacaoPreviaWrap" style="display:none; max-height:58vh; overflow-y:auto; margin-top:14px; border-radius:14px; box-shadow:var(--shadow); -webkit-overflow-scrolling:touch;">
         <canvas id="citacaoCanvas" width="600" height="750" style="display:none; width:100%; height:auto; vertical-align:top;"></canvas>
       </div>
-      <div id="citacaoAcoes" style="display:none; flex-direction:column; gap:10px; margin-top:12px;">
-        <div style="display:flex; gap:10px;">
-          <button class="post-btn" id="citacaoBtnGrupo" style="flex:1; padding:11px; display:none;" onclick="compartilharCitacaoNoGrupo()">compartilhar no grupo</button>
-          <button class="post-btn" style="flex:1; padding:11px;" onclick="compartilharCartaoCitacaoExterno()">compartilhar fora</button>
-        </div>
-        <button class="livro-link-externo" style="margin:0; justify-content:center;" onclick="compartilharCartaoCitacaoFeed()">postar pros amigos no feed</button>
+      <div id="citacaoAcoes" class="citacao-acoes" style="display:none;">
+        <span class="citacao-acoes-rotulo">compartilhar</span>
+        <button class="citacao-op" id="citacaoBtnGrupo" style="display:none;" onclick="compartilharCitacaoNoGrupo()">no grupo</button>
+        <button class="citacao-op" onclick="compartilharCartaoCitacaoExterno()">fora do app</button>
+        <button class="citacao-op" onclick="compartilharCartaoCitacaoFeed()">no feed</button>
       </div>
     </div>
 

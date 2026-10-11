@@ -159,7 +159,7 @@ window.gerarCartaoCitacao = async function () {
   ctx.fillText(textoRodape, xInicio + iconTam + gap, H - 43);
 
   mostrarPreviaCitacao(true);
-  document.getElementById('citacaoBtnGrupo').style.display = window.CITACAO_CLUBE_ID ? 'block' : 'none';
+  document.getElementById('citacaoBtnGrupo').style.display = window.CITACAO_CLUBE_ID ? 'inline-flex' : 'none';
   document.getElementById('citacaoAcoes').style.display = 'flex';
 };
 
