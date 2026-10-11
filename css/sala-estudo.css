@@ -1,0 +1,62 @@
+/* sala de call de estudo ao vivo */
+  /* ---------- sala de call de estudo ao vivo ---------- */
+  .sala-estudo-overlay { position: absolute; inset: 0; z-index: 31; display: none; flex-direction: column;
+    background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent-b) 14%, var(--bg)), var(--bg) 60%);
+    padding: calc(18px + env(safe-area-inset-top)) 0 calc(18px + env(safe-area-inset-bottom)); }
+  .sala-estudo-overlay.open { display: flex; }
+  .sala-header-row { display: flex; align-items: center; gap: 10px; padding: 0 16px 10px; }
+  .sala-live-pill { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; color: #fff;
+    background: var(--pink); padding: 4px 10px; border-radius: 999px; font-family: 'DM Sans', sans-serif; }
+  .sala-live-pill .live-dot { background: #fff; }
+  .sala-modo-row { display: flex; gap: 6px; padding: 4px 16px 10px; }
+  .sala-modo-chip { flex: 1; text-align: center; font-size: 10px; font-weight: 800; padding: 7px 4px; border-radius: 12px;
+    background: color-mix(in srgb, var(--card) 70%, transparent); color: var(--ink-faint); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; border: 1px solid var(--card-b); }
+  .sala-modo-chip.on { background: var(--accent-b); color: #fff; border-color: transparent; }
+  .sala-mesa-card { margin: 6px 16px 14px; background: var(--card); border: 1px solid var(--card-b); border-radius: 18px;
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow); }
+  .sala-mesa-icone { flex: none; width: 34px; height: 34px; border-radius: 9px; background: var(--accent-soft);
+    color: var(--accent-a); display: flex; align-items: center; justify-content: center; }
+  .sala-mesa-eyebrow { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em;
+    color: var(--ink-faint); font-family: 'DM Sans', sans-serif; }
+  .sala-mesa-titulo { font-size: 13px; font-weight: 700; color: var(--ink); font-family: 'Baloo 2', sans-serif; }
+  .sala-mesa-sub { font-size: 10.5px; color: var(--ink-dim); }
+  .sala-timer-wrap { display: flex; flex-direction: column; align-items: center; margin: 6px 0 14px; }
+  .sala-timer-ring-wrap { position: relative; width: 128px; height: 128px; }
+  .sala-timer-ring-wrap svg { transform: rotate(-90deg); }
+  .sala-timer-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .sala-timer-num { font-family: 'Baloo 2', sans-serif; font-size: 23px; color: var(--ink); }
+  .sala-timer-sub { font-size: 9.5px; font-weight: 800; color: var(--accent-b); text-transform: uppercase;
+    letter-spacing: .04em; font-family: 'DM Sans', sans-serif; margin-top: 2px; }
+  .sala-status-eu-pill { margin: 0 16px 10px; background: var(--card); border: 1px dashed var(--card-b); border-radius: 14px;
+    padding: 9px 12px; font-size: 11px; color: var(--ink-dim); display: flex; align-items: center; gap: 7px; }
+  .sala-status-eu-pill b { color: var(--ink); font-family: 'DM Sans', sans-serif; }
+  .sala-participantes-wrap { flex: 1; overflow-y: auto; padding: 0 16px 100px; scrollbar-width: none; }
+  .sala-participantes-wrap::-webkit-scrollbar { width: 0; }
+  .sala-participantes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 8px; }
+  .sala-participante { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+  .sala-p-avatar-wrap { position: relative; width: 54px; height: 54px; }
+  .sala-p-avatar { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-family: 'Baloo 2', sans-serif; font-size: 17px; position: relative; z-index: 2; }
+  .sala-p-avatar-wrap.falando::before { content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2.5px solid var(--accent-b); animation: salaFalandoPulse 1.3s infinite; }
+  @keyframes salaFalandoPulse { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(1.22); opacity: 0; } 100% { opacity: 0; } }
+  .sala-p-mic { position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--card); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center;
+    color: var(--ink-dim); z-index: 3; }
+  .sala-p-avatar-wrap.mudo .sala-p-mic { color: var(--pink); }
+  .sala-p-nome { font-size: 10.5px; font-weight: 800; color: var(--ink); font-family: 'DM Sans', sans-serif; }
+  .sala-p-status { font-size: 9px; color: var(--ink-faint); line-height: 1.3; }
+  .sala-p-voce .sala-p-nome { color: var(--accent-a); }
+  .sala-controles-bar { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom)); left: 50%;
+    transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%); border-radius: 999px; padding: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); }
+  .sala-ctrl-btn { width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: none; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; background: var(--bg); color: var(--ink); padding: 0; }
+  .sala-ctrl-btn.on { background: var(--accent-b); color: #fff; }
+  .sala-ctrl-btn.sair { background: var(--pink); color: #fff; width: 52px; }
+  .sala-ctrl-btn:active { transform: scale(.9); }
+

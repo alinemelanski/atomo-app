@@ -1,0 +1,127 @@
+/* mensagens e lista de conversas */
+  /* ---------- mensagens ---------- */
+  .dm-draft { color: var(--pink); font-weight: 700; }
+  .dm-list-row { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--card-b); cursor: pointer; }
+  .dm-list-row:last-child { border-bottom: none; }
+  .dm-preview { flex: 1; min-width: 0; }
+  .dm-preview .n { font-size: 13.5px; font-weight: 800; color: var(--ink); }
+  .dm-preview .msg { font-size: 11.5px; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---------- mensagens: lista de conversas, cards grandes de vidro ---------- */
+  /* lista de conversas estilo WhatsApp Web: linhas contínuas e compactas em
+     vez de cards flutuantes separados, pra caber mais conversa na tela e dar
+     uma resposta mais rápida pra quem tá escaneando a lista */
+  .dm-swipe-wrap { position: relative; overflow: hidden; border-radius: 0; margin-bottom: 0; }
+  .dm-swipe-actions { position: absolute; inset: 0; display: flex; align-items: stretch; justify-content: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity .15s ease; }
+  .dm-swipe-wrap.aberta .dm-swipe-actions { opacity: 1; pointer-events: auto; }
+  .dm-swipe-btn { width: 70px; border: none; color: #fff; font-family: 'DM Sans', 'Nunito', sans-serif; font-weight: 600;
+    font-size: 11px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; }
+  .dm-swipe-btn.fixar { background: var(--accent-b); }
+  .dm-swipe-btn.deletar { background: var(--pink); }
+  #screen-mensagens .dm-list-row { border-bottom: 1px solid var(--card-b); margin-bottom: 0; padding: 8px 6px; border-radius: 0;
+    background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none;
+    position: relative; z-index: 1; transition: background .15s ease; touch-action: pan-y; }
+  #screen-mensagens .dm-list-row:active { background: color-mix(in srgb, var(--card) 55%, transparent); }
+  #screen-mensagens .dm-list-row.fixada { background: color-mix(in srgb, var(--accent-soft) 55%, transparent); }
+  #screen-mensagens .dm-list-row .friend-avatar { width: 46px; height: 46px; font-size: 15px; }
+  #screen-mensagens .dm-preview .n { font-size: 13.5px; font-weight: 700; }
+  #screen-mensagens .dm-preview .msg { font-size: 12px; }
+
+  #msgTopRow h1 { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex .25s ease, opacity .25s ease; }
+  #msgTopRow.busca-aberta h1 { flex: 0; opacity: 0; }
+  .msg-busca-widget { flex: none; width: 38px; height: 38px; border-radius: 19px;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 40%, transparent), var(--shadow); display: flex; align-items: center; overflow: hidden; cursor: pointer;
+    transition: width .4s cubic-bezier(.2,.8,.2,1), flex .4s cubic-bezier(.2,.8,.2,1); }
+  .msg-busca-widget.aberto { flex: 1; width: auto; }
+  .msg-busca-toggle-icone { width: 38px; height: 38px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .msg-busca-toggle-icone svg { transition: transform .25s ease; }
+  .msg-busca-widget.aberto .msg-busca-toggle-icone svg { transform: rotate(45deg); }
+  .msg-busca-campo-wrap { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; opacity: 0;
+    transition: opacity .25s ease; padding-right: 6px; }
+  .msg-busca-widget.aberto .msg-busca-campo-wrap { opacity: 1; transition-delay: .15s; }
+  .msg-busca-campo-wrap input { flex: 1; min-width: 0; border: none; background: transparent;
+    font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); outline: none; }
+  .msg-busca-lupa { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-a); color: #fff; border: none;
+    display: flex; align-items: center; justify-content: center; flex: none; cursor: pointer; }
+  .msg-busca-lupa:active { transform: scale(.9); }
+
+  #screen-mensagens {
+    display: flex; flex-direction: column; padding-bottom: calc(112px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(340px circle at 20% 4%, color-mix(in srgb, var(--yellow) 30%, transparent), transparent 60%),
+      radial-gradient(300px circle at 78% 10%, color-mix(in srgb, var(--accent-a) 26%, transparent), transparent 58%),
+      radial-gradient(360px circle at 90% 55%, color-mix(in srgb, var(--accent-b) 24%, transparent), transparent 62%),
+      radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
+      var(--bg-tela-suave);
+  }
+  .dm-chat-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 30; display: flex; flex-direction: column;
+    padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
+    opacity: 0; pointer-events: none; visibility: hidden; transform: translateX(18px);
+    transition: opacity .25s ease, transform .4s cubic-bezier(.2,.8,.2,1), visibility 0s linear .4s; }
+  .dm-chat-overlay.open { opacity: 1; pointer-events: auto; visibility: visible; transform: translateX(0);
+    transition: opacity .25s ease, transform .4s cubic-bezier(.2,.8,.2,1), visibility 0s linear 0s; }
+  .dm-chat-overlay.sem-transicao-swipe { transition: none !important; }
+  .dm-chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .digitando-dots span { opacity: .25; animation: digitandoPulse 1.2s infinite; }
+  .digitando-dots span:nth-child(2) { animation-delay: .2s; }
+  .digitando-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes digitandoPulse { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+  .dm-chat-header-info { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+  .dm-chat-header-info h2 { margin: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dm-chat-status { font-size: 10.5px; font-weight: 700; color: var(--ink-faint); margin-top: 1px; }
+  .dm-chat-status.online { color: var(--accent-b); }
+  .dm-input-icons { display: flex; gap: 3px; flex: none; }
+  .dm-info-topo { padding-top: 4px; }
+  .dm-info-acoes-row { display: flex; justify-content: center; gap: 26px; margin: 6px 0 14px; }
+  .dm-info-acao { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; font-size: 10.5px; font-weight: 700; color: var(--ink-dim); }
+  .dm-info-acao-icone { width: 46px; height: 46px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-a); display: flex; align-items: center; justify-content: center; }
+  .dm-info-acao-icone svg { width: 19px; height: 19px; }
+  .dm-tema-picker { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .dm-tema-swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+  .dm-tema-swatch.selecionado { border-color: var(--ink); }
+  .dm-info-lista { border-top: 1px solid var(--card-b); }
+  .dm-info-item { padding: 14px 4px; font-size: 13px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 9px; cursor: pointer; border-bottom: 1px solid var(--card-b); }
+  .dm-info-item .icon-svg { width: 15px; height: 15px; }
+  .dm-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding-bottom: 10px; scrollbar-width: none; }
+  #dmMessages::-webkit-scrollbar { display: none; }
+  .dm-bubble { max-width: 76%; padding: 9px 13px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
+  .dm-bubble.other { align-self: flex-start; color: var(--ink); border-bottom-left-radius: 4px;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 20%, transparent); }
+  .dm-bubble.own { align-self: flex-end; background: var(--dm-tema-cor, var(--accent-a)); color: #fff; border-bottom-right-radius: 4px; }
+  .dm-input-row { display: flex; gap: 8px; align-items: center; }
+  #comunidadeDetalheComposerWrap .dm-send-btn { width: 34px; height: 34px; }
+  #comunidadeDetalheComposerWrap textarea { padding: 8px 12px !important; font-size: 16px !important; }
+  .dm-input-row > input[type="text"] { flex: 1; min-width: 0; box-sizing: border-box; border-radius: 999px; padding: 10px 14px;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 16px; outline: none;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent); }
+  .dm-input-row > input[type="text"]::placeholder { color: var(--ink-faint); }
+  .dm-input-wrap { position: relative; flex: 1; min-width: 0; }
+  .dm-input-wrap input { width: 100%; box-sizing: border-box; border-radius: 999px; padding: 10px 40px 10px 14px;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 16px; outline: none;
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent); }
+  .dm-input-mic-btn { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px;
+    border-radius: 50%; border: none; background: transparent; color: var(--accent-a); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; }
+  .dm-input-mic-btn.gravando { width: auto; padding: 0 10px; border-radius: 14px; background: var(--pink); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 11px; gap: 4px; }
+  .dm-send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-a);
+    border: none; color: #fff; font-size: 15px; cursor: pointer; flex: none; }
+  .dm-send-btn.gravando { width: auto; padding: 0 12px; border-radius: 20px; background: var(--pink) !important;
+    color: #fff !important; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 11.5px; display: flex;
+    align-items: center; justify-content: center; gap: 4px; }
+  .back-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--card); border: 1px solid var(--card-b); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; }
+  .bau-pandora-btn { color: #B8860B; background: color-mix(in srgb, #E8B94A 34%, var(--card));
+    border-color: color-mix(in srgb, #E8B94A 55%, transparent); box-shadow: 0 0 10px color-mix(in srgb, #E8B94A 35%, transparent); }
+

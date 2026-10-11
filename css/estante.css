@@ -1,0 +1,117 @@
+/* livros/estante: vidro, calendário de leitura, botão de epub e prateleira */
+  /* ---------- livros/estante: mesmo tratamento de vidro "forte" do Explorar,
+     calendario de leitura, contadores e prateleira de epubs ---------- */
+  #screen-livros {
+    background:
+      radial-gradient(340px circle at 20% 4%, color-mix(in srgb, var(--yellow) 30%, transparent), transparent 60%),
+      radial-gradient(300px circle at 78% 10%, color-mix(in srgb, var(--accent-b) 26%, transparent), transparent 58%),
+      radial-gradient(360px circle at 90% 55%, color-mix(in srgb, var(--accent-a) 24%, transparent), transparent 62%),
+      radial-gradient(320px circle at 8% 70%, color-mix(in srgb, var(--pink) 20%, transparent), transparent 60%),
+      var(--bg-tela-suave);
+  }
+  #screen-livros .discover-card, #screen-livros .bio-box, #screen-livros .busca-input {
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(26px) saturate(160%); -webkit-backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 40%, transparent), 0 4px 14px rgba(60,40,15,.10);
+  }
+  #screen-livros .discover-card, #screen-livros .bio-box { border-radius: 22px; }
+  #screen-livros .bio-box { padding: 15px; }
+  #screen-livros .feed-modo-chip { background: color-mix(in srgb, var(--card) var(--vidro-fosco-leve), transparent);
+    backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent); }
+  #screen-livros .feed-modo-chip.on { background: var(--accent-a); border-color: transparent; }
+
+  /* ---------- calendario de leitura animado: celulas entram com um "pop" em
+     cascata, e o dia de hoje pulsa suavemente quando ainda nao foi lido ---------- */
+  .leitura-dia-cell {
+    width: 100%; aspect-ratio: 1; border-radius: 8px; background: var(--card-b); color: var(--ink-faint);
+    display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif; border: 1.5px solid transparent; position: relative; overflow: hidden;
+    opacity: 0; transform: scale(.4); animation: leituraDiaEntrada .4s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes leituraDiaEntrada { to { opacity: 1; transform: scale(1); } }
+  .leitura-dia-cell.hoje-nao-lido {
+    border-color: var(--accent-a);
+    animation: leituraDiaEntrada .4s cubic-bezier(.34,1.56,.64,1) forwards, leituraHojePulso 2.2s ease-in-out infinite .6s;
+  }
+  .leitura-dia-cell.hoje-lido { border-color: var(--ink); }
+  @keyframes leituraHojePulso {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-a) 45%, transparent); }
+    50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent-a) 0%, transparent); }
+  }
+
+  /* ---------- botao de enviar epub: mesma cor solida dos outros botoes do
+     Clube do Livro (.clube-criar-btn), sem gradiente ---------- */
+  .btn-enviar-epub {
+    width: 100%; margin-bottom: 14px; padding: 13px 18px; border-radius: 999px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: #fff;
+    background: var(--accent-a);
+    box-shadow: var(--shadow);
+    transition: transform .15s ease, box-shadow .25s ease;
+  }
+  .btn-enviar-epub:active { transform: scale(.94); }
+  .estante-btns-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .estante-btns-row .btn-enviar-epub { margin-bottom: 0; flex: 1; }
+  .btn-importar-kindle {
+    flex: 1; padding: 13px 14px; border-radius: 999px; border: 1.5px solid var(--card-b); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink);
+    background: var(--card); transition: transform .15s ease;
+  }
+  .btn-importar-kindle:active { transform: scale(.94); }
+
+  /* ---------- estante: prateleira de madeira de verdade pros epubs enviados,
+     livros em pe lado a lado como lombadas, em vez de uma lista de linhas ---------- */
+  .estante-madeira {
+    display: flex; flex-wrap: wrap; gap: 14px 11px; padding: 16px 10px 14px;
+    background-image: repeating-linear-gradient(to bottom,
+      transparent 0, transparent 104px,
+      #C08F5E 104px, #8C6239 110px,
+      transparent 110px, transparent 118px);
+    background-position: 0 16px;
+    border-radius: 18px;
+  }
+  .livro-lombada {
+    width: 72px; flex: 0 0 72px; height: 104px; position: relative; border-radius: 6px 6px 2px 2px; overflow: hidden; cursor: pointer;
+    box-shadow: 2px 5px 10px rgba(58,46,34,.35), inset 0 0 0 1px rgba(255,255,255,.15);
+    opacity: 0; transform: translateY(8px) scale(.94); animation: livroLombadaEntrada .35s cubic-bezier(.3,.9,.4,1) forwards;
+  }
+  @keyframes livroLombadaEntrada { to { opacity: 1; transform: translateY(0) scale(1); } }
+  .livro-lombada img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .livro-lombada-vazia { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .livro-lombada-progresso { position: absolute; top: 0; left: 0; height: 3px; background: #fff; box-shadow: 0 0 4px rgba(0,0,0,.3); }
+  .livro-lombada-legenda { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 5px 4px; font-size: 8px; font-weight: 700; color: #fff;
+    background: linear-gradient(to top, rgba(20,14,8,.85), rgba(20,14,8,0));
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; }
+  .livro-lombada-del { position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(20,14,8,.5); color: #fff; display: flex; align-items: center; justify-content: center; opacity: .75; }
+  .livro-lombada-del:active { opacity: 1; transform: scale(.9); }
+
+  .composer-glass-bg { position:absolute; inset:0; background: rgba(20,14,8,0.28); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    z-index:35; display:none; align-items:flex-end; justify-content:center; padding: 0 14px calc(20px + env(safe-area-inset-bottom)); }
+  .composer-glass-bg.open { display:flex; }
+  .composer-glass-bg.glass-top { align-items:flex-start; padding: calc(14px + env(safe-area-inset-top)) 14px calc(20px + env(safe-area-inset-bottom)); }
+  .composer-glass-bg.glass-top .composer-glass-card { animation: composerGlassInTop .3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes composerGlassInTop { from { transform: translateY(-24px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+  .composer-glass-card { width:100%; max-width:420px; border-radius:24px; padding:16px;
+    background: var(--card); background: color-mix(in srgb, var(--card) 78%, transparent);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-b); box-shadow: 0 -8px 30px rgba(0,0,0,0.18);
+    animation: composerGlassIn .3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes composerGlassIn { from { transform: translateY(24px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+  .composer-glass-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .composer-glass-header h2 { font-family:'Fraunces', serif; font-size:16px; margin:0; color:var(--ink); }
+  .composer-glass-card textarea { width:100%; min-height:90px; border:none; background:none; resize:none; font-family:'Nunito', sans-serif;
+    font-size:14px; color:var(--ink); outline:none; }
+  .composer-glass-card textarea::placeholder { color: var(--ink-faint); }
+  .composer-glass-foot { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+  .composer-glass-send { width:40px; height:40px; border-radius:50%; background: var(--accent-a); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; color:#fff; transition: transform .15s ease; flex:none; }
+  .composer-glass-send:active { transform: scale(.9); }
+  .composer-glass-send svg { width:17px; height:17px; }
+  .composer-glass-send:disabled { opacity:.5; }
+  .perfil-info-glass-card { max-height: 82vh; overflow-y: auto; }
+  .popup-glass-scroll { max-height: 82vh; overflow-y: auto; }
+

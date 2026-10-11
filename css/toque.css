@@ -1,0 +1,40 @@
+/* área mínima de toque dos botões e botões estilo nativo */
+  /* ---------- area de toque minima (~44px, padrao iOS/Android) pros botoes de
+     icone pequenos -- sem aumentar o tamanho visual, so a area clicavel ao redor,
+     via ::after invisivel. valores pequenos nos que ficam em fileira apertada,
+     pra nao invadir a area do vizinho ---------- */
+  .back-btn, .checklist-add-btn, .calendario-nav-btn, .top-icon-btn,
+  .top-row .home-avatar-btn, #comunidadeDetalheComposerWrap .dm-send-btn,
+  .player-play-btn, .upload-foto-icon,
+  .dm-header-icon-btn, .clube-overflow-btn, .checklist-lembrete-btn, .checklist-del-btn,
+  .tempo-picker-btn, .autoral-nota-btn {
+    position: relative;
+  }
+  /* write-popup-close, dm-input-mic-btn e livro-lombada-del ja sao position:absolute
+     (se posicionam via top/right) -- isso ja basta de contexto pro ::after abaixo,
+     sem precisar (e sem poder) virar position:relative */
+  .back-btn::after { content: ''; position: absolute; inset: -5px; }
+  .write-popup-close::after { content: ''; position: absolute; inset: -7px; }
+  .checklist-add-btn::after { content: ''; position: absolute; inset: -4px; }
+  .calendario-nav-btn::after { content: ''; position: absolute; inset: -5px; }
+  .top-icon-btn::after { content: ''; position: absolute; inset: -3px; }
+  .top-row .home-avatar-btn::after { content: ''; position: absolute; inset: -4px; }
+  #comunidadeDetalheComposerWrap .dm-send-btn::after { content: ''; position: absolute; inset: -4px; }
+  .dm-input-mic-btn::after { content: ''; position: absolute; inset: -4px; }
+  .player-play-btn::after { content: ''; position: absolute; inset: -2px; }
+  .upload-foto-icon::after { content: ''; position: absolute; inset: -4px; }
+  .livro-lombada-del::after { content: ''; position: absolute; inset: -3px; }
+  .dm-header-icon-btn::after, .clube-overflow-btn::after { content: ''; position: absolute; inset: -3px; }
+  .checklist-lembrete-btn::after, .checklist-del-btn::after { content: ''; position: absolute; inset: -5px; }
+  .tempo-picker-btn::after { content: ''; position: absolute; inset: -2px; }
+  .autoral-nota-btn::after { content: ''; position: absolute; inset: -3px; }
+
+  /* ---------- teste: botões estilo nativo (iOS), só na tela de Mensagens ---------- */
+  /* se ficar bom, isso vira padrão pro app todo depois */
+  #dmChatOverlay .dm-chat-header .back-btn {
+    background: transparent; border: none; box-shadow: none; width: 30px; height: 30px; color: var(--accent-a);
+  }
+  #dmChatOverlay .dm-input-icons .dm-send-btn {
+    background: transparent !important; color: var(--ink-faint) !important;
+  }
+

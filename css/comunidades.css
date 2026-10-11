@@ -1,0 +1,13 @@
+/* comunidades: tela de detalhe */
+  /* ---------- comunidades: tela de detalhe ---------- */
+  .comunidade-meta-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .comunidade-meta-chip { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 7px 12px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-family: 'DM Sans', sans-serif; }
+  .comunidade-meta-chip.teal { background: color-mix(in srgb, var(--accent-b) 16%, transparent); color: var(--accent-b); }
+  .comunidade-meta-chip.teal .icon-svg svg { stroke-width: 2.3; }
+  .iniciar-sala-fab { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 5; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 10px;
+    font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; gap: 6px; }
+  .iniciar-sala-fab:active { transform: scale(.98); }
+

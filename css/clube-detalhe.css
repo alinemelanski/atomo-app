@@ -1,0 +1,141 @@
+/* clube: detalhe, mural, linha do tempo, capítulos, calendário e menus */
+  /* ---------- clube: tela de detalhe com a mesma cara (serifada + rotulos em caixa alta) ---------- */
+  #clubeDetalheOverlay .dm-chat-header h2 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
+  #clubeDetalheOverlay .edit-field-label { font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--accent-a); display: flex; align-items: center; gap: 5px; }
+  #clubeDetalheOverlay .discover-title { font-family: 'Fraunces', serif; font-weight: 700; }
+  #clubeDetalheOverlay .discover-desc, #clubeDetalheOverlay .bio-box { font-family: 'DM Sans', sans-serif; }
+  #clubeDetalheOverlay { overflow: hidden; }
+  #clubeDetalheOverlay .clube-watermark { top: auto; bottom: 60px; right: -70px; width: 260px; height: 260px; }
+  #clubeDetalheLivroAtual, #clubeDetalheMeta, #clubeDetalheAcoes, #clubeDetalheFerramentas {
+    animation: clubeCardEntra .5s cubic-bezier(.2,.8,.2,1) backwards; }
+  #clubeDetalheMeta { animation-delay: .06s; }
+  #clubeDetalheAcoes { animation-delay: .12s; }
+  #clubeDetalheFerramentas { animation-delay: .18s; }
+  #clubeDetalheOverlay .discover-card { animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }
+
+  /* ---------- clube: mural em bolhas de chat, tipo grupo de conversa ---------- */
+  /* (comunidadeDetalheMural reaproveita o mesmo componente de bolha
+     postClubeHtml() pro mural da comunidade de estudo, então precisa do
+     mesmo display:flex aqui, senão o align-self das bolhas "own"/"other"
+     não funciona sem um pai flex e o texto fica torto/desalinhado) */
+  #clubeDetalheMural, #comunidadeDetalheMural { display: flex; flex-direction: column; gap: 10px; }
+  .clube-msg-row { display: flex; flex-direction: column; max-width: 78%; animation: clubeCardEntra .35s cubic-bezier(.2,.8,.2,1) backwards; }
+  .clube-msg-row.own { align-self: flex-end; align-items: flex-end; }
+  .clube-msg-row.other { align-self: flex-start; align-items: flex-start; }
+  .clube-msg-autor { font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--ink-dim); margin: 0 4px 3px; }
+  .clube-msg-bolha { padding: 9px 13px; border-radius: 16px; font-size: 13px; line-height: 1.4; font-family: 'Nunito', sans-serif; }
+  .clube-msg-row.other .clube-msg-bolha { background: var(--card); background: color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 65%, transparent); color: var(--ink); border-bottom-left-radius: 4px; }
+  .clube-msg-row.own .clube-msg-bolha { background: var(--accent-a); background: color-mix(in srgb, var(--accent-a) 80%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    color: #fff; border-bottom-right-radius: 4px; }
+  .clube-msg-meta { font-family: 'DM Sans', sans-serif; font-size: 9.5px; color: var(--ink-faint); margin: 3px 4px 0; }
+
+  /* ---------- clube: linha do tempo de capitulos (quem esta onde) ---------- */
+  .clube-timeline-caps { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 6px; scrollbar-width: none; position: relative; }
+  .clube-timeline-caps::-webkit-scrollbar { display: none; }
+  .clube-timeline-marco { flex: none; min-width: 94px; max-width: 130px; text-align: center; padding: 10px 12px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--card-b); }
+  .clube-timeline-cap { font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 800; color: var(--accent-a); margin-bottom: 4px; }
+  .clube-timeline-pessoas { font-family: 'DM Sans', sans-serif; font-size: 10.5px; color: var(--ink-dim); line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---------- clube: card grande de capitulo/pagina atual (só admin edita) ---------- */
+  .clube-cap-card { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 60%, transparent); border-radius: 18px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .comunidade-convite-btn { width: 28px; height: 28px; border-radius: 50%; flex: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    background: color-mix(in srgb, var(--accent-a) 88%, transparent); }
+  .clube-cap-info .clube-cap-kicker { font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px; }
+  .clube-cap-info .clube-cap-valor { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 700; color: var(--ink); line-height: 1.15; }
+  .clube-cap-info .clube-cap-pagina { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--accent-a); font-weight: 700; margin-top: 2px; }
+  .clube-cap-editar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-a);
+    border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+  .clube-cap-form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .clube-cap-form-row { display: flex; gap: 8px; }
+
+  /* ---------- popup delicada de editar prazo (data + opcao de temporizador) ---------- */
+  .prazo-popup-overlay { position: fixed; inset: 0; z-index: 96; display: none; align-items: center; justify-content: center;
+    background: rgba(20,14,8,0.45); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); padding: 20px; }
+  .prazo-popup-overlay.show { display: flex; }
+  .prazo-popup-card { width: 100%; max-width: 290px; background: color-mix(in srgb, var(--card) 90%, transparent);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius: 22px; padding: 20px 18px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: prazoPopupEntrada .2s ease-out; }
+  @keyframes prazoPopupEntrada { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: scale(1); } }
+  .prazo-popup-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 16.5px; color: var(--ink);
+    margin-bottom: 14px; text-align: center; }
+  .prazo-popup-campo { margin-bottom: 12px; }
+  .prazo-popup-check { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-dim);
+    font-family: 'Nunito', sans-serif; margin-bottom: 16px; cursor: pointer; }
+  .prazo-popup-check input { width: 15px; height: 15px; accent-color: var(--accent-a); }
+  .prazo-popup-acoes { display: flex; gap: 8px; }
+
+  /* ---------- botao que abre o calendario proprio (no lugar do <input type="date"> generico) ---------- */
+  .data-picker-btn { width: 100%; border: 1px solid var(--card-b); background: var(--accent-soft); border-radius: 999px;
+    padding: 10px 15px; font-family: 'Nunito', sans-serif; font-size: 12.5px; color: var(--ink-faint); outline: none;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer; text-align: left; box-sizing: border-box; }
+  .data-picker-btn.preenchido { color: var(--ink); font-weight: 700; }
+  .data-picker-btn .icon-svg { color: var(--accent-a); flex: none; }
+
+  /* ---------- popup do calendario proprio -- mesma cara das outras popups delicadas do app ---------- */
+  .calendario-popup-overlay { position: fixed; inset: 0; z-index: 99; display: none; align-items: center; justify-content: center;
+    background: rgba(20,14,8,0.45); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); padding: 20px; }
+  .calendario-popup-overlay.show { display: flex; }
+  .calendario-popup-card { width: 100%; max-width: 300px; background: color-mix(in srgb, var(--card) 94%, transparent);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius: 22px; padding: 18px 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: prazoPopupEntrada .2s ease-out; }
+  .calendario-popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .calendario-nav-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: var(--accent-soft);
+    color: var(--accent-a); display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+  .calendario-popup-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 15.5px; color: var(--ink); text-transform: capitalize; }
+  .calendario-popup-semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 4px; }
+  .calendario-popup-semana span { text-align: center; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700;
+    color: var(--ink-faint); text-transform: uppercase; padding: 4px 0; display: block; }
+  .calendario-popup-grade { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 14px; }
+  .calendario-dia { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); cursor: pointer;
+    transition: background .15s ease, color .15s ease; }
+  .calendario-dia.fora { color: var(--ink-faint); opacity: .35; cursor: default; pointer-events: none; }
+  .calendario-dia.hoje { color: var(--accent-a); box-shadow: inset 0 0 0 1.5px var(--accent-a); }
+  .calendario-dia.selecionado { background: var(--accent-a); color: #fff; box-shadow: none; }
+  .calendario-popup-acoes { display: flex; justify-content: space-between; padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent); }
+  .calendario-popup-link { background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px; font-weight: 800; color: var(--accent-a); padding: 4px 6px; }
+
+  /* ---------- clube: fileira de ações rolável (arrasta o dedo pro lado) ---------- */
+  .clube-acoes-scroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 4px; }
+  .clube-acoes-scroll::-webkit-scrollbar { display: none; }
+  /* barras de rolagem escondidas em todo o app -- fica com cara de app nativo em vez de pagina web */
+  .device * { scrollbar-width: none; }
+  .device *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  .clube-acoes-scroll > * { flex: none; margin: 0 !important; }
+  .clube-acoes-scroll .post-btn, .clube-acoes-scroll .livro-link-externo { font-size: 10.5px; padding: 6px 12px; gap: 4px;
+    box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .15s ease;
+    animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }
+  .clube-acoes-scroll .post-btn:nth-child(2), .clube-acoes-scroll .livro-link-externo:nth-child(2) { animation-delay: .06s; }
+  .clube-acoes-scroll .post-btn:nth-child(3), .clube-acoes-scroll .livro-link-externo:nth-child(3) { animation-delay: .12s; }
+  .clube-acoes-scroll .post-btn:active, .clube-acoes-scroll .livro-link-externo:active { transform: scale(.94) translateY(1px); box-shadow: none; }
+
+  /* ---------- clube: menu de tres pontinhos (sair do clube etc, sem ocupar espaco) ---------- */
+  .clube-overflow-wrap { position: relative; margin-left: auto; }
+  .clube-overflow-btn { width: 32px; height: 32px; border-radius: 50%;
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); }
+  .clube-overflow-menu { position: absolute; top: 38px; right: 0;
+    background: color-mix(in srgb, var(--card) 82%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 60%, transparent);
+    border-radius: 12px; box-shadow: var(--shadow); padding: 6px; min-width: 150px; z-index: 5; display: none; }
+  .clube-overflow-menu.show { display: block; }
+  .clube-overflow-menu .item { padding: 9px 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 12.5px;
+    color: var(--ink); cursor: pointer; white-space: nowrap; }
+  .clube-overflow-menu .item:hover { background: var(--accent-soft); }
+  #clubeDetalheOverlay input[type="number"] { -moz-appearance: textfield; }
+  #clubeDetalheOverlay input[type="number"]::-webkit-outer-spin-button,
+  #clubeDetalheOverlay input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+

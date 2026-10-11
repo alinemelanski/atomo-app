@@ -1,0 +1,30 @@
+/* Descobrir e grade de livros gratuitos */
+  /* ---------- descobrir (@) ---------- */
+  .discover-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  /* ---------- grade de livros gratuitos (capa grande, estilo "Aya Books") ---------- */
+  .livros-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .livro-grid-card { cursor: pointer; }
+  .livro-grid-capa { aspect-ratio: 2/3; border-radius: 12px; background-size: cover; background-position: center; position: relative;
+    overflow: hidden; box-shadow: var(--shadow); display: flex; align-items: flex-end; padding: 7px; }
+  .livro-grid-capa .capa-fallback-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 10.5px; color: #fff; line-height: 1.22;
+    text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .livro-grid-ribbon { position: absolute; top: 9px; right: -28px; width: 104px; text-align: center; transform: rotate(40deg);
+    background: var(--accent-a); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 8.5px; font-weight: 800;
+    letter-spacing: .03em; padding: 3px 0; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+  .livro-grid-meta { padding: 7px 1px 0; }
+  .livro-grid-titulo { font-size: 11.5px; font-weight: 800; color: var(--ink); line-height: 1.3; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .livro-grid-fonte { font-size: 9.5px; color: var(--ink-faint); font-weight: 700; margin-top: 2px; }
+  .skeleton-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .skeleton-bar { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-b) 25%, var(--bg) 50%, var(--card-b) 75%);
+    background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease-in-out infinite; }
+  .skeleton-bar.sk-w40 { width: 40%; height: 10px; margin-bottom: 10px; }
+  .skeleton-bar.sk-w90 { width: 90%; margin-bottom: 8px; }
+  .skeleton-bar.sk-w60 { width: 60%; }
+  @keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .discover-card-destaque { border: 1.5px solid var(--accent-a); background: var(--accent-soft); }
+  .discover-kind { display: inline-flex; align-items: center; gap: 5px; font-size: 9.5px; font-weight: 800; padding: 4px 10px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); margin-bottom: 8px; }
+  .discover-title { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 3px; }
+  .discover-desc { font-size: 12px; color: var(--ink-dim); line-height: 1.5; white-space: pre-wrap; }
+

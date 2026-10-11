@@ -1,0 +1,253 @@
+/* base: variáveis de cor (modo claro/escuro), onboarding, logo e tela cheia */
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    /* ---------- modo claro (padrão) — quente, papel kraft ---------- */
+    --bg: #F7F1E6;
+    --card: #FFFDF8;
+    --card-b: #E8DAC3;
+    --ink: #3A2E22;
+    --ink-dim: #8A7860;
+    --ink-faint: #B7A78D;
+    --accent-a: #D9714A;
+    --accent-a-base: #D9714A;
+    --accent-b: #4A9B8E;
+    --accent-soft: #F5E2D0;
+    --accent-soft-base: #F5E2D0;
+    --pink: #E06B6B;
+    --pink-soft: #F7E0DA;
+    --yellow: #E8A83D;
+    --bg-tela-suave: #FBF7EE;
+    --vidro-fosco: 74%;
+    --vidro-fosco-leve: 66%;
+    --raiva: #B33F30;
+    --shadow: 0 3px 14px rgba(90,60,30,0.10);
+  }
+[data-theme="dark"] {
+    --bg: #0D0D0D;
+    --card: #1A1A1A;
+    --card-b: #2C2C2C;
+    --ink: #F2F2F2;
+    --ink-dim: #A8A8A8;
+    --ink-faint: #6E6E6E;
+    --accent-a: #E08657;
+    --accent-a-base: #E08657;
+    --accent-b: #5CB3A4;
+    --accent-soft: #2E2418;
+    --accent-soft-base: #2E2418;
+    --pink: #E68686;
+    --pink-soft: #3A2624;
+    --yellow: #E0A83D;
+    --raiva: #C2503E;
+    --shadow: 0 3px 14px rgba(0,0,0,0.5);
+    /* fundo suave do Explorar/Livros/Mensagens no escuro -- sem isso ele
+       ficava fixo no creme claro, e os cards de vidro (que usam --card
+       escuro em transparencia) misturavam com esse fundo claro e viravam
+       um cinza sujo em vez de vidro escuro de verdade */
+    --bg-tela-suave: #17140F;
+    --vidro-fosco: 91%;
+    --vidro-fosco-leve: 86%;
+  }
+
+  [data-theme="dark"] .tabbar:not(.textura-couro) { background: #161616; border-color: #2C2C2C; }
+ [data-theme="dark"] .tab-btn.active { color: var(--accent-a); }
+[data-theme="dark"] .tab-btn.active svg { color: var(--accent-a); }
+
+  * { box-sizing: border-box; }
+  * { scrollbar-width: thin; scrollbar-color: var(--card-b) transparent; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--card-b); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+  ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+  .card, .post, .diary-entry, .discover-card, .stat-box, .friend-row, .dm-list-row, .visitor-row,
+  .type-chip, .period-chip, .post-btn, .confirm-btn, .top-icon-btn, .toggle-sw,
+  .views-hero, .diary-tab, .privacy-toggle-mini, .post-action, .settings-nav-row,
+  .seguir-btn, .onboard-btn, .onboard-topic-chip, .modo-chip, .google-btn, .onboard-skip,
+  .back-btn, .dm-send-btn, .share-option, .livro-link-externo { transition: transform .15s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease; }
+  .card:active, .post:active, .diary-entry:active, .discover-card:active, .stat-box:active,
+  .friend-row:active, .dm-list-row:active, .visitor-row:active,
+  .type-chip:active, .period-chip:active, .post-btn:active, .top-icon-btn:active,
+  .views-hero:active, .diary-tab:active, .post-action:active, .settings-nav-row:active,
+  .seguir-btn:active, .onboard-btn:active, .onboard-topic-chip:active, .modo-chip:active, .google-btn:active, .onboard-skip:active,
+  .confirm-btn:active, .toggle-sw:active, .privacy-toggle-mini:active,
+  .back-btn:active, .dm-send-btn:active, .share-option:active, .livro-link-externo:active { transform: scale(0.94); }
+  .post, .diary-entry, .discover-card { border-radius: 20px; }
+
+  /* ---------- onboarding: pergunta do horário de acordar ---------- */
+  .onboard-overlay { position: absolute; inset: 0; background: var(--bg); z-index: 50; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 30px 26px; }
+  .onboard-overlay.hide { display: none; }
+  .onboard-step { display: flex; flex-direction: column; align-items: center; width: 100%; }
+
+  /* ---------- logo: bolinha de papel amassado ---------- */
+  .splash-screen { position: absolute; inset: 0; background: var(--bg); z-index: 90; display: flex; align-items: center;
+    justify-content: center; transition: opacity .5s ease; }
+  .splash-screen.fade-out { opacity: 0; pointer-events: none; }
+  .splash-paper { width: 110px; height: 110px; }
+  .scribble-line { fill: none; stroke: #1a1a1a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .splash-paper .scribble-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-scribble 0.55s ease forwards; }
+  .splash-paper .scribble-line:nth-child(2) { animation-delay: .15s; }
+  .splash-paper .scribble-line:nth-child(3) { animation-delay: .3s; }
+  .splash-paper .scribble-line:nth-child(4) { animation-delay: .45s; }
+  .splash-paper .scribble-line:nth-child(5) { animation-delay: .6s; }
+  @keyframes draw-scribble { to { stroke-dashoffset: 0; } }
+  .logo-paper-spin { width: 26px; height: 26px; animation: paper-spin-slow 9s linear infinite; flex: none; }
+  @keyframes paper-spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .logo-row { display: flex; align-items: center; gap: 7px; }
+  .onboard-overlay.hide { display: none; }
+  .onboard-logo { font-family: 'Baloo 2', sans-serif; font-size: 22px; color: var(--accent-a); margin-bottom: 20px; }
+  .sun-illustration { width: 92px; height: 92px; display: block; margin-bottom: 16px;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.12)); }
+  .onboard-title { font-size: 18px; margin-bottom: 8px; }
+  .onboard-sub { font-size: 12.5px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 26px; max-width: 260px; }
+  .slider-wrap { width: 100%; max-width: 260px; margin-bottom: 10px; }
+  .slider-val { font-family: 'Baloo 2', sans-serif; font-size: 26px; color: var(--ink); margin-bottom: 18px; }
+  #wakeSlider { -webkit-appearance: none; width: 100%; height: 10px; border-radius: 999px;
+    background: linear-gradient(90deg, #E8A83D, #D9714A, #4A3426); outline: none; margin: 0; }
+  #wakeSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+    border: 3px solid var(--accent-a); box-shadow: 0 2px 8px rgba(0,0,0,0.25); cursor: pointer; }
+  #wakeSlider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--accent-a); cursor: pointer; }
+  #sleepSlider { -webkit-appearance: none; width: 100%; height: 10px; border-radius: 999px;
+    background: linear-gradient(90deg, #4A3426, #4A9B8E, #2E5952); outline: none; margin: 0; }
+  #sleepSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+    border: 3px solid var(--accent-b); box-shadow: 0 2px 8px rgba(0,0,0,0.25); cursor: pointer; }
+  #sleepSlider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid var(--accent-b); cursor: pointer; }
+  .onboard-btn { width: 100%; max-width: 260px; background: var(--accent-a); color: #fff;
+    font-weight: 600; font-family: 'DM Sans', 'Nunito', sans-serif; font-size: 13.5px; padding: 13px; border: none; border-radius: 999px; cursor: pointer; margin-top: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .google-btn { background: #fff; color: #3C4043; border: 1px solid var(--card-b); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .onboard-skip { margin-top: 14px; font-size: 11.5px; color: var(--ink-faint); text-decoration: underline; cursor: pointer; }
+  .onboard-topic-grid { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-width: 280px; margin-bottom: 18px; }
+  .onboard-topic-chip { font-size: 11.5px; font-weight: 700; padding: 7px 13px; border-radius: 999px; background: var(--accent-soft);
+    color: var(--accent-a); cursor: pointer; border: 1.5px solid transparent; }
+  .onboard-topic-chip.on { background: var(--accent-a); color: #fff; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #0B0F14; display: flex; justify-content: center; font-family: 'Nunito', sans-serif;
+    -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+
+  .device { width: 390px; height: 844px; background: var(--bg); border-radius: 46px; position: relative; overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.5); margin: 20px; border: 8px solid #0B0F14; transition: background .25s ease; }
+
+  /* ==========================================================================
+     TEMA CLIMA — inspirado na Princesa Mononoke (floresta magica, espiritos,
+     luz filtrando pela mata). Fica atras de todas as .screen (que nao tem
+     fundo opaco proprio, exceto Explorar/Livros/Mensagens que ganham
+     "clima-ativo" pra deixar o fundo passar o vidro por cima igual sempre).
+     5 estados dinamicos, nada estatico: sol, nublado, chuva, noite, primavera
+     (ipe amarelo, so aparece em vez de "sol" durante a primavera de verdade).
+     Mutuamente exclusivo com o modo escuro nativo -- ver toggleTemaClima().
+     ========================================================================== */
+  .clima-overlay { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    opacity: 0; transition: opacity .8s ease, background 1.2s ease; }
+  .clima-overlay.on { opacity: 1; }
+  .device.clima-ativo #screen-descobrir, .device.clima-ativo #screen-livros, .device.clima-ativo #screen-mensagens {
+    background: color-mix(in srgb, var(--card) 8%, transparent) !important;
+  }
+  /* --ink-faint (usado em icones de acao, icones/labels da barra de baixo,
+     chips) e claro demais pra ficar legivel em cima do fundo colorido do
+     clima, mesmo com o card mais fosco -- escurece só enquanto o Tema
+     Clima ta ligado (a noite ja sobrescreve de novo com o proprio tom
+     escuro, seletor mais especifico ganha). */
+  .device.clima-ativo {
+    --ink-faint: #6E5D42;
+  }
+
+  .clima-overlay[data-estado="sol"] { background: radial-gradient(600px circle at 50% -10%, rgba(255,244,198,.55), transparent 55%),
+    linear-gradient(160deg, #cfe0a3 0%, #8fb36b 22%, #4f8a52 46%, #2c5c3f 72%, #16382b 100%); }
+  .clima-raio { position:absolute; top:-20%; width:90px; height:160%; background:linear-gradient(180deg, rgba(255,248,210,.5), rgba(255,248,210,0) 70%);
+    filter: blur(6px); mix-blend-mode: screen; animation: climaRaioBalanco 8s ease-in-out infinite; }
+  @keyframes climaRaioBalanco { 0%,100% { transform: rotate(12deg) translateX(0); } 50% { transform: rotate(7deg) translateX(16px); } }
+  .clima-mote { position:absolute; width:4px; height:4px; border-radius:50%; background: rgba(255,250,220,.9); box-shadow:0 0 8px 2px rgba(255,240,180,.8);
+    animation: climaMoteFlutua 6s ease-in-out infinite; }
+  @keyframes climaMoteFlutua { 0% { transform: translateY(0); opacity:0; } 15% { opacity:1; } 100% { transform: translateY(-160px); opacity:0; } }
+
+  .clima-overlay[data-estado="nublado"] { background: linear-gradient(160deg, #aab3a4 0%, #838f7c 28%, #5c685a 58%, #333d33 100%); }
+  .clima-nuvem { position:absolute; height:44px; border-radius:50%; background: radial-gradient(ellipse, rgba(255,255,255,.8), rgba(255,255,255,0) 72%);
+    filter: blur(4px); animation: climaNuvemAndar linear infinite; }
+  @keyframes climaNuvemAndar { from { transform: translateX(-200px); } to { transform: translateX(430px); } }
+
+  .clima-overlay[data-estado="chuva"] { background: linear-gradient(160deg, #7e9a8f 0%, #4c6b62 30%, #2c453e 60%, #142521 100%); }
+  .clima-gota { position:absolute; top:-30px; width:2px; height:22px; background: linear-gradient(180deg, transparent, rgba(220,235,255,.75));
+    animation: climaGotaCair linear infinite; }
+  @keyframes climaGotaCair { from { transform: translate(0,0); opacity:0; } 8% { opacity:1; } to { transform: translate(-30px, 900px); opacity:.3; } }
+
+  .clima-overlay[data-estado="noite"] { background: linear-gradient(170deg, #0a1220 0%, #0b1a16 30%, #08130f 55%, #050b08 80%, #020403 100%); }
+  .clima-lua { position:absolute; top:130px; width:38px; height:38px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #fdfdf6, #eef0d8 60%, #dcdfc0 100%);
+    box-shadow: 0 0 26px 8px rgba(240,245,210,.28); animation: climaLuaAndar 280s ease-in-out infinite; }
+  @keyframes climaLuaAndar { 0% { left:20px; } 50% { left:270px; } 100% { left:20px; } }
+  .clima-vagalume { position:absolute; width:4px; height:4px; border-radius:50%; background:#eaffb0; box-shadow:0 0 10px 3px rgba(210,255,140,.85);
+    animation: climaVagalumeFlutua ease-in-out infinite; }
+  @keyframes climaVagalumeFlutua { 0% { transform: translate(0,0); opacity:.2; } 25% { opacity:1; } 50% { transform: translate(22px,-26px); opacity:.4; }
+    75% { opacity:1; } 100% { transform: translate(-12px,-8px); opacity:.2; } }
+
+  /* noite + Tema Clima puxa a interface inteira pro escuro tambem (menu,
+     icones do topo, cards, configuracoes) -- mesmos tokens do modo escuro
+     nativo, so que ligados automaticamente pela noite em vez do toggle,
+     ja que os dois sao mutuamente exclusivos (ver toggleTemaClima()). */
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="noite"]) {
+    --bg: #0D0D0D; --card: #1A1A1A; --card-b: #2C2C2C; --ink: #F2F2F2; --ink-dim: #A8A8A8; --ink-faint: #6E6E6E;
+    --accent-a: #E08657; --accent-b: #5CB3A4; --accent-soft: #2E2418; --pink: #E68686; --pink-soft: #3A2624;
+    --yellow: #E0A83D; --raiva: #C2503E; --shadow: 0 3px 14px rgba(0,0,0,0.5);
+    --bg-tela-suave: #17140F; --vidro-fosco: 91%; --vidro-fosco-leve: 86%;
+  }
+  .device.clima-ativo .tabbar:not(.textura-couro) {
+    background: color-mix(in srgb, var(--card) var(--vidro-fosco), transparent);
+    backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid color-mix(in srgb, white 10%, transparent);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="noite"]) .tabbar:not(.textura-couro) {
+    background: #161616; border-color: #2C2C2C; backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+
+  .clima-overlay[data-estado="primavera"] { background: linear-gradient(160deg, #fdf0c4 0%, #f0cf5c 18%, #a9c15a 55%, #4c7a4a 100%); }
+  .clima-folha { position:absolute; top:-20px; width:9px; height:9px; background:#f6d94a; border-radius:0 60% 0 60%;
+    animation: climaFolhaCair linear infinite; }
+  .clima-folha.verde { background:#c7dd6e; }
+
+  /* conversa (dmChatOverlay) acompanha a cor do clima tambem -- pintada
+     direto (nao transparente!) pra nao arriscar revelar outra camada da
+     tela por baixo dela (isso ja causou um bug serio, ver commit
+     "CORRIGE bug grave"). A noite ja fica escura sozinha via --bg
+     sobrescrito acima, nao precisa de regra propria aqui. */
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="sol"]) #dmChatOverlay {
+    background: radial-gradient(600px circle at 50% -10%, rgba(255,244,198,.55), transparent 55%),
+      linear-gradient(160deg, #cfe0a3 0%, #8fb36b 22%, #4f8a52 46%, #2c5c3f 72%, #16382b 100%);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="nublado"]) #dmChatOverlay {
+    background: linear-gradient(160deg, #aab3a4 0%, #838f7c 28%, #5c685a 58%, #333d33 100%);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="chuva"]) #dmChatOverlay {
+    background: linear-gradient(160deg, #7e9a8f 0%, #4c6b62 30%, #2c453e 60%, #142521 100%);
+  }
+  .device.clima-ativo:has(.clima-overlay.on[data-estado="primavera"]) #dmChatOverlay {
+    background: linear-gradient(160deg, #fdf0c4 0%, #f0cf5c 18%, #a9c15a 55%, #4c7a4a 100%);
+  }
+  @keyframes climaFolhaCair { from { transform: translate(0,0) rotate(0deg); opacity:0; } 8% { opacity:1; }
+    to { transform: translate(40px, 900px) rotate(340deg); opacity:.6; } }
+
+  .toggle-sw.desabilitado { opacity: .4; pointer-events: none; }
+
+  .screen { position: absolute; inset: 0; padding: calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom));
+    overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; opacity: 0; pointer-events: none;
+    transform: translateY(8px); transition: opacity .25s ease, transform .25s ease;
+    scrollbar-width: none; -ms-overflow-style: none; }
+  .screen::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  /* mesma escondida de barra nativa na lista de conversas (scroll proprio dentro
+     da tela) -- tinha barra visivel mesmo com a barra da .screen ja escondida,
+     por ser overflow proprio */
+  #dmListWrap { scrollbar-width: none; -ms-overflow-style: none; }
+  #dmListWrap::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  .screen.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+  /* ---------- tela cheia em celular real / instalado como PWA ---------- */
+  @media (max-width: 480px), (display-mode: standalone) {
+    html, body { height: 100%; overflow: hidden; }
+    body { display: block; background: var(--bg); }
+    .device { width: 100vw; height: 100vh; height: 100dvh; max-width: none; margin: 0;
+      border: none; border-radius: 0; box-shadow: none; }
+  }
+
+  h1, h2, h3 { font-family: 'Baloo 2', sans-serif; color: var(--ink); margin: 0; }
+

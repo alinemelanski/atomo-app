@@ -1,0 +1,111 @@
+/* Home/Diário, Meu Diário, diário rápido e polaroid */
+  /* ---------- home / diario (topo da tela inicio) ---------- */
+  .home-diario-wrap { margin-bottom: 6px; }
+  .home-semana-row { display:flex; justify-content:space-between; gap:4px; margin-bottom:14px; }
+  .home-semana-dia { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:4px 0; }
+  .home-semana-dia .rotulo { font-size:9.5px; font-weight:700; color:var(--ink-faint); font-family:'DM Sans', sans-serif; text-transform:uppercase; letter-spacing:.03em; }
+  .home-semana-dia .numero { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:var(--ink-dim); font-family:'DM Sans', sans-serif; transition: background .25s ease, color .25s ease; }
+  .home-semana-dia.hoje .numero { background:var(--accent-a); color:#fff; }
+
+  .home-diario-card { position:relative; overflow:hidden; border-radius:20px; padding:18px; margin-bottom:18px;
+    background: var(--accent-soft); box-shadow: var(--shadow); }
+  .home-diario-atomo { position:absolute; right:-28px; bottom:-28px; width:120px; height:120px; color:var(--accent-a); opacity:.45;
+    animation: atomoDiaLido 9s ease-in-out infinite; }
+  .home-diario-streak-wrap { position:relative; display:flex; align-items:center; gap:6px; margin:0 0 12px 4px; width:fit-content; max-width:100%; z-index:2; }
+  .home-diario-streak { position:relative; overflow:hidden; background:var(--accent-soft-base); color:var(--accent-a-base); font-family:'DM Sans', sans-serif;
+    font-weight:800; font-size:10.5px; padding:6px 13px; border-radius:999px; box-shadow:var(--shadow); cursor:pointer;
+    transition: background .4s ease, color .4s ease; }
+  .home-diario-streak .streak-fill { position:absolute; left:0; top:0; bottom:0; width:0%; z-index:0; border-radius:999px;
+    background: color-mix(in srgb, var(--accent-a-base) 38%, transparent); transition: width .7s cubic-bezier(.2,.8,.2,1), background .4s ease; }
+  /* pilula de sequencia: toque na propria pilula liga/desliga o arco-iris --
+     so ELA muda de cor, nunca o resto do app (pedido da usuaria). A parte
+     vazia (fundo) continua sempre na cor padrao; so o preenchimento (progresso)
+     vira gradiente quando ligado. */
+  .home-diario-streak.arco-iris-on .streak-fill {
+    background: linear-gradient(90deg, #E0447C, #F2B705, #3FA34D, #3B82C4, #8B5CF6); }
+  .home-diario-streak .streak-conteudo { position:relative; z-index:1; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+  .streak-dots { display:inline-block; width:1.1em; overflow:hidden; vertical-align:bottom; }
+  .streak-dots::after { content:'...'; animation: streakReticencias 1.3s steps(4) infinite; }
+  @keyframes streakReticencias { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .home-diario-eyebrow { font-family:'DM Sans', sans-serif; font-size:10px; font-weight:700; color:var(--accent-a); text-transform:uppercase;
+    letter-spacing:.08em; margin-bottom:6px; }
+  .home-diario-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:23px; color:var(--ink); margin-bottom:6px; max-width:72%; }
+  .home-diario-sub { font-family:'Nunito', sans-serif; font-size:12px; color:var(--ink-dim); max-width:68%; line-height:1.4; }
+  .home-diario-card { cursor:pointer; transition: transform .15s ease; }
+  .home-diario-card:active { transform: scale(0.98); }
+  .home-diario-abrir { position:absolute; bottom:14px; right:14px; width:30px; height:30px; border-radius:50%; background:var(--card);
+    display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); color:var(--accent-a); transition: transform .15s ease; }
+  .home-diario-card:active .home-diario-abrir { transform: scale(.9); }
+
+  /* ---------- pagina "Meu Diario" (abre ao tocar no card, cheia de posts + composer vidro) ---------- */
+  .diario-page-scroll { flex:1; overflow-y:auto; margin: 0 -16px; padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--accent-soft) 45%, var(--bg)) 70px, var(--bg) 280px); }
+  .diario-page-intro { padding-top:2px; margin-bottom:12px; }
+  .diario-page-sub { font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); line-height:1.4; margin-top:3px; max-width:88%; }
+  .composer.composer-vidro { background: color-mix(in srgb, var(--card) 78%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-b); box-shadow: 0 8px 26px rgba(0,0,0,0.10); }
+
+  .home-section-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:16px; color:var(--ink); }
+  .home-quick-titulo-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .home-quick-row { margin-bottom: 18px; }
+  .home-quick-cards { display:flex; gap:10px; }
+  .home-quick-card { flex:1; background:var(--accent-soft); border-radius:18px; padding:12px; display:flex; flex-direction:column; gap:10px;
+    font-family:'DM Sans', sans-serif; font-size:12px; font-weight:600; color:var(--ink); cursor:pointer; transition: transform .15s ease; }
+  .home-quick-card svg { color: var(--accent-a); }
+  .home-quick-card.alt { background: var(--accent-soft); background: color-mix(in srgb, var(--accent-b) 18%, var(--card)); }
+  .home-quick-card.alt svg { color: var(--accent-b); }
+  .home-quick-card:active { transform: scale(.98); }
+
+  /* ---------- diario rapido: pagina "o que te fez sorrir hoje" ---------- */
+  .quick-diario-scroll { flex:1; overflow-y:auto; display:flex; flex-direction:column; align-items:center;
+    padding: 6px 0 calc(24px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 60%, var(--bg)) 0%, var(--bg) 300px); }
+  .quick-sol-stage { position:relative; width:136px; height:136px; display:flex; align-items:center; justify-content:center; margin: 14px 0 8px; flex:none; }
+  .quick-sol-stage::before { content:''; position:absolute; inset:6px; border-radius:50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-a) 32%, transparent) 0%, transparent 70%);
+    animation: quickSolGlow 3.6s ease-in-out infinite; }
+  .quick-sol-stage::after { content:''; position:absolute; inset:0; border-radius:50%; border:2px solid var(--accent-a); opacity:0; }
+  @keyframes quickSolGlow { 0%,100% { opacity:.5; transform: scale(.88); } 50% { opacity:1; transform: scale(1.08); } }
+  .quick-sol-icon { position:relative; width:78px; height:78px; color: var(--accent-a);
+    animation: quickSolIdle 3.6s ease-in-out infinite; transform-origin: 50% 50%; }
+  .quick-sol-icon svg { width:100%; height:100%; }
+  @keyframes quickSolIdle { 0%,100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.07) rotate(9deg); } }
+  .quick-sol-stage.bursting .quick-sol-icon { animation: quickSolPop .8s cubic-bezier(.25,.9,.3,1.3) forwards; }
+  @keyframes quickSolPop { 0% { transform: scale(1) rotate(0deg); } 45% { transform: scale(1.4) rotate(16deg); } 100% { transform: scale(1.08) rotate(12deg); } }
+  .quick-sol-stage.bursting::after { animation: quickSolRing .9s ease-out forwards; }
+  @keyframes quickSolRing { 0% { opacity:.9; transform:scale(.55); } 100% { opacity:0; transform:scale(2.1); } }
+  .quick-diario-pergunta { font-family:'Fraunces', serif; font-weight:700; font-size:21px; color:var(--ink); text-align:center;
+    margin: 2px 22px 4px; transition: opacity .25s ease; }
+  .quick-diario-sub { font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); text-align:center;
+    margin: 0 30px 16px; line-height:1.45; transition: opacity .25s ease; }
+  .quick-diario-composer { width: calc(100% - 32px); margin: 0 16px 14px; transition: opacity .25s ease; }
+  .quick-diario-composer textarea { min-height: 120px; }
+  .quick-diario-salvar { width: calc(100% - 32px); margin: 0 16px; padding:13px; transition: opacity .25s ease; }
+
+  /* ---------- diario rapido: gratidao em forma de polaroid vintage ---------- */
+  .polaroid-card { width: calc(100% - 64px); max-width: 250px; margin: 8px auto 18px; background:#FBF8F1;
+    padding: 12px 12px 22px; border-radius: 3px; box-shadow: 0 12px 26px rgba(40,25,10,0.22), 0 1px 0 rgba(0,0,0,0.06);
+    transform: rotate(-1.6deg); transition: opacity .25s ease, transform .25s ease; }
+  .polaroid-card:active { transform: rotate(-1.6deg) scale(0.98); }
+  .polaroid-foto { position:relative; width:100%; aspect-ratio: 1/1; background: linear-gradient(160deg, #EDE3D3, #D8C6A0);
+    border-radius:2px; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .polaroid-foto img { width:100%; height:100%; object-fit:cover; display:block;
+    filter: sepia(.32) saturate(1.28) contrast(1.06) brightness(1.05) hue-rotate(-4deg); }
+  .polaroid-foto::after { content:''; position:absolute; inset:0; pointer-events:none;
+    box-shadow: inset 0 0 22px 9px rgba(60,38,14,.3); mix-blend-mode:multiply; }
+  .polaroid-foto-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; color:#8A7860;
+    font-family:'Nunito', sans-serif; font-size:11px; font-weight:700; text-align:center; padding: 0 14px; }
+  .polaroid-legenda-input { width:100%; border:none; background:none; outline:none; text-align:center; margin-top:12px;
+    font-family:'Nunito', sans-serif; font-style:italic; font-size:16px; color:#3A2E22; }
+  .polaroid-legenda-input::placeholder { color:#B7A78D; }
+  .polaroid-foto.revelando img { animation: polaroidRevelar 1.5s ease forwards; }
+  @keyframes polaroidRevelar { 0% { filter: brightness(2.3) contrast(.5) saturate(.12) blur(3px) sepia(0); opacity:.3; }
+    100% { filter: sepia(.32) saturate(1.28) contrast(1.06) brightness(1.05) hue-rotate(-4deg) blur(0); opacity:1; } }
+  /* variante do card de polaroid usada DENTRO do diario (post ja salvo) —
+     mesma cara da tela de criar, só sem o input/placeholder de câmera */
+  .polaroid-card-diario { margin: 4px auto 2px; max-width: 190px; transform: rotate(-5deg); }
+  .polaroid-card-diario:active { transform: rotate(-5deg) scale(0.98); }
+  .polaroid-legenda-display { width:100%; text-align:center; margin-top:12px; font-family:'Nunito', sans-serif;
+    font-style:italic; font-size:13px; color:#3A2E22; line-height:1.4; word-wrap:break-word; }
+

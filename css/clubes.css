@@ -1,0 +1,143 @@
+/* clube do livro e cards de comunidades */
+  /* ---------- clube do livro: vidro, marca d'agua do atomo, cards grandes ---------- */
+  .clube-lista-wrap { position: relative; overflow: hidden; padding-top: 4px; }
+  .clube-watermark { position: absolute; top: -52px; right: -60px; width: 210px; height: 210px;
+    animation: clubeSpinLento 60s linear infinite; pointer-events: none; z-index: 0; color: var(--ink); }
+  @keyframes clubeSpinLento { to { transform: rotate(360deg); } }
+  .clube-watermark path:first-child { fill: currentColor; fill-opacity: .05; stroke: currentColor; stroke-opacity: .15; }
+  .clube-watermark .scribble-marca { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .12; }
+
+  .clube-kicker { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--accent-a); margin-bottom: 6px; }
+  .clube-titulo-grande { position: relative; z-index: 1; font-family: 'Fraunces', serif; font-weight: 800;
+    font-size: 25px; line-height: 1.1; color: var(--ink); margin: 2px 0 4px; letter-spacing: -.01em; white-space: nowrap; }
+  .clube-sub-grande { position: relative; z-index: 1; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-dim); margin-bottom: 16px; }
+
+  .clube-criar-btn { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 13px 22px; margin-bottom: 16px; border: none; border-radius: 999px; cursor: pointer;
+    background: var(--accent-a); color: #fff; font-size: 13.5px; font-weight: 800;
+    font-family: 'DM Sans', sans-serif; box-shadow: var(--shadow); transition: transform .15s ease; }
+  .clube-criar-btn:active { transform: scale(.94); }
+
+  .clube-card-grande { position: relative; z-index: 1; aspect-ratio: 16 / 10; border-radius: 24px; overflow: hidden;
+    margin-bottom: 16px; box-shadow: var(--shadow); cursor: pointer; background: var(--card-b);
+    animation: clubeCardEntra .5s cubic-bezier(.2,.8,.2,1) backwards; transition: transform .15s ease; }
+  .clube-card-grande:active { transform: scale(.98); }
+  @keyframes clubeCardEntra { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .clube-card-capa { position: absolute; inset: 0; background-size: cover; background-position: center 22%; }
+  .clube-card-capa.sem-capa { background: var(--accent-a); display: flex; align-items: center; justify-content: center; }
+  .clube-card-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,8,6,.78) 0%, rgba(10,8,6,.2) 46%, transparent 70%); }
+  .clube-card-pill { position: absolute; top: 12px; display: flex; align-items: center; gap: 5px; padding: 6px 11px;
+    border-radius: 999px; background: rgba(20,16,12,.4); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+    border: 1px solid rgba(255,255,255,.2); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; z-index: 2; }
+  .clube-card-pill.membros { left: 12px; }
+  .clube-card-pill.lock { right: 12px; padding: 6px; }
+  .clube-card-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px; z-index: 2; }
+  .clube-card-nome { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; text-shadow: 0 1px 10px rgba(0,0,0,.35); letter-spacing: -.01em; }
+  .clube-card-livro { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: rgba(255,255,255,.92); display: flex; align-items: center; gap: 6px; }
+
+  .clube-hero-glass { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden;
+    background-size: cover; background-position: center 25%; box-shadow: var(--shadow); }
+  .clube-hero-glass.sem-livro { aspect-ratio: auto; padding: 22px; background: var(--card); border: 1px dashed var(--card-b);
+    display: flex; align-items: center; justify-content: center; }
+  .clube-hero-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,8,6,.75) 0%, rgba(10,8,6,.12) 55%, transparent 75%); }
+  .clube-hero-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px; z-index: 1; }
+  .clube-hero-titulo { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: #fff; line-height: 1.15; text-shadow: 0 1px 10px rgba(0,0,0,.35); letter-spacing: -.01em; }
+  .clube-hero-autor { font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,.88); margin-top: 3px; }
+  .clube-meta-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .clube-meta-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--ink-dim); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; }
+  #clubeDetalheMural .post { animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }
+  #clubeDetalheMural .post-body { animation: clubeFadeIn .3s ease; }
+  @keyframes clubeFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ---------- aba Livros: chip "comunidades" ---------- */
+  .badge-novo-chip { background: var(--accent-b); color: #fff; font-size: 8.5px; font-weight: 800;
+    padding: 1px 5px; border-radius: 999px; margin-left: 3px; letter-spacing: .03em; font-family: 'DM Sans', sans-serif; }
+  .feed-modo-chip.on .badge-novo-chip { background: rgba(255,255,255,.28); }
+  .feed-modo-chip.icon-only { padding: 9px 11px; }
+
+  /* ---------- clube/comunidade: botoes de acao no cabecalho (ao lado dos 3 pontinhos), capa mini e bolhas por pessoa ---------- */
+  .clube-header-icons { display: flex; align-items: center; gap: 6px; }
+  .dm-header-icon-btn { width: 32px; height: 32px; border-radius: 50%; flex: none; border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent);
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); transition: transform .15s ease; }
+  .dm-header-icon-btn:active { transform: scale(.9); }
+  .dm-header-pill { width: auto; border-radius: 999px; padding: 0 10px; gap: 4px; font-size: 10.5px; font-weight: 800;
+    color: var(--accent-b); cursor: default; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+
+  .clube-hero-mini { display: flex; align-items: center; gap: 10px; border-radius: 14px; padding: 8px;
+    background: color-mix(in srgb, var(--card) 55%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid color-mix(in srgb, var(--card-b) 55%, transparent); }
+  .clube-hero-mini-capa { width: 40px; height: 56px; border-radius: 6px; background-size: cover; background-position: center;
+    flex: none; background-color: var(--accent-a); }
+  .clube-hero-mini-info { min-width: 0; }
+  .clube-hero-mini-titulo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+  .clube-hero-mini-autor { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-dim); margin-top: 1px; }
+  .clube-hero-mini.sem-livro { justify-content: center; color: var(--ink-faint); font-size: 12px; padding: 14px;
+    font-family: 'DM Sans', sans-serif; }
+
+  .clube-msg-row.other .clube-msg-bolha.cor-0 { background: color-mix(in srgb, var(--accent-b) 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-1 { background: color-mix(in srgb, var(--pink) 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-2 { background: color-mix(in srgb, var(--yellow) 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-3 { background: color-mix(in srgb, #8B7EC8 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-4 { background: color-mix(in srgb, #7A9B6E 24%, var(--card)); }
+  .clube-msg-row.other .clube-msg-bolha.cor-5 { background: color-mix(in srgb, var(--accent-a) 22%, var(--card)); }
+  .clube-msg-autor.cor-0 { color: color-mix(in srgb, var(--accent-b) 80%, var(--ink)); }
+  .clube-msg-autor.cor-1 { color: color-mix(in srgb, var(--pink) 80%, var(--ink)); }
+  .clube-msg-autor.cor-2 { color: color-mix(in srgb, var(--yellow) 75%, var(--ink)); }
+  .clube-msg-autor.cor-3 { color: color-mix(in srgb, #8B7EC8 80%, var(--ink)); }
+  .clube-msg-autor.cor-4 { color: color-mix(in srgb, #7A9B6E 80%, var(--ink)); }
+  .clube-msg-autor.cor-5 { color: color-mix(in srgb, var(--accent-a) 80%, var(--ink)); }
+
+  /* ---------- comunidades: card da lista (protótipo aprovado por ela) ---------- */
+  .comunidade-card { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px;
+    padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; transition: transform .15s ease;
+    animation: clubeCardEntra .45s cubic-bezier(.2,.8,.2,1) backwards; }
+  .comunidade-card:active { transform: scale(.98); }
+  .comunidade-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .comunidade-icone { flex: none; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; color: #fff; }
+  .comunidade-badge { display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+    color: var(--accent-b); background: color-mix(in srgb, var(--accent-b) 14%, transparent); padding: 2px 7px;
+    border-radius: 999px; margin-bottom: 4px; font-family: 'DM Sans', sans-serif; }
+  .comunidade-titulo { font-family: 'Baloo 2', sans-serif; font-size: 14.5px; color: var(--ink); line-height: 1.25; }
+  .comunidade-desc { font-size: 11.5px; color: var(--ink-dim); line-height: 1.45; margin: 6px 0 10px; }
+  .comunidade-footer { display: flex; align-items: center; justify-content: space-between; }
+  .comunidade-avatar-stack { display: flex; align-items: center; }
+  .comunidade-mini-avatar { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--card); margin-left: -7px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px; font-weight: 800;
+    font-family: 'DM Sans', sans-serif; }
+  .comunidade-mini-avatar:first-child { margin-left: 0; }
+  .comunidade-membros-txt { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; margin-left: 6px; font-family: 'DM Sans', sans-serif; }
+  .comunidade-prazo-txt { font-size: 10.5px; color: var(--ink-faint); font-weight: 700; font-family: 'DM Sans', sans-serif;
+    display: inline-flex; align-items: center; gap: 3px; }
+  .comunidade-capa-picker { width: 100%; height: 108px; border-radius: 16px; background: var(--accent-soft);
+    color: var(--accent-a); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    overflow: hidden; margin-bottom: 12px; border: 1px dashed color-mix(in srgb, var(--accent-a) 35%, transparent); }
+  .comunidade-capa-picker img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .comunidade-capa-picker-vazio { display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px; font-weight: 700; }
+  /* foto de quem está no grupo, com um + pra seguir na hora (networking em clube do livro / comunidades) */
+  .avatar-seguir { position: relative; display: inline-flex; flex: none; vertical-align: middle; }
+  .avatar-seguir-foto { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 10px; overflow: hidden; }
+  .avatar-seguir-mais { position: absolute; right: -4px; bottom: -4px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--card);
+    background: var(--accent-a); color: #fff; font-size: 12px; line-height: 1; font-weight: 800; padding: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: transform .15s, background .25s; }
+  .avatar-seguir-mais::after { content: ''; position: absolute; inset: -10px; }
+  .avatar-seguir-mais:active { transform: scale(.90); }
+  .avatar-seguir-mais.ok { background: var(--accent-b); font-size: 9px; }
+  .comunidade-membro-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px;
+    border-bottom: 1px solid var(--card-b); }
+  .comunidade-membro-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; flex: none; }
+  .comunidade-membro-handle { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink); }
+  .comunidade-membro-papel { font-size: 10.5px; color: var(--ink-faint); text-transform: capitalize; }
+  .ranking-posicao { width: 24px; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800;
+    font-size: 14px; color: var(--ink-faint); flex: none; }
+  .ranking-paginas { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--accent-a); flex: none; white-space: nowrap; }
+  .ranking-paginas small { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 9.5px; color: var(--ink-faint); margin-left: 2px; }
+  .ranking-periodo-row { display: flex; gap: 8px; margin-bottom: 14px; }
+

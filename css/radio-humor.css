@@ -1,0 +1,71 @@
+/* rádio Átomo e bichinhos de humor */
+  /* ---------- radio atomo: vinil compacto no cabecalho, do lado do avatar ---------- */
+  .top-row-right { display:flex; align-items:center; gap:8px; }
+  .header-radio-widget { flex:none; width:36px; height:36px; border-radius:18px; background:var(--card);
+    border:1px solid var(--card-b); box-shadow:var(--shadow); display:flex; align-items:center; overflow:hidden;
+    cursor:pointer; transition: width .4s cubic-bezier(.2,.8,.2,1); }
+  .header-radio-widget.aberto { width:180px; }
+  .header-radio-widget:active { transform: scale(.94); }
+  .header-radio-disco { width:36px; height:36px; flex:none; display:flex; align-items:center; justify-content:center; }
+  .header-radio-disco svg { width:26px; height:26px; display:block; animation: vinilGirar 3s linear infinite; animation-play-state: paused; }
+  .header-radio-widget.aberto .header-radio-disco svg { animation-play-state: running; }
+  @keyframes vinilGirar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .header-radio-marquee-wrap { flex:1; min-width:0; height:100%; display:flex; align-items:center; gap:6px;
+    padding-right:8px; opacity:0; transition: opacity .25s ease; }
+  .header-radio-widget.aberto .header-radio-marquee-wrap { opacity:1; transition-delay:.15s; }
+  .header-radio-marquee { flex:1; min-width:0; height:100%; overflow:hidden; position:relative; }
+  .header-radio-marquee span { position:absolute; white-space:nowrap; font-family:'DM Sans', sans-serif;
+    font-size:10.5px; font-weight:700; color:var(--ink); top:50%; transform:translateY(-50%); }
+  .header-radio-widget.aberto .header-radio-marquee span { animation: radioMarqueeAndar 8s linear infinite; left:100%; }
+  @keyframes radioMarqueeAndar { from { left:100%; } to { left:-140%; } }
+  .header-radio-estilo-btn { flex:none; width:18px; height:18px; border:none; background:none; padding:0; margin:0;
+    color:var(--ink-faint); font-size:12px; line-height:1; cursor:pointer; }
+
+  .home-emocoes-wrap { margin-bottom: 18px; }
+  .home-emocoes-card { background:var(--card); border:1px solid var(--card-b); border-radius:18px; padding:14px 3px 10px; box-shadow:var(--shadow);
+    display:flex; justify-content:center; gap:1px; }
+  .home-emocao-col { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; min-width:0; }
+  .home-emocao-pct { font-family:'DM Sans', sans-serif; font-size:10.5px; font-weight:800; color:var(--ink-dim); }
+  .home-emocao-barra-wrap { width:94%; height:94px; border-radius:999px; background:var(--card-b); display:flex; align-items:flex-end; overflow:hidden; }
+  .home-emocao-barra { width:100%; border-radius:999px; transition: height .55s cubic-bezier(.32,1.4,.4,1); }
+  .home-emocao-barra.pulso { animation: emocaoBarraPulso .5s ease; }
+  @keyframes emocaoBarraPulso { 0% { filter:brightness(1); } 35% { filter:brightness(1.35); } 100% { filter:brightness(1); } }
+  .home-emocao-nome { font-family:'DM Sans', sans-serif; font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:capitalize; }
+
+  /* ---------- bichinhos de humor: toca na carinha pra registrar como voce ta ---------- */
+  .home-humor-widget { margin: 10px 0 18px; background:var(--card); border:1px solid var(--card-b); border-radius:18px;
+    padding: 14px 8px 10px; box-shadow: var(--shadow); }
+  .home-humor-titulo { font-family:'DM Sans', sans-serif; font-size:10.5px; font-weight:700; color:var(--ink-faint);
+    text-transform:uppercase; letter-spacing:.07em; text-align:center; margin-bottom:10px; }
+  .home-humor-carinhas { display:flex; justify-content:space-between; gap:4px; }
+  .humor-face-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;
+    -webkit-tap-highlight-color: transparent; }
+  .humor-face-svg { width:100%; max-width:66px; aspect-ratio:1; display:block; transform-origin:50% 50%;
+    animation: humorWiggle 2.8s ease-in-out infinite; }
+  .humor-face-wrap:nth-child(2) .humor-face-svg { animation-delay: .3s; }
+  .humor-face-wrap:nth-child(3) .humor-face-svg { animation-delay: .55s; }
+  .humor-face-wrap:nth-child(4) .humor-face-svg { animation-delay: .8s; }
+  .humor-face-wrap:nth-child(5) .humor-face-svg { animation-delay: 1.05s; }
+  @keyframes humorWiggle { 0%,100% { transform: rotate(-4deg) scale(1); } 50% { transform: rotate(4deg) scale(1.05); } }
+  /* toque satisfatorio: a bolinha ja cede na hora do toque (feedback instantaneo, feito
+     bola de borracha/massinha sendo apertada), depois solta num esprime elastico maior,
+     e a expressao troca pra uma versao mais intensa daquele humor enquanto isso acontece */
+  .humor-face-wrap:active .humor-face-svg { transform: scale(1.14,.8); transition: transform .08s ease-out; }
+  .humor-face-wrap.tocando .humor-face-svg { animation: humorEsprime .68s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes humorEsprime {
+    0%   { transform: scale(1,1); }
+    16%  { transform: scale(1.38,.66); }
+    36%  { transform: scale(.7,1.36); }
+    56%  { transform: scale(1.18,.86); }
+    74%  { transform: scale(.9,1.1); }
+    88%  { transform: scale(1.05,.97); }
+    100% { transform: scale(1,1); }
+  }
+  /* expressoes bem grandes e fofas, estilo mascote atomo: corpo lã fofa lisa,
+     olhos e boca grandes pra ficar clara a diferenca ao apertar */
+  .humor-face-base, .humor-face-intenso { transition: opacity .15s ease; }
+  .humor-face-intenso { opacity: 0; }
+  .humor-face-wrap.tocando .humor-face-base { opacity: 0; }
+  .humor-face-wrap.tocando .humor-face-intenso { opacity: 1; }
+  .humor-face-label { font-family:'DM Sans', sans-serif; font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:capitalize; }
+

@@ -1,0 +1,81 @@
+/* perfil, amigos e pedidos de apoio */
+  /* ---------- perfil ---------- */
+  .profile-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--accent-a);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; font-weight: 800; flex: none; }
+  .profile-name h2 { font-size: 18px; }
+  .profile-name .handle { font-size: 12px; color: var(--ink-dim); }
+
+  .stat-row-2 { display: flex; gap: 10px; margin-bottom: 14px; }
+  .mini-stats-row { display: flex; gap: 12px; margin-top: 2px; }
+  .amigos-inline { font-size: 11px; color: var(--ink-dim); cursor: pointer; }
+  .amigos-inline span { font-weight: 800; color: var(--accent-a); }
+  .stat-box { flex: 1; background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 12px; text-align: center; cursor: pointer; }
+  .stat-box .n { font-family: 'Baloo 2', sans-serif; font-size: 19px; color: var(--ink); }
+  .stat-box .l { font-size: 10px; color: var(--ink-faint); font-weight: 700; }
+
+  .bio-box { font-size: 12.5px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 14px; }
+
+  .diary-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .diary-tab { flex: 1; text-align: center; padding: 9px; border-radius: 12px; font-size: 12px; font-weight: 800; color: var(--ink-faint);
+    background: var(--card); border: 1px solid var(--card-b); cursor: pointer; }
+  .diary-tab.on { background: var(--accent-a); color: #fff; border-color: transparent; }
+
+  .diary-entry { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 13px; margin-bottom: 10px; }
+  .diary-entry.fixado { border-color: var(--accent-a); background: var(--accent-soft); }
+  .diary-entry .tag { font-size: 9px; font-weight: 800; color: var(--accent-a); text-transform: uppercase; letter-spacing: .03em; }
+  .diary-entry .body { font-size: 13px; color: var(--ink); margin-top: 4px; line-height: 1.5; }
+  .diary-entry .foot { font-size: 10px; color: var(--ink-faint); margin-top: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .diary-entry .foot-actions { display: flex; gap: 14px; align-items: center; }
+  .privado-lock { color: var(--pink); }
+
+  /* ---------- amigos (só mútuos) ---------- */
+  .friend-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--card-b); }
+  .friend-row:last-child { border-bottom: none; }
+  .friend-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--accent-soft);
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; flex: none; }
+  .friend-info { flex: 1; min-width: 0; }
+  .friend-info .n { font-size: 13px; font-weight: 800; color: var(--ink); }
+  .friend-info .s { font-size: 10.5px; color: var(--ink-faint); }
+
+  /* ---------- "o que eu preciso agora" -- pedidos de apoio entre amigos ---------- */
+  .apoio-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .apoio-card-titulo { font-size: 11.5px; font-weight: 800; color: var(--ink-dim); margin-bottom: 9px; }
+  .apoio-input-row { display: flex; gap: 8px; }
+  .apoio-input-row input { flex: 1; min-width: 0; border: 1px solid var(--card-b); background: var(--bg-tela-suave); border-radius: 999px;
+    padding: 9px 14px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); }
+  .apoio-input-row input:focus { outline: none; border-color: var(--accent-a); }
+  .apoio-pedir-btn { flex: none; background: var(--accent-a); color: #fff; border: none; border-radius: 999px; padding: 9px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .apoio-texto-atual { font-size: 13px; color: var(--ink); margin-bottom: 10px; line-height: 1.5; }
+  .apoio-contagens { display: flex; gap: 12px; margin-bottom: 10px; }
+  .apoio-contagem-chip { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--ink-dim); }
+  .apoio-acoes-row { display: flex; gap: 8px; }
+  .apoio-resposta-btns { display: flex; gap: 8px; margin-top: 2px; }
+  .apoio-resposta-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 700; padding: 9px 4px; border-radius: 14px; border: none; cursor: pointer;
+    background: var(--accent-soft); color: var(--accent-a); }
+  .apoio-resposta-btn:active { transform: scale(.94); }
+  .apoio-resposta-caixa { display: none; margin-top: 8px; gap: 6px; }
+  .apoio-resposta-caixa.on { display: flex; }
+  .apoio-resposta-caixa input { flex: 1; min-width: 0; border: 1px solid var(--card-b); background: var(--bg-tela-suave); border-radius: 999px;
+    padding: 8px 12px; font-family: 'Nunito', sans-serif; font-size: 16px; color: var(--ink); }
+  .apoio-resposta-caixa input:focus { outline: none; border-color: var(--accent-a); }
+  .apoio-resposta-enviar { flex: none; background: var(--accent-a); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  .visitor-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--card-b); }
+  .visitor-row:last-child { border-bottom: none; }
+  .visitor-lock-note { font-size: 10.5px; color: var(--ink-faint); text-align: center; margin-top: 10px; line-height: 1.5; }
+  .dm-empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 20px; text-align: center; }
+  .dm-empty-state .icon-svg { opacity: 0.55; }
+  .dm-empty-state .titulo { font-weight: 800; font-size: 14px; color: var(--ink-dim); }
+  .dm-empty-state .sub { font-size: 11.5px; color: var(--ink-faint); line-height: 1.5; max-width: 220px; }
+  .dm-post-share { display: flex; flex-direction: column; gap: 6px; background: var(--accent-soft); border: 1px solid var(--card-b); border-radius: 18px; padding: 10px 12px; max-width: 210px; }
+  .dm-post-share .autor { font-size: 11px; font-weight: 800; color: var(--accent-a); }
+  .dm-post-share .trecho { font-size: 12.5px; color: var(--ink); line-height: 1.4; }
+  .dm-post-share img { width: 100%; border-radius: 10px; display: block; margin-top: 2px; }
+  .estado-vazio { text-align: center; padding: 40px 20px; }
+  .estado-vazio svg { width: 70px; height: 70px; margin-bottom: 14px; opacity: 0.7; }
+  .estado-vazio .titulo { font-family: 'Baloo 2', sans-serif; font-size: 15px; color: var(--ink); margin-bottom: 6px; }
+  .estado-vazio .sub { font-size: 12px; color: var(--ink-dim); line-height: 1.5; margin-bottom: 16px; }

@@ -1,0 +1,66 @@
+/* topo comum, barra de navegação, cards genéricos e composer do feed */
+  /* ---------- topo comum ---------- */
+  .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .top-row h1 { font-size: 21px; }
+  .top-icon-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--card); border: 1px solid var(--card-b);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); position: relative; }
+  .icon-badge { position: absolute; top: -3px; right: -3px; background: var(--pink); color: #fff; font-size: 9px; font-weight: 800;
+    min-width: 16px; height: 16px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+  .icon-badge.hide { display: none; }
+  .top-icons-wrap { display: flex; gap: 8px; }
+
+  .streak-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; color: var(--ink-dim);
+    background: var(--card); border: 1px solid var(--card-b); padding: 5px 11px; border-radius: 999px; margin-bottom: 12px;
+    cursor: pointer; transition: transform .15s ease; }
+  .streak-chip:active { transform: scale(0.94); }
+
+  .notif-item { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--card-b); }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item .ic { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); display: flex; align-items: center;
+    justify-content: center; font-size: 15px; flex: none; }
+  .notif-item .n-t { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .notif-item .n-s { font-size: 10.5px; color: var(--ink-faint); margin-top: 1px; }
+
+  /* ---------- barra de navegação ---------- */
+  .tabbar { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + 6px); left: 14px; right: 14px; background: var(--card); border: 1px solid var(--card-b);
+    border-radius: 26px; display: flex; padding: 8px; gap: 4px; box-shadow: var(--shadow); z-index: 20; }
+  .tab-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative;
+    padding: 6px 2px 8px; border-radius: 18px; cursor: pointer; color: var(--ink-faint); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 10px;
+    transition: color .25s ease; }
+  .tab-icon-wrap { position: relative; width: 36px; height: 36px; border-radius: 40%; display: flex; align-items: center; justify-content: center;
+    transition: background .25s cubic-bezier(.2,.8,.2,1), transform .25s cubic-bezier(.2,.8,.2,1); }
+  .tab-badge { position: absolute; top: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--pink); box-shadow: 0 0 0 2px var(--card); display: none; z-index: 1; }
+  .tab-badge.on { display: block; }
+  .dm-unread-badge { flex: none; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--pink);
+    color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-left: auto; }
+  .tab-btn.active { color: var(--accent-a); }
+  .tab-btn.active .tab-icon-wrap { background: radial-gradient(circle, var(--accent-soft) 0%, var(--accent-soft) 45%, transparent 78%);
+    transform: scale(1.08); animation: tabGlowBreath 2.6s ease-in-out infinite; }
+  .tab-btn.active svg { color: var(--accent-a); }
+  .tab-btn:active .tab-icon-wrap { transform: scale(.9); }
+  .tab-btn svg { width: 20px; height: 20px; transition: transform .25s ease; position: relative; z-index: 1; }
+  .tab-btn[data-screen="descobrir"].active .tab-icon-wrap svg { animation: atomoGiraTab 7s linear infinite; }
+  @keyframes tabGlowBreath { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
+  @keyframes atomoGiraTab { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* ---------- cards genéricos ---------- */
+  .card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px; box-shadow: var(--shadow); }
+
+  /* ---------- composer do feed ---------- */
+  .clima-chip { display: none; align-items: center; gap: 6px; width: fit-content; margin: 0 0 10px; padding: 6px 12px 6px 10px;
+    border-radius: 999px; background: var(--accent-soft); color: var(--accent-a); font-size: 12px; font-weight: 700; }
+  .composer { position: relative; background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .composer textarea { width: 100%; border: none; background: none; resize: none; font-family: 'Nunito', sans-serif; font-size: 16px;
+    color: var(--ink); min-height: 46px; outline: none; }
+  /* quando o composer tem os icones de anexar/enviar flutuando (composer-foot
+     posicionado no canto), reserva espaco na 1a linha do texto pra nao ficar
+     por baixo deles */
+  .composer:has(.composer-foot) textarea { padding-right: 92px; }
+  .composer textarea::placeholder { color: var(--ink-faint); }
+  .type-chip-row { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0 6px; padding-bottom: 2px; }
+  .post-foto-fixa { width:100%; aspect-ratio: 4/3; object-fit: cover; border-radius:12px; margin-top:8px; display:block; background: var(--card-b); }
+  .type-chip-wrap { position: relative; }
+  .type-chip-wrap::after { content: ''; position: absolute; top: 0; right: 0; bottom: 2px; width: 26px;
+    background: linear-gradient(90deg, transparent, var(--card)); pointer-events: none; }
+

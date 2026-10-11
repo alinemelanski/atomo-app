@@ -1,0 +1,21 @@
+/* busca do Explorar (pill que expande) */
+  /* ---------- busca do Explorar: mesmo padrao "pill que expande" da busca de
+     Mensagens, pra nao precisar abrir pagina nenhuma pra buscar ---------- */
+  .explorar-top-row { position: relative; }
+  .explorar-titulo-wrap { transition: flex .25s ease, opacity .25s ease; overflow: hidden; }
+  .explorar-top-row.busca-aberta .explorar-titulo-wrap { flex: 0; opacity: 0; }
+  .explorar-extra-btns { display: flex; align-items: center; gap: 8px; }
+  .explorar-top-row.busca-aberta .explorar-extra-btns { display: none; }
+  .explorar-busca-widget.aberto .msg-busca-toggle-icone svg { transform: none; }
+  .explorar-busca-dropdown {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 25;
+    max-height: 55vh; overflow-y: auto; border-radius: 18px; padding: 8px;
+    background: color-mix(in srgb, var(--card) 90%, transparent);
+    backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid color-mix(in srgb, var(--card-b) 70%, transparent);
+    box-shadow: 0 16px 40px rgba(0,0,0,.18);
+    opacity: 0; pointer-events: none; transform: translateY(-8px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .explorar-busca-dropdown.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+

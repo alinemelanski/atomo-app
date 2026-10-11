@@ -1,0 +1,118 @@
+/* estante animada, menções, seletor de horário, resumo do dia, reordenar, checklist e sequência */
+  /* ---------- estante/livros: entrada animada + atomo girando nos dias lidos ---------- */
+  #livrosList .bio-box, #livrosList .discover-card { animation: clubeCardEntra .45s cubic-bezier(.2,.8,.2,1) backwards; }
+  @keyframes atomoDiaLido {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .estante-dia-lido-atomo { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--accent-a); animation: atomoDiaLido 7s ease-in-out infinite; }
+
+  /* ---------- @mencoes ---------- */
+  .mencao-dropdown { position: fixed; z-index: 200;
+    background: var(--card); background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--card-b); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 5px; max-height: 168px; overflow-y: auto; }
+  .mencao-item { padding: 8px 10px; font-size: 13px; font-weight: 700; color: var(--accent-a);
+    border-radius: 9px; cursor: pointer; transition: background .15s ease; }
+  .mencao-item:hover, .mencao-item:active { background: var(--accent-soft); }
+  .mencao-texto-link { color: var(--accent-a); font-weight: 700; cursor: pointer; }
+  .post-video-embed { position: relative; width: 100%; padding-top: 56%; margin-top: 8px; border-radius: 12px; overflow: hidden; background: #000; }
+  .post-video-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+  /* ---------- seletor de horario customizado (sem input nativo) ---------- */
+  .tempo-picker { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 6px;
+    background: var(--card); background: color-mix(in srgb, var(--card) 55%, transparent);
+    border: 1px solid var(--card-b); border-radius: 18px; padding: 12px 18px; }
+  .tempo-picker-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tempo-picker-num { font-size: 26px; font-weight: 800; color: var(--ink); min-width: 40px; text-align: center;
+    font-variant-numeric: tabular-nums; }
+  .tempo-picker-sep { font-size: 22px; font-weight: 800; color: var(--ink-dim); }
+  .tempo-picker-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--accent-soft);
+    color: var(--accent-a); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: transform .15s ease; }
+  .tempo-picker-btn:active { transform: scale(.9); background: var(--accent-a); color: #fff; }
+  .tempo-picker-ampm { flex:none; align-self:center; padding:6px 10px; border-radius:999px; border:1px solid var(--card-b);
+    background: var(--card); font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:800; color:var(--accent-a);
+    cursor:pointer; user-select:none; transition: transform .15s ease; }
+  .tempo-picker-ampm:active { transform: scale(.9); }
+
+  /* ---------- resumo do dia (Home) ---------- */
+  .home-resumo-wrap { margin-bottom: 18px; }
+  .home-resumo-card { background: var(--card); border: 1px solid var(--card-b); border-radius: 18px; padding: 14px 16px;
+    animation: resumoDiaEntra .4s cubic-bezier(.2,.8,.2,1); }
+  @keyframes resumoDiaEntra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .home-resumo-texto { font-size: 13px; line-height: 1.55; color: var(--ink); }
+  /* botoes de acao do card de resumo -- teste de fonte mais fina (DM Sans, ja usada
+     no app) no lugar do Nunito 800 padrao, pra ver se fica menos "grossa" */
+  .resumo-acao-btn { flex: 1; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px;
+    padding: 10px 16px; border-radius: 999px; border: none; cursor: pointer; }
+  .resumo-acao-btn.dispensar { background: var(--accent-soft); color: var(--accent-a); }
+  .resumo-acao-btn.compartilhar { background: var(--accent-a); color: #fff; }
+  .home-resumo-stats { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .home-resumo-stat { display: flex; align-items: center; gap: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px;
+    font-weight: 800; color: var(--accent-a); background: var(--accent-soft); padding: 5px 10px 5px 8px; border-radius: 999px; }
+  .home-resumo-elogio { font-size: 12.5px; font-style: italic; color: var(--accent-a); margin: 0 0 8px; line-height: 1.5; }
+
+  /* ---------- pressionar e segurar pra reorganizar os blocos da Home (estilo tela inicial do iPhone) ---------- */
+  .home-organizavel { position: relative; }
+  .home-organizavel-handle { display: none; position: absolute; top: 8px; right: 8px; width: 30px; height: 30px;
+    border-radius: 50%; background: color-mix(in srgb, var(--card) 88%, transparent); border: 1px solid var(--card-b);
+    align-items: center; justify-content: center; z-index: 6; cursor: grab; touch-action: none; -webkit-touch-callout: none;
+    user-select: none; color: var(--ink-faint); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .home-organizavel-handle svg { width: 15px; height: 15px; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel { animation: homeBlocoJiggle .26s ease-in-out infinite; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel:nth-child(even) { animation-delay: .13s; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel-handle { display: flex; }
+  #homeBlocosOrganizaveis.modo-organizar .home-organizavel > *:not(.home-organizavel-handle) { pointer-events: none; }
+  .home-organizavel.arrastando { animation: none !important; opacity: .85; box-shadow: 0 10px 24px rgba(0,0,0,.22); border-radius: 18px; }
+  @keyframes homeBlocoJiggle { 0%, 100% { transform: rotate(-0.6deg); } 50% { transform: rotate(0.6deg); } }
+  .home-organizar-pronto-btn { display: none; position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 60; padding: 11px 26px; border-radius: 999px;
+    background: var(--accent-a); color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px;
+    border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); align-items: center; justify-content: center; }
+
+  /* ---------- checklist minimalista (Home) ---------- */
+  .home-checklist-wrap { margin-bottom: 18px; }
+  .home-checklist-card { background:var(--card); border:1px solid var(--card-b); border-radius:18px; padding:6px 16px 14px; box-shadow:var(--shadow); }
+  .checklist-vazio { display:flex; flex-direction:column; align-items:center; gap:7px; padding:16px 6px 12px; text-align:center; color:var(--ink-faint); font-family:'Nunito', sans-serif; font-size:12.5px; }
+  .checklist-vazio .icon-svg { color: var(--accent-a); opacity:.55; }
+  .checklist-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--card-b); }
+  .checklist-item:last-child { border-bottom:none; }
+  .checklist-check { flex:none; width:22px; height:22px; border-radius:50%; border:2px solid var(--accent-a); background:none;
+    display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; padding:0; transition: background .15s ease, transform .15s ease; }
+  .checklist-check:active { transform: scale(.9); }
+  .checklist-item.feito .checklist-check { background:var(--accent-a); }
+  .checklist-texto { flex:1; min-width:0; font-family:'Nunito', sans-serif; font-size:13.5px; color:var(--ink); word-break:break-word; cursor:pointer; transition: color .15s ease; }
+  .checklist-item.feito .checklist-texto { text-decoration: line-through; color:var(--ink-faint); }
+  .checklist-horario { flex:none; font-family:'Nunito', sans-serif; font-size:10px; font-weight:700; color:var(--accent-a); background:var(--accent-soft); border-radius:8px; padding:3px 6px; white-space:nowrap; }
+
+  /* ---------- checkbox customizado (mesma linguagem visual do .checklist-check,
+     circulo com borda cor de destaque + check aparecendo quando marcado) --
+     usado nos lugares que ainda usavam <input type="checkbox"> nativo, tipo
+     "clube privado" e "esse post é spoiler" ---------- */
+  .check-custom-input { position:absolute; opacity:0; width:18px; height:18px; margin:0; cursor:pointer; z-index:1; }
+  .check-mini { width:18px; height:18px; border-radius:50%; border:2px solid var(--accent-a); background:none;
+    display:inline-flex; align-items:center; justify-content:center; flex:none; color:#fff;
+    transition: background .15s ease, transform .15s ease; }
+  .check-mini.check-mini-sm { width:14px; height:14px; border-width:1.6px; }
+  .check-custom-input:checked + .check-mini { background: var(--accent-a); }
+  .check-custom-input:active + .check-mini { transform: scale(.9); }
+  .check-mini svg { width:11px; height:11px; opacity:0; transform:scale(.5); transition: opacity .15s ease, transform .15s ease; }
+  .check-mini.check-mini-sm svg { width:8px; height:8px; }
+  .check-custom-input:checked + .check-mini svg { opacity:1; transform:scale(1); }
+  .checklist-lembrete-btn, .checklist-del-btn { flex:none; width:26px; height:26px; border:none; background:none; padding:0;
+    display:flex; align-items:center; justify-content:center; color:var(--ink-faint); cursor:pointer; }
+  .checklist-add-row { display:flex; align-items:center; gap:8px; margin-top:4px; padding-top:10px; border-top:1px dashed var(--card-b); }
+  .checklist-add-row input { flex:1; min-width:0; border:none; background:none; font-family:'Nunito', sans-serif; font-size:16px; color:var(--ink); padding:5px 0; }
+  .checklist-add-row input:focus { outline:none; }
+  .checklist-add-btn { flex:none; width:30px; height:30px; border-radius:50%; border:none; background:var(--accent-a); color:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+  /* ---------- emoji/icone da sequencia (circulos de verdade, sem emoji generico) ---------- */
+  .emoji-streak-opcao { width:42px; height:42px; border-radius:50%; background:var(--accent-soft); flex:none;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-dim);
+    transition: background .15s ease, transform .15s ease, color .15s ease; }
+  .emoji-streak-opcao.on { background:var(--accent-a); color:#fff; }
+  .emoji-streak-opcao:active { transform: scale(.9); }

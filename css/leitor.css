@@ -1,0 +1,10 @@
+/* leitor de livro (Gutendex) */
+  /* ---------- leitor de livro (Gutendex, texto integral, folheável tipo Kindle) ---------- */
+  .leitor-livro-barra { height: 3px; border-radius: 999px; background: var(--card-b); margin-bottom: 10px; overflow: hidden; flex: none; }
+  .leitor-livro-barra-preenchida { height: 100%; background: var(--accent-a); border-radius: 999px;
+    transition: width .25s ease; width: 0%; }
+  .leitor-livro-area { position: relative; flex: 1; overflow: hidden; }
+  .leitor-livro-pagina { position: absolute; inset: 0; overflow-y: auto; padding: 6px 4px 20px;
+    font-family: Georgia, 'Times New Roman', serif; font-size: 15.5px; line-height: 1.75; color: var(--ink);
+    white-space: pre-wrap; animation: leitorLivroFade .2s ease; }
+  @keyframes leitorLivroFade { from { opacity: 0; } to { opacity: 1; } }
