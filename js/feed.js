@@ -231,6 +231,9 @@ let fotoOrigemAtual = null;
 
 window.abrirEscolherFoto = function (origem) {
 fotoOrigemAtual = origem;
+// a dica de GIF só faz sentido na foto de perfil
+const dicaGif = document.getElementById('escolherFotoDicaGif');
+if (dicaGif) dicaGif.style.display = origem === 'avatar' ? 'block' : 'none';
 document.getElementById('escolherFotoPopupBg').classList.add('show');
 };
 window.fecharEscolherFoto = function () {

@@ -96,14 +96,41 @@ window.abrirEditarPerfil = function () {
 };
 let arquivoAvatarEscolhido = null;
 
+// GIF animado como foto de perfil: o arquivo vai INTEIRO pro servidor (sem redesenhar num canvas,
+// que congelaria a animação no primeiro quadro). Como um GIF pesa bem mais que uma foto, tem limite.
+const TAMANHO_MAX_GIF_AVATAR = 3 * 1024 * 1024; // 3 MB
+
+function textoTamanhoArquivo(bytes) {
+return bytes >= 1024 * 1024 ? (bytes / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB' : Math.round(bytes / 1024) + ' KB';
+}
+
 window.previewAvatarEscolhido = function (el) {
 const input = el || document.getElementById('editAvatarInput');
 if (!input.files || !input.files[0]) return;
-arquivoAvatarEscolhido = input.files[0];
+const arquivo = input.files[0];
+const ehGif = arquivo.type === 'image/gif';
 
+// passo 1: GIF grande demais é recusado já aqui, antes de gastar internet no envio
+if (ehGif && arquivo.size > TAMANHO_MAX_GIF_AVATAR) {
+  mostrarToast('❌ esse GIF tem ' + textoTamanhoArquivo(arquivo.size) + ' (máximo 3 MB). Tente um menor');
+  input.value = '';
+  return;
+}
+arquivoAvatarEscolhido = arquivo;
+
+// passo 2: mostra o preview (um <img> com GIF já toca animado sozinho)
 const preview = document.getElementById('editAvatarPreview');
-preview.src = URL.createObjectURL(arquivoAvatarEscolhido);
+if (preview.dataset.urlAtual) URL.revokeObjectURL(preview.dataset.urlAtual); // libera a memória do preview anterior
+preview.dataset.urlAtual = URL.createObjectURL(arquivo);
+preview.src = preview.dataset.urlAtual;
 preview.style.display = 'block';
+
+// passo 3: avisa que é GIF e quanto pesa
+const info = document.getElementById('editAvatarInfo');
+if (info) {
+  info.textContent = (ehGif ? 'GIF animado · ' : '') + textoTamanhoArquivo(arquivo.size);
+  info.style.display = 'block';
+}
 };
 
 async function subirAvatar(usuarioId) {

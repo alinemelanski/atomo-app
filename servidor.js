@@ -60,6 +60,14 @@ app.post('/api/upload-avatar', async (req, res) => {
     if (!imagemBase64) return res.status(400).json({ erro: 'imagem faltando' });
 
     const buffer = Buffer.from(imagemBase64, 'base64');
+    // GIF animado como avatar: confere o limite de 3 MB e se o arquivo começa mesmo com "GIF8"
+    // (a assinatura que todo GIF tem), porque o contentType vem do navegador e não é confiável.
+    if (contentType === 'image/gif') {
+      if (buffer.length > 3 * 1024 * 1024) return res.status(400).json({ erro: 'GIF grande demais (máximo 3 MB)' });
+      if (buffer.slice(0, 4).toString('latin1') !== 'GIF8') return res.status(400).json({ erro: 'arquivo não é um GIF válido' });
+    }
+    // o nome fica avatar.jpg mesmo pra GIF: quem manda no formato é o contentType gravado junto,
+    // e manter o mesmo nome faz o upsert substituir o avatar antigo (sem sobrar arquivo velho).
     const caminho = `${usuarioId}/avatar.jpg`;
 
     const { error: uploadError } = await supabaseAdmin.storage

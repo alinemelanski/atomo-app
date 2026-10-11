@@ -871,6 +871,7 @@
       </div>
             <div style="text-align:center; margin:10px 0;">
         <img id="editAvatarPreview" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:none; margin-bottom:8px;" />
+        <div id="editAvatarInfo" style="display:none; font-size:11.5px; color:var(--ink-faint); margin:-2px 0 8px;"></div>
         <span class="upload-foto-icon" style="margin:0 auto; display:flex; cursor:pointer;" onclick="abrirEscolherFoto('avatar')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
       <input type="file" id="editAvatarInput" accept="image/*" onchange="previewAvatarEscolhido(this)" style="display:none;" />
       <input type="file" id="editAvatarInputCamera" accept="image/*" capture="environment" onchange="previewAvatarEscolhido(this)" style="display:none;" />
@@ -1348,6 +1349,7 @@
         <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span><span class="write-popup-title">Adicionar foto</span></div>
         <div class="share-option" onclick="dispararFotoGlobal('camera')"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.2s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span> Tirar foto</div>
         <div class="share-option" onclick="dispararFotoGlobal('galeria')"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.6s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.4"/><circle cx="8.3" cy="9.6" r="1.6"/><path d="M4.5 16.6l4.5-4.3c.5-.5 1.3-.5 1.8 0l2.3 2.2 2.6-2.9c.5-.6 1.4-.6 1.9-.1l2.9 3.1"/></svg></span> Escolher da galeria</div>
+        <div id="escolherFotoDicaGif" style="display:none; font-size:11.5px; color:var(--ink-faint); text-align:center; margin-top:8px;">GIFs animados também funcionam (até 3 MB)</div>
       </div>
     </div>
 
