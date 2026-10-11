@@ -39,7 +39,21 @@ const TEXTOS = {
     pilula_dia: '1 dia escrevendo',
     pilula_zero: 'começando a escrever',
     pilula_rotulo_um: 'dia escrevendo',
-    pilula_rotulo_varios: 'dias escrevendo'
+    pilula_rotulo_varios: 'dias escrevendo',
+    cancelar: 'cancelar',
+    salvar: 'salvar',
+    post_editar: 'Editar post',
+    post_editado: 'editado',
+    post_editado_ok: 'Post editado',
+    post_salvar: 'Salvar post',
+    post_remover_salvo: 'remover dos salvos',
+    post_salvo_ok: 'Salvo — fica em Perfil → salvos',
+    post_removido_salvos: 'Removido dos salvos',
+    salvos_chip: 'salvos',
+    salvos_titulo: 'Salvos',
+    salvos_vazio_titulo: 'Nada salvo ainda',
+    salvos_vazio_sub: 'Toque no marcador de um post pra guardar ele aqui. Só você vê essa lista.',
+    diario_editar: 'Editar esta folha'
   },
   en: {
     diario_titulo: 'My Diary',
@@ -65,7 +79,21 @@ const TEXTOS = {
     pilula_dia: '1 day writing',
     pilula_zero: 'starting to write',
     pilula_rotulo_um: 'day writing',
-    pilula_rotulo_varios: 'days writing'
+    pilula_rotulo_varios: 'days writing',
+    cancelar: 'cancel',
+    salvar: 'save',
+    post_editar: 'Edit post',
+    post_editado: 'edited',
+    post_editado_ok: 'Post edited',
+    post_salvar: 'Save post',
+    post_remover_salvo: 'remove from saved',
+    post_salvo_ok: 'Saved — find it in Profile → saved',
+    post_removido_salvos: 'Removed from saved',
+    salvos_chip: 'saved',
+    salvos_titulo: 'Saved',
+    salvos_vazio_titulo: 'Nothing saved yet',
+    salvos_vazio_sub: 'Tap the bookmark on a post to keep it here. Only you can see this list.',
+    diario_editar: 'Edit this page'
   }
 };
 

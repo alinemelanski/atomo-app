@@ -84,6 +84,12 @@ const { data: comentariosContagem } = await supabaseClient
   .from('comentarios')
   .select('post_id')
   .in('post_id', idsDosPosts.length ? idsDosPosts : [0]);
+// posts que EU salvei (se a tabela posts_salvos ainda não existir no banco, só vem vazio)
+idsSalvos = new Set();
+if (meuId) {
+  const { data: salvos } = await supabaseClient.from('posts_salvos').select('post_id').eq('usuario_id', meuId);
+  (salvos || []).forEach(s => idsSalvos.add(s.post_id));
+}
 
 feedPosts = data.filter(row => !idsBloqueados.includes(row.autor_id)).map(row => {
   const handle = row.usuarios ? row.usuarios.handle : 'alguem';
@@ -103,6 +109,8 @@ feedPosts = data.filter(row => !idsBloqueados.includes(row.autor_id)).map(row =>
     likes: curtidasDessePost.length,
     curtiu: curtidasDessePost.some(c => c.usuario_id === meuId),
     comentarios: (comentariosContagem || []).filter(c => c.post_id === row.id),
+    editado: !!row.editado_em,
+    salvo: idsSalvos.has(row.id),
     ref: row.ref_titulo ? { titulo: row.ref_titulo, autor: row.ref_autor, citacao: row.ref_citacao, tipo: row.tipo, trailer: row.ref_trailer, livroId: row.ref_livro_id, filmeId: row.ref_filme_id, capa: row.ref_capa } : null,
   };
 });
@@ -123,6 +131,7 @@ if (!itensPreenchimentoFeed.length) {
 // feed posts // 
 
  let feedPosts = [];
+ let idsSalvos = new Set(); // ids dos posts que eu salvei (favoritos)
  let itensPreenchimentoFeed = [];
 
 let diaryEntries = {
@@ -525,7 +534,7 @@ function renderFeed() {
       <div class="post">
         <div class="post-head">
           ${avatarHtml(p.avatarUrl, p.iniciais, { onclick: "abrirPerfilAlheio('" + p.autor_id + "')" })}
-          <div class="post-who" style="cursor:pointer;" onclick="abrirPerfilAlheio('${p.autor_id}')"><div class="n">@${p.autor}</div><div class="t">${p.tempo}</div></div>
+          <div class="post-who" style="cursor:pointer;" onclick="abrirPerfilAlheio('${p.autor_id}')"><div class="n">@${p.autor}</div><div class="t">${p.tempo}${p.editado ? ' · ' + t('post_editado') : ''}</div></div>
           <span class="post-tag">${p.tipo}</span>
         </div>
         ${modoFeedAtivo === 'interesse' && relevante ? '<div class="post-relevante-tag">✨ do seu interesse</div><br>' : ''}
@@ -537,8 +546,9 @@ function renderFeed() {
           <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
           <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length}</div>
           <div class="post-action" onclick="abrirCompartilhar(${i})">${icone('compartilhar',14,i)}</div>
+          <div class="post-action" onclick="alternarSalvarPost(${p.id})" aria-label="${t(p.salvo ? 'post_remover_salvo' : 'post_salvar')}">${p.salvo ? icone('salvar',14,i,'var(--accent-a)') : icone('salvar',14,i)}</div>
           ${ehMeu
-          ? `<div class="post-action" onclick="apagarPost(${p.id})">${icone('lixeira',14)}</div>`
+          ? `<div class="post-action" onclick="abrirEditarPost(${p.id})" aria-label="${t('post_editar')}">${icone('editar',14)}</div><div class="post-action" onclick="apagarPost(${p.id})">${icone('lixeira',14)}</div>`
           : `<div class="post-action" onclick="abrirDenuncia(${p.id}, '${p.autor_id}')">${icone('denunciar',14)}</div>`}
         </div>
       </div>`;

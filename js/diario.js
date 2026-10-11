@@ -124,6 +124,7 @@ document.getElementById('diaryList').innerHTML = data.map(e => {
       <div class="folha-rodape">
         <span class="folha-acoes">
           <button class="folha-acao" onclick="fixarPost(${e.id}, ${e.fixado ? 'true' : 'false'})" aria-label="${t(e.fixado ? 'diario_desafixar' : 'diario_fixar')}">${e.fixado ? icone('fixar', 15, 0, 'var(--accent-a)') : icone('fixar', 15)}</button>
+          <button class="folha-acao" onclick="abrirEditarPost(${e.id})" aria-label="${t('diario_editar')}">${icone('editar', 15)}</button>
           <button class="folha-acao" onclick="abrirCompartilharDiario(${e.id})" aria-label="${t('diario_compartilhar')}">${icone('compartilhar', 15)}</button>
           <button class="folha-acao" onclick="apagarPost(${e.id})" aria-label="${t('diario_apagar')}">${icone('lixeira', 15)}</button>
         </span>
