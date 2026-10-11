@@ -68,7 +68,7 @@ function limparTrecho(texto, max) {
 }
 
 // monta o conteúdo (puro: recebe dados, devolve título/texto/dica/contagens) — fácil de testar
-function montarResumoDoDia({ eventos, posts, leuHoje, hora }) {
+function montarResumoDoDia({ eventos, posts, leuHoje, hora, ontem }) {
   const n = eventos.length;
   const contagem = {};
   eventos.forEach(e => { contagem[e.emocao] = (contagem[e.emocao] || 0) + 1; });
@@ -109,7 +109,13 @@ function montarResumoDoDia({ eventos, posts, leuHoje, hora }) {
   }
   if (leuHoje) frases.push('E ainda passou pelos seus livros hoje.');
 
-  return { titulo, texto: frases.join(' '), dica, destaque: trechoDestaque, contagem: ordenadas, total: n, escritas: posts.length, saudacao: hora < 19 ? 'seu dia até agora' : 'seu dia' };
+  let tituloFinal = titulo, textoFinal = frases.join(' ');
+  if (ontem) {
+    // card que ficou do dia anterior: o texto fala de "ontem", a dica continua valendo pro hoje
+    const paraOntem = t => t.replace(/\bhoje\b/g, 'ontem').replace(/\bHoje\b/g, 'Ontem');
+    tituloFinal = paraOntem(titulo); textoFinal = paraOntem(textoFinal);
+  }
+  return { titulo: tituloFinal, texto: textoFinal, dica, destaque: trechoDestaque, contagem: ordenadas, total: n, escritas: posts.length, saudacao: ontem ? 'seu dia de ontem' : (hora < 19 ? 'seu dia até agora' : 'seu dia') };
 }
 
 async function carregarResumoDia() {
@@ -120,19 +126,30 @@ async function carregarResumoDia() {
   const meuId = sessionData.session.user.id;
 
   const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
-  const hojeISO = fmtDataISO(new Date());
-  try { if (localStorage.getItem('atomo_resumo_dispensado') === hojeISO) { wrap.style.display = 'none'; return; } } catch (e) { /* sem storage */ }
+  const inicioOntem = new Date(inicioHoje); inicioOntem.setDate(inicioOntem.getDate() - 1);
 
-  const [respEventos, respPosts, respLeitura] = await Promise.all([
-    supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', inicioHoje.toISOString()).order('criado_em', { ascending: true }),
-    supabaseClient.from('posts').select('texto, tipo, privado').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', inicioHoje.toISOString()),
-    supabaseClient.from('logs_leitura').select('data', { count: 'exact', head: true }).eq('usuario_id', meuId).eq('data', hojeISO),
-  ]);
-  const eventos = respEventos.data || [];
-  const posts = (respPosts.data || []).filter(p => String(p.texto || '').trim());
-  if (!eventos.length && !posts.length) { wrap.style.display = 'none'; return; }
+  // busca o que a pessoa registrou num dia (de inicio até fim) e devolve null se não houve nada
+  async function buscarDia(inicio, fim, iso) {
+    const [respEventos, respPosts, respLeitura] = await Promise.all([
+      supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', inicio.toISOString()).lt('criado_em', fim.toISOString()).order('criado_em', { ascending: true }),
+      supabaseClient.from('posts').select('texto, tipo, privado').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', inicio.toISOString()).lt('criado_em', fim.toISOString()),
+      supabaseClient.from('logs_leitura').select('data', { count: 'exact', head: true }).eq('usuario_id', meuId).eq('data', iso),
+    ]);
+    const eventos = respEventos.data || [];
+    const posts = (respPosts.data || []).filter(p => String(p.texto || '').trim());
+    if (!eventos.length && !posts.length) return null;
+    return { eventos, posts, leuHoje: (respLeitura.count || 0) > 0 };
+  }
 
-  const r = montarResumoDoDia({ eventos, posts, leuHoje: (respLeitura.count || 0) > 0, hora: new Date().getHours() });
+  // o card dura até o próximo ciclo: mostra o dia de hoje; se hoje ainda não teve nada,
+  // segura o resumo de ontem (até ~24h) e ele se renova quando o novo dia começar a ter registros
+  const amanha = new Date(inicioHoje); amanha.setDate(amanha.getDate() + 1);
+  let dia = await buscarDia(inicioHoje, amanha, fmtDataISO(new Date()));
+  let ontem = false;
+  if (!dia) { dia = await buscarDia(inicioOntem, inicioHoje, fmtDataISO(inicioOntem)); ontem = !!dia; }
+  if (!dia) { wrap.style.display = 'none'; return; }
+
+  const r = montarResumoDoDia({ eventos: dia.eventos, posts: dia.posts, leuHoje: dia.leuHoje, hora: new Date().getHours(), ontem });
   window.RESUMO_DIA_ATUAL = r;
 
   document.getElementById('resumoDiaRotulo').textContent = r.saudacao;
@@ -158,23 +175,6 @@ async function carregarResumoDia() {
   document.getElementById('resumoDiaStats').innerHTML = stats.map(s => `<div class="home-resumo-stat">${icone(s.ic, 12)} ${s.n} ${s.l}</div>`).join('');
   wrap.style.display = '';
 }
-
-window.dispensarResumoDia = function () {
-  document.getElementById('homeResumoWrap').style.display = 'none';
-  try { localStorage.setItem('atomo_resumo_dispensado', fmtDataISO(new Date())); } catch (e) { /* sem storage */ }
-};
-
-// o texto compartilhado leva título, resumo e dica — nunca o trecho do que foi escrito (pode ser diário privado)
-window.compartilharResumoDia = async function () {
-  const r = window.RESUMO_DIA_ATUAL;
-  if (!r) return;
-  const texto = `📊 ${r.titulo}\n${r.texto}\n\n${r.dica}\n\nAtomo · meu diário tem visitas.`;
-  if (navigator.share) {
-    try { await navigator.share({ text: texto }); return; } catch (e) { return; }
-  }
-  try { await navigator.clipboard.writeText(texto); mostrarToast('📋 copiado! cola onde quiser'); }
-  catch (e) { mostrarToast('não deu pra copiar dessa vez'); }
-};
 
 function renderMatchPrefGrid() {
 document.getElementById('matchPrefGrid').innerHTML = MATCH_PREFS.map(p =>
