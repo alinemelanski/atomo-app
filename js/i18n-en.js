@@ -209,7 +209,7 @@ const EN_UI = {
   'Escolhe até 5 — tira um pra trocar 🙂': 'Pick up to 5 — remove one to swap 🙂', '❌ precisa deixar pelo menos um tipo visível': '❌ at least one type must stay visible',
   'Use as setas pra reordenar. Toque no ✕ pra esconder um tipo do composer.': 'Use the arrows to reorder. Tap ✕ to hide a type from the composer.',
   'Escrever': 'Write', 'Foto': 'Photo', 'Tirar foto': 'Take photo', 'Escolher da galeria': 'Choose from gallery', 'Compartilhável': 'Shareable', 'fica guardado só no seu perfil.': 'it stays only on your profile.',
-  'Idioma': 'Language', 'Idioma do livro': 'Book language', 'Português': 'Portuguese', 'Inglês': 'English',
+  'Palavra do dia': 'Word of the day', 'Idioma': 'Language', 'Idioma do livro': 'Book language', 'Português': 'Portuguese', 'Inglês': 'English',
   // prefixos (quando vem um detalhe depois, só o começo é traduzido)
   '❌ erro:': '❌ error:', '❌ erro ao enviar:': '❌ error sending:', '❌ erro ao enviar': '❌ error sending', '❌ erro ao postar:': '❌ error posting:', '❌ erro ao curtir:': '❌ error liking:',
   '❌ erro no upload:': '❌ upload error:', '❌ erro no upload': '❌ upload error', '❌ erro no login:': '❌ login error:', '❌ erro no envio:': '❌ sending error:', '❌ erro ao repostar:': '❌ error reposting:',

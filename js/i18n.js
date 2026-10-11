@@ -56,7 +56,16 @@ const TEXTOS = {
     diario_editar: 'Editar esta folha',
     pdf_vazio: 'Escreva pelo menos uma folha antes de exportar',
     pdf_montando: 'Montando seu livrinho...',
-    pdf_pronto: 'Livrinho pronto!'
+    pdf_pronto: 'Livrinho pronto!',
+    etimo_titulo: 'Palavra do dia',
+    etimo_palavra_do_dia: 'palavra do dia',
+    etimo_significado: 'significado',
+    etimo_raiz: 'raiz',
+    etimo_profundo: 'significado profundo',
+    etimo_familia: 'família',
+    etimo_curiosidade: 'curiosidade',
+    etimo_hoje: 'hoje · deslize pra ver os dias anteriores',
+    etimo_dias_atras: 'há {n} dia(s)'
   },
   en: {
     diario_titulo: 'My Diary',
@@ -99,7 +108,16 @@ const TEXTOS = {
     diario_editar: 'Edit this page',
     pdf_vazio: 'Write at least one page before exporting',
     pdf_montando: 'Putting your little book together...',
-    pdf_pronto: 'Your little book is ready!'
+    pdf_pronto: 'Your little book is ready!',
+    etimo_titulo: 'Word of the day',
+    etimo_palavra_do_dia: 'word of the day',
+    etimo_significado: 'meaning',
+    etimo_raiz: 'roots',
+    etimo_profundo: 'deeper meaning',
+    etimo_familia: 'word family',
+    etimo_curiosidade: 'did you know',
+    etimo_hoje: 'today · swipe to see earlier days',
+    etimo_dias_atras: '{n} day(s) ago'
   }
 };
 

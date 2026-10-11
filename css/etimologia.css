@@ -1,0 +1,76 @@
+/* Palavra do dia (etimologia em árvore) + ícones do topo do diário (baú prata, lâmpada dourada) */
+
+  /* ---------- ícones do cabeçalho do Meu Diário ---------- */
+  /* baú de pandora agora é PRATA (antes dourado) */
+  .bau-pandora-btn { color: #6F7983 !important; background: color-mix(in srgb, #C9D1D9 48%, var(--card)) !important;
+    border-color: color-mix(in srgb, #AEB7C0 70%, transparent) !important; box-shadow: 0 0 10px color-mix(in srgb, #C9D1D9 45%, transparent) !important; }
+  /* lâmpada de ideia DOURADA, com um brilho que "respira" */
+  .lampada-ideia-btn { color: #B8860B; background: color-mix(in srgb, #F2C94C 34%, var(--card));
+    border-color: color-mix(in srgb, #E8B94A 60%, transparent); margin-right: 6px;
+    animation: lampadaBrilho 2.8s ease-in-out infinite; }
+  .lampada-ideia-btn .raio { animation: lampadaRaios 2.8s ease-in-out infinite; }
+  @keyframes lampadaBrilho {
+    0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, #F2C94C 40%, transparent); }
+    50% { box-shadow: 0 0 18px color-mix(in srgb, #F2C94C 85%, transparent); } }
+  @keyframes lampadaRaios { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .lampada-ideia-btn, .lampada-ideia-btn .raio { animation: none; } }
+
+  /* ---------- página (mesmo papel do diário) ---------- */
+  .etimo-pagina { flex:1; min-height:0; display:flex; flex-direction:column; padding: 4px 6px calc(16px + env(safe-area-inset-bottom)); }
+  .etimo-folha { padding: 22px 20px 18px; }
+  .etimo-dia { font-family:'DM Sans', sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    color: var(--accent-a); margin-bottom: 14px; }
+
+  /* ---------- a árvore ---------- */
+  .etimo-arvore { --galho: color-mix(in srgb, #8B6B4A 55%, transparent); display:flex; flex-direction:column; align-items:flex-start; }
+  #device[data-theme="dark"] .etimo-arvore { --galho: color-mix(in srgb, #C9A97E 45%, transparent); }
+
+  /* a palavra: o "tronco" lá em cima */
+  .etimo-palavra { border:none; background:none; padding: 4px 0; cursor:pointer; text-align:left; display:flex; align-items:baseline; gap:10px;
+    color: var(--papel-tinta); transition: transform .15s ease; }
+  .etimo-palavra:active { transform: scale(.97); }
+  .etimo-palavra-txt { font-family:'Fraunces', serif; font-weight:700; font-size:34px; line-height:1.1; }
+  .etimo-classe { font-family:'DM Sans', sans-serif; font-size:11px; font-weight:700; color: var(--papel-tinta-suave); font-style: italic; }
+  .etimo-arvore:not(.aberta) .etimo-palavra::after { content:''; width:7px; height:7px; border-radius:50%; background: var(--accent-a);
+    align-self:center; animation: etimoConvite 1.8s ease-in-out infinite; }
+  @keyframes etimoConvite { 0%,100% { opacity:.3; transform: scale(.8); } 50% { opacity:1; transform: scale(1.15); } }
+
+  /* galhos: escondidos até abrir; quem abre é a classe "aberta"/"aberto" (o js só troca a classe) */
+  .etimo-galhos, ul.etimo-filhos { list-style:none; margin: 4px 0 0 14px; padding:0; }
+  .etimo-galhos { display:none; }
+  .etimo-arvore.aberta > .etimo-galhos { display:block; animation: etimoBrotar .35s ease-out; }
+  .etimo-filhos { display:none; }
+  .etimo-no.aberto > .etimo-filhos { display:block; animation: etimoBrotar .35s ease-out; }
+  .etimo-no.aberto > .etimo-filhos.etimo-familia { display:flex; }
+  @keyframes etimoBrotar { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+
+  /* desenho dos galhos com bordas: ::before = linha que desce até o próximo irmão,
+     ::after = o galhinho curvo que liga a linha até o nó */
+  .etimo-no { position:relative; padding: 5px 0 3px 24px; }
+  .etimo-no::before { content:''; position:absolute; left:0; top:0; bottom:0; border-left: 2px solid var(--galho); }
+  .etimo-no:last-child::before { bottom:auto; height: 21px; }
+  .etimo-no::after { content:''; position:absolute; left:0; top:0; width:18px; height:21px;
+    border-left: 2px solid var(--galho); border-bottom: 2px solid var(--galho); border-bottom-left-radius: 12px; }
+
+  .etimo-no-btn { border:none; cursor:pointer; min-height:34px; padding: 6px 14px; border-radius: 999px;
+    background: color-mix(in srgb, #8B6B4A 13%, transparent); color: var(--papel-tinta);
+    font-family:'DM Sans', sans-serif; font-size:12.5px; font-weight:700; text-align:left; transition: transform .15s ease, background .2s ease; }
+  .etimo-no-btn:active { transform: scale(.96); }
+  .etimo-no.aberto > .etimo-no-btn { background: color-mix(in srgb, var(--accent-a) 20%, transparent); }
+  .etimo-nota-btn { background: color-mix(in srgb, var(--accent-b) 16%, transparent); }
+
+  /* antepassados da palavra: a forma antiga em itálico + a língua de onde veio */
+  .etimo-ancestral { display:flex; flex-direction:column; align-items:flex-start; gap:1px; border-radius: 16px; padding: 7px 14px; }
+  .etimo-forma { font-family:'Fraunces', serif; font-style:italic; font-size:15px; font-weight:600; }
+  .etimo-lingua { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color: var(--papel-tinta-suave); }
+
+  .etimo-texto { margin: 6px 0 4px 14px; padding: 10px 12px; border-radius: 14px; background: color-mix(in srgb, #FFFFFF 45%, transparent);
+    font-family:'Nunito', sans-serif; font-size:13.5px; line-height:1.5; color: var(--papel-tinta); max-width: 100%; }
+  #device[data-theme="dark"] .etimo-texto { background: color-mix(in srgb, #FFFFFF 6%, transparent); }
+  .etimo-familia { flex-wrap:wrap; gap:6px; margin: 8px 0 4px 14px; }
+  .etimo-prima { padding: 4px 10px; border-radius:999px; border: 1.5px dashed var(--galho); font-family:'Nunito', sans-serif;
+    font-size:12.5px; font-weight:700; color: var(--papel-tinta); }
+
+  /* ao tocar num galho o navegador tenta "mostrar" o botão e pode rolar a tela
+     pro lado (as folhas de trás ficam um pouquinho pra fora). Trava o lado. */
+  #etimologiaOverlay, .etimo-pagina, .diario-folhas-pagina { overflow: hidden; }
