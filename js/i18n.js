@@ -105,9 +105,28 @@ const TEXTOS = {
 
 // idioma guardado no aparelho; por enquanto o padrão é sempre português
 // (o seletor em Configurações chega junto com a tradução do resto do app)
+// primeira vez: segue o idioma do celular (português → pt, qualquer outro → en).
+// depois que a pessoa escolhe em Configurações, vale o que ela escolheu.
 let idiomaAtual = 'pt';
-try { idiomaAtual = localStorage.getItem('atomoIdioma') || 'pt'; } catch (e) { /* sem storage: fica pt */ }
+try {
+  idiomaAtual = localStorage.getItem('atomoIdioma') ||
+    ((navigator.language || 'pt').toLowerCase().startsWith('pt') ? 'pt' : 'en');
+} catch (e) { /* sem storage: fica pt */ }
 if (!TEXTOS[idiomaAtual]) idiomaAtual = 'pt';
+
+// troca o idioma e recarrega o app (o jeito mais simples de garantir que
+// TODAS as telas venham no idioma novo, inclusive as que já estavam abertas)
+window.trocarIdioma = function (novo) {
+  if (novo === idiomaAtual) return;
+  try { localStorage.setItem('atomoIdioma', novo); } catch (e) { /* sem storage */ }
+  location.reload();
+};
+// marca a pílula do idioma atual em Configurações
+document.addEventListener('DOMContentLoaded', () => {
+  const pt = document.getElementById('idiomaPt'), en = document.getElementById('idiomaEn');
+  if (pt) pt.classList.toggle('on', idiomaAtual === 'pt');
+  if (en) en.classList.toggle('on', idiomaAtual === 'en');
+});
 
 // t('chave', { n: 3 }) → texto no idioma atual, com {n} trocado pelo valor
 function t(chave, valores) {

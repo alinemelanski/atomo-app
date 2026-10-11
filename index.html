@@ -1142,6 +1142,13 @@
         <input type="text" id="autoralTituloInput" class="busca-input" style="width:100%; margin-bottom:10px;" placeholder="título do livro" />
         <textarea id="autoralDescricaoInput" class="busca-input" style="width:100%; min-height:80px; margin-bottom:10px;" placeholder="descrição (opcional)"></textarea>
         <input type="text" id="autoralPrecoInput" class="busca-input" style="width:100%; margin-bottom:10px;" placeholder="preço (ex: 19,90)" inputmode="decimal" />
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-family:'DM Sans', sans-serif; font-size:12px; font-weight:700; color:var(--ink-dim);">Idioma do livro</span>
+          <div class="idioma-pilulas">
+            <button class="idioma-pilula on" id="autoralIdiomaPt" onclick="escolherIdiomaLivroAutoral('pt')">PT</button>
+            <button class="idioma-pilula" id="autoralIdiomaEn" onclick="escolherIdiomaLivroAutoral('en')">EN</button>
+          </div>
+        </div>
         <input type="file" id="autoralCapaInput" accept="image/*" onchange="escolherCapaAutoral()" style="display:none;" />
         <button class="btn-importar-kindle" style="width:100%; margin-bottom:10px;" onclick="document.getElementById('autoralCapaInput').click()"><span id="autoralCapaPreviewTxt">escolher capa (opcional)</span></button>
         <input type="file" id="autoralEpubInput" accept=".epub" onchange="escolherEpubAutoral()" style="display:none;" />
@@ -1547,6 +1554,13 @@
         <h2 style="font-size:17px;">Configurações</h2>
       </div>
 
+      <div class="settings-row">
+    <div><div class="t">Idioma</div><div class="s">Language</div></div>
+    <div class="idioma-pilulas">
+      <button class="idioma-pilula" id="idiomaPt" onclick="trocarIdioma('pt')">PT</button>
+      <button class="idioma-pilula" id="idiomaEn" onclick="trocarIdioma('en')">EN</button>
+    </div>
+  </div>
       <div class="settings-row" id="darkModeRow">
     <div><div class="t">Modo escuro</div><div class="s" id="darkModeDesc">troca a paleta clara pela escura</div></div>
     <div class="toggle-sw" id="darkSwitch" onclick="toggleDarkMode()"><div class="dot"></div></div>
@@ -1680,6 +1694,7 @@
 <script src="js/config.js"></script>
 <script src="js/registro-erros.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/i18n-en.js"></script>
 <script src="js/feedback-sensorial.js"></script>
 <script src="js/icones.js"></script>
 <script src="js/feed.js"></script>

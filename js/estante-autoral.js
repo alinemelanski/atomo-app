@@ -92,6 +92,7 @@ function cardLivroAutoralHtml(d, i) {
   return `<div class="livro-grid-card" onclick="abrirLivroAutoralDetalhe(${i})">
         <div class="livro-grid-capa" style="${capaEstilo}">
           ${!d.capa_url ? `<div class="capa-fallback-titulo">${d.titulo}</div>` : ''}
+          <span class="livro-grid-idioma">${(d.idioma || 'pt').toUpperCase()}</span>
         </div>
         <div class="livro-grid-meta">
           <div class="livro-grid-titulo">${d.titulo}</div>
@@ -220,7 +221,16 @@ window.baixarLivroAutoralComprado = async function (livroId) {
 let arquivoCapaAutoralEscolhido = null;
 let arquivoEpubAutoralEscolhido = null;
 
+// idioma em que o livro foi escrito (aparece como etiqueta PT/EN na estante)
+let idiomaLivroAutoral = 'pt';
+window.escolherIdiomaLivroAutoral = function (idioma) {
+  idiomaLivroAutoral = idioma;
+  document.getElementById('autoralIdiomaPt').classList.toggle('on', idioma === 'pt');
+  document.getElementById('autoralIdiomaEn').classList.toggle('on', idioma === 'en');
+};
+
 window.abrirEnviarLivroAutoral = function () {
+  escolherIdiomaLivroAutoral(idiomaAtual === 'en' ? 'en' : 'pt');
   document.getElementById('autoralTituloInput').value = '';
   document.getElementById('autoralDescricaoInput').value = '';
   document.getElementById('autoralPrecoInput').value = '';
@@ -273,14 +283,22 @@ window.enviarLivroAutoral = async function () {
   const { error: erroEpub } = await supabaseClient.storage.from('estante-autoral-epubs').upload(caminhoEpub, arquivoEpubAutoralEscolhido);
   if (erroEpub) { mostrarToast('❌ erro no upload do epub: ' + erroEpub.message); return; }
 
-  const { error } = await supabaseClient.from('livros_autorais').insert({
+  const novoLivro = {
     autor_id: usuarioId,
     titulo,
     descricao: descricao || null,
     preco_centavos: preco,
     capa_url: capaUrl,
     arquivo_path: caminhoEpub,
-  });
+    idioma: idiomaLivroAutoral,
+  };
+  let { error } = await supabaseClient.from('livros_autorais').insert(novoLivro);
+  // se a coluna "idioma" ainda não foi criada no banco (SQL pendente), envia sem ela
+  // em vez de travar a publicação do livro
+  if (error && /idioma/.test(error.message)) {
+    delete novoLivro.idioma;
+    ({ error } = await supabaseClient.from('livros_autorais').insert(novoLivro));
+  }
 
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
   mostrarToast('📚 livro enviado! entra na fila de revisão');

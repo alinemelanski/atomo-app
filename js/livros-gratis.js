@@ -24,6 +24,7 @@ function cardLivroGridHtml(d, i) {
           <div class="livro-grid-capa" style="${capaEstilo}">
             ${!d.capa ? `<div class="capa-fallback-titulo">${d.title}</div>` : ''}
             <span class="livro-grid-ribbon">Gratuito</span>
+            <span class="livro-grid-idioma">${(d.idioma || 'pt').toUpperCase()}</span>
           </div>
           <div class="livro-grid-meta">
             <div class="livro-grid-titulo">${d.title}</div>
@@ -79,9 +80,10 @@ async function buscarPaginaLivros(pagina) {
 }
 
 async function buscarPaginaLivrosRede(pagina, termoBuscaLivros) {
+  // manda o idioma do app junto: em inglês o servidor também traz livros em inglês
   const url = termoBuscaLivros
-    ? `${API_BASE}/api/livros-em-destaque?q=${encodeURIComponent(termoBuscaLivros)}&pagina=${pagina}`
-    : `${API_BASE}/api/livros-em-destaque?pagina=${pagina}`;
+    ? `${API_BASE}/api/livros-em-destaque?q=${encodeURIComponent(termoBuscaLivros)}&pagina=${pagina}&idioma=${idiomaAtual}`
+    : `${API_BASE}/api/livros-em-destaque?pagina=${pagina}&idioma=${idiomaAtual}`;
   try {
     const resp = await fetch(url);
     const dados = await resp.json();
@@ -101,6 +103,7 @@ async function buscarPaginaLivrosRede(pagina, termoBuscaLivros) {
         capa: l.capa || null,
         autor: l.autor || '',
         leituraCompleta: l.leituraCompleta === true,
+        idioma: l.idioma || 'pt',
       };
     });
   } catch (e) { console.log('erro ao carregar livros:', e); return []; }

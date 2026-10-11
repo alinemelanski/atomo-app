@@ -96,3 +96,18 @@ create policy "remover salvo" on posts_salvos
 -- "(editado)" no card, igual ao Twitter — quem leu antes sabe que mudou.
 
 alter table posts add column if not exists editado_em timestamptz;
+
+
+-- ---------------------------------------------------------------------
+-- 5) IDIOMA DOS LIVROS DA ESTANTE AUTORAL (PT / EN)
+-- ---------------------------------------------------------------------
+-- O autor diz em que idioma o livro está, e a estante mostra a etiqueta.
+-- O "do $$ ... $$" só acrescenta a coluna SE a tabela livros_autorais já
+-- existir (ela vem do sql_pendente_estante_autoral.sql) — assim este arquivo
+-- não quebra se você ainda não rodou aquele.
+do $$
+begin
+  if exists (select 1 from information_schema.tables where table_name = 'livros_autorais') then
+    alter table livros_autorais add column if not exists idioma text not null default 'pt';
+  end if;
+end $$;

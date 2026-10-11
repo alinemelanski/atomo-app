@@ -1646,6 +1646,10 @@ app.get('/api/livros-em-destaque', async (req, res) => {
   // Gutendex — economiza 2 requisições externas inteiras e a busca fica
   // bem mais rápida
   const somenteGoogle = req.query.somenteGoogle === '1';
+  // idioma do app de quem pediu: em inglês, o Gutenberg e a Open Library
+  // também trazem livros em inglês; o que não tiver tradução continua em
+  // português (cada livro volta com "idioma" pra o app mostrar a etiqueta PT/EN)
+  const idiomaApp = req.query.idioma === 'en' ? 'en' : 'pt';
   const limite = buscando ? 10 : 5;
   const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
   const itens = [];
@@ -1690,6 +1694,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
           const leituraCompleta = l.accessInfo?.viewability === 'ALL_PAGES' || l.accessInfo?.publicDomain === true;
           out.push({
             fonte: 'Google Books',
+            idioma: 'pt',
             googleId: l.id || null,
             capa: capaGoogle ? capaGoogle.replace('http://', 'https://') : null,
             autor: (l.volumeInfo?.authors || []).join(', '),
@@ -1711,7 +1716,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       try {
         const queryOpenLibrary = buscando ? `q=${encodeURIComponent(termo)}` : `author=${encodeURIComponent(autorVitrine)}`;
         const resposta = await fetch(
-          `https://openlibrary.org/search.json?${queryOpenLibrary}&language=por&limit=${limite}&page=${pagina}`,
+          `https://openlibrary.org/search.json?${queryOpenLibrary}&language=${idiomaApp === 'en' ? 'eng' : 'por'}&limit=${limite}&page=${pagina}`,
           { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
         );
         if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
@@ -1727,6 +1732,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
           const leituraCompleta = !!iaId && l.ebook_access === 'public';
           out.push({
             fonte: 'Open Library',
+            idioma: idiomaApp,
             coverId: l.cover_i || null,
             capa: l.cover_i ? `https://covers.openlibrary.org/b/id/${l.cover_i}-L.jpg` : null,
             autor: autores,
@@ -1749,7 +1755,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
       try {
         const queryGutendex = buscando ? `search=${encodeURIComponent(termo)}` : `search=${encodeURIComponent(autorVitrine)}`;
         const resposta = await fetch(
-          `https://gutendex.com/books/?languages=pt&${queryGutendex}&page=${pagina}`,
+          `https://gutendex.com/books/?languages=${idiomaApp === 'en' ? 'en,pt' : 'pt'}&${queryGutendex}&page=${pagina}`,
           { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } }
         );
         if (!resposta.ok) throw new Error(`resposta ${resposta.status} (${(resposta.headers.get('content-type') || '').split(';')[0]})`);
@@ -1766,6 +1772,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
           const autores = (l.authors || []).map(a => a.name).join(', ');
           out.push({
             fonte: 'Gutendex',
+            idioma: (l.languages || [])[0] === 'en' ? 'en' : 'pt',
             gutendexId: l.id || null,
             capa: (l.formats && l.formats['image/jpeg']) || null,
             autor: autores,
@@ -1845,6 +1852,7 @@ app.get('/api/livros-em-destaque', async (req, res) => {
           const descricaoLimpa = (r.snippet || '').replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
           out.push({
             fonte: 'Wikisource',
+            idioma: 'pt',
             wikisourceTitulo: r.title,
             capa: capasPorTitulo[r.title] || null,
             autor: '',
