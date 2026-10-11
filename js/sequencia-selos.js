@@ -31,18 +31,26 @@ const DIAS_ENTRE_CHANCES = 7;
 window.STREAK_EM_CHANCE = false;      // true = ontem passou em branco, hoje ainda dá pra salvar
 window.MELHOR_STREAK_HISTORICO = 0;   // maior sequência já feita (pra nunca perder selo já ganho)
 
+// O que conta como "dia escrevendo": QUALQUER escrita no app — post (diário,
+// Feed, mural de clube/comunidade) ou comentário (inclusive responder a pergunta
+// do dia). Mensagem de DM entre amigos NÃO conta (é conversa, não escrita).
+// A mesma regra existe no banco, na função dias_escrevendo() (sql/sql_pendente_diario_e_pilula.sql),
+// que é o que mostra a pílula no perfil de OUTRA pessoa. Se mudar a regra aqui, mude lá também.
 async function calcularStreakReal(usuarioId) {
-  const { data: posts } = await supabaseClient
-    .from('posts')
-    .select('criado_em')
-    .eq('autor_id', usuarioId)
-    .order('criado_em', { ascending: false });
+  // as duas buscas rodam ao mesmo tempo (Promise.all) em vez de uma esperar a outra
+  const [respPosts, respComentarios] = await Promise.all([
+    supabaseClient.from('posts').select('criado_em').eq('autor_id', usuarioId),
+    supabaseClient.from('comentarios').select('criado_em').eq('autor_id', usuarioId)
+  ]);
+  const escritas = [...(respPosts.data || []), ...(respComentarios.data || [])];
 
   window.STREAK_EM_CHANCE = false;
   window.MELHOR_STREAK_HISTORICO = 0;
-  if (!posts || !posts.length) return 0;
+  if (!escritas.length) return 0;
 
-  const diasUnicos = [...new Set(posts.map(p => p.criado_em.slice(0, 10)))].sort().reverse(); // do mais novo pro mais antigo
+  // dia no horário do aparelho (diaLocal, em js/diario.js) — antes era o dia em UTC,
+  // e uma anotação das 22h no Brasil contava como se fosse do dia seguinte
+  const diasUnicos = [...new Set(escritas.map(p => diaLocal(p.criado_em)))].sort().reverse(); // do mais novo pro mais antigo
   const diffDias = (a, b) => Math.round((new Date(a) - new Date(b)) / 86400000);
 
   // melhor sequência de todos os tempos (mesma regra da chance), do mais antigo pro mais novo
@@ -58,7 +66,7 @@ async function calcularStreakReal(usuarioId) {
   window.MELHOR_STREAK_HISTORICO = melhor;
 
   // sequência de agora
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = diaLocal(new Date());
   const atrasoTopo = diffDias(hoje, diasUnicos[0]); // 0 = escreveu hoje, 1 = ontem, 2 = ontem ficou em branco
   if (atrasoTopo > 2) return 0;
   let streak = 1;

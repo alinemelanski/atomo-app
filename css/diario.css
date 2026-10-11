@@ -109,3 +109,114 @@
   .polaroid-legenda-display { width:100%; text-align:center; margin-top:12px; font-family:'Nunito', sans-serif;
     font-style:italic; font-size:13px; color:#3A2E22; line-height:1.4; word-wrap:break-word; }
 
+
+  /* ==========================================================================
+     DIÁRIO EM FOLHAS
+     Cada anotação é uma folha de papel "casca de ovo" (branco quente, com
+     pintinhas bem leves). A folha da frente é a atual; as próximas ficam
+     empilhadas atrás, e a folha virada sai pela esquerda — como um bloco.
+     O js/diario.js só troca transform/opacidade de cada .folha; quem anima
+     é o "transition" daqui.
+     ========================================================================== */
+  #meuDiarioOverlay {
+    /* letra escolhida pela pessoa (o js troca essas duas variáveis) */
+    --letra-diario: 'Caveat', cursive;
+    --letra-tam: 24px;
+  }
+  .letra-diario-btn { font-family:'Baloo 2', sans-serif; font-size:15px; color:var(--ink); margin-right:6px; }
+
+  .diario-folhas-pagina { flex:1; min-height:0; display:flex; flex-direction:column;
+    padding: 4px 6px calc(16px + env(safe-area-inset-bottom)); }
+
+  .diario-neste-dia { align-self:flex-start; display:inline-flex; align-items:center; gap:7px; min-height:36px;
+    padding:6px 14px 6px 10px; margin: 0 0 10px; border-radius:999px; border:1px dashed var(--accent-a);
+    background:var(--accent-soft); color:var(--accent-a); font-family:'DM Sans', sans-serif; font-size:12px; font-weight:700;
+    cursor:pointer; transition: transform .15s ease; }
+  .diario-neste-dia:active { transform: scale(.96); }
+
+  /* palco: área onde as folhas ficam empilhadas. touch-action pan-y deixa o
+     dedo rolar a folha pra cima/baixo, e o deslizar pro lado fica com o js */
+  .folhas-palco { position:relative; flex:1; min-height:0; margin: 4px 10px 0; touch-action: pan-y; }
+  .folhas-lista { display: contents; } /* as folhas salvas se posicionam no palco, como a folha nova */
+
+  .folha {
+    --papel: #F4EDE0;
+    --papel-tinta: #3A2E22;
+    --papel-tinta-suave: #8A7860;
+    --papel-pinta: rgba(120,95,60,.07);
+    position:absolute; inset:0; box-sizing:border-box; border-radius:10px;
+    padding: 26px 24px 18px; display:flex; flex-direction:column;
+    background-color: var(--papel);
+    background-image:
+      radial-gradient(circle at 12% 18%, var(--papel-pinta) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 63% 41%, var(--papel-pinta) 0 1px, transparent 1.4px),
+      radial-gradient(circle at 37% 77%, var(--papel-pinta) 0 .8px, transparent 1.3px),
+      radial-gradient(circle at 85% 88%, var(--papel-pinta) 0 1px, transparent 1.5px),
+      linear-gradient(160deg, rgba(255,255,255,.5), rgba(230,215,190,.22));
+    background-size: 23px 29px, 31px 27px, 19px 23px, 37px 33px, 100% 100%;
+    box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 10px 28px rgba(90,60,30,.16), 0 2px 4px rgba(90,60,30,.08);
+    color: var(--papel-tinta);
+    transition: transform .45s cubic-bezier(.2,.8,.25,1), opacity .35s ease;
+    will-change: transform;
+  }
+  /* no modo escuro o papel vira um cinza quente escuro (não fica uma folha branca acesa no meio do preto) */
+  #device[data-theme="dark"] .folha {
+    --papel: #24211D; --papel-tinta: #EDE6DA; --papel-tinta-suave: #A89C88; --papel-pinta: rgba(255,240,215,.05);
+    box-shadow: 0 10px 28px rgba(0,0,0,.5);
+    background-image:
+      radial-gradient(circle at 12% 18%, var(--papel-pinta) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 63% 41%, var(--papel-pinta) 0 1px, transparent 1.4px),
+      radial-gradient(circle at 37% 77%, var(--papel-pinta) 0 .8px, transparent 1.3px),
+      radial-gradient(circle at 85% 88%, var(--papel-pinta) 0 1px, transparent 1.5px);
+  }
+  .folha.escondida { visibility:hidden; pointer-events:none; }
+
+  .folha-corpo { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+  .folha-corpo::-webkit-scrollbar { width:0; }
+  .folha-texto { font-family: var(--letra-diario); font-size: var(--letra-tam); line-height: 1.45;
+    color: var(--papel-tinta); white-space: pre-wrap; word-wrap: break-word; }
+  .folha-input { flex:1; width:100%; min-height:200px; border:none; outline:none; background:none; resize:none; padding:0; }
+  .folha-input::placeholder { color: var(--papel-tinta-suave); opacity:.75; }
+  /* foto "colada" na folha, levemente torta, com um pedacinho de fita */
+  .folha-foto { width:82%; max-height:220px; object-fit:cover; align-self:center; border-radius:3px;
+    transform: rotate(-1.5deg); box-shadow: 0 6px 16px rgba(60,40,20,.2);
+    filter: sepia(.2) saturate(1.1) contrast(1.04); }
+  .folha .polaroid-card-diario { margin: 6px auto; }
+  .folha .ref-card { margin-top:4px; }
+
+  .folha-lembranca { align-self:flex-start; padding:4px 10px; border-radius:999px; background: color-mix(in srgb, var(--accent-b) 16%, transparent);
+    color: var(--accent-b); font-family:'DM Sans', sans-serif; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+  .folha-fixada-marca { position:absolute; top:10px; right:12px; color: var(--accent-a); opacity:.8; }
+
+  /* rodapé: ações bem discretas à esquerda, data + assinatura no canto inferior direito */
+  .folha-rodape { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; padding-top:10px; }
+  .folha-acoes { display:flex; gap:2px; }
+  .folha-acao { width:36px; height:36px; border:none; background:none; border-radius:50%; color: var(--papel-tinta-suave);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:.7; transition: transform .15s ease, opacity .15s ease; }
+  .folha-acao:active { transform: scale(.88); opacity:1; }
+  .folha-assinatura-bloco { display:flex; flex-direction:column; align-items:flex-end; text-align:right; }
+  .folha-data { font-family: var(--letra-diario); font-size: calc(var(--letra-tam) * .62); color: var(--papel-tinta-suave); }
+  .folha-assinatura { font-family:'Homemade Apple', cursive; font-size:17px; line-height:1.6; color: var(--papel-tinta);
+    transform: rotate(-4deg); transform-origin: right center; }
+
+  .folhas-indicador { text-align:center; font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:700; color:var(--ink-faint);
+    padding: 12px 0 10px; }
+  .folhas-btn-principal { margin: 0 10px; min-height:50px; border:none; border-radius:999px; background:var(--accent-a); color:#fff;
+    font-family:'DM Sans', sans-serif; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;
+    cursor:pointer; transition: transform .15s ease; }
+  .folhas-btn-principal:active { transform: scale(.97); }
+  .folhas-btn-principal:disabled { opacity:.6; }
+
+  /* popup de escolher a letra */
+  .letra-diario-sub { font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin: -4px 0 12px; line-height:1.4; }
+  .letra-diario-grade { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; }
+  .letra-diario-opcao { min-height:74px; border-radius:18px; padding:10px 12px; cursor:pointer; display:flex; flex-direction:column;
+    align-items:flex-start; justify-content:center; gap:2px; background:#F4EDE0; border:2px solid transparent; transition: transform .15s ease; }
+  .letra-diario-opcao:active { transform: scale(.96); }
+  .letra-diario-opcao.on { border-color: var(--accent-a); }
+  .letra-diario-opcao .amostra { font-size:21px; line-height:1.2; color:#3A2E22; }
+  .letra-diario-opcao .nome { font-family:'DM Sans', sans-serif; font-size:11px; font-weight:700; color:#8A7860; }
+
+  /* pílula de dias escrevendo no Perfil (a sua e a de quem você visita) */
+  .perfil-streak-wrap { margin: 12px 0 2px; }
+  .pilula-alheia { cursor: default; }

@@ -18,5 +18,8 @@ window.abrirPerfilInfo = function () {
 
 window.abrirPaginaDiario = function () {
   document.getElementById('meuDiarioOverlay').classList.add('open');
-  renderTypeChipsDiario();
+  // o diário sempre abre na folha em branco, pronta pra escrever
+  folhaAtual = 0;
+  prepararFolhaNova();
+  posicionarFolhas();
 };

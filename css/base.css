@@ -1,5 +1,5 @@
 /* base: variáveis de cor (modo claro/escuro), onboarding, logo e tela cheia */
-  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&family=Caveat:wght@400;600&family=Kalam:wght@300;400&family=Patrick+Hand&family=Homemade+Apple&display=swap');
 
   :root {
     /* ---------- modo claro (padrão) — quente, papel kraft ---------- */

@@ -174,6 +174,9 @@ aplicarArcoIrisPilula(!arcoIrisPilulaAtivo);
 function atualizarStreakPill(dias) {
 const elCount = document.getElementById('streakCount');
 if (elCount) elCount.textContent = dias;
+// "1 dia escrevendo" / "5 dias escrevendo": o rótulo acompanha o número
+const elRotulo = document.getElementById('streakRotulo');
+if (elRotulo) elRotulo.textContent = t(dias === 1 ? 'pilula_rotulo_um' : 'pilula_rotulo_varios');
 const fill = document.getElementById('streakFill');
 if (fill) {
   const pct = dias > 0 ? (((dias - 1) % 7) + 1) / 7 * 100 : 0;

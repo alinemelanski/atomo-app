@@ -24,6 +24,29 @@ async function renderSelosPerfilAlheio(autorId) {
   } catch (e) { /* sem selos: deixa a linha vazia */ }
 }
 
+// pílula "dias escrevendo" de outra pessoa.
+// O número vem da função dias_escrevendo() do banco (rpc = chamar uma função
+// do Postgres pelo Supabase). Ela olha as datas das escritas da pessoa e
+// devolve só o número — o diário dela continua 100% privado.
+async function renderStreakPerfilAlheio(autorId) {
+  const wrap = document.getElementById('perfilAlheioStreakWrap');
+  if (!wrap) return;
+  wrap.style.display = 'none';
+  try {
+    const { data: dias, error } = await supabaseClient.rpc('dias_escrevendo', { p_usuario: autorId });
+    if (error) { console.log('pílula do perfil alheio:', error.message); return; } // função ainda não criada no banco: só não mostra
+    if (window.PERFIL_ALHEIO_ATUAL_ID !== autorId) return; // abriu outro perfil enquanto carregava
+    document.getElementById('perfilAlheioStreakTxt').textContent =
+      dias > 0 ? t(dias === 1 ? 'pilula_dia' : 'pilula_dias', { n: dias }) : t('pilula_zero');
+    // mesma barrinha da sua pílula: enche ao longo de cada semana
+    const pct = dias > 0 ? (((dias - 1) % 7) + 1) / 7 * 100 : 0;
+    const fill = document.getElementById('perfilAlheioStreakFill');
+    fill.style.width = '0%';
+    wrap.style.display = '';
+    requestAnimationFrame(() => { fill.style.width = pct + '%'; });
+  } catch (e) { /* sem rede: só não mostra a pílula */ }
+}
+
 //checar novo selo(streak antigo e streak novo
 
 async function checarNovoSelo(streakAntigo, streakNovo) {
@@ -168,6 +191,7 @@ document.getElementById('perfilAlheioNome').textContent = usuario.nome;
 document.getElementById('perfilAlheioHandle').textContent = '@' + usuario.handle;
 document.getElementById('perfilAlheioBio').textContent = usuario.bio || '';
 renderSelosPerfilAlheio(autorId); // selos da pessoa (qualquer um pode ver)
+renderStreakPerfilAlheio(autorId); // dias escrevendo da pessoa (só o número)
 
 const avatarDiv = document.getElementById('perfilAlheioAvatar');
 if (usuario.avatar_url) {
