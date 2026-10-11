@@ -3,7 +3,7 @@
 // toda hora); só usa o cache se o celular estiver offline. Nunca mexe em chamadas
 // pra fora (Supabase, TMDB, etc.) — essas passam direto pela rede.
 
-const CACHE_NAME = 'atomo-v2';
+const CACHE_NAME = 'atomo-v3';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
@@ -28,6 +28,39 @@ const STATIC_ASSETS = [
   './css/diario.css',
   './css/radio-humor.css',
   './css/home-widgets.css',
+  './js/config.js',
+  './js/icones.js',
+  './js/feed.js',
+  './js/comentarios.js',
+  './js/diario.js',
+  './js/mencoes-previas.js',
+  './js/conexoes.js',
+  './js/sequencia-selos.js',
+  './js/home.js',
+  './js/radio.js',
+  './js/perfil.js',
+  './js/referencias.js',
+  './js/conta-match.js',
+  './js/descobrir.js',
+  './js/comunidades.js',
+  './js/sala-estudo.js',
+  './js/clubes.js',
+  './js/livros-gratis.js',
+  './js/estante.js',
+  './js/estante-autoral.js',
+  './js/cartoes.js',
+  './js/leitor.js',
+  './js/descobrir-itens.js',
+  './js/mensagens.js',
+  './js/mensagens-midia.js',
+  './js/navegacao.js',
+  './js/configuracoes.js',
+  './js/clima-tema.js',
+  './js/notificacoes.js',
+  './js/utilidades.js',
+  './js/auth-onboarding.js',
+  './js/escrita-notificacoes.js',
+  './js/init.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
 ];
