@@ -28,7 +28,7 @@ meuGenero = (meuGenero === g) ? null : g;
 renderGeneroGrid();
 };
 
-// ---------- seu dia (montado aqui no aparelho, na hora, com o que a pessoa fez hoje) ----------
+// ---------- seu dia (montado aqui no aparelho, com o que a pessoa fez no dia; aparece só à noite) ----------
 // Não depende de servidor, agendador nem IA: junta os toques de humor, o que foi escrito, a leitura
 // e a sequência de hoje num cartão com título, barra de humor, texto e uma dica pro fim do dia.
 const SUBSTANTIVO_HUMOR = { feliz: 'alegria', calma: 'calma', triste: 'tristeza', ansiosa: 'ansiedade', brava: 'raiva' };
@@ -115,41 +115,48 @@ function montarResumoDoDia({ eventos, posts, leuHoje, hora, ontem }) {
     const paraOntem = t => t.replace(/\bhoje\b/g, 'ontem').replace(/\bHoje\b/g, 'Ontem');
     tituloFinal = paraOntem(titulo); textoFinal = paraOntem(textoFinal);
   }
-  return { titulo: tituloFinal, texto: textoFinal, dica, destaque: trechoDestaque, contagem: ordenadas, total: n, escritas: posts.length, saudacao: ontem ? 'seu dia de ontem' : (hora < 19 ? 'seu dia até agora' : 'seu dia') };
+  return { titulo: tituloFinal, texto: textoFinal, dica, destaque: trechoDestaque, contagem: ordenadas, total: n, escritas: posts.length, saudacao: ontem ? 'seu dia de ontem' : 'seu dia' };
+}
+
+// Quando o card "Seu dia" fica visível: só à noite, a partir de 30min antes do horário de dormir da pessoa
+// (o mesmo momento da notificação) e até a hora de acordar. Durante o dia o app só vai coletando.
+// Devolve null fora dessa janela; dentro dela, o dia que está sendo resumido e o intervalo pra buscar.
+function janelaResumoDia(agora, dormirMin, acordarMin) {
+  const inicioMin = ((dormirMin - 30) % 1440 + 1440) % 1440;
+  const duracao = Math.max(120, ((acordarMin - inicioMin) % 1440 + 1440) % 1440);
+  const agoraMin = agora.getHours() * 60 + agora.getMinutes();
+  if (((agoraMin - inicioMin) % 1440 + 1440) % 1440 >= duracao) return null;
+
+  const abertura = new Date(agora); abertura.setHours(0, 0, 0, 0);
+  if (agoraMin < inicioMin) abertura.setDate(abertura.getDate() - 1); // a janela abriu ontem
+  // quem dorme depois da meia-noite (janela abre de madrugada) está fechando o dia anterior
+  const dormeDepoisDaMeiaNoite = inicioMin < 360;
+  const dia = new Date(abertura); if (dormeDepoisDaMeiaNoite) dia.setDate(dia.getDate() - 1);
+  const fim = new Date(dia); fim.setDate(fim.getDate() + 1);
+  if (dormeDepoisDaMeiaNoite) fim.setHours(6, 0, 0, 0);
+  const hoje0 = new Date(agora); hoje0.setHours(0, 0, 0, 0);
+  return { inicio: dia, fim, diaISO: fmtDataISO(dia), diaJaVirou: hoje0.getTime() !== dia.getTime() };
 }
 
 async function carregarResumoDia() {
   const wrap = document.getElementById('homeResumoWrap');
   if (!wrap) return;
+  const janela = janelaResumoDia(new Date(), horarioDormirMin, horarioAcordarMin);
+  if (!janela) { wrap.style.display = 'none'; return; }
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData || !sessionData.session) return;
   const meuId = sessionData.session.user.id;
 
-  const inicioHoje = new Date(); inicioHoje.setHours(0, 0, 0, 0);
-  const inicioOntem = new Date(inicioHoje); inicioOntem.setDate(inicioOntem.getDate() - 1);
+  const [respEventos, respPosts, respLeitura] = await Promise.all([
+    supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', janela.inicio.toISOString()).lt('criado_em', janela.fim.toISOString()).order('criado_em', { ascending: true }),
+    supabaseClient.from('posts').select('texto, tipo, privado').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', janela.inicio.toISOString()).lt('criado_em', janela.fim.toISOString()),
+    supabaseClient.from('logs_leitura').select('data', { count: 'exact', head: true }).eq('usuario_id', meuId).eq('data', janela.diaISO),
+  ]);
+  const eventos = respEventos.data || [];
+  const posts = (respPosts.data || []).filter(p => String(p.texto || '').trim());
+  if (!eventos.length && !posts.length) { wrap.style.display = 'none'; return; }
 
-  // busca o que a pessoa registrou num dia (de inicio até fim) e devolve null se não houve nada
-  async function buscarDia(inicio, fim, iso) {
-    const [respEventos, respPosts, respLeitura] = await Promise.all([
-      supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', inicio.toISOString()).lt('criado_em', fim.toISOString()).order('criado_em', { ascending: true }),
-      supabaseClient.from('posts').select('texto, tipo, privado').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', inicio.toISOString()).lt('criado_em', fim.toISOString()),
-      supabaseClient.from('logs_leitura').select('data', { count: 'exact', head: true }).eq('usuario_id', meuId).eq('data', iso),
-    ]);
-    const eventos = respEventos.data || [];
-    const posts = (respPosts.data || []).filter(p => String(p.texto || '').trim());
-    if (!eventos.length && !posts.length) return null;
-    return { eventos, posts, leuHoje: (respLeitura.count || 0) > 0 };
-  }
-
-  // o card dura até o próximo ciclo: mostra o dia de hoje; se hoje ainda não teve nada,
-  // segura o resumo de ontem (até ~24h) e ele se renova quando o novo dia começar a ter registros
-  const amanha = new Date(inicioHoje); amanha.setDate(amanha.getDate() + 1);
-  let dia = await buscarDia(inicioHoje, amanha, fmtDataISO(new Date()));
-  let ontem = false;
-  if (!dia) { dia = await buscarDia(inicioOntem, inicioHoje, fmtDataISO(inicioOntem)); ontem = !!dia; }
-  if (!dia) { wrap.style.display = 'none'; return; }
-
-  const r = montarResumoDoDia({ eventos: dia.eventos, posts: dia.posts, leuHoje: dia.leuHoje, hora: new Date().getHours(), ontem });
+  const r = montarResumoDoDia({ eventos, posts, leuHoje: (respLeitura.count || 0) > 0, hora: 23, ontem: janela.diaJaVirou });
   window.RESUMO_DIA_ATUAL = r;
 
   document.getElementById('resumoDiaRotulo').textContent = r.saudacao;

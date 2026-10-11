@@ -131,6 +131,8 @@ if (session) {
   window.ativarMencaoEmTodosComposers();
   carregarChecklist();
   carregarResumoDia();
+  // a cada 5min confere se já é hora do "Seu dia" aparecer (perto de dormir) ou sumir (de manhã)
+  setInterval(() => { if (!document.hidden) carregarResumoDia(); }, 5 * 60 * 1000);
   renderDmList();
   carregarPostsReais();
   atualizarBadgePerguntasPendentes();
