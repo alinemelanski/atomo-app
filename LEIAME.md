@@ -13,6 +13,9 @@ Onde mexer em cada coisa:
 | `sw.js` | Service worker. Ao criar um arquivo novo em `css/` ou `js/`, inclua na lista `STATIC_ASSETS` e aumente o `CACHE_NAME`. |
 | `manifest.json`, `icons/`, `selos/` | Instalação do app, ícones e imagens dos selos. |
 | `termos.html`, `metricas.html` | Páginas avulsas. |
+| `js/i18n.js` | Idiomas: função `t('chave')` e o dicionário pt/en das telas novas. |
+| `js/i18n-en.js` | Tradução pro inglês das telas antigas (dicionário "texto em pt" → "texto em en"). |
+| `js/registro-erros.js` | Manda erros do app pro servidor (`/api/erros`) e registra métricas de uso (`eventos_app`). |
 
 ## Segredos
 Chaves e senhas ficam só em `.env` / `servidor.env` (ignorados pelo git) e nas variáveis de ambiente do Render.
@@ -22,3 +25,10 @@ A chave `sb_publishable_...` do Supabase é pública por definição (quem prote
 1. Crie `js/nome.js` (script comum, sem `import`/`export`: tudo é compartilhado entre os arquivos).
 2. Adicione `<script src="js/nome.js"></script>` no `index.html`, antes de `js/init.js`.
 3. Adicione `./js/nome.js` no `STATIC_ASSETS` do `sw.js` e aumente `CACHE_NAME`.
+
+## Idioma (português / inglês)
+- Tela nova: escreva o texto com `t('minha_chave')` e cadastre a chave nos dois idiomas em `js/i18n.js`.
+- Tela antiga com texto fixo: acrescente `'texto em português': 'English text'` no `EN_UI` de `js/i18n-en.js`.
+
+## Erros e métricas
+Painel: `metricas.html` (senha = `ADMIN_SECRET` do Render). Mostra quem abriu o app por dia e a lista de erros, com "marcar como resolvido".
