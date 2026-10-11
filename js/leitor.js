@@ -113,6 +113,7 @@ function registrarProgressoPaginas(paginaAtual) {
 
 // soma páginas/minutos na estatística de leitura vitalícia do usuário (cria a linha se não existir)
 async function incrementarEstatisticaLeitura(delta) {
+registrarEventoApp('leu'); // métrica: "leu hoje" (1 vez por dia)
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData.session) return;
   const usuarioId = sessionData.session.user.id;

@@ -85,6 +85,21 @@
   .loading{ text-align:center; padding:60px 0; color:var(--ink-faint); font-size:13px; display:none; }
   .loading.show{ display:block; }
 
+  /* uso por dia: barrinhas simples, uma por dia (14 dias) */
+  .barras{ display:flex; align-items:flex-end; gap:4px; height:90px; margin-top:12px; }
+  .barra{ flex:1; background:var(--accent-b); border-radius:4px 4px 0 0; min-height:2px; position:relative; }
+  .barra.hoje{ background:var(--accent-a); }
+  .barras-legenda{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-faint); margin-top:6px; }
+  .card.largo{ grid-column:1 / -1; }
+  /* lista de erros */
+  .erro-item{ background:var(--card); border:1px solid var(--card-b); border-radius:14px; padding:12px 14px; margin-bottom:8px; }
+  .erro-item .msg{ font-size:13px; font-weight:700; color:var(--ink); word-break:break-word; }
+  .erro-item .meta{ font-size:11px; color:var(--ink-faint); margin-top:4px; }
+  .erro-item details{ margin-top:6px; font-size:11px; color:var(--ink-dim); }
+  .erro-item pre{ white-space:pre-wrap; word-break:break-word; font-size:10.5px; margin:6px 0 0; }
+  .erro-item button{ margin-top:8px; background:none; border:1px solid var(--card-b); color:var(--ink-dim); font-size:12px; font-family:inherit;
+    padding:6px 12px; border-radius:10px; cursor:pointer; }
+  .vazio{ font-size:12.5px; color:var(--ink-faint); padding:6px 2px; }
   @media (prefers-reduced-motion: reduce){ *{ animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 </style>
 </head>
@@ -130,6 +145,23 @@
       </div>
     </div>
 
+    <div class="secao">Uso</div>
+    <div class="grid">
+      <div class="card">
+        <div class="n" id="mAtivosHoje">–</div>
+        <div class="l">abriram o app hoje</div>
+      </div>
+      <div class="card">
+        <div class="n" id="mLeitoresHoje">–</div>
+        <div class="l">leram um livro hoje</div>
+      </div>
+      <div class="card largo">
+        <div class="l" style="margin-top:0;">pessoas que abriram o app, por dia (últimos 14 dias)</div>
+        <div class="barras" id="mBarras"></div>
+        <div class="barras-legenda"><span id="mBarraIni"></span><span>hoje</span></div>
+      </div>
+    </div>
+
     <div class="secao">Conteúdo</div>
     <div class="grid">
       <div class="card">
@@ -153,6 +185,9 @@
         <div class="l">usuários com notificação ativada</div>
       </div>
     </div>
+
+    <div class="secao">Erros abertos <span id="mErrosAbertos"></span></div>
+    <div id="listaErros"><div class="vazio">carregando...</div></div>
 
     <div class="rodape">
       <span id="geradoEm"></span>
@@ -237,6 +272,12 @@
         document.getElementById('mPosts7').textContent = d.posts7dias;
         document.getElementById('mInscricoesPush').textContent = d.inscricoesPush;
         document.getElementById('mNotifAtivada').textContent = d.notifAtivada;
+        // uso (vem vazio se a tabela eventos_app ainda não foi criada)
+        document.getElementById('mAtivosHoje').textContent = d.ativosHoje == null ? '–' : d.ativosHoje;
+        document.getElementById('mLeitoresHoje').textContent = d.leitoresHoje == null ? '–' : d.leitoresHoje;
+        desenharBarras(d.ativosPorDia || []);
+        document.getElementById('mErrosAbertos').textContent = d.errosAbertos ? '(' + d.errosAbertos + ')' : '';
+        carregarErros();
 
         var gerado = new Date(d.geradoEm);
         document.getElementById('geradoEm').textContent = 'atualizado às ' + gerado.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -248,6 +289,56 @@
         document.getElementById('loading').classList.remove('show');
         document.getElementById('erroMsg').textContent = 'Não consegui conectar no servidor. Tenta de novo (o Render pode estar "acordando", leva uns 30-50s).';
       });
+  }
+
+  // uma barrinha por dia; a altura é proporcional ao maior dia
+  function desenharBarras(dias){
+    var el = document.getElementById('mBarras');
+    if (!dias.length) { el.innerHTML = '<div class="vazio">sem dados ainda</div>'; return; }
+    var maior = Math.max.apply(null, dias.map(function(x){ return x.n; }).concat([1]));
+    el.innerHTML = dias.map(function(x, i){
+      return '<div class="barra' + (i === dias.length - 1 ? ' hoje' : '') + '" style="height:' + Math.round(x.n / maior * 100) + '%" title="' + x.dia + ': ' + x.n + '"></div>';
+    }).join('');
+    var ini = dias[0].dia.split('-');
+    document.getElementById('mBarraIni').textContent = ini[2] + '/' + ini[1];
+  }
+
+  // texto vindo do banco é mostrado como TEXTO (nunca como HTML) — evita que
+  // uma mensagem de erro com "<script>" rode alguma coisa aqui no painel
+  function escapar(t){ var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+
+  var errosCarregados = [];
+  function carregarErros(){
+    fetch(API_BASE + '/api/admin/erros?segredo=' + encodeURIComponent(senhaAtual))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var lista = document.getElementById('listaErros');
+        if (!d.ok) { lista.innerHTML = '<div class="vazio">' + escapar(d.erro || 'não consegui carregar (a tabela erros_app já foi criada?)') + '</div>'; return; }
+        // agrupa erros com a mesma mensagem: mostra uma vez só, com quantas vezes aconteceu
+        var grupos = {};
+        d.erros.forEach(function(e){
+          if (!grupos[e.mensagem]) grupos[e.mensagem] = { e: e, vezes: 0 };
+          grupos[e.mensagem].vezes++;
+        });
+        errosCarregados = Object.keys(grupos).map(function(k){ return grupos[k]; });
+        if (!errosCarregados.length) { lista.innerHTML = '<div class="vazio">nenhum erro aberto 🎉</div>'; return; }
+        lista.innerHTML = errosCarregados.map(function(g, i){
+          var e = g.e;
+          return '<div class="erro-item"><div class="msg">' + escapar(e.mensagem) + '</div>' +
+            '<div class="meta">' + escapar(e.origem) + ' · ' + escapar(e.tela || '?') + ' · ' + g.vezes + 'x · último: ' + new Date(e.criado_em).toLocaleString('pt-BR') + '</div>' +
+            (e.pilha || e.navegador ? '<details><summary>detalhes</summary><pre>' + escapar(e.navegador || '') + '\n\n' + escapar(e.pilha || '') + '</pre></details>' : '') +
+            '<button onclick="resolverErro(' + i + ')">marcar como resolvido</button></div>';
+        }).join('');
+      })
+      .catch(function(){ document.getElementById('listaErros').innerHTML = '<div class="vazio">não consegui carregar os erros</div>'; });
+  }
+
+  function resolverErro(i){
+    var g = errosCarregados[i];
+    if (!g) return;
+    fetch(API_BASE + '/api/admin/erros/resolver?segredo=' + encodeURIComponent(senhaAtual), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensagem: g.e.mensagem })
+    }).then(function(){ carregarErros(); });
   }
 </script>
 </body>

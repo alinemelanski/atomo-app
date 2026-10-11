@@ -22,6 +22,7 @@ if (session) {
   }
 
   iniciarHeartbeatPresenca(session.user.id);
+  registrarEventoApp('abriu_app'); // métrica: "abriu o app hoje" (1 vez por dia)
 
      const { data: perfil } = await supabaseClient.from('usuarios').select('nome, handle, bio, avatar_url, streak_atual, modo_escuro, assuntos_favoritos, match_ativado, notif_ativado, genero, match_preferencia, ordem_tipos, emoji_streak, viu_guia_instalacao, pediu_permissao_notif, horario_acordar_min, horario_dormir_min, formato_hora_12h, viu_convite_match, tema_clima, horario_lembrete_leitura_min').eq('id', session.user.id).maybeSingle();
 

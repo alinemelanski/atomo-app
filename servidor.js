@@ -461,6 +461,78 @@ app.post('/api/feedback', async (req, res) => {
 // painel de métricas privado — só pra você acompanhar quantos usuários o
 // Átomo tem, protegido por senha (ADMIN_SECRET), sem link em nenhum lugar
 // do app pros outros usuários
+// ---------- registro de erros (o app manda, o servidor grava em erros_app) ----------
+// Por que passa pelo servidor e não grava direto do navegador? Porque a tabela
+// erros_app fica trancada pro público (RLS sem policy). Só o servidor, com a
+// service role, grava — e aqui dá pra limitar tamanho e quantidade, pra
+// ninguém usar essa porta pra encher o banco de lixo.
+const limiteErrosPorIp = new Map(); // ip -> { janelaInicio, quantidade }
+const MAX_ERROS_POR_MINUTO = 30;
+function corta(texto, max) { return texto == null ? null : String(texto).slice(0, max); }
+
+async function gravarErro({ mensagem, pilha, tela, origem, navegador, usuarioId }) {
+  if (!supabaseAdmin || !mensagem) return;
+  try {
+    await supabaseAdmin.from('erros_app').insert({
+      mensagem: corta(mensagem, 1000),
+      pilha: corta(pilha, 4000),
+      tela: corta(tela, 120),
+      origem: origem || 'front',
+      navegador: corta(navegador, 300),
+      usuario_id: usuarioId || null,
+    });
+  } catch (e) { console.log('não consegui gravar erro:', e.message); } // nunca deixa o registro de erro virar outro erro
+}
+
+app.post('/api/erros', async (req, res) => {
+  // limite simples por IP: no máximo 30 erros por minuto
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '?';
+  const agora = Date.now();
+  const reg = limiteErrosPorIp.get(ip) || { janelaInicio: agora, quantidade: 0 };
+  if (agora - reg.janelaInicio > 60000) { reg.janelaInicio = agora; reg.quantidade = 0; }
+  reg.quantidade++;
+  limiteErrosPorIp.set(ip, reg);
+  if (reg.quantidade > MAX_ERROS_POR_MINUTO) return res.status(429).json({ ok: false });
+
+  const { mensagem, pilha, tela, navegador } = req.body || {};
+  if (!mensagem) return res.status(400).json({ ok: false });
+  // quem estava logado vem do token (nunca do corpo da requisição, que dá pra falsificar)
+  let usuarioId = null;
+  try { const u = await usuarioDoToken(req); usuarioId = u ? u.id : null; } catch (e) { /* sem login: segue anônimo */ }
+  await gravarErro({ mensagem, pilha, tela, origem: 'front', navegador, usuarioId });
+  res.json({ ok: true });
+});
+
+// erros do próprio servidor também vão pra tabela (origem "back")
+process.on('unhandledRejection', (motivo) => {
+  console.log('erro não tratado no servidor:', motivo);
+  gravarErro({ mensagem: String((motivo && motivo.message) || motivo), pilha: motivo && motivo.stack, origem: 'back', tela: 'servidor' });
+});
+
+// painel: lista os erros abertos e marca como resolvido
+app.get('/api/admin/erros', async (req, res) => {
+  const segredo = req.query.segredo || req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || segredo !== process.env.ADMIN_SECRET) return res.status(401).json({ erro: 'não autorizado' });
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado no servidor' });
+  const { data, error } = await supabaseAdmin
+    .from('erros_app').select('id, criado_em, mensagem, pilha, tela, origem, navegador')
+    .eq('resolvido', false).order('criado_em', { ascending: false }).limit(60);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ ok: true, erros: data });
+});
+
+app.post('/api/admin/erros/resolver', async (req, res) => {
+  const segredo = req.query.segredo || req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || segredo !== process.env.ADMIN_SECRET) return res.status(401).json({ erro: 'não autorizado' });
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado no servidor' });
+  // resolve todos os erros com a MESMA mensagem de uma vez (o mesmo bug costuma aparecer várias vezes)
+  const { mensagem } = req.body || {};
+  if (!mensagem) return res.status(400).json({ erro: 'faltou a mensagem' });
+  const { error } = await supabaseAdmin.from('erros_app').update({ resolvido: true }).eq('mensagem', mensagem).eq('resolvido', false);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ ok: true });
+});
+
 app.get('/api/admin/metricas', async (req, res) => {
   const segredo = req.query.segredo || req.headers['x-admin-secret'];
   if (!process.env.ADMIN_SECRET || segredo !== process.env.ADMIN_SECRET) {
@@ -510,6 +582,28 @@ app.get('/api/admin/metricas', async (req, res) => {
     if (erroAutores) throw erroAutores;
     const usuariosAtivos7dias = new Set((autoresRecentes || []).map(p => p.autor_id)).size;
 
+    // uso por dia (tabela eventos_app): quantas pessoas ABRIRAM o app em cada
+    // um dos últimos 14 dias, e quantas leram hoje. Se a tabela ainda não foi
+    // criada no Supabase, esses números só vêm vazios (o resto do painel funciona).
+    let ativosPorDia = null, ativosHoje = null, leitoresHoje = null, errosAbertos = null;
+    try {
+      const hojeBr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }); // AAAA-MM-DD
+      const inicio = new Date(Date.now() - 13 * 86400000).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      const { data: eventos, error: erroEventos } = await supabaseAdmin
+        .from('eventos_app').select('tipo, dia').gte('dia', inicio).limit(20000);
+      if (!erroEventos) {
+        const porDia = {};
+        for (let i = 13; i >= 0; i--) {
+          porDia[new Date(Date.now() - i * 86400000).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })] = 0;
+        }
+        (eventos || []).forEach(e => { if (e.tipo === 'abriu_app' && porDia[e.dia] !== undefined) porDia[e.dia]++; });
+        ativosPorDia = Object.entries(porDia).map(([dia, n]) => ({ dia, n }));
+        ativosHoje = porDia[hojeBr] || 0;
+        leitoresHoje = (eventos || []).filter(e => e.tipo === 'leu' && e.dia === hojeBr).length;
+      }
+      errosAbertos = await contar('erros_app', q => q.eq('resolvido', false));
+    } catch (e) { /* tabelas novas ainda não criadas */ }
+
     res.json({
       ok: true,
       geradoEm: agora.toISOString(),
@@ -522,6 +616,10 @@ app.get('/api/admin/metricas', async (req, res) => {
       posts7dias,
       inscricoesPush,
       notifAtivada,
+      ativosHoje,
+      ativosPorDia,
+      leitoresHoje,
+      errosAbertos,
     });
   } catch (erro) {
     res.status(500).json({ erro: erro.message });
