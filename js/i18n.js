@@ -53,7 +53,10 @@ const TEXTOS = {
     salvos_titulo: 'Salvos',
     salvos_vazio_titulo: 'Nada salvo ainda',
     salvos_vazio_sub: 'Toque no marcador de um post pra guardar ele aqui. Só você vê essa lista.',
-    diario_editar: 'Editar esta folha'
+    diario_editar: 'Editar esta folha',
+    pdf_vazio: 'Escreva pelo menos uma folha antes de exportar',
+    pdf_montando: 'Montando seu livrinho...',
+    pdf_pronto: 'Livrinho pronto!'
   },
   en: {
     diario_titulo: 'My Diary',
@@ -93,7 +96,10 @@ const TEXTOS = {
     salvos_titulo: 'Saved',
     salvos_vazio_titulo: 'Nothing saved yet',
     salvos_vazio_sub: 'Tap the bookmark on a post to keep it here. Only you can see this list.',
-    diario_editar: 'Edit this page'
+    diario_editar: 'Edit this page',
+    pdf_vazio: 'Write at least one page before exporting',
+    pdf_montando: 'Putting your little book together...',
+    pdf_pronto: 'Your little book is ready!'
   }
 };
 
