@@ -592,6 +592,67 @@ function indiceRotativoDoDia(dataYyyyMmDd, tamanho) {
   return ((diasDesdeEpoca % tamanho) + tamanho) % tamanho;
 }
 
+// ---------- frases da noite: baralho embaralhado ----------
+// Problema antigo: a escolha era "dia % tamanho", ou seja, a lista andava em ordem. Como os 8 Salmos
+// estavam todos juntos no fim da lista, chegava Salmo 8 dias seguidos.
+// Agora: a cada "ciclo" (uma volta completa pela lista) a lista é EMBARALHADA de um jeito novo, e os
+// Salmos são espalhados entre as outras frases, sem nunca ficar dois seguidos. Nenhuma frase repete
+// antes de todas terem saído.
+
+// gerador de números pseudoaleatórios com semente (mulberry32): a mesma semente sempre dá a mesma
+// sequência. É por isso que o servidor reiniciar no Render não muda a frase do dia.
+function criarSorteio(semente) {
+  let a = semente >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296; // número entre 0 e 1
+  };
+}
+
+// embaralha uma cópia da lista (Fisher-Yates: troca cada posição, de trás pra frente, com uma posição sorteada)
+function embaralharLista(lista, sorteio) {
+  const copia = lista.slice();
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(sorteio() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
+// monta a ordem de UM ciclo: comuns embaralhadas e "raras" (os Salmos) espalhadas entre elas.
+// Divide o ciclo em blocos do mesmo tamanho e põe 1 rara por bloco, nunca na primeira nem na última
+// posição do bloco. Assim: nunca duas raras coladas, nem no começo/fim do ciclo (o fim de um ciclo
+// encosta no começo do próximo).
+function ordemDoCiclo(lista, ehRara, ciclo) {
+  const sorteio = criarSorteio(ciclo * 2654435761 + 12345);
+  const comuns = embaralharLista(lista.filter(f => !ehRara(f)), sorteio);
+  const raras = embaralharLista(lista.filter(ehRara), sorteio);
+  if (!raras.length) return comuns;
+  const tamBloco = Math.floor(lista.length / raras.length);
+  if (tamBloco < 3) return embaralharLista(lista, sorteio); // poucas comuns: embaralha tudo e pronto
+  const posicoesRaras = new Set(raras.map((_, i) => i * tamBloco + 1 + Math.floor(sorteio() * (tamBloco - 2))));
+  const resultado = [];
+  let iComum = 0, iRara = 0;
+  for (let pos = 0; pos < lista.length; pos++) {
+    resultado.push(posicoesRaras.has(pos) ? raras[iRara++] : comuns[iComum++]);
+  }
+  return resultado;
+}
+
+const ehSalmo = (frase) => / — Salmos \d/.test(frase);
+
+// frase do dia: descobre em que ciclo e em que posição do ciclo estamos e pega a frase certa do baralho
+function mensagemEmbaralhadaDoDia(lista, dataYyyyMmDd, ehRara) {
+  const [ano, mes, dia] = dataYyyyMmDd.split('-').map(Number);
+  const diasDesdeEpoca = Math.floor(Date.UTC(ano, mes - 1, dia) / 86400000);
+  const ciclo = Math.floor(diasDesdeEpoca / lista.length);
+  const posicao = diasDesdeEpoca % lista.length;
+  return ordemDoCiclo(lista, ehRara, ciclo)[posicao];
+}
+
 async function enviarPushParaUsuario(usuarioId, titulo, corpo, dadosExtra) {
   // push ainda não configurado no servidor (faltam segredos no .env) — sai sem
   // quebrar quem chamou, pra dar pra chamar essa função de qualquer lugar sem medo
@@ -672,7 +733,7 @@ async function rodarCronNotificacoes(req, res) {
       await supabaseAdmin.from('usuarios').update({ ultima_notif_manha_data: hojeBrasilia }).eq('id', u.id);
     }
     for (const u of precisamNoite) {
-      const msg = MENSAGENS_NOITE[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_NOITE.length)];
+      const msg = mensagemEmbaralhadaDoDia(MENSAGENS_NOITE, hojeBrasilia, ehSalmo);
       totalEnviadas += await enviarPushParaUsuario(u.id, 'Reflexão do dia', msg);
       await supabaseAdmin.from('usuarios').update({ ultima_notif_noite_data: hojeBrasilia }).eq('id', u.id);
     }
