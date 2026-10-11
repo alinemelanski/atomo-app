@@ -10,7 +10,21 @@ function renderSelosPerfil() {
   ).join('');
 }
 
- //checar novo selo(streak antigo e streak novo
+ // selos de outra pessoa: lê da tabela selos_desbloqueados (leitura liberada pra quem está logado)
+async function renderSelosPerfilAlheio(autorId) {
+  const linha = document.getElementById('perfilAlheioSelos');
+  linha.innerHTML = '';
+  try {
+    const { data, error } = await supabaseClient.from('selos_desbloqueados').select('selo_numero').eq('usuario_id', autorId).order('selo_numero');
+    if (error || !data) return;
+    if (window.PERFIL_ALHEIO_ATUAL_ID !== autorId) return; // abriu outro perfil enquanto carregava
+    linha.innerHTML = data.map(r => SELOS[r.selo_numero - 1]).filter(Boolean).map(s =>
+      `<div class="selo-circulo" onclick="abrirSeloIndividual('${s.nome}')" title="${s.nome}${s.frase ? ' — ' + s.frase : ''}">${conteudoSelo(s)}</div>`
+    ).join('');
+  } catch (e) { /* sem selos: deixa a linha vazia */ }
+}
+
+//checar novo selo(streak antigo e streak novo
 
 async function checarNovoSelo(streakAntigo, streakNovo) {
 
@@ -152,6 +166,7 @@ document.getElementById('perfilAlheioTitulo').textContent = '@' + usuario.handle
 document.getElementById('perfilAlheioNome').textContent = usuario.nome;
 document.getElementById('perfilAlheioHandle').textContent = '@' + usuario.handle;
 document.getElementById('perfilAlheioBio').textContent = usuario.bio || '';
+renderSelosPerfilAlheio(autorId); // selos da pessoa (qualquer um pode ver)
 
 const avatarDiv = document.getElementById('perfilAlheioAvatar');
 if (usuario.avatar_url) {
