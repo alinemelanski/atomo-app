@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './servidor.env' });
+require('dotenv').config({ path: require('path').join(__dirname, '..', 'servidor.env') });
 
 async function testarTMDB() {
   const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.TMDB_API_KEY_V3}&query=matrix`;

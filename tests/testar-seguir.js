@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY);
@@ -6,7 +6,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUB
 async function fazerContaTesteSeguirVoce() {
   const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
     email: 'teste2@gmail.com',
-    password: '12345',
+    password: process.env.TESTE_SENHA_CONTA2,
   });
   if (loginError) { console.log('erro no login:', loginError.message); return; }
 
