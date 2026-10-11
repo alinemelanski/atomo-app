@@ -45,6 +45,7 @@
   .clube-hero-titulo { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: #fff; line-height: 1.15; text-shadow: 0 1px 10px rgba(0,0,0,.35); letter-spacing: -.01em; }
   .clube-hero-autor { font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,.88); margin-top: 3px; }
   .clube-meta-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .clube-meta-pill-clicavel { cursor: pointer; }
   .clube-meta-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px;
     background: var(--accent-soft); color: var(--ink-dim); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; }
   #clubeDetalheMural .post { animation: clubeCardEntra .4s cubic-bezier(.2,.8,.2,1) backwards; }

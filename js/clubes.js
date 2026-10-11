@@ -79,9 +79,8 @@ async function renderClubeDetalhe() {
     `;
 
   document.getElementById('clubeDetalheMeta').innerHTML = `
-      ${c.descricao ? `<div class="discover-desc" style="margin-bottom:8px;">${c.descricao}</div>` : ''}
       <div class="clube-meta-pills">
-        <span class="clube-meta-pill">${icone('pessoas',12)} ${membros.length} membro${membros.length === 1 ? '' : 's'}</span>
+        <span class="clube-meta-pill clube-meta-pill-clicavel" onclick="abrirMembrosClube()" role="button" title="ver os membros">${icone('pessoas',12)} ${membros.length} membro${membros.length === 1 ? '' : 's'}</span>
         ${c.privado ? `<span class="clube-meta-pill">${icone('cadeado',12)} privado</span>` : ''}
       </div>`;
 
@@ -100,6 +99,52 @@ async function renderClubeDetalhe() {
 
   await renderFerramentasClube(c, souMembro, souAdmin, meuId);
   await renderMuralClube();
+}
+
+// lista de membros do clube (abre ao tocar no chip "N membros")
+window.abrirMembrosClube = async function () {
+  document.getElementById('clubeMembrosOverlay').classList.add('open');
+  await renderMembrosClube();
+};
+
+async function renderMembrosClube() {
+  const wrap = document.getElementById('clubeMembrosLista');
+  wrap.innerHTML = `<div class="visitor-lock-note">Carregando...</div>`;
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session ? sessionData.session.user.id : null;
+
+  await window.carregarSeguindoIds();
+  const { data: c } = await supabaseClient.from('clubes_livro').select('criador_id').eq('id', clubeAtualId).single();
+  const { data: membros, error } = await supabaseClient
+    .from('clube_membros')
+    .select('usuario_id, papel, entrou_em')
+    .eq('clube_id', clubeAtualId)
+    .order('entrou_em', { ascending: true });
+  if (error) { wrap.innerHTML = `<div class="visitor-lock-note">Não consegui carregar os membros.</div>`; return; }
+
+  // clube_membros aponta pra auth.users, então os perfis vêm numa segunda consulta
+  const ids = (membros || []).map(m => m.usuario_id);
+  const perfis = {};
+  if (ids.length) {
+    const { data: us } = await supabaseClient.from('usuarios').select('id, handle, avatar_url').in('id', ids);
+    (us || []).forEach(u => { perfis[u.id] = u; });
+  }
+
+  wrap.innerHTML = (membros && membros.length ? membros.map((m, i) => {
+    const u = perfis[m.usuario_id];
+    const handle = u ? u.handle : 'alguém';
+    const ehCriador = !!(c && m.usuario_id === c.criador_id);
+    const ehEu = m.usuario_id === meuId;
+    const cor = CORES_COMUNIDADE[i % CORES_COMUNIDADE.length];
+    return `
+        <div class="comunidade-membro-row">
+          ${avatarSeguirHtml(m.usuario_id, u && u.avatar_url, handle, 36, cor)}
+          <div style="flex:1; min-width:0;">
+            <div class="comunidade-membro-handle">@${handle}${ehEu ? ' (você)' : ''}</div>
+            <div class="comunidade-membro-papel">${ehCriador ? 'criador' : (m.papel === 'admin' ? 'admin' : 'membro')}</div>
+          </div>
+        </div>`;
+  }).join('') : estadoVazio('sem membros ainda', ''));
 }
 
 window.fecharClubeDetalhe = function () {
