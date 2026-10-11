@@ -40,6 +40,9 @@ let modoLivrosAtivo = 'clube';
 window.trocarModoLivros = function (modo) {
   modoLivrosAtivo = modo;
   document.querySelectorAll('.feed-modo-chip[data-modo-livros]').forEach(c => c.classList.toggle('on', c.dataset.modoLivros === modo));
+  // reinicia o "pulinho" do ícone, mesmo quando toca de novo no que já estava ativo
+  const svgAtivo = document.querySelector('.feed-modo-chip[data-modo-livros="' + modo + '"] svg');
+  if (svgAtivo) { svgAtivo.style.animation = 'none'; void svgAtivo.getBoundingClientRect(); svgAtivo.style.animation = ''; }
   document.getElementById('buscaLivrosWrap').style.display = modo === 'gratuitos' ? 'flex' : 'none';
   renderLivrosAtual();
 };
