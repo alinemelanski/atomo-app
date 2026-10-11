@@ -52,10 +52,7 @@
   #clubeDetalheMural .post-body { animation: clubeFadeIn .3s ease; }
   @keyframes clubeFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* ---------- aba Livros: chip "comunidades" ---------- */
-  .badge-novo-chip { background: var(--accent-b); color: #fff; font-size: 8.5px; font-weight: 800;
-    padding: 1px 5px; border-radius: 999px; margin-left: 3px; letter-spacing: .03em; font-family: 'DM Sans', sans-serif; }
-  .feed-modo-chip.on .badge-novo-chip { background: rgba(255,255,255,.28); }
+  /* ---------- aba Livros: chips só com ícone (todos do mesmo tamanho) ---------- */
   .feed-modo-chip.icon-only { padding: 9px 11px; }
 
   /* ---------- clube/comunidade: botoes de acao no cabecalho (ao lado dos 3 pontinhos), capa mini e bolhas por pessoa ---------- */

@@ -61,6 +61,12 @@
     background: var(--card); transition: transform .15s ease;
   }
   .btn-importar-kindle:active { transform: scale(.94); }
+  /* os dois botões da estante: mesmo tamanho, compactos, texto em uma linha só */
+  .estante-btns-row .btn-enviar-epub, .estante-btns-row .btn-importar-kindle {
+    flex: 1 1 0; min-width: 0; box-sizing: border-box; padding: 9px 10px; gap: 6px;
+    font-size: 12px; white-space: nowrap; border: 1.5px solid transparent;
+  }
+  .estante-btns-row .btn-importar-kindle { border-color: var(--card-b); }
 
   /* ---------- estante: prateleira de madeira de verdade pros epubs enviados,
      livros em pe lado a lado como lombadas, em vez de uma lista de linhas ---------- */

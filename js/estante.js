@@ -146,7 +146,7 @@ async function renderEstante() {
 
   window.ITENS_ESTANTE_ATUAIS = data || [];
   lista.innerHTML = estatisticasHtml + streakHtml + `<div class="estante-btns-row">
-        <button class="btn-enviar-epub" onclick="abrirUploadEpub()">${icone('instalar',17,0,'#fff')} enviar um epub</button>
+        <button class="btn-enviar-epub" onclick="abrirUploadEpub()">${icone('instalar',15,0,'#fff')} enviar um epub</button>
         <button class="btn-importar-kindle" onclick="abrirImportarKindle()">${icone('livro',15)} destaques do Kindle</button>
       </div>` +
     (data && data.length
