@@ -149,10 +149,11 @@ window.grifarSelecaoAtual = async function () {
   document.getElementById('citacaoTextoInput').value = texto;
   document.getElementById('citacaoTituloInput').value = item.titulo || '';
   document.getElementById('citacaoAutorInput').value = item.autor || '';
+  window.CITACAO_CLUBE_ID = null;
   document.getElementById('citacaoCanvas').style.display = 'none';
   document.getElementById('citacaoAcoes').style.display = 'none';
   document.getElementById('citacaoCartaoOverlay').classList.add('open');
-  mostrarToast('🖍️ grifado — agora é só gerar o cartão');
+  mostrarToast('🖍️ grifado — agora é só compartilhar a citação');
 };
 
 window.paginaAnteriorEpub = function () { if (leitorEpubAtual) leitorEpubAtual.rendition.prev(); };

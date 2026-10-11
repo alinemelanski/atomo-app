@@ -1243,7 +1243,7 @@
       <canvas id="citacaoCanvas" width="600" height="750" style="display:none; width:100%; border-radius:14px; margin-top:14px; box-shadow:var(--shadow);"></canvas>
       <div id="citacaoAcoes" style="display:none; flex-direction:column; gap:10px; margin-top:12px;">
         <div style="display:flex; gap:10px;">
-          <button class="post-btn" style="flex:1; padding:11px;" onclick="baixarCartaoCitacao()">baixar</button>
+          <button class="post-btn" id="citacaoBtnGrupo" style="flex:1; padding:11px; display:none;" onclick="compartilharCitacaoNoGrupo()">compartilhar no grupo</button>
           <button class="post-btn" style="flex:1; padding:11px;" onclick="compartilharCartaoCitacaoExterno()">compartilhar fora</button>
         </div>
         <button class="livro-link-externo" style="margin:0; justify-content:center;" onclick="compartilharCartaoCitacaoFeed()">postar pros amigos no feed</button>

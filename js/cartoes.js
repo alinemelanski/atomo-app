@@ -3,7 +3,11 @@
    A ordem dos <script> no index.html importa. */
 
 // ---------- citação: frase grifada com marca-texto (gerada em canvas, vira imagem pra compartilhar) ----------
+// clube de destino pra "compartilhar no grupo" (só existe quando a citação é criada de dentro de um clube)
+window.CITACAO_CLUBE_ID = null;
+
 window.abrirCartaoCitacao = function (titulo, autor) {
+  window.CITACAO_CLUBE_ID = null;
   document.getElementById('citacaoTextoInput').value = '';
   document.getElementById('citacaoTituloInput').value = titulo || '';
   document.getElementById('citacaoAutorInput').value = autor || '';
@@ -16,6 +20,7 @@ window.abrirCartaoCitacao = function (titulo, autor) {
 window.abrirCartaoCitacaoClubeAtual = function () {
   if (!clubeLivroAtualCitacao.titulo) { mostrarToast('❌ esse clube ainda não tem um livro definido'); return; }
   abrirCartaoCitacao(clubeLivroAtualCitacao.titulo, clubeLivroAtualCitacao.autor);
+  window.CITACAO_CLUBE_ID = clubeAtualId;
 };
 
 function quebrarLinhasCanvas(ctx, texto, larguraMax, maxLinhas = 11) {
@@ -140,7 +145,37 @@ window.gerarCartaoCitacao = async function () {
   ctx.fillText(textoRodape, xInicio + iconTam + gap, H - 43);
 
   canvas.style.display = 'block';
+  document.getElementById('citacaoBtnGrupo').style.display = window.CITACAO_CLUBE_ID ? 'block' : 'none';
   document.getElementById('citacaoAcoes').style.display = 'flex';
+};
+
+// posta a citação (imagem grifada) no mural do clube de onde ela foi criada
+window.compartilharCitacaoNoGrupo = function () {
+  const clubeId = window.CITACAO_CLUBE_ID;
+  if (!clubeId) return;
+  const canvas = document.getElementById('citacaoCanvas');
+  canvas.toBlob(async blob => {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const usuarioId = sessionData.session.user.id;
+    const caminho = `${usuarioId}/clube-citacao-${Date.now()}.png`;
+    const { error: erroUpload } = await supabaseClient.storage.from('midia-posts').upload(caminho, blob, { contentType: 'image/png' });
+    if (erroUpload) { mostrarToast('❌ erro no upload: ' + erroUpload.message); return; }
+    const { data } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminho);
+    const { error } = await supabaseClient.from('posts').insert({
+      autor_id: usuarioId,
+      texto: '',
+      tipo: 'Clube',
+      privado: false,
+      clube_id: clubeId,
+      capitulo_livro: (typeof clubeCapituloAtual !== 'undefined' && clubeCapituloAtual.capitulo) || null,
+      tem_spoiler: false,
+      imagem_url: data.publicUrl,
+    });
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    mostrarToast('✨ citação compartilhada no grupo!');
+    closeOverlay('citacaoCartaoOverlay');
+    if (typeof clubeAtualId !== 'undefined' && clubeAtualId === clubeId) renderMuralClube();
+  }, 'image/png');
 };
 
 window.baixarCartaoCitacao = function () {
