@@ -692,7 +692,7 @@ async function renderMuralComunidadeEstudo() {
 
   const { data, error } = await supabaseClient
     .from('posts')
-    .select('*, usuarios(handle, avatar_url)')
+    .select('*, usuarios!autor_id(handle, avatar_url)')
     .eq('comunidade_estudo_id', comunidadeEstudoAtualId)
     .order('criado_em', { ascending: true });
 

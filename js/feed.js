@@ -67,13 +67,20 @@ if (meuId) {
 
 const { data, error } = await supabaseClient
   .from('posts')
-  .select('*, usuarios(handle, avatar_url)')
+  // "usuarios!autor_id" diz ao Supabase QUAL ligação usar pra achar o autor (a coluna autor_id).
+  // Sem essa dica, se existir mais de um caminho entre posts e usuarios, ele devolve erro.
+  .select('*, usuarios!autor_id(handle, avatar_url)')
   .eq('privado', false)
   .is('clube_id', null)
   .is('comunidade_estudo_id', null)
   .order('criado_em', { ascending: false });
 
-if (error) { console.log('erro ao carregar posts:', error.message); return; }
+if (error) {
+  console.log('erro ao carregar posts:', error.message);
+  // antes ficava preso no "carregando" pra sempre; agora mostra que falhou e deixa tentar de novo
+  document.getElementById('feedList').innerHTML = estadoVazio('Não consegui carregar os posts', 'Pode ser a internet ou o servidor. Tenta de novo daqui a pouco.', 'tentar de novo', 'carregarPostsReais()');
+  return;
+}
 
 const idsDosPosts = data.map(row => row.id);
 const { data: curtidas } = await supabaseClient

@@ -87,7 +87,7 @@ window.abrirSalvos = async function () {
   // "posts(...)" traz junto o post de cada linha salva (o Supabase segue a chave estrangeira post_id)
   const { data, error } = await supabaseClient
     .from('posts_salvos')
-    .select('salvo_em, posts(id, texto, tipo, imagem_url, criado_em, editado_em, autor_id, usuarios(handle, avatar_url))')
+    .select('salvo_em, posts(id, texto, tipo, imagem_url, criado_em, editado_em, autor_id, usuarios!autor_id(handle, avatar_url))')
     .eq('usuario_id', sessionData.session.user.id)
     .order('salvo_em', { ascending: false });
 

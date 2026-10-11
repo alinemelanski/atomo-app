@@ -616,7 +616,7 @@ async function renderMuralClube() {
   await window.carregarSeguindoIds();
   const { data, error } = await supabaseClient
     .from('posts')
-    .select('*, usuarios(handle, avatar_url)')
+    .select('*, usuarios!autor_id(handle, avatar_url)')
     .eq('clube_id', clubeAtualId)
     .order('criado_em', { ascending: true });
 
