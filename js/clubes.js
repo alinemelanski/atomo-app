@@ -554,7 +554,7 @@ window.avatarSeguirHtml = function (userId, avatarUrl, handle, tam, fundoFallbac
 };
 
 window.seguirDoGrupo = async function (id, btn) {
-  if (navigator.vibrate) navigator.vibrate(10);
+  vibrar(10);
   btn.classList.add('ok'); btn.textContent = '✓';
   const { data: s } = await supabaseClient.auth.getSession();
   if (!s.session) return;

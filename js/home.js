@@ -132,6 +132,7 @@ async function somarPontoHumor(emocao, pontos) {
 // toque numa carinha: reage na hora (bichinho ja cede no toque, feito bola apertada) e registra o ponto de humor.
 // se for a 2a+ vez do dia em brava/ansiosa, abre o popup perguntando o motivo.
 window.tocarHumor = async function (emocao) {
+  vibrar(8); // vibração bem sutil ao tocar numa emoção
   const wrap = document.getElementById('humorFaceWrap_' + emocao);
   if (wrap) {
     wrap.classList.add('tocando');
@@ -249,7 +250,7 @@ function entrarModoOrganizarHome() {
   if (wrap) wrap.classList.add('modo-organizar');
   const btn = document.getElementById('homeOrganizarProntoBtn');
   if (btn) btn.style.display = 'flex';
-  if (navigator.vibrate) navigator.vibrate(12);
+  vibrar(12);
 }
 
 window.sairModoOrganizarHome = function () {
@@ -430,7 +431,7 @@ function renderTempoPicker() {
 }
 
 window.alternarAmPm = function () {
-  if (navigator.vibrate) navigator.vibrate(6);
+  vibrar(6);
   window.TEMPO_PICKER_MIN = (window.TEMPO_PICKER_MIN + 720) % 1440;
   renderTempoPicker();
 };
@@ -517,7 +518,7 @@ window.responderConviteMatch = async function (ativar) {
 };
 
 window.ajustarTempoPicker = function (parte, dir) {
-  if (navigator.vibrate) navigator.vibrate(6);
+  vibrar(6);
   let h = Math.floor(window.TEMPO_PICKER_MIN / 60);
   let m = window.TEMPO_PICKER_MIN % 60;
   if (parte === 'h') { h = (h + dir + 24) % 24; }

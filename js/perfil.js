@@ -52,6 +52,7 @@ if (semanasDepois > semanasAntes && semanasDepois <= SELOS.length) {
   document.getElementById('seloTitulo').textContent = `Novo selo: "${selo.nome}"`;
   document.getElementById('seloTexto').textContent = selo.frase || 'Uma semana inteira escrevendo. Guardado na sua coleção \ud83d\udcee';
   document.getElementById('seloCelebracao').classList.add('show');
+  vibrar([30, 60, 30, 60, 90]); tocarSom('selo');
   return true;
 }
 return false;
@@ -80,7 +81,7 @@ document.getElementById('perfilAlheioPosts').innerHTML = lista.length
 }
 
 window.curtirPostAlheio = async function (i, evt) {
-if (navigator.vibrate) navigator.vibrate(15);
+vibrar(15);
 const post = perfilAlheioPostsAtuais[i];
 const { data: sessionData } = await supabaseClient.auth.getSession();
 const meuId = sessionData.session.user.id;

@@ -1512,6 +1512,14 @@
         <div class="toggle-sw on" id="notifSwitch" onclick="toggleNotif()"><div class="dot"></div></div>
       </div>
   <div class="settings-row">
+    <div><div class="t">Sons suaves</div><div class="s">pequenos sons ao atualizar, receber notificação e ganhar selo. No celular em silencioso, desligue aqui</div></div>
+    <div class="toggle-sw on" id="sonsSwitch" onclick="toggleSons()"><div class="dot"></div></div>
+  </div>
+  <div class="settings-row">
+    <div><div class="t">Vibração</div><div class="s">vibra de leve ao tocar nas emoções, receber avisos e ganhar selos</div></div>
+    <div class="toggle-sw on" id="vibracaoSwitch" onclick="toggleVibracao()"><div class="dot"></div></div>
+  </div>
+  <div class="settings-row">
     <div><div class="t">Horário em 12h (AM/PM)</div><div class="s">mostra os horários tipo 09:00pm em vez de 21:00</div></div>
     <div class="toggle-sw" id="formatoHoraSwitch" onclick="toggleFormatoHora()"><div class="dot"></div></div>
   </div>
@@ -1611,6 +1619,7 @@
 
 <!-- JavaScript do app: arquivos em js/, carregados nesta ordem (a ordem importa) -->
 <script src="js/config.js"></script>
+<script src="js/feedback-sensorial.js"></script>
 <script src="js/icones.js"></script>
 <script src="js/feed.js"></script>
 <script src="js/comentarios.js"></script>

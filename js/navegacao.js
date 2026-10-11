@@ -69,6 +69,7 @@ setInterval(() => {
   let ultimaDist = 0;
   let telaAtual = null;
   let atualizando = false;
+  let cruzouLimiar = false; // pra vibrar/tocar só uma vez por puxada
 
   function overlayAberto() {
     return !!document.querySelector('.open, .show:not(#toast2)');
@@ -90,6 +91,7 @@ setInterval(() => {
     telaAtual = tela;
     puxando = true;
     ultimaDist = 0;
+    cruzouLimiar = false;
   }, { passive: true });
 
   document.addEventListener('touchmove', (e) => {
@@ -100,6 +102,8 @@ setInterval(() => {
     const dist = Math.min(dy * 0.5, PUXAR_MAX);
     ultimaDist = dist;
     const progresso = Math.min(dist / LIMIAR, 1);
+    if (!cruzouLimiar && dist >= LIMIAR) { cruzouLimiar = true; vibrar(8); tocarSom('puxar'); }
+    else if (cruzouLimiar && dist < LIMIAR) cruzouLimiar = false; // voltou atrás: pode soar de novo
     indicador.style.opacity = String(progresso);
     indicador.style.transform = `translateX(-50%) translateY(${dist - 60}px) scale(${0.8 + progresso * 0.3}) rotate(${dist * 3}deg)`;
   }, { passive: true });
@@ -122,6 +126,7 @@ setInterval(() => {
     } catch (e) {
       console.log('erro ao atualizar:', e);
     }
+    tocarSom('atualizou');
     setTimeout(() => {
       atualizando = false;
       indicador.classList.remove('spinning');

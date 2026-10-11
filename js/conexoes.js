@@ -174,7 +174,7 @@ window.filtrarPessoas = function () {
   renderSugestoesLista(termo);
 };
 window.toggleSeguir = async function (id, seguindoAtualmente, btn) {
-  if (navigator.vibrate) navigator.vibrate(10);
+  vibrar(10);
   // UI otimista: o botão já muda na hora do toque, antes de esperar o Supabase
   if (btn) {
     btn.textContent = seguindoAtualmente ? 'Seguir' : 'Seguindo';

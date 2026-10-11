@@ -66,7 +66,7 @@ document.getElementById('comentariosOverlay').classList.add('open');
 window.curtirPostComentarios = async function (evt) {
 const p = (comentarioPostArray || feedPosts)[comentarioPostIdx];
 if (!p) return;
-if (navigator.vibrate) navigator.vibrate(15);
+vibrar(15);
 const { data: sessionData } = await supabaseClient.auth.getSession();
 const meuId = sessionData.session.user.id;
 

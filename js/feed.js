@@ -377,7 +377,7 @@ carregarPostsReais();
 
 window.publicarPost = async function () {
 
-if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+vibrar([10, 30, 10]);
 const texto = document.getElementById('composerText').value.trim();
 if (!texto) return;
 const tipo = tipoSelecionado || 'Assunto';
@@ -741,7 +741,7 @@ function notificarPushEvento(destinatarioId, tipo, dados) {
 
 window.curtirPost = async function (i, evt) {
 
-  if (navigator.vibrate) navigator.vibrate(15); 
+  vibrar(15); 
 const post = feedPosts[i];
 const { data: sessionData } = await supabaseClient.auth.getSession();
 const meuId = sessionData.session.user.id;

@@ -168,6 +168,7 @@ if (session) {
       carregarNotificacoes();
       atualizarBadgePerguntasPendentes();
       mostrarToast('🔔 Nova notificação chegou!');
+      tocarSom('notificacao'); vibrar([14, 40, 14]);
     })
     .subscribe();
 
@@ -190,6 +191,7 @@ if (session) {
       } else {
         renderDmList();
         mostrarToast('💬 Nova mensagem!');
+        tocarSom('notificacao'); vibrar([14, 40, 14]);
       }
     })
     .subscribe();

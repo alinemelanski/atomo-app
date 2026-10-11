@@ -70,7 +70,7 @@ const { data: elaMeSegue } = await supabaseClient
   .from('seguidores').select('id').eq('seguidor_id', pessoa.id).eq('seguido_id', meuId).maybeSingle();
 
 if (elaMeSegue) {
-  if (navigator.vibrate) navigator.vibrate([20, 50, 20, 50, 20]);
+  vibrar([20, 50, 20, 50, 20]);
   mostrarToast('💛 Deu match! Abrindo conversa...');
   closeOverlay('matchOverlay');
   abrirDm(pessoa.id, pessoa.handle);
