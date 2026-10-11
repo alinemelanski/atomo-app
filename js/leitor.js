@@ -128,7 +128,7 @@ async function incrementarEstatisticaLeitura(delta) {
   }
 }
 
-// ---------- grifar: marca o trecho selecionado e abre o cartão de citação já preenchido ----------
+// ---------- grifar: marca o trecho selecionado e abre a tela de criar citação já preenchida ----------
 window.grifarSelecaoAtual = async function () {
   if (!leitorEpubAtual || !leitorEpubAtual.selecaoAtual) return;
   const texto = leitorEpubAtual.selecaoAtual;

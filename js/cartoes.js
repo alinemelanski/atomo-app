@@ -2,7 +2,7 @@
    Script comum (sem módulo): divide o escopo global com os outros arquivos de js/.
    A ordem dos <script> no index.html importa. */
 
-// ---------- cartão de citação (gerado em canvas, no visual do Átomo) ----------
+// ---------- citação: frase grifada com marca-texto (gerada em canvas, vira imagem pra compartilhar) ----------
 window.abrirCartaoCitacao = function (titulo, autor) {
   document.getElementById('citacaoTextoInput').value = '';
   document.getElementById('citacaoTituloInput').value = titulo || '';
@@ -12,13 +12,13 @@ window.abrirCartaoCitacao = function (titulo, autor) {
   document.getElementById('citacaoCartaoOverlay').classList.add('open');
 };
 
-// dispara o cartão a partir do livro atual de um clube (ver clubeLivroAtualCitacao)
+// abre a tela de criar citação a partir do livro atual de um clube (ver clubeLivroAtualCitacao)
 window.abrirCartaoCitacaoClubeAtual = function () {
   if (!clubeLivroAtualCitacao.titulo) { mostrarToast('❌ esse clube ainda não tem um livro definido'); return; }
   abrirCartaoCitacao(clubeLivroAtualCitacao.titulo, clubeLivroAtualCitacao.autor);
 };
 
-function quebrarLinhasCanvas(ctx, texto, larguraMax) {
+function quebrarLinhasCanvas(ctx, texto, larguraMax, maxLinhas = 11) {
   const palavras = texto.split(/\s+/);
   const linhas = [];
   let atual = '';
@@ -28,9 +28,10 @@ function quebrarLinhasCanvas(ctx, texto, larguraMax) {
     else { atual = teste; }
   });
   if (atual) linhas.push(atual);
-  return linhas.slice(0, 11);
+  return linhas.slice(0, maxLinhas);
 }
 
+// gera a citação como uma frase grifada com caneta marca-texto (sem moldura de cartão)
 window.gerarCartaoCitacao = async function () {
   const texto = document.getElementById('citacaoTextoInput').value.trim();
   if (!texto) { mostrarToast('❌ cola ou escreve um trecho primeiro'); return; }
@@ -38,72 +39,105 @@ window.gerarCartaoCitacao = async function () {
   const autor = document.getElementById('citacaoAutorInput').value.trim();
 
   try {
-    await document.fonts.load('800 40px "Baloo 2"');
-    await document.fonts.load('italic 400 32px "Nunito"');
+    await document.fonts.load('400 38px "Nunito"');
+    await document.fonts.load('800 26px "Baloo 2"');
     await document.fonts.load('700 18px "Nunito"');
   } catch (e) {}
 
-  const canvas = document.getElementById('citacaoCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const estilo = getComputedStyle(document.documentElement);
-  const corBg = estilo.getPropertyValue('--bg').trim() || '#F7F1E6';
-  const corInk = estilo.getPropertyValue('--ink').trim() || '#3A2E22';
-  const corAccentA = estilo.getPropertyValue('--accent-a').trim() || '#D9714A';
-  const corFaint = estilo.getPropertyValue('--ink-faint').trim() || '#B7A78D';
+  // a imagem é sempre "papel claro + tinta escura" (o marca-texto amarelo precisa de fundo claro,
+  // mesmo quando o app está no modo escuro)
+  const corPapel = '#FBF6EA';
+  const corTinta = '#2B2118';
+  const corFraca = '#8C7B66';
+  const corMarca = '#FFE45C';
+  const corAccentA = (getComputedStyle(document.documentElement).getPropertyValue('--accent-a').trim()) || '#D9714A';
 
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = corBg;
+  const canvas = document.getElementById('citacaoCanvas');
+  const W = 600;
+  const MARGEM = 56;
+  const TAM = 34;          // tamanho da letra
+  const ALTURA_LINHA = 62; // espaço entre linhas (deixa respirar entre os traços do marca-texto)
+
+  // mede e quebra o texto antes de decidir a altura da imagem
+  const medidor = document.createElement('canvas').getContext('2d');
+  medidor.font = `400 ${TAM}px "Nunito"`;
+  const linhas = quebrarLinhasCanvas(medidor, texto, W - MARGEM * 2 - 20, 16);
+
+  const temRodape = !!(titulo || autor);
+  const topo = 70;
+  const altTexto = linhas.length * ALTURA_LINHA;
+  const H = Math.max(420, topo + altTexto + (temRodape ? 90 : 30) + 90);
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = corPapel;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = corAccentA;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(36, 48); ctx.lineTo(W - 42, 38); ctx.lineTo(W - 38, H - 46); ctx.lineTo(42, H - 36); ctx.closePath();
-  ctx.stroke();
+  // número pseudo-aleatório estável (a mesma frase sempre sai com o mesmo "traço de caneta")
+  let semente = 0;
+  for (let i = 0; i < texto.length; i++) semente = (semente * 31 + texto.charCodeAt(i)) >>> 0;
+  const rnd = () => { semente = (semente * 1664525 + 1013904223) >>> 0; return semente / 4294967296; };
 
-  ctx.fillStyle = corAccentA;
+  ctx.font = `400 ${TAM}px "Nunito"`;
+  ctx.textBaseline = 'alphabetic';
   ctx.textAlign = 'left';
-  ctx.font = '800 100px "Baloo 2"';
-  ctx.fillText('“', 62, 178);
 
-  ctx.fillStyle = corInk;
-  ctx.font = 'italic 400 37px "Nunito"';
-  ctx.textAlign = 'center';
-  const linhas = quebrarLinhasCanvas(ctx, texto, W - 150);
-  let y = H / 2 - (linhas.length * 47) / 2;
-  linhas.forEach(linha => { ctx.fillText(linha, W / 2, y); y += 47; });
+  linhas.forEach((linha, i) => {
+    const base = topo + i * ALTURA_LINHA + TAM; // linha de base do texto
+    const larg = ctx.measureText(linha).width;
+    const x0 = MARGEM - 8;
+    const x1 = MARGEM + larg + 8;
+    const yTopo = base - TAM * 0.92;
+    const yFundo = base + TAM * 0.28;
+    // duas passadas translúcidas: dá a sobreposição de cor de um marca-texto de verdade
+    for (let p = 0; p < 2; p++) {
+      const j = () => (rnd() - 0.5) * 4;
+      ctx.beginPath();
+      ctx.moveTo(x0 + j(), yTopo + j() + (p ? 2 : 0));
+      ctx.lineTo(x1 + j(), yTopo + j() - 1);
+      ctx.lineTo(x1 + 5 + j(), (yTopo + yFundo) / 2 + j());
+      ctx.lineTo(x1 + j(), yFundo + j());
+      ctx.lineTo(x0 + j(), yFundo + j() - (p ? 2 : 0));
+      ctx.lineTo(x0 - 5 + j(), (yTopo + yFundo) / 2 + j());
+      ctx.closePath();
+      ctx.fillStyle = corMarca;
+      ctx.globalAlpha = p ? 0.55 : 0.8;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = corTinta;
+    ctx.fillText(linha, MARGEM, base);
+  });
 
+  let y = topo + altTexto + 28;
   if (titulo) {
-    ctx.font = '800 30px "Baloo 2"';
-    ctx.fillStyle = corInk;
-    ctx.fillText(titulo, W / 2, H - 132);
+    ctx.font = '800 24px "Baloo 2"';
+    ctx.fillStyle = corTinta;
+    ctx.fillText(titulo, MARGEM, y);
+    y += 28;
   }
   if (autor) {
-    ctx.font = '700 19px "Nunito"';
-    ctx.fillStyle = corFaint;
-    ctx.fillText(autor, W / 2, H - 100);
+    ctx.font = '700 18px "Nunito"';
+    ctx.fillStyle = corFraca;
+    ctx.fillText(autor, MARGEM, y);
   }
 
-  // marca d'agua do atomo (o papel amassado de verdade) no rodape, no lugar
-  // do emoji generico de novelo que tava ali antes por engano
-  ctx.font = '700 18px "Nunito"';
+  // marca d'agua do atomo (o papel amassado) no rodape
+  ctx.font = '700 17px "Nunito"';
   const textoRodape = 'Átomo · seu diário tem visitas.';
   const larguraTexto = ctx.measureText(textoRodape).width;
-  const iconTam = 30;
+  const iconTam = 28;
   const gap = 9;
   const xInicio = W / 2 - (iconTam + gap + larguraTexto) / 2;
-
   ctx.save();
-  ctx.translate(xInicio, H - 70);
+  ctx.translate(xInicio, H - 64);
   ctx.scale(iconTam / 100, iconTam / 100);
   ctx.fillStyle = corAccentA;
   ctx.fill(new Path2D('M18 12 L42 6 L58 4 L74 14 L88 10 L94 26 L96 44 L90 58 L94 74 L82 84 L66 96 L48 92 L30 98 L14 88 L6 72 L4 54 L10 38 L6 22 Z'));
   ctx.restore();
-
-  ctx.fillStyle = corFaint;
-  ctx.textAlign = 'left';
-  ctx.fillText(textoRodape, xInicio + iconTam + gap, H - 50);
+  ctx.fillStyle = corFraca;
+  ctx.fillText(textoRodape, xInicio + iconTam + gap, H - 43);
 
   canvas.style.display = 'block';
   document.getElementById('citacaoAcoes').style.display = 'flex';

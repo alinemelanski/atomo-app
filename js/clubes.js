@@ -87,7 +87,7 @@ async function renderClubeDetalhe() {
   document.getElementById('clubeDetalheHeaderIcones').style.display = souMembro ? 'flex' : 'none';
   document.getElementById('clubeDetalheHeaderIcones').innerHTML = souMembro
     ? `${souAdmin ? `<button class="dm-header-icon-btn" title="mudar livro atual" onclick="mudarLivroAtualClube()">${icone('livro',15)}</button>` : ''}
-         <button class="dm-header-icon-btn" title="gerar citação" onclick="abrirCartaoCitacaoClubeAtual()">${icone('citacao',15)}</button>
+         <button class="dm-header-icon-btn" title="criar citação" onclick="abrirCartaoCitacaoClubeAtual()">${icone('citacao',15)}</button>
          ${!c.privado ? `<button class="dm-header-icon-btn" title="convidar pro clube" onclick="abrirCompartilharClube()">${icone('convite',15)}</button>` : ''}`
     : '';
 
