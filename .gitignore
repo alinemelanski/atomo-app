@@ -10,3 +10,6 @@ bu-novo.html
 
 # pasta que o app do Claude usa pra salvar arquivos entregues no chat
 Claude outputs/
+
+# arquivos que sairam do projeto (pode apagar a pasta inteira)
+_to_delete/
