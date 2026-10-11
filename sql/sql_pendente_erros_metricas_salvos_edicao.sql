@@ -66,8 +66,11 @@ create policy "registrar meu evento" on eventos_app
 -- post_id é bigint porque o id dos posts é número (não uuid).
 
 create table if not exists posts_salvos (
-  usuario_id  uuid   not null references usuarios(id) on delete cascade,
-  post_id     bigint not null references posts(id)    on delete cascade,
+  -- ATENÇÃO: aponta pra auth.users, NÃO pra usuarios. Se apontasse pra usuarios,
+  -- o Supabase passaria a ver dois caminhos entre posts e usuarios e o Feed quebraria
+  -- (explicação completa em sql_correcao_feed_posts_salvos.sql)
+  usuario_id  uuid   not null references auth.users(id) on delete cascade,
+  post_id     bigint not null references posts(id)       on delete cascade,
   salvo_em    timestamptz not null default now(),
   primary key (usuario_id, post_id)  -- impede salvar o mesmo post 2x
 );
