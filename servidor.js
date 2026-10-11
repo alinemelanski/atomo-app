@@ -690,6 +690,113 @@ async function enviarPushParaUsuario(usuarioId, titulo, corpo, dadosExtra) {
   return enviadas;
 }
 
+// ---------- pergunta do dia (conta oficial @Átomo) ----------
+// Toda manhã o bot @Átomo publica UMA pergunta no Feed (a mesma pra todo mundo),
+// e a notificação da manhã de cada pessoa passa a trazer essa pergunta no texto.
+// Quem toca na notificação cai direto nos comentários do post — responder é
+// comentar, e comentar conta como dia escrito na pílula.
+//
+// A lista é escrita à mão (não gerada por IA), em português e inglês, pra o
+// texto sempre soar natural. A ordem é rotativa (indiceRotativoDoDia): só
+// repete uma pergunta depois de passar por todas.
+// Pra acrescentar: é só colocar mais um { pt, en } no fim da lista.
+const PERGUNTAS_DO_DIA = [
+  { pt: 'Qual livro você gostaria de ler de novo pela primeira vez?', en: 'Which book would you love to read again for the first time?' },
+  { pt: 'Que frase de um livro nunca saiu da sua cabeça?', en: 'What line from a book has never left your mind?' },
+  { pt: 'O que você aprendeu essa semana que ninguém te ensinou?', en: 'What did you learn this week that nobody taught you?' },
+  { pt: 'Qual personagem você seria, se pudesse escolher?', en: 'If you could be any character, who would you be?' },
+  { pt: 'Que cheiro te leva direto pra infância?', en: 'What smell takes you straight back to childhood?' },
+  { pt: 'Qual foi a última coisa que te fez rir sozinho?', en: 'What was the last thing that made you laugh alone?' },
+  { pt: 'Se o seu dia de ontem fosse um título de livro, qual seria?', en: 'If yesterday were a book title, what would it be?' },
+  { pt: 'Que lugar você queria conhecer só por causa de um livro ou filme?', en: 'What place do you want to visit just because of a book or a film?' },
+  { pt: 'Qual conselho você daria pra você de cinco anos atrás?', en: 'What advice would you give yourself five years ago?' },
+  { pt: 'Que música está tocando na sua cabeça hoje?', en: 'What song is stuck in your head today?' },
+  { pt: 'Qual livro você indicaria pra alguém que diz que não gosta de ler?', en: 'What book would you give to someone who says they don\'t like reading?' },
+  { pt: 'O que te deixa em paz de verdade?', en: 'What truly brings you peace?' },
+  { pt: 'Qual pequena coisa melhorou o seu dia recentemente?', en: 'What small thing made your day better recently?' },
+  { pt: 'Que hábito você está tentando construir?', en: 'What habit are you trying to build?' },
+  { pt: 'Qual final de livro ou filme você mudaria?', en: 'Which book or movie ending would you change?' },
+  { pt: 'Se você escrevesse um livro, sobre o que seria?', en: 'If you wrote a book, what would it be about?' },
+  { pt: 'Qual é a sua palavra preferida em português?', en: 'What is your favorite word in your language?' },
+  { pt: 'Que pergunta você gostaria que te fizessem mais vezes?', en: 'What question do you wish people asked you more often?' },
+  { pt: 'Qual autor você gostaria de conhecer pessoalmente?', en: 'Which author would you like to meet in person?' },
+  { pt: 'O que você faria com um dia inteiro só pra você?', en: 'What would you do with a whole day just for yourself?' },
+  { pt: 'Qual foi o melhor presente que você já ganhou sem ser coisa?', en: 'What is the best gift you ever got that wasn\'t a thing?' },
+  { pt: 'Que livro você abandonou e acha que merece uma segunda chance?', en: 'What book did you give up on that deserves a second chance?' },
+  { pt: 'Qual é o seu canto preferido pra ler?', en: 'Where is your favorite spot to read?' },
+  { pt: 'O que você queria ter coragem de fazer?', en: 'What do you wish you had the courage to do?' },
+  { pt: 'Que história de família você mais gosta de contar?', en: 'What family story do you love telling the most?' },
+  { pt: 'Qual livro te fez chorar?', en: 'Which book made you cry?' },
+  { pt: 'Como seria o seu dia perfeito de domingo?', en: 'What would your perfect Sunday look like?' },
+  { pt: 'O que você aprendeu com alguém mais novo que você?', en: 'What have you learned from someone younger than you?' },
+  { pt: 'Qual é a lembrança mais bonita que você tem de uma viagem?', en: 'What is your most beautiful memory from a trip?' },
+  { pt: 'Que assunto você conseguiria falar por horas?', en: 'What topic could you talk about for hours?' },
+  { pt: 'Qual livro você leu na hora certa da vida?', en: 'Which book did you read at exactly the right time in your life?' },
+  { pt: 'O que você gostaria de aprender este ano?', en: 'What would you like to learn this year?' },
+  { pt: 'Qual personagem parece muito com alguém que você conhece?', en: 'Which character reminds you a lot of someone you know?' },
+  { pt: 'O que te faz sentir em casa?', en: 'What makes you feel at home?' },
+  { pt: 'Qual foi a última vez que você fez algo pela primeira vez?', en: 'When was the last time you did something for the first time?' },
+  { pt: 'Que poema ou verso você sabe de cor?', en: 'What poem or verse do you know by heart?' },
+  { pt: 'Qual é a sua comida de conforto?', en: 'What is your comfort food?' },
+  { pt: 'O que você está esperando ansiosamente?', en: 'What are you looking forward to?' },
+  { pt: 'Qual livro mudou a forma como você vê o mundo?', en: 'Which book changed the way you see the world?' },
+  { pt: 'Que pessoa te inspira e por quê?', en: 'Who inspires you, and why?' },
+  { pt: 'Se você pudesse morar dentro de um livro, qual seria?', en: 'If you could live inside a book, which one would it be?' },
+  { pt: 'O que você agradece hoje?', en: 'What are you grateful for today?' },
+  { pt: 'Qual foi a decisão mais difícil que acabou dando certo?', en: 'What hard decision turned out to be right?' },
+  { pt: 'Que filme você assiste toda vez que passa?', en: 'What movie do you watch every time it\'s on?' },
+  { pt: 'Qual é o primeiro livro de que você se lembra?', en: 'What is the first book you remember?' },
+  { pt: 'O que você faria se não tivesse medo de errar?', en: 'What would you do if you weren\'t afraid of failing?' },
+  { pt: 'Que som você acha bonito?', en: 'What sound do you find beautiful?' },
+  { pt: 'Qual clássico você ainda quer ler?', en: 'Which classic do you still want to read?' },
+  { pt: 'O que você diria pra quem está começando algo novo?', en: 'What would you tell someone starting something new?' },
+  { pt: 'Qual é a sua estação do ano preferida e por quê?', en: 'What is your favorite season, and why?' },
+  { pt: 'Que livro você daria de presente sem pensar duas vezes?', en: 'What book would you gift without thinking twice?' },
+  { pt: 'O que te tira da cama nos dias difíceis?', en: 'What gets you out of bed on hard days?' },
+  { pt: 'Qual cena de livro você gostaria de ver num filme?', en: 'Which book scene would you love to see in a film?' },
+  { pt: 'Que tradição você quer manter pra sempre?', en: 'Which tradition do you want to keep forever?' },
+  { pt: 'O que você está lendo agora e por que escolheu esse livro?', en: 'What are you reading now, and why did you pick it?' },
+  { pt: 'Qual foi a melhor conversa que você teve recentemente?', en: 'What was the best conversation you had recently?' },
+  { pt: 'Que parte de você mudou nos últimos anos?', en: 'Which part of you has changed in the last few years?' },
+  { pt: 'Qual livro brasileiro todo mundo deveria ler?', en: 'Which Brazilian book should everyone read?' },
+  { pt: 'O que você gostaria de ouvir hoje?', en: 'What would you like to hear today?' },
+  { pt: 'Se a sua vida tivesse uma trilha sonora, qual seria a primeira música?', en: 'If your life had a soundtrack, what would the first song be?' }
+];
+
+// garante que o post da pergunta de HOJE existe (cria uma vez por dia) e devolve { id, pergunta }.
+// Se o cron rodar várias vezes no mesmo dia, ele reaproveita o post já criado.
+async function garantirPerguntaDoDia(hojeBrasilia) {
+  if (!supabaseAdmin) return null;
+  const botId = await buscarIdContaBotAtomo();
+  if (!botId) return null;
+  const pergunta = PERGUNTAS_DO_DIA[indiceRotativoDoDia(hojeBrasilia, PERGUNTAS_DO_DIA.length)];
+
+  // já postou hoje? (olha o último post desse tipo e compara o dia em Brasília)
+  const { data: ultimo } = await supabaseAdmin
+    .from('posts').select('id, criado_em')
+    .eq('autor_id', botId).eq('tipo', 'Pergunta do dia')
+    .order('criado_em', { ascending: false }).limit(1).maybeSingle();
+  if (ultimo) {
+    const diaDoUltimo = new Date(ultimo.criado_em).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }); // en-CA = AAAA-MM-DD
+    if (diaDoUltimo === hojeBrasilia) return { id: ultimo.id, pergunta };
+  }
+
+  const { data: novo, error } = await supabaseAdmin.from('posts').insert({
+    autor_id: botId,
+    texto: pergunta.pt,
+    tipo: 'Pergunta do dia',
+    privado: false,
+  }).select('id').single();
+  if (error) { console.log('pergunta do dia: erro ao postar:', error.message); return null; }
+  return { id: novo.id, pergunta };
+}
+
+// o app pode pedir a pergunta de hoje (nos dois idiomas) — útil pro inglês
+app.get('/api/pergunta-do-dia', (req, res) => {
+  const hoje = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  res.json(PERGUNTAS_DO_DIA[indiceRotativoDoDia(hoje, PERGUNTAS_DO_DIA.length)]);
+});
+
 // chamada por um agendador EXTERNO (o Render free não fica ligado sozinho o
 // tempo todo — ver README/instruções) a cada poucos minutos. Protegida por
 // segredo compartilhado (CRON_SECRET) pra ninguém de fora disparar notificação.
@@ -735,9 +842,19 @@ async function rodarCronNotificacoes(req, res) {
     const precisamNoite = (candidatosNoite || []).filter(u => u.ultima_notif_noite_data !== hojeBrasilia);
 
     let totalEnviadas = 0;
+    // a partir das 5h o bot já publica a pergunta do dia (uma vez só por dia);
+    // assim ela já está no Feed quando o primeiro "bom dia" sair
+    const perguntaHoje = (minutosAgora >= 5 * 60 || precisamManha.length) ? await garantirPerguntaDoDia(hojeBrasilia) : null;
     for (const u of precisamManha) {
-      const msg = MENSAGENS_MANHA[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_MANHA.length)];
-      totalEnviadas += await enviarPushParaUsuario(u.id, 'Bom dia 🌙', msg);
+      if (perguntaHoje) {
+        // a notificação da manhã agora É a pergunta do dia; tocar nela abre
+        // os comentários do post do @Átomo (tipo 'pergunta_do_dia' → sw.js monta a URL)
+        totalEnviadas += await enviarPushParaUsuario(u.id, 'Pergunta do dia', perguntaHoje.pergunta.pt, { tipo: 'pergunta_do_dia', post_id: perguntaHoje.id });
+      } else {
+        // sem conta do bot (ou erro ao postar): volta pro "bom dia" de antes, pra ninguém ficar sem nada
+        const msg = MENSAGENS_MANHA[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_MANHA.length)];
+        totalEnviadas += await enviarPushParaUsuario(u.id, 'Bom dia 🌙', msg);
+      }
       await supabaseAdmin.from('usuarios').update({ ultima_notif_manha_data: hojeBrasilia }).eq('id', u.id);
     }
     for (const u of precisamNoite) {

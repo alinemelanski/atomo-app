@@ -86,7 +86,15 @@ badge.classList.toggle('hide', naoLidas === 0);
 window.irParaPostDaNotif = async function (postId) {
 closeOverlay('notifOverlay');
 showScreen2('descobrir');
-const idx = feedPosts.findIndex(p => p.id === postId);
+// o id que vem da notificação push chega como TEXTO (vem da URL), e o do feed
+// é NÚMERO — por isso compara os dois como texto (antes 12 !== "12" e nunca achava)
+const acharNoFeed = () => feedPosts.findIndex(p => String(p.id) === String(postId));
+let idx = acharNoFeed();
+if (idx < 0 && typeof carregarPostsReais === 'function') {
+  // app acabou de abrir pela notificação: o feed ainda não carregou — carrega e tenta de novo
+  await carregarPostsReais();
+  idx = acharNoFeed();
+}
 if (idx >= 0) {
   abrirComentarios(idx);
 } else {
@@ -107,6 +115,9 @@ if (n.tipo === 'comentario' || n.tipo === 'curtida') {
   abrirDm(n.ator_id, usuario ? usuario.handle : 'alguém');
 } else if (n.tipo === 'pergunta') {
   abrirPerguntasPendentes();
+} else if (n.tipo === 'pergunta_do_dia' && n.post_id) {
+  // pergunta do dia do @Átomo: abre direto os comentários, pronto pra responder
+  irParaPostDaNotif(n.post_id);
 }
 };
 

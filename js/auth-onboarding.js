@@ -165,7 +165,7 @@ window.selecionarAssuntoFavorito = function (t) {
 
 window.confirmarOnboarding = async function () {
   document.getElementById('onboardOverlay').classList.add('hide');
-  mostrarToast(assuntosFavoritos.length ? `✨ Combinado! Mais ${assuntosFavoritos.join(', ').toLowerCase()} no seu feed` : '✨ Combinado! Bom dia chega no seu horário');
+  mostrarToast(assuntosFavoritos.length ? `✨ Combinado! Mais ${assuntosFavoritos.join(', ').toLowerCase()} no seu feed` : '✨ Combinado! A pergunta do dia chega no seu horário');
   renderFeed();
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -175,8 +175,10 @@ window.confirmarOnboarding = async function () {
     horario_dormir_min: horarioDormirMin,
   }).eq('id', sessionData.session.user.id);
 
+  // (antes chamava adicionarNotificacao(), uma função que não existe mais no
+  // app — dava erro escondido no console. Agora só avisa da pergunta do dia.)
   setTimeout(() => {
-    adicionarNotificacao('☀️', 'Bom dia! ✨', 'Como foi o seu sonho essa noite? Registra antes que esqueça 💭', 'irParaEscrita');
+    mostrarToast('💭 Toda manhã o @Átomo deixa uma pergunta no Feed pra você responder');
   }, 4000);
 
   // pede permissão de notificação externa já no cadastro, como combinado
