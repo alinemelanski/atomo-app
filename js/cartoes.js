@@ -6,12 +6,19 @@
 // clube de destino pra "compartilhar no grupo" (só existe quando a citação é criada de dentro de um clube)
 window.CITACAO_CLUBE_ID = null;
 
+// mostra/esconde a prévia da citação (a caixa rola quando a citação é comprida)
+window.mostrarPreviaCitacao = function (mostrar) {
+  document.getElementById('citacaoPreviaWrap').style.display = mostrar ? 'block' : 'none';
+  document.getElementById('citacaoCanvas').style.display = mostrar ? 'block' : 'none';
+  if (mostrar) document.getElementById('citacaoPreviaWrap').scrollTop = 0;
+};
+
 window.abrirCartaoCitacao = function (titulo, autor) {
   window.CITACAO_CLUBE_ID = null;
   document.getElementById('citacaoTextoInput').value = '';
   document.getElementById('citacaoTituloInput').value = titulo || '';
   document.getElementById('citacaoAutorInput').value = autor || '';
-  document.getElementById('citacaoCanvas').style.display = 'none';
+  mostrarPreviaCitacao(false);
   document.getElementById('citacaoAcoes').style.display = 'none';
   document.getElementById('citacaoCartaoOverlay').classList.add('open');
 };
@@ -60,13 +67,20 @@ window.gerarCartaoCitacao = async function () {
   const canvas = document.getElementById('citacaoCanvas');
   const W = 600;
   const MARGEM = 56;
-  const TAM = 34;          // tamanho da letra
-  const ALTURA_LINHA = 62; // espaço entre linhas (deixa respirar entre os traços do marca-texto)
 
-  // mede e quebra o texto antes de decidir a altura da imagem
+  // mede e quebra o texto antes de decidir a altura da imagem. Trecho curto usa letra grande;
+  // trecho comprido vai diminuindo a letra (até 20px) pra caber numa imagem de tamanho razoável.
+  // Se ainda assim for enorme, a imagem fica comprida e a tela rola pra ler até o fim.
   const medidor = document.createElement('canvas').getContext('2d');
-  medidor.font = `400 ${TAM}px "Nunito"`;
-  const linhas = quebrarLinhasCanvas(medidor, texto, W - MARGEM * 2 - 20, 16);
+  const ALTURA_MAX_TEXTO = 760;
+  let TAM = 34, linhas = [];
+  for (const tamTentativa of [34, 30, 27, 24, 22, 20]) {
+    TAM = tamTentativa;
+    medidor.font = `400 ${TAM}px "Nunito"`;
+    linhas = quebrarLinhasCanvas(medidor, texto, W - MARGEM * 2 - 20, 1000);
+    if (linhas.length * Math.round(TAM * 1.82) <= ALTURA_MAX_TEXTO) break;
+  }
+  const ALTURA_LINHA = Math.round(TAM * 1.82); // espaço entre linhas (deixa respirar entre os traços do marca-texto)
 
   const temRodape = !!(titulo || autor);
   const topo = 70;
@@ -144,7 +158,7 @@ window.gerarCartaoCitacao = async function () {
   ctx.fillStyle = corFraca;
   ctx.fillText(textoRodape, xInicio + iconTam + gap, H - 43);
 
-  canvas.style.display = 'block';
+  mostrarPreviaCitacao(true);
   document.getElementById('citacaoBtnGrupo').style.display = window.CITACAO_CLUBE_ID ? 'block' : 'none';
   document.getElementById('citacaoAcoes').style.display = 'flex';
 };

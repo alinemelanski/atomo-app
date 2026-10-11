@@ -150,7 +150,7 @@ window.grifarSelecaoAtual = async function () {
   document.getElementById('citacaoTituloInput').value = item.titulo || '';
   document.getElementById('citacaoAutorInput').value = item.autor || '';
   window.CITACAO_CLUBE_ID = null;
-  document.getElementById('citacaoCanvas').style.display = 'none';
+  mostrarPreviaCitacao(false);
   document.getElementById('citacaoAcoes').style.display = 'none';
   document.getElementById('citacaoCartaoOverlay').classList.add('open');
   mostrarToast('🖍️ grifado — agora é só compartilhar a citação');
