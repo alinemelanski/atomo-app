@@ -54,6 +54,9 @@
 
   /* ---------- aba Livros: chips só com ícone (todos do mesmo tamanho) ---------- */
   .feed-modo-chip.icon-only { padding: 9px 11px; }
+  /* aba Livros: os 5 ícones dividem a largura toda (sem sobra na direita) */
+  .feed-modo-row-livros { gap: 7px; overflow-x: visible; }
+  .feed-modo-row-livros .feed-modo-chip { flex: 1 1 0; min-width: 0; justify-content: center; padding: 11px 0; }
 
   /* ---------- clube/comunidade: botoes de acao no cabecalho (ao lado dos 3 pontinhos), capa mini e bolhas por pessoa ---------- */
   .clube-header-icons { display: flex; align-items: center; gap: 6px; }
