@@ -1,6 +1,9 @@
 /* js/etimologia-palavras.js — As palavras do dia (só dados, sem lógica)
    Script comum (sem módulo).
 
+   São palavras mais raras e refinadas do português — do tipo que deixa a
+   escrita elegante — pra cada dia ser um pequeno ganho de vocabulário.
+
    Cada palavra é uma "árvore genealógica":
      p      → a palavra
      classe → classe gramatical
@@ -25,331 +28,326 @@ const LINGUAS_ETIMO = {
   ptAntigo: { pt: 'português antigo', en: 'Old Portuguese' },
   latimVulgar: { pt: 'latim vulgar', en: 'Vulgar Latin' },
   italiano: { pt: 'italiano', en: 'Italian' },
-  fenicio: { pt: 'fenício', en: 'Phoenician' }
+  fenicio: { pt: 'fenício', en: 'Phoenician' },
+  frances: { pt: 'francês', en: 'French' },
+  ingles: { pt: 'inglês', en: 'English' },
+  arabe: { pt: 'árabe', en: 'Arabic' },
+  portugues: { pt: 'português', en: 'Portuguese' }
 };
 
 const PALAVRAS_ETIMOLOGIA = [
   {
-    p: 'saudade', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Sentimento de falta de alguém, de um lugar ou de um tempo que a gente quer de volta.', en: 'The feeling of missing someone, a place or a time you wish would come back.' },
+    p: 'efêmero', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Que dura muito pouco; passageiro, fugaz.', en: 'Lasting a very short time; fleeting.' },
     raiz: [
-      { f: 'soidade / suidade', l: LINGUAS_ETIMO.ptAntigo, s: { pt: 'solidão', en: 'loneliness' } },
-      { f: 'solitas, solitatis', l: LINGUAS_ETIMO.latim, s: { pt: 'solidão, estar só', en: 'solitude, being alone' } },
-      { f: 'solus', l: LINGUAS_ETIMO.latim, s: { pt: 'só, sozinho', en: 'alone' } }
+      { f: 'ephemerus', l: LINGUAS_ETIMO.latim, s: { pt: 'que dura um dia', en: 'lasting a day' } },
+      { f: 'ephémeros', l: LINGUAS_ETIMO.grego, s: { pt: 'de um só dia', en: 'of a single day' } },
+      { f: 'epí + heméra', l: LINGUAS_ETIMO.grego, s: { pt: 'sobre + dia', en: 'upon + day' } }
     ],
-    fundo: { pt: 'Na raiz, saudade é solidão: o vazio que fica quando alguém ou algo falta. Com o tempo a palavra ficou mais doce — virou a solidão que lembra com carinho.', en: 'At its root, saudade is solitude: the emptiness left when someone or something is missing. Over time it softened into a loneliness that remembers with tenderness.' },
-    familia: ['solidão', 'solitário', 'solo', 'solteiro'],
-    nota: { pt: 'O "au" no lugar de "oi" provavelmente veio da influência de "saudar" e "saúde".', en: 'The "au" replacing "oi" probably came from the influence of "saudar" (to greet) and "saúde" (health).' }
+    fundo: { pt: 'Efêmero é o que cabe dentro de um único dia — como os insetos que nascem e morrem entre um nascer e um pôr do sol, que os gregos também chamavam assim.', en: 'Ephemeral is what fits inside a single day — like the insects that are born and die between sunrise and sunset, which the Greeks called by the same name.' },
+    familia: ['efeméride', 'hemeroteca (arquivo de jornais diários)']
   },
   {
-    p: 'companheiro', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Quem está junto, acompanha, divide o caminho.', en: 'Someone who is with you, who shares the way.' },
+    p: 'inefável', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Que não se consegue expressar em palavras, de tão intenso ou belo.', en: 'Too intense or beautiful to be put into words.' },
     raiz: [
-      { f: 'companion', l: { pt: 'francês antigo', en: 'Old French' }, s: { pt: 'companheiro', en: 'companion' } },
-      { f: 'companio', l: LINGUAS_ETIMO.latimVulgar, s: { pt: 'quem come o pão junto', en: 'one who eats bread with you' } },
-      { f: 'com + panis', l: LINGUAS_ETIMO.latim, s: { pt: 'com + pão', en: 'with + bread' } }
+      { f: 'ineffabilis', l: LINGUAS_ETIMO.latim, s: { pt: 'indizível', en: 'unspeakable' } },
+      { f: 'in + effari', l: LINGUAS_ETIMO.latim, s: { pt: 'não + pronunciar', en: 'not + to utter' } },
+      { f: 'ex + fari', l: LINGUAS_ETIMO.latim, s: { pt: 'para fora + falar', en: 'out + to speak' } }
     ],
-    fundo: { pt: 'Companheiro é, literalmente, quem divide o pão com você. A amizade nasce na mesa.', en: 'A companion is, literally, someone who shares bread with you. Friendship is born at the table.' },
-    familia: ['companhia', 'acompanhar', 'compañero', 'companion', 'pão', 'padaria']
+    fundo: { pt: 'Inefável é o que não sai pela boca. Quando a palavra falta, não é pobreza de vocabulário: é que a experiência é maior que a língua.', en: 'Ineffable is what cannot come out of the mouth. When words fail, it isn\'t a poor vocabulary: the experience is bigger than language.' },
+    familia: ['fábula', 'fado', 'infante (quem ainda não fala)', 'afável']
   },
   {
-    p: 'desastre', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Acontecimento ruim, desgraça, acidente.', en: 'A terrible event, a calamity, an accident.' },
+    p: 'idiossincrasia', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Jeito de ser muito próprio de uma pessoa; mania, traço particular.', en: 'A way of being that is peculiar to one person; a quirk.' },
     raiz: [
-      { f: 'disastro', l: LINGUAS_ETIMO.italiano, s: { pt: 'má sorte', en: 'misfortune' } },
-      { f: 'dis + astro', l: LINGUAS_ETIMO.italiano, s: { pt: 'contra + estrela', en: 'against + star' } },
-      { f: 'astrum', l: LINGUAS_ETIMO.latim, s: { pt: 'astro, estrela', en: 'star' } }
+      { f: 'idiosynkrasía', l: LINGUAS_ETIMO.grego, s: { pt: 'temperamento particular', en: 'one\'s own temperament' } },
+      { f: 'ídios + sýn + krâsis', l: LINGUAS_ETIMO.grego, s: { pt: 'próprio + junto + mistura', en: 'own + together + mixture' } }
     ],
-    fundo: { pt: 'Desastre é estar com a estrela contra você. A palavra guarda o tempo em que se acreditava que os astros decidiam a sorte.', en: 'A disaster is having your star against you. The word keeps the memory of a time when people believed the stars decided our fate.' },
-    familia: ['astro', 'astronomia', 'asterisco', 'desastrado']
+    fundo: { pt: 'Para os médicos gregos, cada pessoa era uma mistura única de humores. A idiossincrasia é a sua receita particular — aquilo que só você tem.', en: 'For Greek physicians, each person was a unique mixture of humors. An idiosyncrasy is your own recipe — what only you have.' },
+    familia: ['idioma (o falar próprio de um povo)', 'idiota (na origem, o cidadão comum)', 'cratera (vaso de misturar)']
   },
   {
-    p: 'entusiasmo', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Animação intensa, vontade, empolgação.', en: 'Intense excitement, eagerness.' },
+    p: 'serendipidade', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Descoberta feliz feita por acaso, quando se procurava outra coisa.', en: 'A happy discovery made by chance while looking for something else.' },
     raiz: [
-      { f: 'enthusiasmus', l: LINGUAS_ETIMO.latim, s: { pt: 'inspiração divina', en: 'divine inspiration' } },
-      { f: 'enthousiasmós', l: LINGUAS_ETIMO.grego, s: { pt: 'estar possuído por um deus', en: 'being possessed by a god' } },
-      { f: 'en + theós', l: LINGUAS_ETIMO.grego, s: { pt: 'dentro + deus', en: 'in + god' } }
+      { f: 'serendipity', l: LINGUAS_ETIMO.ingles, s: { pt: 'palavra criada por Horace Walpole em 1754', en: 'word coined by Horace Walpole in 1754' } },
+      { f: 'Serendip', l: { pt: 'nome antigo do Sri Lanka', en: 'old name of Sri Lanka' }, s: { pt: 'do conto "Os Três Príncipes de Serendip"', en: 'from the tale "The Three Princes of Serendip"' } }
     ],
-    fundo: { pt: 'Para os gregos, quem estava entusiasmado tinha um deus dentro de si. A empolgação era vista como algo sagrado.', en: 'For the Greeks, an enthusiastic person had a god inside them. Excitement was seen as something sacred.' },
-    familia: ['teologia', 'ateu', 'panteão', 'entusiasta']
+    fundo: { pt: 'No conto, os príncipes viviam achando, por sagacidade e acaso, coisas que não estavam procurando. Serendipidade é o acaso que encontra quem está atento.', en: 'In the tale, the princes kept finding, by wit and chance, things they weren\'t looking for. Serendipity is chance meeting someone who pays attention.' },
+    familia: ['serendipitoso']
   },
   {
-    p: 'palavra', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Unidade da língua que tem sentido; também promessa ("dar a palavra").', en: 'A unit of language with meaning; also a promise ("to give your word").' },
+    p: 'resiliência', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Capacidade de se recuperar e voltar ao próprio eixo depois de um impacto.', en: 'The ability to recover and return to yourself after a blow.' },
     raiz: [
-      { f: 'parabola', l: LINGUAS_ETIMO.latim, s: { pt: 'comparação, discurso', en: 'comparison, speech' } },
-      { f: 'parabolé', l: LINGUAS_ETIMO.grego, s: { pt: 'pôr lado a lado, comparar', en: 'placing side by side' } },
-      { f: 'pará + bállein', l: LINGUAS_ETIMO.grego, s: { pt: 'ao lado + lançar', en: 'beside + to throw' } }
+      { f: 'resilientia', l: LINGUAS_ETIMO.latim, s: { pt: 'ato de voltar', en: 'act of springing back' } },
+      { f: 'resilire', l: LINGUAS_ETIMO.latim, s: { pt: 'saltar para trás, ricochetear', en: 'to leap back, to rebound' } },
+      { f: 're + salire', l: LINGUAS_ETIMO.latim, s: { pt: 'de volta + saltar', en: 'back + to jump' } }
     ],
-    fundo: { pt: 'Palavra é a mesma raiz de parábola: algo que você lança ao lado de outra coisa para que ela seja entendida. Falar é comparar.', en: 'Palavra shares its root with "parable": something you throw beside another thing so it can be understood. To speak is to compare.' },
-    familia: ['parábola', 'parabólica', 'palavrão', 'parole']
+    fundo: { pt: 'Na física, resiliente é o material que, depois de dobrado, salta de volta à forma. Ser resiliente não é não dobrar: é saber voltar.', en: 'In physics, a resilient material springs back to its shape after bending. Being resilient isn\'t never bending: it\'s knowing how to come back.' },
+    familia: ['saltar', 'salto', 'assalto', 'sobressalto']
   },
   {
-    p: 'livro', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Conjunto de folhas escritas, presas juntas.', en: 'A set of written pages bound together.' },
+    p: 'melancolia', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Tristeza vaga e profunda, sem causa definida.', en: 'A deep, vague sadness with no clear cause.' },
     raiz: [
-      { f: 'liber, libri', l: LINGUAS_ETIMO.latim, s: { pt: 'livro', en: 'book' } },
-      { f: 'liber', l: LINGUAS_ETIMO.latim, s: { pt: 'a parte de dentro da casca da árvore', en: 'the inner bark of a tree' } }
+      { f: 'melancholia', l: LINGUAS_ETIMO.latim, s: { pt: 'humor triste', en: 'gloomy humor' } },
+      { f: 'melankholía', l: LINGUAS_ETIMO.grego, s: { pt: 'bile negra', en: 'black bile' } },
+      { f: 'mélas + kholé', l: LINGUAS_ETIMO.grego, s: { pt: 'negro + bile', en: 'black + bile' } }
     ],
-    fundo: { pt: 'Antes do papel, escrevia-se na película de dentro da casca das árvores. Todo livro ainda carrega uma árvore no nome.', en: 'Before paper, people wrote on the thin inner layer of tree bark. Every book still carries a tree in its name.' },
-    familia: ['livraria', 'libreto', 'library (inglês)', 'librairie (francês)']
+    fundo: { pt: 'A medicina antiga dizia que o corpo tinha quatro humores, e o excesso de bile negra deixava a pessoa triste e pensativa. A palavra ainda carrega essa cor escura.', en: 'Ancient medicine held that the body had four humors, and an excess of black bile made a person sad and pensive. The word still carries that dark color.' },
+    familia: ['melanina', 'cólera (de kholé, a bile)', 'colesterol']
   },
   {
-    p: 'escola', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Lugar onde se ensina e se aprende.', en: 'A place where people teach and learn.' },
+    p: 'quimera', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Sonho impossível, fantasia; também um monstro mitológico.', en: 'An impossible dream, a fantasy; also a mythological monster.' },
     raiz: [
-      { f: 'schola', l: LINGUAS_ETIMO.latim, s: { pt: 'lição, lugar de estudo', en: 'lesson, place of study' } },
-      { f: 'scholé', l: LINGUAS_ETIMO.grego, s: { pt: 'tempo livre, lazer', en: 'free time, leisure' } }
+      { f: 'chimaera', l: LINGUAS_ETIMO.latim, s: { pt: 'o monstro Quimera', en: 'the monster Chimera' } },
+      { f: 'Khímaira', l: LINGUAS_ETIMO.grego, s: { pt: 'cabra jovem; o monstro de corpo misturado', en: 'young she-goat; the mixed-body monster' } }
     ],
-    fundo: { pt: 'Para os gregos, estudar era o melhor uso do tempo livre: só quem não precisava trabalhar o dia todo podia conversar e pensar. Escola era o ócio que vira conhecimento.', en: 'For the Greeks, study was the best use of free time: only those who didn\'t have to work all day could talk and think. School was leisure turned into knowledge.' },
-    familia: ['escolar', 'escolástica', 'school (inglês)', 'école (francês)']
+    fundo: { pt: 'A Quimera tinha cabeça de leão, corpo de cabra e cauda de serpente: uma criatura impossível. Por isso, quimera virou nome de todo sonho bonito demais para existir.', en: 'The Chimera had a lion\'s head, a goat\'s body and a serpent\'s tail: an impossible creature. So chimera became the name for every dream too beautiful to exist.' },
+    familia: ['quimérico']
   },
   {
-    p: 'inteligência', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Capacidade de compreender, aprender e resolver.', en: 'The ability to understand, learn and solve.' },
+    p: 'lacônico', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Que fala ou escreve com pouquíssimas palavras.', en: 'Using very few words.' },
     raiz: [
-      { f: 'intelligentia', l: LINGUAS_ETIMO.latim, s: { pt: 'compreensão', en: 'understanding' } },
-      { f: 'intelligere', l: LINGUAS_ETIMO.latim, s: { pt: 'perceber, entender', en: 'to perceive, to understand' } },
-      { f: 'inter + legere', l: LINGUAS_ETIMO.latim, s: { pt: 'entre + escolher, ler', en: 'between + to choose, to read' } }
+      { f: 'laconicus', l: LINGUAS_ETIMO.latim, s: { pt: 'à maneira dos espartanos', en: 'in the Spartan way' } },
+      { f: 'lakonikós', l: LINGUAS_ETIMO.grego, s: { pt: 'da Lacônia, região de Esparta', en: 'of Laconia, the region of Sparta' } }
     ],
-    fundo: { pt: 'Ser inteligente é saber escolher entre as coisas — ler nas entrelinhas. Não é saber tudo, é saber separar.', en: 'Being intelligent is knowing how to choose between things — reading between the lines. It isn\'t knowing everything, it\'s knowing how to tell apart.' },
-    familia: ['ler', 'eleger', 'seleção', 'legível', 'lenda']
+    fundo: { pt: 'Os espartanos eram famosos por responder com o mínimo. Conta Plutarco que, ameaçados por um rei com "se eu invadir a Lacônia...", responderam apenas: "Se."', en: 'Spartans were famous for answering with the bare minimum. Plutarch tells that, threatened by a king with "if I invade Laconia...", they replied only: "If."' },
+    familia: ['laconismo']
   },
   {
-    p: 'recordar', classe: { pt: 'verbo', en: 'verb' },
-    sig: { pt: 'Trazer de volta à memória, lembrar.', en: 'To bring back to memory, to remember.' },
+    p: 'epifania', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Compreensão súbita e iluminadora; revelação.', en: 'A sudden, illuminating understanding; a revelation.' },
     raiz: [
-      { f: 'recordari', l: LINGUAS_ETIMO.latim, s: { pt: 'lembrar-se', en: 'to remember' } },
-      { f: 're + cor, cordis', l: LINGUAS_ETIMO.latim, s: { pt: 'de novo + coração', en: 'again + heart' } }
+      { f: 'epiphania', l: LINGUAS_ETIMO.latim, s: { pt: 'aparição', en: 'appearance' } },
+      { f: 'epipháneia', l: LINGUAS_ETIMO.grego, s: { pt: 'manifestação, aparição de um deus', en: 'manifestation, appearance of a god' } },
+      { f: 'epí + phaínein', l: LINGUAS_ETIMO.grego, s: { pt: 'sobre + mostrar, fazer brilhar', en: 'upon + to show, to make shine' } }
     ],
-    fundo: { pt: 'Os romanos achavam que a memória morava no coração. Recordar é passar algo pelo coração de novo — por isso em inglês ainda se diz "learn by heart".', en: 'The Romans believed memory lived in the heart. To recall (recordar) is to pass something through the heart again — that\'s why English still says "learn by heart".' },
-    familia: ['coração', 'cordial', 'concordar', 'discordar', 'coragem']
+    fundo: { pt: 'Epifania é quando algo que estava escondido se mostra de repente, como uma luz que acende. É a mesma raiz de fantasia e de fenômeno: o que aparece.', en: 'An epiphany is when something hidden suddenly shows itself, like a light turning on. Same root as fantasy and phenomenon: what appears.' },
+    familia: ['fenômeno', 'fantasia', 'fantasma', 'diáfano']
   },
   {
-    p: 'paciência', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Capacidade de esperar e suportar com calma.', en: 'The ability to wait and endure calmly.' },
+    p: 'altruísmo', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Amor e cuidado com os outros, sem esperar nada em troca.', en: 'Love and care for others without expecting anything back.' },
     raiz: [
-      { f: 'patientia', l: LINGUAS_ETIMO.latim, s: { pt: 'resistência, capacidade de suportar', en: 'endurance' } },
-      { f: 'pati', l: LINGUAS_ETIMO.latim, s: { pt: 'sofrer, aguentar', en: 'to suffer, to endure' } }
+      { f: 'altruisme', l: LINGUAS_ETIMO.frances, s: { pt: 'criada pelo filósofo Auguste Comte no séc. XIX', en: 'coined by philosopher Auguste Comte in the 19th century' } },
+      { f: 'altrui', l: LINGUAS_ETIMO.italiano, s: { pt: 'de outrem, dos outros', en: 'of others' } },
+      { f: 'alter', l: LINGUAS_ETIMO.latim, s: { pt: 'o outro', en: 'the other' } }
     ],
-    fundo: { pt: 'Paciência, paciente e paixão nascem do mesmo verbo: sofrer. Ter paciência é aceitar atravessar um desconforto sem fugir dele.', en: 'Patience, patient and passion are born from the same verb: to suffer. Being patient is accepting to go through discomfort without running from it.' },
-    familia: ['paciente', 'paixão', 'passivo', 'compaixão']
+    fundo: { pt: 'Comte precisava de uma palavra para o oposto do egoísmo e foi buscar o "outro" no latim. Altruísmo é viver também em função do outro.', en: 'Comte needed a word for the opposite of selfishness and found "the other" in Latin. Altruism is living for the other too.' },
+    familia: ['alterar', 'alternativa', 'alteridade', 'outro']
   },
   {
-    p: 'sincero', classe: { pt: 'adjetivo', en: 'adjective' },
-    sig: { pt: 'Que diz o que sente, verdadeiro, franco.', en: 'Someone who says what they feel; true, honest.' },
+    p: 'procrastinar', classe: { pt: 'verbo', en: 'verb' },
+    sig: { pt: 'Adiar, deixar para depois o que poderia ser feito agora.', en: 'To put off until later what could be done now.' },
     raiz: [
-      { f: 'sincerus', l: LINGUAS_ETIMO.latim, s: { pt: 'puro, limpo, sem mistura', en: 'pure, clean, unmixed' } }
+      { f: 'procrastinare', l: LINGUAS_ETIMO.latim, s: { pt: 'deixar para o dia seguinte', en: 'to put off till tomorrow' } },
+      { f: 'pro + crastinus', l: LINGUAS_ETIMO.latim, s: { pt: 'para frente + de amanhã', en: 'forward + of tomorrow' } },
+      { f: 'cras', l: LINGUAS_ETIMO.latim, s: { pt: 'amanhã', en: 'tomorrow' } }
     ],
-    fundo: { pt: 'Ser sincero é ser puro como algo que não foi misturado com nada. Nada de falso adicionado por cima.', en: 'Being sincere is being pure like something that hasn\'t been mixed with anything. Nothing false added on top.' },
-    familia: ['sinceridade', 'sincere (inglês)'],
-    nota: { pt: 'Circula a história de que viria de "sine cera" (sem cera, de esculturas sem rachaduras disfarçadas). É lenda: os dicionários etimológicos não aceitam essa origem.', en: 'There\'s a popular story that it comes from "sine cera" (without wax, from sculptures with no hidden cracks). It\'s a legend: etymological dictionaries don\'t accept it.' }
+    fundo: { pt: 'Procrastinar é, literalmente, empurrar para amanhã. A palavra já denuncia o truque: amanhã sempre parece um bom lugar para guardar o que pesa hoje.', en: 'To procrastinate is literally to push toward tomorrow. The word gives the trick away: tomorrow always seems a good place to store what weighs today.' },
+    familia: ['procrastinação', 'crastino (de amanhã, em português antigo)']
   },
   {
-    p: 'nostalgia', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Saudade do passado, de um tempo que não volta.', en: 'Longing for the past, for a time that won\'t return.' },
+    p: 'pusilânime', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Covarde, sem firmeza de ânimo; o contrário de magnânimo.', en: 'Cowardly, faint-hearted; the opposite of magnanimous.' },
     raiz: [
-      { f: 'nostalgia', l: { pt: 'latim científico (1688)', en: 'scientific Latin (1688)' }, s: { pt: 'doença da saudade de casa', en: 'homesickness as an illness' } },
-      { f: 'nóstos + álgos', l: LINGUAS_ETIMO.grego, s: { pt: 'volta pra casa + dor', en: 'homecoming + pain' } }
+      { f: 'pusillanimis', l: LINGUAS_ETIMO.latim, s: { pt: 'de alma pequena', en: 'small-souled' } },
+      { f: 'pusillus + animus', l: LINGUAS_ETIMO.latim, s: { pt: 'pequenininho + alma, ânimo', en: 'very small + soul, spirit' } }
     ],
-    fundo: { pt: 'Nostalgia é a dor de querer voltar pra casa. O médico suíço Johannes Hofer inventou a palavra em 1688 para descrever soldados doentes de saudade.', en: 'Nostalgia is the pain of wanting to go home. Swiss doctor Johannes Hofer coined the word in 1688 to describe soldiers sick with homesickness.' },
-    familia: ['nevralgia', 'analgésico', 'nostálgico']
+    fundo: { pt: 'Pusilânime tem a alma miúda; magnânimo (magnus + animus) tem a alma grande. A coragem, para os romanos, era uma questão de tamanho de alma.', en: 'The pusillanimous has a tiny soul; the magnanimous (magnus + animus) has a great one. For the Romans, courage was a matter of soul size.' },
+    familia: ['magnânimo', 'unânime (uma só alma)', 'ânimo', 'animal']
   },
   {
-    p: 'planeta', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Corpo celeste que gira ao redor de uma estrela.', en: 'A celestial body orbiting a star.' },
+    p: 'diáfano', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Tão fino e leve que deixa a luz passar; transparente, delicado.', en: 'So thin and light it lets light through; sheer, delicate.' },
     raiz: [
-      { f: 'planeta', l: LINGUAS_ETIMO.latim, s: { pt: 'astro errante', en: 'wandering star' } },
-      { f: 'planétes', l: LINGUAS_ETIMO.grego, s: { pt: 'o que vagueia, andarilho', en: 'wanderer' } }
+      { f: 'diaphanus', l: LINGUAS_ETIMO.latim, s: { pt: 'transparente', en: 'transparent' } },
+      { f: 'diaphanés', l: LINGUAS_ETIMO.grego, s: { pt: 'que deixa ver através', en: 'showing through' } },
+      { f: 'diá + phaínein', l: LINGUAS_ETIMO.grego, s: { pt: 'através + mostrar', en: 'through + to show' } }
     ],
-    fundo: { pt: 'Olhando o céu, os gregos viam estrelas paradas e alguns pontos que mudavam de lugar. Esses eram os "andarilhos": os planetas.', en: 'Looking at the sky, the Greeks saw fixed stars and a few points that moved around. Those were the "wanderers": the planets.' },
-    familia: ['planetário', 'plâncton (o que vaga no mar)']
+    fundo: { pt: 'Diáfano é aquilo através do qual se vê: um tecido, uma asa, uma manhã com névoa. É uma palavra que descreve a leveza com precisão.', en: 'Diaphanous is what you can see through: a fabric, a wing, a misty morning. It describes lightness with precision.' },
+    familia: ['epifania', 'fenômeno', 'fantasia']
   },
   {
-    p: 'música', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Arte de combinar sons no tempo.', en: 'The art of combining sounds in time.' },
+    p: 'etéreo', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Leve, sutil, quase celestial; que parece não pertencer a este mundo.', en: 'Light, subtle, almost heavenly; seemingly not of this world.' },
     raiz: [
-      { f: 'musica', l: LINGUAS_ETIMO.latim, s: { pt: 'música', en: 'music' } },
-      { f: 'mousiké (tékhne)', l: LINGUAS_ETIMO.grego, s: { pt: 'a arte das Musas', en: 'the art of the Muses' } },
-      { f: 'Moûsa', l: LINGUAS_ETIMO.grego, s: { pt: 'Musa, deusa da inspiração', en: 'Muse, goddess of inspiration' } }
+      { f: 'aethereus', l: LINGUAS_ETIMO.latim, s: { pt: 'do céu, das alturas', en: 'of the upper sky' } },
+      { f: 'aithér', l: LINGUAS_ETIMO.grego, s: { pt: 'o ar puro e luminoso do alto céu', en: 'the pure, bright air of the upper sky' } },
+      { f: 'aíthein', l: LINGUAS_ETIMO.grego, s: { pt: 'queimar, brilhar', en: 'to burn, to shine' } }
     ],
-    fundo: { pt: 'Música é a arte das Musas, as nove deusas que inspiravam poesia, dança, história e astronomia. Para os gregos, toda criação era um presente delas.', en: 'Music is the art of the Muses, the nine goddesses who inspired poetry, dance, history and astronomy. For the Greeks, every creation was their gift.' },
-    familia: ['museu (casa das Musas)', 'musa', 'musical']
+    fundo: { pt: 'Os gregos imaginavam que acima do ar comum havia o éter, um ar brilhante onde viviam os deuses. Etéreo é o que parece feito dessa matéria.', en: 'The Greeks imagined that above ordinary air lay the aether, a shining air where the gods lived. Ethereal is what seems made of it.' },
+    familia: ['éter', 'Etiópia (na explicação antiga, "rostos queimados")']
   },
   {
-    p: 'horizonte', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'A linha onde o céu parece encontrar a terra ou o mar.', en: 'The line where the sky seems to meet the land or the sea.' },
+    p: 'plácido', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Sereno, tranquilo, sem agitação.', en: 'Serene, calm, undisturbed.' },
     raiz: [
-      { f: 'horizon', l: LINGUAS_ETIMO.latim, s: { pt: 'horizonte', en: 'horizon' } },
-      { f: 'horízon (kýklos)', l: LINGUAS_ETIMO.grego, s: { pt: 'o círculo que limita', en: 'the bounding circle' } },
-      { f: 'horízein', l: LINGUAS_ETIMO.grego, s: { pt: 'delimitar, marcar fronteira', en: 'to bound, to mark a border' } }
+      { f: 'placidus', l: LINGUAS_ETIMO.latim, s: { pt: 'calmo, brando', en: 'calm, gentle' } },
+      { f: 'placere', l: LINGUAS_ETIMO.latim, s: { pt: 'agradar', en: 'to please' } }
     ],
-    fundo: { pt: 'Horizonte é o limite do que os olhos alcançam. Ampliar horizontes é, literalmente, empurrar a sua fronteira.', en: 'The horizon is the limit of what your eyes can reach. Broadening your horizons is literally pushing your border further.' },
-    familia: ['horizontal', 'aforismo (definição curta)']
+    fundo: { pt: 'Plácido e prazer são parentes: a calma, para os romanos, era uma forma de estar agradado — em paz com o que é.', en: 'Placid and pleasure are relatives: for the Romans, calm was a way of being pleased — at peace with what is.' },
+    familia: ['prazer', 'aprazível', 'complacente', 'aplacar']
   },
   {
-    p: 'ideia', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Pensamento, imagem que se forma na mente.', en: 'A thought, an image formed in the mind.' },
+    p: 'iconoclasta', classe: { pt: 'substantivo / adjetivo', en: 'noun / adjective' },
+    sig: { pt: 'Quem ataca crenças, tradições ou ídolos estabelecidos.', en: 'Someone who attacks established beliefs, traditions or idols.' },
     raiz: [
-      { f: 'idea', l: LINGUAS_ETIMO.latim, s: { pt: 'ideia, modelo', en: 'idea, model' } },
-      { f: 'idéa', l: LINGUAS_ETIMO.grego, s: { pt: 'forma, aparência', en: 'form, appearance' } },
-      { f: 'ideîn', l: LINGUAS_ETIMO.grego, s: { pt: 'ver', en: 'to see' } }
+      { f: 'eikonoklástes', l: LINGUAS_ETIMO.grego, s: { pt: 'quebrador de imagens', en: 'image breaker' } },
+      { f: 'eikón + klân', l: LINGUAS_ETIMO.grego, s: { pt: 'imagem + quebrar', en: 'image + to break' } }
     ],
-    fundo: { pt: 'Ter uma ideia é ver. Por isso a gente diz "agora eu vejo" quando entende algo — e por isso o símbolo da ideia é uma lâmpada acendendo.', en: 'Having an idea is seeing. That\'s why we say "now I see" when we understand something — and why the symbol of an idea is a light bulb turning on.' },
-    familia: ['ideal', 'ídolo', 'vídeo (lat. videre, mesma raiz antiga)']
+    fundo: { pt: 'No Império Bizantino, nos séculos VIII e IX, houve quem destruísse as imagens sagradas das igrejas. Hoje o iconoclasta quebra outras imagens: ideias que ninguém ousava questionar.', en: 'In the Byzantine Empire, in the 8th and 9th centuries, some destroyed the sacred images in churches. Today\'s iconoclast breaks other images: ideas nobody dared to question.' },
+    familia: ['ícone', 'iconografia', 'clastos (rocha "quebrada", na geologia)']
   },
   {
-    p: 'candidato', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Quem disputa um cargo, uma vaga ou um prêmio.', en: 'Someone running for a position, a job or a prize.' },
+    p: 'verossímil', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Que parece verdadeiro; plausível.', en: 'Appearing true; plausible.' },
     raiz: [
-      { f: 'candidatus', l: LINGUAS_ETIMO.latim, s: { pt: 'vestido de branco', en: 'dressed in white' } },
-      { f: 'candidus', l: LINGUAS_ETIMO.latim, s: { pt: 'branco brilhante, puro', en: 'shining white, pure' } }
+      { f: 'verisimilis', l: LINGUAS_ETIMO.latim, s: { pt: 'semelhante ao verdadeiro', en: 'like the truth' } },
+      { f: 'verus + similis', l: LINGUAS_ETIMO.latim, s: { pt: 'verdadeiro + semelhante', en: 'true + similar' } }
     ],
-    fundo: { pt: 'Em Roma, quem pedia um cargo público andava com a toga clareada de branco, para parecer honesto. Candidato é "o de branco".', en: 'In Rome, those running for public office wore a toga whitened to look honest. A candidate is "the one in white".' },
-    familia: ['cândido', 'candura', 'candidatura']
+    fundo: { pt: 'O verossímil não é o verdadeiro: é o que se parece com ele. Toda boa ficção vive aqui — não precisa ter acontecido, precisa parecer que poderia.', en: 'The verisimilar isn\'t the true: it\'s what looks like it. All good fiction lives here — it needn\'t have happened, it must feel like it could.' },
+    familia: ['verdade', 'veredito', 'semelhante', 'simular', 'verossimilhança']
   },
   {
-    p: 'aluno', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Quem estuda, quem recebe ensino.', en: 'Someone who studies, who is taught.' },
+    p: 'taciturno', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Calado, de poucas palavras, recolhido em si.', en: 'Silent, of few words, withdrawn.' },
     raiz: [
-      { f: 'alumnus', l: LINGUAS_ETIMO.latim, s: { pt: 'criado, alimentado', en: 'nourished, raised' } },
-      { f: 'alere', l: LINGUAS_ETIMO.latim, s: { pt: 'alimentar, nutrir, fazer crescer', en: 'to nourish, to make grow' } }
+      { f: 'taciturnus', l: LINGUAS_ETIMO.latim, s: { pt: 'silencioso', en: 'silent' } },
+      { f: 'tacere', l: LINGUAS_ETIMO.latim, s: { pt: 'calar-se', en: 'to be silent' } }
     ],
-    fundo: { pt: 'Aluno é quem está sendo nutrido. Aprender é ser alimentado — e ensinar é alimentar alguém.', en: 'A student (aluno) is someone being nourished. Learning is being fed — and teaching is feeding someone.' },
-    familia: ['alimento', 'alumni (ex-alunos)', 'altivo'],
-    nota: { pt: 'Circula que "aluno" viria de "a-" + "lumen" (sem luz). É falso: a palavra vem de alere, nutrir.', en: 'There\'s a popular claim that "aluno" comes from "a-" + "lumen" (without light). It\'s false: it comes from alere, to nourish.' }
+    fundo: { pt: 'O taciturno guarda as palavras. Da mesma raiz vem "tácito": aquilo que fica combinado sem ninguém dizer.', en: 'The taciturn keeps words to themselves. The same root gives "tacit": what is agreed without anyone saying it.' },
+    familia: ['tácito', 'reticente (re + tacere)']
   },
   {
-    p: 'respeito', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Consideração, atenção e cuidado com alguém ou algo.', en: 'Regard, attention and care for someone or something.' },
+    p: 'nefelibata', classe: { pt: 'substantivo / adjetivo', en: 'noun / adjective' },
+    sig: { pt: 'Quem vive nas nuvens: sonhador, distraído da realidade.', en: 'Someone who lives in the clouds: a dreamer, detached from reality.' },
     raiz: [
-      { f: 'respectus', l: LINGUAS_ETIMO.latim, s: { pt: 'olhar para trás, consideração', en: 'looking back, regard' } },
-      { f: 're + specere', l: LINGUAS_ETIMO.latim, s: { pt: 'de novo + olhar', en: 'again + to look' } }
+      { f: 'nefelibata', l: { pt: 'português e espanhol, fim do séc. XIX', en: 'Portuguese and Spanish, late 19th century' }, s: { pt: 'apelido de poetas sonhadores', en: 'nickname for dreamy poets' } },
+      { f: 'nephéle + bátes', l: LINGUAS_ETIMO.grego, s: { pt: 'nuvem + o que anda', en: 'cloud + one who walks' } }
     ],
-    fundo: { pt: 'Respeitar é olhar de novo. É não ficar na primeira impressão: dar a alguém uma segunda olhada, com mais atenção.', en: 'To respect is to look again. It\'s not stopping at the first impression: giving someone a second, more attentive look.' },
-    familia: ['espectador', 'espelho', 'aspecto', 'perspectiva', 'suspeita']
+    fundo: { pt: 'Nefelibata é quem anda sobre as nuvens. A palavra foi montada com peças gregas para chamar, com carinho ou ironia, os poetas que viviam longe do chão.', en: 'A nefelibata is someone who walks on clouds. The word was assembled from Greek pieces to name, fondly or ironically, poets who lived far from the ground.' },
+    familia: ['nebuloso (do latim nebula, prima distante)', 'acrobata (o que anda nas pontas)']
   },
   {
-    p: 'obrigado', classe: { pt: 'interjeição', en: 'interjection' },
-    sig: { pt: 'Forma de agradecer.', en: 'A way of saying thank you.' },
+    p: 'alvíssaras', classe: { pt: 'substantivo / interjeição', en: 'noun / interjection' },
+    sig: { pt: 'Prêmio dado a quem traz uma boa notícia; também uma exclamação de alegria por ela.', en: 'A reward for whoever brings good news; also an exclamation of joy at it.' },
     raiz: [
-      { f: 'obrigar', l: { pt: 'português', en: 'Portuguese' }, s: { pt: 'ficar ligado a alguém por um favor', en: 'to be bound to someone by a favor' } },
-      { f: 'obligare', l: LINGUAS_ETIMO.latim, s: { pt: 'amarrar, comprometer', en: 'to tie, to bind' } },
-      { f: 'ob + ligare', l: LINGUAS_ETIMO.latim, s: { pt: 'diante de + ligar, atar', en: 'toward + to tie' } }
+      { f: 'alvíçara', l: LINGUAS_ETIMO.ptAntigo, s: { pt: 'recompensa pela boa nova', en: 'reward for good news' } },
+      { f: 'al-bushrá', l: LINGUAS_ETIMO.arabe, s: { pt: 'a boa notícia', en: 'the good news' } }
     ],
-    fundo: { pt: 'Quem diz "obrigado" está dizendo "fiquei ligado a você pelo que você fez". Agradecer é admitir um laço.', en: 'Saying "obrigado" means "I\'m now bound to you for what you did". Thanking is admitting a bond.' },
-    familia: ['obrigação', 'ligar', 'liga', 'religião (segundo uma das explicações)']
+    fundo: { pt: 'Uma joia dos séculos em que o árabe conviveu com o português na Península Ibérica. Pedir alvíssaras é dizer: "tenho uma notícia tão boa que merece presente".', en: 'A gem from the centuries when Arabic lived alongside Portuguese in the Iberian Peninsula. Asking for alvíssaras means: "my news is so good it deserves a gift".' },
+    familia: ['albricias (espanhol)']
   },
   {
-    p: 'trabalho', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Atividade, esforço para produzir algo; emprego.', en: 'Activity, effort to produce something; a job.' },
+    p: 'lúgubre', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Sombrio, fúnebre, que evoca tristeza e morte.', en: 'Gloomy, funereal, evoking sorrow and death.' },
     raiz: [
-      { f: 'trabalhar', l: LINGUAS_ETIMO.ptAntigo, s: { pt: 'sofrer, esforçar-se', en: 'to suffer, to toil' } },
-      { f: 'tripaliare', l: LINGUAS_ETIMO.latimVulgar, s: { pt: 'torturar', en: 'to torture' } },
-      { f: 'tripalium', l: LINGUAS_ETIMO.latim, s: { pt: 'instrumento de três paus', en: 'a device made of three stakes' } }
+      { f: 'lugubris', l: LINGUAS_ETIMO.latim, s: { pt: 'de luto, triste', en: 'mournful' } },
+      { f: 'lugere', l: LINGUAS_ETIMO.latim, s: { pt: 'chorar um morto, estar de luto', en: 'to mourn' } }
     ],
-    fundo: { pt: 'Na explicação mais aceita, trabalho vem de um instrumento de três paus usado para prender animais e castigar pessoas. Por séculos, trabalhar foi sinônimo de sofrer — o sentido de "ofício" veio depois.', en: 'In the most accepted explanation, trabalho comes from a three-stake device used to restrain animals and punish people. For centuries, working meant suffering — the sense of "occupation" came later.' },
-    familia: ['trabalhador', 'travail (francês)', 'travel (inglês: viajar era sofrido!)'],
-    nota: { pt: 'Essa origem é a mais aceita pelos dicionários, mas alguns estudiosos ainda discutem.', en: 'This is the origin most dictionaries accept, but some scholars still debate it.' }
+    fundo: { pt: 'Lúgubre e luto vêm do mesmo choro romano pelos mortos. A palavra pinta o ambiente com a cor do luto.', en: 'Lúgubre and luto (mourning) come from the same Roman weeping for the dead. The word paints a scene in the color of grief.' },
+    familia: ['luto', 'enlutado']
   },
   {
-    p: 'salário', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Pagamento recebido pelo trabalho.', en: 'Payment received for work.' },
+    p: 'sinestesia', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Mistura de sentidos: "voz doce", "cor gritante"; também a condição de quem percebe assim.', en: 'A blending of senses: "sweet voice", "loud color"; also the condition of perceiving that way.' },
     raiz: [
-      { f: 'salarium', l: LINGUAS_ETIMO.latim, s: { pt: 'pagamento, ajuda de custo', en: 'payment, allowance' } },
-      { f: 'sal', l: LINGUAS_ETIMO.latim, s: { pt: 'sal', en: 'salt' } }
+      { f: 'synaísthesis', l: LINGUAS_ETIMO.grego, s: { pt: 'sensação conjunta', en: 'joint sensation' } },
+      { f: 'sýn + aísthesis', l: LINGUAS_ETIMO.grego, s: { pt: 'junto + sensação, percepção', en: 'together + sensation, perception' } }
     ],
-    fundo: { pt: 'Salário vem de sal. O sal conservava a comida e era valioso: o salário dos romanos estava ligado a ele de alguma forma.', en: 'Salary comes from salt. Salt preserved food and was precious: the Roman salarium was linked to it somehow.' },
-    familia: ['sal', 'salada (verdura temperada com sal)', 'salgado', 'salsicha'],
-    nota: { pt: 'A ligação com o sal é certa. Já a história de que os soldados eram pagos em sal é uma tradição sem prova firme — pode ter sido um dinheiro para comprar sal, ou outra coisa.', en: 'The link to salt is certain. The story that soldiers were paid in salt is a tradition without firm proof — it may have been money to buy salt, or something else.' }
+    fundo: { pt: 'Sinestesia é sentir junto: ouvir uma cor, provar uma palavra. Os poetas simbolistas a usavam para escrever o que um sentido só não alcança.', en: 'Synesthesia is sensing together: hearing a color, tasting a word. Symbolist poets used it to write what one sense alone can\'t reach.' },
+    familia: ['estética (a ciência do sentir)', 'anestesia (sem sensação)', 'cinestesia']
   },
   {
-    p: 'alfabeto', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Conjunto das letras de uma língua, em ordem.', en: 'The set of letters of a language, in order.' },
+    p: 'perene', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Que dura muito, que não acaba; contínuo.', en: 'Long-lasting, unending; perennial.' },
     raiz: [
-      { f: 'alphabetum', l: LINGUAS_ETIMO.latim, s: { pt: 'alfabeto', en: 'alphabet' } },
-      { f: 'álpha + bêta', l: LINGUAS_ETIMO.grego, s: { pt: 'as duas primeiras letras', en: 'the first two letters' } },
-      { f: 'aleph + bet', l: LINGUAS_ETIMO.fenicio, s: { pt: 'boi + casa', en: 'ox + house' } }
+      { f: 'perennis', l: LINGUAS_ETIMO.latim, s: { pt: 'que dura o ano todo, duradouro', en: 'lasting all year, enduring' } },
+      { f: 'per + annus', l: LINGUAS_ETIMO.latim, s: { pt: 'através de + ano', en: 'through + year' } }
     ],
-    fundo: { pt: 'O alfabeto se chama pelas suas duas primeiras letras, como quem diz "o á-bê-cê". E lá no fenício elas eram desenhos: a cabeça de um boi e uma casa.', en: 'The alphabet is named after its first two letters, like saying "the ABC". And in Phoenician they were pictures: an ox\'s head and a house.' },
-    familia: ['analfabeto', 'alfabetizar', 'beta']
+    fundo: { pt: 'Perene é o que atravessa os anos. Uma planta perene não morre no inverno; uma amizade perene também não.', en: 'Perennial is what goes through the years. A perennial plant doesn\'t die in winter; neither does a perennial friendship.' },
+    familia: ['ano', 'anual', 'aniversário', 'milênio']
   },
   {
-    p: 'biblioteca', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Lugar ou coleção onde se guardam livros.', en: 'A place or collection where books are kept.' },
+    p: 'hedonismo', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Ideia de que o prazer é o bem maior da vida.', en: 'The idea that pleasure is life\'s highest good.' },
     raiz: [
-      { f: 'bibliotheca', l: LINGUAS_ETIMO.latim, s: { pt: 'coleção de livros', en: 'collection of books' } },
-      { f: 'biblíon + théke', l: LINGUAS_ETIMO.grego, s: { pt: 'livro + caixa, depósito', en: 'book + box, storage' } },
-      { f: 'Býblos', l: LINGUAS_ETIMO.grego, s: { pt: 'cidade fenícia que vendia papiro', en: 'Phoenician city that traded papyrus' } }
+      { f: 'hédoné', l: LINGUAS_ETIMO.grego, s: { pt: 'prazer', en: 'pleasure' } },
+      { f: 'hedýs', l: LINGUAS_ETIMO.grego, s: { pt: 'doce, agradável', en: 'sweet, pleasant' } }
     ],
-    fundo: { pt: 'Biblioteca é a caixa dos livros. E "livro" em grego veio do nome de uma cidade, Biblos, por onde passava o papiro. A Bíblia tem a mesma raiz: "os livros".', en: 'A library (biblioteca) is the box of books. And "book" in Greek came from the name of a city, Byblos, where papyrus was traded. The Bible shares the root: "the books".' },
-    familia: ['Bíblia', 'bibliografia', 'discoteca', 'pinacoteca']
+    fundo: { pt: 'Na raiz, o prazer era o que é doce. Os filósofos gregos discutiam se a vida boa era buscar essa doçura — e de que tipo ela deveria ser.', en: 'At the root, pleasure was what is sweet. Greek philosophers debated whether the good life meant seeking that sweetness — and of what kind.' },
+    familia: ['hedonista', 'suave (do latim suavis, prima distante)']
   },
   {
-    p: 'considerar', classe: { pt: 'verbo', en: 'verb' },
-    sig: { pt: 'Pensar com cuidado, levar em conta; ter apreço.', en: 'To think carefully, take into account; to hold in regard.' },
+    p: 'obsequioso', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Excessivamente prestativo e servil, que bajula para agradar.', en: 'Excessively eager to please; servile.' },
     raiz: [
-      { f: 'considerare', l: LINGUAS_ETIMO.latim, s: { pt: 'examinar com atenção', en: 'to examine closely' } },
-      { f: 'com + sidus, sideris', l: LINGUAS_ETIMO.latim, s: { pt: 'com + estrela, astro', en: 'with + star' } }
+      { f: 'obsequiosus', l: LINGUAS_ETIMO.latim, s: { pt: 'complacente', en: 'compliant' } },
+      { f: 'obsequium', l: LINGUAS_ETIMO.latim, s: { pt: 'condescendência, submissão', en: 'compliance, deference' } },
+      { f: 'ob + sequi', l: LINGUAS_ETIMO.latim, s: { pt: 'diante de + seguir', en: 'toward + to follow' } }
     ],
-    fundo: { pt: 'Considerar seria olhar os astros com atenção, como faziam os antigos antes de decidir algo importante. Desejar tem a mesma estrela: "de-siderare", sentir falta de uma estrela.', en: 'To consider would be to watch the stars carefully, as the ancients did before an important decision. Desire shares the star: "de-siderare", to miss a star.' },
-    familia: ['desejar', 'sideral', 'consideração'],
-    nota: { pt: 'A ligação com "sidus" (estrela) é a explicação mais citada, mas não é unanimidade entre os estudiosos.', en: 'The link to "sidus" (star) is the most cited explanation, but scholars don\'t fully agree.' }
+    fundo: { pt: 'O obsequioso segue os outros em tudo. Gentileza vira obséquio; quando passa da medida, vira servilismo.', en: 'The obsequious follows others in everything. Kindness becomes an obséquio (favor); past the measure, it becomes servility.' },
+    familia: ['obséquio', 'seguir', 'sequência', 'consequência']
   },
   {
-    p: 'amigo', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Pessoa com quem se tem afeto e confiança.', en: 'A person you share affection and trust with.' },
+    p: 'acrimônia', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Aspereza no jeito de falar ou tratar; amargura.', en: 'Harshness in speech or manner; bitterness.' },
     raiz: [
-      { f: 'amicus', l: LINGUAS_ETIMO.latim, s: { pt: 'amigo', en: 'friend' } },
-      { f: 'amare', l: LINGUAS_ETIMO.latim, s: { pt: 'amar', en: 'to love' } }
+      { f: 'acrimonia', l: LINGUAS_ETIMO.latim, s: { pt: 'acidez, aspereza', en: 'sharpness, pungency' } },
+      { f: 'acer, acris', l: LINGUAS_ETIMO.latim, s: { pt: 'agudo, cortante, azedo', en: 'sharp, pointed, sour' } }
     ],
-    fundo: { pt: 'Amigo e amor são a mesma família. Amizade, na raiz, é um jeito de amar.', en: 'Amigo (friend) and amor (love) are the same family. Friendship, at its root, is a way of loving.' },
-    familia: ['amor', 'amável', 'amizade', 'amador (quem faz por amor)']
+    fundo: { pt: 'Acrimônia é ter a fala com gosto azedo e ponta afiada. Da mesma raiz vem o vinagre ("vinho acre") e o próprio acre.', en: 'Acrimony is speech with a sour taste and a sharp edge. The same root gives vinegar ("sour wine") and acre (pungent).' },
+    familia: ['acre', 'vinagre', 'acidez', 'agro (azedo)']
   },
   {
-    p: 'vocação', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Inclinação natural para uma atividade ou caminho.', en: 'A natural calling toward an activity or path.' },
+    p: 'sicofanta', classe: { pt: 'substantivo', en: 'noun' },
+    sig: { pt: 'Delator, caluniador; também o bajulador interesseiro.', en: 'An informer, a slanderer; also a self-serving flatterer.' },
     raiz: [
-      { f: 'vocatio', l: LINGUAS_ETIMO.latim, s: { pt: 'chamado, convocação', en: 'a calling, summons' } },
-      { f: 'vocare', l: LINGUAS_ETIMO.latim, s: { pt: 'chamar', en: 'to call' } },
-      { f: 'vox, vocis', l: LINGUAS_ETIMO.latim, s: { pt: 'voz', en: 'voice' } }
+      { f: 'sycophanta', l: LINGUAS_ETIMO.latim, s: { pt: 'delator', en: 'informer' } },
+      { f: 'sykophántes', l: LINGUAS_ETIMO.grego, s: { pt: 'acusador profissional em Atenas', en: 'professional accuser in Athens' } },
+      { f: 'sŷkon + phaínein', l: LINGUAS_ETIMO.grego, s: { pt: 'figo + mostrar', en: 'fig + to show' } }
     ],
-    fundo: { pt: 'Vocação é um chamado: uma voz que te chama para um caminho. Encontrar a vocação é ouvir essa voz.', en: 'A vocation is a calling: a voice that calls you toward a path. Finding your vocation is hearing that voice.' },
-    familia: ['voz', 'vogal', 'evocar', 'provocar', 'vocabulário']
+    fundo: { pt: 'Em Atenas, o sicofanta acusava os outros no tribunal para lucrar. Literalmente é "o que mostra o figo" — mas ninguém sabe ao certo por quê.', en: 'In Athens, the sycophant accused others in court for profit. Literally it\'s "the one who shows the fig" — but nobody knows for sure why.' },
+    familia: ['figo (do latim ficus, outra raiz)', 'fenômeno'],
+    nota: { pt: 'A explicação do figo é discutida: diz-se que denunciavam quem exportava figos ilegalmente, mas isso pode ser invenção antiga.', en: 'The fig explanation is debated: some say they denounced illegal fig exporters, but that may be an ancient invention.' }
   },
   {
-    p: 'sarcasmo', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Ironia cruel, zombaria que fere.', en: 'Cruel irony, mockery that hurts.' },
+    p: 'estoico', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Que suporta a dor e as dificuldades com serenidade e firmeza.', en: 'Enduring pain and hardship with calm and firmness.' },
     raiz: [
-      { f: 'sarcasmus', l: LINGUAS_ETIMO.latim, s: { pt: 'sarcasmo', en: 'sarcasm' } },
-      { f: 'sarkasmós', l: LINGUAS_ETIMO.grego, s: { pt: 'zombaria amarga', en: 'bitter mockery' } },
-      { f: 'sarkázein', l: LINGUAS_ETIMO.grego, s: { pt: 'rasgar a carne', en: 'to tear flesh' } }
+      { f: 'stoicus', l: LINGUAS_ETIMO.latim, s: { pt: 'da escola estoica', en: 'of the Stoic school' } },
+      { f: 'stoïkós', l: LINGUAS_ETIMO.grego, s: { pt: 'do pórtico', en: 'of the porch' } },
+      { f: 'stoá', l: LINGUAS_ETIMO.grego, s: { pt: 'pórtico, galeria de colunas', en: 'porch, colonnade' } }
     ],
-    fundo: { pt: 'O sarcasmo morde: na raiz, é rasgar a carne como um animal faz. A palavra lembra que certas brincadeiras machucam de verdade.', en: 'Sarcasm bites: at its root it means tearing flesh like an animal does. The word reminds us some jokes truly hurt.' },
-    familia: ['sarcófago (que come a carne)', 'sarcoma']
+    fundo: { pt: 'Zenão ensinava filosofia num pórtico pintado de Atenas, a Stoa Poikíle. Os alunos viraram "os do pórtico" — e a serenidade diante da dor virou o nome da escola.', en: 'Zeno taught philosophy at a painted porch in Athens, the Stoa Poikile. His students became "those of the porch" — and calm in the face of pain took the school\'s name.' },
+    familia: ['estoicismo']
   },
   {
-    p: 'ilustre', classe: { pt: 'adjetivo', en: 'adjective' },
-    sig: { pt: 'Famoso, notável, que se destaca.', en: 'Famous, notable, distinguished.' },
+    p: 'bucólico', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Relativo ao campo e à vida simples dos pastores; idílico.', en: 'Relating to the countryside and the simple life of shepherds; idyllic.' },
     raiz: [
-      { f: 'illustris', l: LINGUAS_ETIMO.latim, s: { pt: 'claro, brilhante, notável', en: 'bright, shining, notable' } },
-      { f: 'in + lustrare', l: LINGUAS_ETIMO.latim, s: { pt: 'em + iluminar', en: 'in + to illuminate' } },
-      { f: 'lux, lucis', l: LINGUAS_ETIMO.latim, s: { pt: 'luz', en: 'light' } }
+      { f: 'bucolicus', l: LINGUAS_ETIMO.latim, s: { pt: 'pastoril', en: 'pastoral' } },
+      { f: 'boukolikós', l: LINGUAS_ETIMO.grego, s: { pt: 'dos vaqueiros', en: 'of herdsmen' } },
+      { f: 'boukólos', l: LINGUAS_ETIMO.grego, s: { pt: 'vaqueiro, pastor de bois (boûs = boi)', en: 'cowherd (boûs = ox)' } }
     ],
-    fundo: { pt: 'Ilustre é quem está iluminado — quem tem luz própria. E ilustrar um livro é jogar luz sobre o texto.', en: 'Someone illustrious is lit up — someone with their own light. And illustrating a book is shedding light on the text.' },
-    familia: ['luz', 'lúcido', 'ilustração', 'lustre', 'elucidar']
+    fundo: { pt: 'A poesia bucólica de Teócrito e Virgílio cantava pastores conversando entre bois e flautas. Bucólico é a saudade de uma vida mais lenta.', en: 'The bucolic poetry of Theocritus and Virgil sang of shepherds talking among oxen and flutes. Bucolic is longing for a slower life.' },
+    familia: ['bovino (do latim bos, prima)', 'Bósforo (passagem do boi)']
   },
   {
-    p: 'educação', classe: { pt: 'substantivo', en: 'noun' },
-    sig: { pt: 'Processo de ensinar e aprender; boas maneiras.', en: 'The process of teaching and learning; good manners.' },
+    p: 'sublime', classe: { pt: 'adjetivo', en: 'adjective' },
+    sig: { pt: 'Elevado, de uma beleza ou grandeza que impressiona.', en: 'Lofty; of an overwhelming beauty or grandeur.' },
     raiz: [
-      { f: 'educatio', l: LINGUAS_ETIMO.latim, s: { pt: 'criação, formação', en: 'upbringing, training' } },
-      { f: 'educare', l: LINGUAS_ETIMO.latim, s: { pt: 'criar, alimentar, formar', en: 'to raise, to nurture' } },
-      { f: 'ex + ducere', l: LINGUAS_ETIMO.latim, s: { pt: 'para fora + conduzir (educere)', en: 'out + to lead (educere)' } }
+      { f: 'sublimis', l: LINGUAS_ETIMO.latim, s: { pt: 'alto, elevado no ar', en: 'high, raised aloft' } }
     ],
-    fundo: { pt: 'Educar está ligado a conduzir para fora: ajudar alguém a trazer pra fora o que já tem dentro, e a crescer como quem é criado com cuidado.', en: 'To educate is linked to leading out: helping someone bring out what they already have inside, and grow like someone raised with care.' },
-    familia: ['conduzir', 'produzir', 'duque (o que conduz)', 'introduzir'],
-    nota: { pt: 'Educare (criar) e educere (conduzir para fora) são verbos irmãos; os dicionários ligam educação ao primeiro, e a imagem de "trazer pra fora" vem do segundo.', en: 'Educare (to raise) and educere (to lead out) are sibling verbs; dictionaries tie education to the first, and the "bring out" image comes from the second.' }
+    fundo: { pt: 'Sublime é o que está lá no alto. Na química, sublimar é a passagem direta do sólido ao vapor — como se a matéria subisse sem tocar o chão.', en: 'Sublime is what stands up high. In chemistry, sublimation is going straight from solid to vapor — as if matter rose without touching the ground.' },
+    familia: ['sublimar', 'sublimação'],
+    nota: { pt: 'A origem de "sublimis" é discutida: uma das explicações liga a "sub + limen" (até o umbral de cima), mas não há consenso.', en: 'The origin of "sublimis" is debated: one explanation links it to "sub + limen" (up to the upper threshold), but there\'s no consensus.' }
   }
 ];

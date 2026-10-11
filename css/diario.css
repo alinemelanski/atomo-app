@@ -201,9 +201,14 @@
 
   .folhas-indicador { text-align:center; font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:700; color:var(--ink-faint);
     padding: 12px 0 10px; }
-  .folhas-btn-principal { margin: 0 10px; min-height:50px; border:none; border-radius:999px; background:var(--accent-a); color:#fff;
-    font-family:'DM Sans', sans-serif; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;
+  /* botão do diário: pílula pequena e delicada, centralizada (não ocupa a largura toda,
+     pra não competir com a folha). Altura 42px ainda é confortável pro dedo. */
+  .folhas-btn-principal { align-self:center; margin: 0 auto; min-height:42px; padding: 0 22px; border:none; border-radius:999px;
+    background:var(--accent-a); color:#fff; font-family:'DM Sans', sans-serif; font-size:12.5px; font-weight:600; letter-spacing:.02em;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-a) 28%, transparent);
     cursor:pointer; transition: transform .15s ease; }
+  .folhas-btn-principal .icon-svg { width:14px !important; height:14px !important; }
   .folhas-btn-principal:active { transform: scale(.97); }
   .folhas-btn-principal:disabled { opacity:.6; }
 
