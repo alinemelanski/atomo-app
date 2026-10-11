@@ -38,13 +38,26 @@ self.addEventListener('push', (event) => {
     if (event.data) dados.corpo = event.data.text();
   }
 
+  // monta a URL de destino a partir do tipo/post_id/ator_id que o servidor
+  // mandou junto — sem isso, clicar em QUALQUER notificação push só abria o
+  // app na tela padrão, nunca levava pro post/perfil/conversa de verdade
+  const d = dados.dados || null;
+  let url = './index.html';
+  if (d && d.tipo) {
+    const params = new URLSearchParams();
+    params.set('notif_tipo', d.tipo);
+    if (d.post_id) params.set('notif_post', d.post_id);
+    if (d.ator_id) params.set('notif_ator', d.ator_id);
+    url = './index.html?' + params.toString();
+  }
+
   event.waitUntil(
     self.registration.showNotification(dados.titulo || 'Átomo', {
       body: dados.corpo || '',
       icon: './icons/icon-192.png',
       badge: './icons/icon-192.png',
       vibrate: [80, 40, 80],
-      data: { url: './index.html' },
+      data: { url },
     })
   );
 });
@@ -54,8 +67,14 @@ self.addEventListener('notificationclick', (event) => {
   const url = (event.notification.data && event.notification.data.url) || './index.html';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((janelas) => {
+      // se o app já tá aberto numa aba, só focar não adianta — ela já carregou,
+      // não vai reler a URL sozinha. Manda a rota por postMessage pro código
+      // do index.html decidir pra onde ir (é o mesmo abrirNotificacao de sempre).
       for (const janela of janelas) {
-        if ('focus' in janela) return janela.focus();
+        if ('focus' in janela) {
+          janela.postMessage({ tipo: 'atomo-notif-click', url });
+          return janela.focus();
+        }
       }
       if (self.clients.openWindow) return self.clients.openWindow(url);
     })
