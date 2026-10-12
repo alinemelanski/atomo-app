@@ -68,11 +68,11 @@ function cardComunidadeHtml(c, i, meuId) {
   const souMembro = membros.some(m => m.usuario_id === meuId);
   const categoria = CATEGORIAS_COMUNIDADE_ESTUDO.find(cat => cat.valor === c.categoria);
   const capaHtml = c.capa_url
-    ? `<img src="${c.capa_url}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" />`
+    ? `<img src="${c.capa_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
     : icone('comunidades', 18, i, '#fff');
   const contagem = formatarContagemComunidade(c.meta_prazo);
   return `
-      <div class="comunidade-card" style="animation-delay:${Math.min(i, 6) * 0.05}s;" onclick="abrirComunidadeDetalhe(${i})">
+      <div class="comunidade-card${c.capa_url ? ' com-capa' : ''}" style="animation-delay:${Math.min(i, 6) * 0.05}s;${c.capa_url ? ` --capa:url('${c.capa_url}');` : ''}" onclick="abrirComunidadeDetalhe(${i})">
         <div class="comunidade-card-top">
           <div class="comunidade-icone" style="${c.capa_url ? '' : `background:${cor}`}">${capaHtml}</div>
           <div style="flex:1; min-width:0;">
@@ -286,6 +286,31 @@ window.abrirComunidadePorId = async function (id) {
   await renderComunidadeEstudoDetalhe();
 };
 
+// ---------- foto do grupo (capa) ----------
+// PRA APRENDER: a foto vai pro Storage do Supabase (mesma função que sobe as
+// fotos dos posts) e o link dela é gravado em comunidades_estudo.capa_url.
+// A policy "comunidades editar" (RLS) só deixa quem administra fazer isso.
+let comunidadeSouAdminAtual = false;
+window.tocarFotoComunidade = function () {
+  if (!comunidadeSouAdminAtual) return; // pra quem não administra, a foto é só pra ver
+  document.getElementById('comunidadeFotoInput').click();
+};
+window.trocarFotoComunidade = async function (input) {
+  const arquivo = input.files && input.files[0];
+  input.value = '';
+  if (!arquivo) return;
+  const avatar = document.getElementById('comunidadeDetalheAvatar');
+  avatar.style.backgroundImage = `url('${URL.createObjectURL(arquivo)}')`; // mostra na hora, antes de terminar de subir
+  avatar.innerHTML = ''; avatar.classList.remove('sem-foto');
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const url = await subirFotoParaStorage(sessionData.session.user.id, arquivo);
+  if (!url) return; // subirFotoParaStorage já mostra o erro
+  const { error } = await supabaseClient.from('comunidades_estudo').update({ capa_url: url }).eq('id', comunidadeEstudoAtualId);
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  mostrarToast('📷 foto do grupo atualizada');
+  if (typeof renderComunidades === 'function') renderComunidades(); // o card na lista ganha a cor da foto
+};
+
 async function renderComunidadeEstudoDetalhe() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const meuId = sessionData.session ? sessionData.session.user.id : null;
@@ -310,9 +335,18 @@ async function renderComunidadeEstudoDetalhe() {
   document.getElementById('comunidadeDetalheOverflowWrap').style.display = souMembro ? 'flex' : 'none';
   document.getElementById('comunidadeMenuEditarPrazo').style.display = souAdmin ? 'block' : 'none';
 
-  document.getElementById('comunidadeDetalheCapaWrap').innerHTML = c.capa_url
-    ? `<img src="${c.capa_url}" style="width:100%;height:130px;object-fit:cover;border-radius:16px;margin-bottom:10px;display:block;" />`
-    : '';
+  // a capa agora é a FOTO REDONDA do grupo no topo (ao lado do ⋯), não mais uma faixa grande
+  document.getElementById('comunidadeDetalheCapaWrap').innerHTML = '';
+  comunidadeSouAdminAtual = souAdmin;
+  document.getElementById('comunidadeMenuTrocarFoto').style.display = souAdmin ? 'block' : 'none';
+  const indiceCor = (window.ITENS_COMUNIDADES_ESTUDO_ATUAIS || []).findIndex(x => x.id === c.id);
+  const avatar = document.getElementById('comunidadeDetalheAvatar');
+  avatar.style.backgroundImage = c.capa_url ? `url('${c.capa_url}')` : '';
+  avatar.style.backgroundColor = c.capa_url ? '' : CORES_COMUNIDADE[Math.max(0, indiceCor) % CORES_COMUNIDADE.length];
+  avatar.innerHTML = c.capa_url ? '' : icone('comunidades', 16, 0, '#fff');
+  // quem administra e ainda não pôs foto vê uma camerazinha (convite pra colocar)
+  avatar.classList.toggle('pode-trocar', souAdmin);
+  avatar.classList.toggle('sem-foto', !c.capa_url);
 
   document.getElementById('comunidadeDetalheMetaChips').innerHTML = `
       <div class="comunidade-meta-chip">${categoria ? categoria.label : c.categoria}</div>

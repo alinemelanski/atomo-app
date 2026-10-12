@@ -181,3 +181,32 @@
   .comunidade-titulo { font-size: 14px; line-height: 1.2; }
   .comunidade-desc { margin: 2px 0 6px; font-size: 11.5px;
     display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* ---------- foto do grupo REDONDA (como foto de perfil) ---------- */
+  .comunidade-icone { border-radius: 50%; overflow: hidden; }
+
+  /* card com foto: fica "transparente" com a cor da foto escolhida.
+     PRA APRENDER: o ::before é uma camada extra desenhada pelo CSS, atrás do
+     conteúdo (z-index 0). Nela vai a própria foto, bem borrada (blur) e meio
+     apagada (opacity) — sobra só a COR dela tingindo o card. A foto vem da
+     variável --capa, que o js coloca no style de cada card. */
+  .comunidade-card.com-capa { overflow: hidden; isolation: isolate;
+    background: color-mix(in srgb, var(--card) 62%, transparent); }
+  .comunidade-card.com-capa::before { content: ''; position: absolute; inset: -40px; z-index: -1;
+    background-image: var(--capa); background-size: cover; background-position: center;
+    filter: blur(28px) saturate(1.3); opacity: .42; }
+
+  /* foto do grupo no topo do detalhe, ao lado dos 3 pontinhos */
+  .comunidade-avatar-btn { flex: none; width: 34px; height: 34px; border-radius: 50%; padding: 0; margin-left: auto; margin-right: 6px;
+    border: 2px solid var(--card); box-shadow: 0 0 0 1px var(--card-b); background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center; position: relative; cursor: default; }
+  .comunidade-avatar-btn.pode-trocar { cursor: pointer; }
+  .comunidade-avatar-btn.pode-trocar:active { transform: scale(.94); box-shadow: 0 0 0 6px var(--salvia-suave); }
+  /* camerazinha no cantinho = "toque pra colocar uma foto" (só pra quem administra e ainda não pôs) */
+  .comunidade-avatar-btn.pode-trocar.sem-foto::after { content: ''; position: absolute; right: -3px; bottom: -3px; width: 15px; height: 15px; border-radius: 50%;
+    background: var(--terracota) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.2' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.5-2h7L17 8h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.2'/%3E%3C/svg%3E") center / 9px no-repeat;
+    border: 2px solid var(--card); }
+  /* topo do detalhe: o título ocupa o meio e empurra a foto pra encostar nos 3 pontinhos */
+  #comunidadeDetalheOverlay .dm-chat-header h2 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #comunidadeDetalheOverlay .comunidade-avatar-btn { margin-left: 0; }
+  #comunidadeDetalheOverlay .clube-overflow-wrap { margin-left: 0; }
