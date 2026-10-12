@@ -23,7 +23,7 @@ function renderParticipantesSala() {
     return `
       <div class="sala-participante ${p.eu ? 'sala-p-voce' : ''}">
         <div class="sala-p-avatar-wrap ${falando ? 'falando' : ''} ${p.mudo ? 'mudo' : ''}">
-          <div class="sala-p-avatar" style="background:${cor}">${iniciaisNome(p.nome)}</div>
+          <div class="sala-p-avatar" style="background:${cor}">${ATOMO_AVATAR_SVG}</div>
           <div class="sala-p-mic">${micIcone}</div>
         </div>
         <div class="sala-p-nome">${p.eu ? 'você' : p.nome}</div>

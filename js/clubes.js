@@ -548,7 +548,7 @@ window.avatarSeguirHtml = function (userId, avatarUrl, handle, tam, fundoFallbac
   if (avatarUrl) estilo = "background-image:url('" + avatarUrl + "');background-size:cover;background-position:center;color:transparent;";
   else if (fundoFallback) estilo = 'background:' + fundoFallback + ';color:#fff;';
   return '<span class="avatar-seguir" data-uid="' + userId + '" style="width:' + tam + 'px;height:' + tam + 'px;">'
-    + '<span class="avatar-seguir-foto" style="' + estilo + (tam >= 30 ? 'font-size:12px;' : '') + '">' + (avatarUrl ? '' : iniciais) + '</span>'
+    + '<span class="avatar-seguir-foto" style="' + estilo + (tam >= 30 ? 'font-size:12px;' : '') + '">' + (avatarUrl ? '' : ATOMO_AVATAR_SVG) + '</span>'
     + (mostrarMais ? '<button class="avatar-seguir-mais" aria-label="seguir @' + handle + '" onclick="event.stopPropagation(); seguirDoGrupo(\'' + userId + '\', this)">+</button>' : '')
     + '</span>';
 };

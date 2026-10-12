@@ -606,7 +606,7 @@ async function renderRankingComunidade() {
     return `
         <div class="comunidade-membro-row">
           <div class="ranking-posicao">${medalhas[i] || (i + 1)}</div>
-          <div class="comunidade-membro-avatar" style="background:${cor}">${iniciaisNome(r.handle)}</div>
+          <div class="comunidade-membro-avatar" style="background:${cor}">${ATOMO_AVATAR_SVG}</div>
           <div style="flex:1; min-width:0;">
             <div class="comunidade-membro-handle">@${r.handle}${ehEu ? ' (você)' : ''}</div>
           </div>

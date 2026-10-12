@@ -67,6 +67,10 @@ if (session) {
     if (perfil.handle) document.getElementById('profHandle').textContent = '@' + perfil.handle;
     if (perfil.bio) document.getElementById('profBio').textContent = perfil.bio;
     if (perfil.avatar_url) aplicarFotoPerfil(perfil.avatar_url);
+    else ['perfilProprioAvatarTop', 'perfilProprioAvatarPopup'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = ATOMO_AVATAR_SVG; // sem foto: cara do átomo
+    });
     if (perfil.tema_clima) {
       toggleTemaClima(true);
     } else if (perfil.modo_escuro) {

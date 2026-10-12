@@ -33,7 +33,7 @@ document.getElementById('visitantesList').innerHTML = (data && data.length)
   ? data.map(v => {
       const handle = v.usuarios ? v.usuarios.handle : 'alguém';
       return `<div class="visitor-row">
-          <div class="friend-avatar">${handle[0].toUpperCase()}</div>
+          <div class="friend-avatar">${ATOMO_AVATAR_SVG}</div>
           <div class="friend-info"><div class="n">@${handle}</div><div class="s">${formatarTempoRelativo(v.criado_em)}</div></div>
         </div>`;
     }).join('')

@@ -12,7 +12,8 @@ window.avatarHtml = function (avatarUrl, iniciais, opts) {
     estilo += "background-image:url('" + avatarUrl + "');background-size:cover;background-position:center;color:transparent;";
     return '<div class="' + classe + '"' + onclickAttr + ' style="' + estilo + '"></div>';
   }
-  return '<div class="' + classe + '"' + onclickAttr + (estilo ? ' style="' + estilo + '"' : '') + '>' + (iniciais || '?').toUpperCase() + '</div>';
+  // sem foto: sempre a "cara do átomo" (ATOMO_AVATAR_SVG, em js/icones.js), nunca a inicial do nome
+  return '<div class="' + classe + '"' + onclickAttr + (estilo ? ' style="' + estilo + '"' : '') + '>' + ATOMO_AVATAR_SVG + '</div>';
 };
 
 const TIPOS = ['História', 'Arte', 'Poema', 'Música', 'Conto', 'Livro', 'Filme', 'Série', 'Jogo', 'Podcast', 'Assunto', 'Finanças', 'Reflexão', 'Sonho', 'Gratidão', 'Memória', 'Desabafo', 'Relato', 'Humor'];

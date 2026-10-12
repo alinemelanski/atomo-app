@@ -109,7 +109,7 @@ if (comentarioPostArray === feedPosts || !comentarioPostArray) renderFeed();
 function renderComentarios() {
   const lista = (comentarioPostArray || feedPosts)[comentarioPostIdx].comentarios;
   document.getElementById('comentariosList').innerHTML = lista.length
-    ? lista.map(c => `<div class="comment-item"><div class="ic">${c.autor[0].toUpperCase()}</div><div><div class="cn">@${c.autor}</div><div class="ct">${formatarMencoes(c.texto)}</div></div></div>`).join('')
+    ? lista.map(c => `<div class="comment-item"><div class="ic">${ATOMO_AVATAR_SVG}</div><div><div class="cn">@${c.autor}</div><div class="ct">${formatarMencoes(c.texto)}</div></div></div>`).join('')
     : `<div class="visitor-lock-note">Seja a primeira pessoa a comentar 💬</div>`;
 }
 window.enviarComentario = async function () {

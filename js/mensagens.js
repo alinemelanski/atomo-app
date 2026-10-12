@@ -343,7 +343,7 @@ if (usuario) {
     avatarDiv.textContent = '';
   } else {
     avatarDiv.style.backgroundImage = 'none';
-    avatarDiv.textContent = usuario.handle ? usuario.handle[0].toUpperCase() : '?';
+    avatarDiv.innerHTML = ATOMO_AVATAR_SVG; // sem foto: cara do átomo
   }
   const info = textoUltimaAtividade(usuario.ultima_atividade);
   const statusEl = document.getElementById('dmInfoStatus');
