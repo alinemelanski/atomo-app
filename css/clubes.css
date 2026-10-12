@@ -19,22 +19,29 @@
     font-family: 'DM Sans', sans-serif; box-shadow: var(--shadow); transition: transform .15s ease; }
   .clube-criar-btn:active { transform: scale(.94); }
 
-  .clube-card-grande { position: relative; z-index: 1; aspect-ratio: 16 / 10; border-radius: 24px; overflow: hidden;
-    margin-bottom: 16px; box-shadow: var(--shadow); cursor: pointer; background: var(--card-b);
+  /* card de clube COMPACTO (antes 16:10 e ocupava quase a tela toda):
+     altura fixa de 124px, capa nítida à esquerda e a mesma capa borrada no fundo */
+  .clube-card-grande { position: relative; z-index: 1; height: 124px; border-radius: 22px; overflow: hidden;
+    margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; background: var(--accent-a);
+    display: flex; align-items: center; gap: 14px; padding: 12px;
     animation: clubeCardEntra .5s cubic-bezier(.2,.8,.2,1) backwards; transition: transform .15s ease; }
   .clube-card-grande:active { transform: scale(.98); }
   @keyframes clubeCardEntra { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  .clube-card-capa { position: absolute; inset: 0; background-size: cover; background-position: center 22%; }
-  .clube-card-capa.sem-capa { background: var(--accent-a); display: flex; align-items: center; justify-content: center; }
-  .clube-card-scrim { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10,8,6,.78) 0%, rgba(10,8,6,.2) 46%, transparent 70%); }
-  .clube-card-pill { position: absolute; top: 12px; display: flex; align-items: center; gap: 5px; padding: 6px 11px;
-    border-radius: 999px; background: rgba(20,16,12,.4); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
-    border: 1px solid rgba(255,255,255,.2); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 800; z-index: 2; }
-  .clube-card-pill.membros { left: 12px; }
-  .clube-card-pill.lock { right: 12px; padding: 6px; }
-  .clube-card-info { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px; z-index: 2; }
-  .clube-card-nome { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; text-shadow: 0 1px 10px rgba(0,0,0,.35); letter-spacing: -.01em; }
-  .clube-card-livro { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: rgba(255,255,255,.92); display: flex; align-items: center; gap: 6px; }
+  /* fundo: capa ampliada e borrada (blur) — dá a cor do livro ao card */
+  .clube-card-fundo { position: absolute; inset: -20px; background-size: cover; background-position: center; filter: blur(18px) saturate(1.2); }
+  .clube-card-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,8,6,.35), rgba(10,8,6,.62)); }
+  .clube-card-livro-capa { position: relative; z-index: 2; flex: none; width: 66px; height: 100px; border-radius: 10px;
+    background-size: cover; background-position: center; box-shadow: 0 6px 16px rgba(0,0,0,.35); }
+  .clube-card-livro-capa.sem-capa { background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; }
+  .clube-card-info { position: relative; z-index: 2; min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .clube-card-pills { display: flex; gap: 6px; margin-bottom: 2px; }
+  .clube-card-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px;
+    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.22); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 700; }
+  .clube-card-nome { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: #fff; line-height: 1.15; letter-spacing: -.01em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .clube-card-livro { font-family: 'DM Sans', sans-serif; font-size: 12px; color: rgba(255,255,255,.9); display: flex; align-items: center; gap: 5px;
+    overflow: hidden; white-space: nowrap; }
 
   .clube-hero-glass { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 20px; overflow: hidden;
     background-size: cover; background-position: center 25%; box-shadow: var(--shadow); }
