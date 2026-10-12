@@ -133,11 +133,19 @@ async function renderEstante() {
   }
   const usuarioId = sessionData.session.user.id;
 
-  const [streakHtml, estatisticasHtml, { data, error }] = await Promise.all([
+  const [streakHtml, estatisticasHtml, { data, error }, comprasResp] = await Promise.all([
     streakLeituraHtml(usuarioId),
     estatisticasLeituraHtml(usuarioId),
     supabaseClient.from('estante_pessoal').select('*').eq('usuario_id', usuarioId).order('adicionado_em', { ascending: false }),
+    // livros comprados na Loja (estante autoral) também moram na sua estante
+    supabaseClient.from('vendas_autorais').select('id, livro_id, pago_em, livros_autorais(titulo, capa_url)').eq('comprador_id', usuarioId).eq('status', 'pago').order('pago_em', { ascending: false }),
   ]);
+  // se a tabela da loja ainda não existir no banco, só não mostra essa parte
+  const compras = (comprasResp && !comprasResp.error && comprasResp.data) || [];
+  window.MINHAS_COMPRAS_AUTORAIS = compras;
+  const comprasHtml = compras.length
+    ? `<div class="estante-secao-titulo">comprados na loja</div>${compras.map((d, i) => cardCompraAutoralHtml(d, i)).join('')}`
+    : '';
 
   if (error) {
     lista.innerHTML = estatisticasHtml + streakHtml + `<div class="visitor-lock-note">Não consegui carregar sua estante agora${error.message.includes('estante_pessoal') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
@@ -151,7 +159,8 @@ async function renderEstante() {
       </div>` +
     (data && data.length
       ? `<div class="estante-madeira">${data.map((d, i) => cardEstanteHtml(d, i)).join('')}</div>`
-      : estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho'));
+      : (compras.length ? '' : estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho'))) +
+    comprasHtml;
 }
 
 const CORES_LOMBADA_ESTANTE = ['var(--accent-a)', 'var(--accent-b)', 'var(--pink)', 'var(--yellow)', '#8FA06E', '#6FA3C9'];

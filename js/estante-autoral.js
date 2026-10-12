@@ -29,7 +29,7 @@ window.trocarSubModoAutoral = function (modo) {
 };
 
 async function renderEstanteAutoral() {
-  const lista = document.getElementById('livrosList');
+  const lista = document.getElementById('lojaList');
   lista.innerHTML = skeletonCardsHtml(3);
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -58,7 +58,7 @@ async function renderEstanteAutoral() {
 }
 
 async function renderVitrineLivrosAutorais() {
-  const lista = document.getElementById('livrosList');
+  const lista = document.getElementById('lojaList');
   const { data, error } = await supabaseClient
     .from('livros_autorais')
     .select('*, usuarios(handle), avaliacoes_autorais(nota)')
@@ -307,7 +307,7 @@ window.enviarLivroAutoral = async function () {
 };
 
 async function renderMeusLivrosAutorais(usuarioId) {
-  const lista = document.getElementById('livrosList');
+  const lista = document.getElementById('lojaList');
   const [{ data, error }, { data: perfil }] = await Promise.all([
     supabaseClient.from('livros_autorais').select('*').eq('autor_id', usuarioId).order('criado_em', { ascending: false }),
     supabaseClient.from('usuarios').select('asaas_wallet_id').eq('id', usuarioId).maybeSingle(),
@@ -370,7 +370,7 @@ window.reenviarLivroAutoral = async function (livroId) {
 };
 
 async function renderComprasAutorais(usuarioId) {
-  const lista = document.getElementById('livrosList');
+  const lista = document.getElementById('lojaList');
   const { data, error } = await supabaseClient.from('vendas_autorais').select('id, livro_id, pago_em, livros_autorais(titulo, capa_url)').eq('comprador_id', usuarioId).eq('status', 'pago').order('pago_em', { ascending: false });
   if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
   window.MINHAS_COMPRAS_AUTORAIS = data || [];
@@ -389,7 +389,7 @@ function cardCompraAutoralHtml(d, i) {
 }
 
 async function renderRevisaoLivrosAutorais() {
-  const lista = document.getElementById('livrosList');
+  const lista = document.getElementById('lojaList');
   const { data, error } = await supabaseClient.from('livros_autorais').select('*, usuarios(handle)').eq('status', 'em_revisao').order('criado_em', { ascending: true });
   if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
   window.FILA_REVISAO_AUTORAL = data || [];

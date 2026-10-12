@@ -51,7 +51,6 @@ window.renderLivrosAtual = function () {
   if (modoLivrosAtivo === 'clube') return renderClubes();
   if (modoLivrosAtivo === 'comunidades') return renderComunidades();
   if (modoLivrosAtivo === 'estante') return renderEstante();
-  if (modoLivrosAtivo === 'autoral') return renderEstanteAutoral();
   return renderLivros();
 };
 
