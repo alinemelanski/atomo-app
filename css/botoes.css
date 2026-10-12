@@ -123,10 +123,6 @@
 .membro-admin-acoes { flex-basis: 100%; margin-top: 4px; }
 .membro-admin-acoes .btn-acao { min-height: 38px; font-size: 13px; }
 
-/* clube: fileira de botões do livro (Ler agora / Mudar livro / Avançar capítulo) */
-.clube-livro-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-.clube-livro-acoes .btn-acao { min-width: 0; padding: 0 10px; }
-.clube-livro-acoes .ler-agora { grid-column: 1 / -1; } /* linha inteira */
 
 /* ---------- botões dos POSTS (curtir, comentar, compartilhar, salvar, editar...) ----------
    Todos viram pílulas pequenas de contorno, no mesmo estilo do kit:
@@ -142,3 +138,24 @@
 .post-action.liked svg { fill: currentColor; }
 .post-action.ativo { color: var(--salvia); border-color: var(--salvia); background: var(--salvia-suave); }
 .post-action.ativo svg { fill: currentColor; }
+
+/* ---------- tamanho MINI do kit (telas onde o espaço é do conteúdo, ex: chat do clube) ----------
+   Mesmo visual e mesmos estados, só menor: 34px de altura em vez de 46. */
+.btn-acao.btn-mini { min-height: 34px; padding: 0 12px; font-size: 12.5px; gap: 6px; }
+.btn-acao.btn-mini .icon-svg { width: 14px !important; height: 14px !important; }
+.btn-icone.btn-icone-mini { width: 34px; height: 34px; }
+.btn-icone.btn-icone-mini .icon-svg { width: 15px !important; height: 15px !important; }
+
+/* clube: card "onde o clube está" compacto, com os botões dentro dele */
+#clubeDetalheOverlay .clube-cap-card { padding: 10px 12px; }
+#clubeDetalheOverlay .clube-cap-info .clube-cap-valor { font-size: 17px; }
+#clubeDetalheOverlay .clube-cap-info .clube-cap-pagina { font-size: 12px; display: inline; }
+.clube-cap-botoes { display: flex; align-items: center; gap: 6px; flex: none; }
+/* "Mudar livro" mora na fileira dos membros, centralizado com as pílulas */
+.clube-meta-pills { align-items: center; }
+/* capa do livro é um botão (tocar = ler) */
+.clube-capa-ler { border: none; padding: 0; cursor: pointer; transition: transform .15s ease; }
+.clube-capa-ler:active { transform: scale(.94); }
+#clubeDetalheOverlay .clube-cap-info { min-width: 0; }
+#clubeDetalheOverlay .clube-cap-info .clube-cap-kicker { white-space: nowrap; letter-spacing: .05em; }
+.clube-meta-pills .btn-mini { min-height: 28px; padding: 0 11px; font-size: 12px; }

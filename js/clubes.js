@@ -68,7 +68,8 @@ async function renderClubeDetalhe() {
 
   document.getElementById('clubeDetalheLivroAtual').innerHTML = c.livro_titulo ? `
       <div class="clube-hero-mini">
-        <div class="clube-hero-mini-capa"${c.livro_capa_url ? ` style="background-image:url('${c.livro_capa_url}');"` : ' style="background:var(--accent-a);"'}></div>
+        <!-- tocar na CAPA abre a leitura do livro (substitui o antigo botão "Ler agora") -->
+        <button class="clube-hero-mini-capa clube-capa-ler" onclick="lerLivroDoClube()" aria-label="Ler ${c.livro_titulo.replace(/"/g, '&quot;')}"${c.livro_capa_url ? ` style="background-image:url('${c.livro_capa_url}');"` : ' style="background:var(--accent-a);"'}></button>
         <div class="clube-hero-mini-info">
           <div class="clube-hero-mini-titulo">${c.livro_titulo}</div>
           ${c.livro_autor ? `<div class="clube-hero-mini-autor">${c.livro_autor}</div>` : ''}
@@ -82,6 +83,7 @@ async function renderClubeDetalhe() {
       <div class="clube-meta-pills">
         <span class="clube-meta-pill clube-meta-pill-clicavel" onclick="abrirMembrosClube()" role="button" title="ver os membros">${icone('pessoas',12)} ${membros.length} membro${membros.length === 1 ? '' : 's'}</span>
         ${c.privado ? `<span class="clube-meta-pill">${icone('cadeado',12)} privado</span>` : ''}
+        ${souMembro && souAdmin ? `<button class="btn-acao btn-acao-contorno-salvia btn-mini" onclick="mudarLivroAtualClube()">${icone('livro', 14)}Mudar livro</button>` : ''}
       </div>`;
 
   document.getElementById('clubeDetalheHeaderIcones').style.display = souMembro ? 'flex' : 'none';
@@ -92,13 +94,13 @@ async function renderClubeDetalhe() {
 
   // membro vê o botão da MESA AO VIVO (a call saiu das comunidades e veio pra cá)
   document.getElementById('clubeDetalheAcoes').innerHTML = souMembro
-    ? `<button class="btn-acao btn-acao-contorno-salvia clube-mesa-btn" onclick="abrirMesaAoVivoClube()">
+    ? `<button class="btn-acao btn-acao-contorno-salvia btn-mini clube-mesa-btn" onclick="abrirMesaAoVivoClube()">
          <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span>
          Entrar na sala de leitura
        </button>`
     : `<div class="botoes-par">
-         <button class="btn-acao btn-acao-terracota" onclick="entrarNoClube()">${icone('entrar', 18)}Entrar no clube</button>
-         <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirMembrosClube()">${icone('pessoas', 18)}Ver membros</button>
+         <button class="btn-acao btn-acao-terracota btn-mini" onclick="entrarNoClube()">${icone('entrar', 15)}Entrar no clube</button>
+         <button class="btn-acao btn-acao-contorno-salvia btn-mini" onclick="abrirMembrosClube()">${icone('pessoas', 15)}Ver membros</button>
        </div>`;
 
   document.getElementById('clubeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
@@ -324,7 +326,10 @@ function sugestaoClubeHtml(s, i, meuId, souAdmin) {
       </div>`;
 }
 
-// ---------- ferramentas do clube: card grande com o capitulo/pagina atual (so o admin muda) ----------
+// ---------- ferramentas do clube: card "onde o clube está" ----------
+// Quem administra vê, dentro do próprio card, o botão "Avançar capítulo" (pula
+// pro próximo com 1 toque, sem abrir formulário) e um lápis pequeno pra quem
+// quiser digitar um capítulo/página específicos.
 function capituloCardHtml(souAdmin) {
   const cap = clubeCapituloAtual.capitulo;
   const pag = clubeCapituloAtual.pagina;
@@ -332,28 +337,44 @@ function capituloCardHtml(souAdmin) {
       <div class="clube-cap-card">
         <div class="clube-cap-info">
           <div class="clube-cap-kicker">${icone('marco',10)} onde o clube está</div>
-          <div class="clube-cap-valor">${cap || 'capítulo ainda não definido'}</div>
-          ${pag ? `<div class="clube-cap-pagina">página ${pag}</div>` : ''}
+          <div class="clube-cap-valor">${cap ? (/^\d+$/.test(cap) ? 'cap. ' + cap : cap) : 'capítulo ainda não definido'}${pag ? ` <span class="clube-cap-pagina">· pág. ${pag}</span>` : ''}</div>
         </div>
-      </div>
-      <!-- kit item 8: "Ler agora" (sálvia cheia) pra todo membro; quem administra
-           também vê "Mudar livro" e "Avançar capítulo" (contorno sálvia).
-           "Ler agora" ocupa a linha de cima inteira; os outros dois dividem a de baixo meio a meio. -->
-      <div class="clube-livro-acoes">
-        <button class="btn-acao btn-acao-salvia ler-agora" onclick="lerLivroDoClube()">${icone('livro', 18)}Ler agora</button>
-        ${souAdmin ? `<button class="btn-acao btn-acao-contorno-salvia" onclick="mudarLivroAtualClube()">${icone('livro', 18)}Mudar livro</button>
-        <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirEditarCapituloClube()">Avançar capítulo</button>` : ''}
+        ${souAdmin ? `<div class="clube-cap-botoes">
+          <button class="btn-acao btn-acao-salvia btn-mini" onclick="avancarCapituloClube()">Avançar capítulo ${icone('voltar', 13).replace('M15 5l-7 7 7 7', 'M9 5l7 7-7 7')}</button>
+          <button class="btn-icone btn-icone-mini" onclick="abrirEditarCapituloClube()" aria-label="Escolher capítulo e página">${icone('editar', 14)}</button>
+        </div>` : ''}
       </div>
       <div class="clube-cap-form" id="clubeCapFormWrap" style="display:none;">
         <div class="clube-cap-form-row">
           <input type="text" id="clubeCapInput" class="busca-input" placeholder="capítulo (ex: cap. 5)" style="flex:2;" value="${cap || ''}" />
           <input type="number" id="clubePagInput" class="busca-input" placeholder="página" style="flex:1;" value="${pag || ''}" />
         </div>
-        <button class="btn-acao btn-acao-salvia largo" onclick="salvarCapituloClube()">Avançar pra esse capítulo</button>
+        <button class="btn-acao btn-acao-salvia btn-mini largo" onclick="salvarCapituloClube()">Salvar capítulo</button>
       </div>`;
 }
 
-// "Ler agora": procura o livro do clube em Livros grátis (clássicos de domínio
+// Avançar capítulo com 1 toque.
+// PRA APRENDER: o capítulo é texto livre ("2", "cap. 5", "Capítulo 10").
+// A regex /(\d+)(?!.*\d)/ acha o ÚLTIMO número do texto; somamos 1 só nele e
+// mantemos o resto igual: "cap. 5" → "cap. 6", "2" → "3".
+// Sem número nenhum? Começa no "cap. 1". A página volta a ficar vazia,
+// porque mudou de capítulo.
+window.avancarCapituloClube = async function () {
+  const atual = (clubeCapituloAtual.capitulo || '').trim();
+  const proximo = /\d/.test(atual)
+    ? atual.replace(/(\d+)(?!.*\d)/, n => String(Number(n) + 1))
+    : 'cap. 1';
+  const { error } = await supabaseClient.from('clubes_livro')
+    .update({ capitulo_atual: proximo, pagina_atual: null })
+    .eq('id', clubeAtualId);
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  clubeCapituloAtual = { capitulo: proximo, pagina: null };
+  if (typeof vibrar === 'function') vibrar(15); // tremidinha de confirmação (se o aparelho tiver)
+  mostrarToast('📖 o clube avançou pro ' + (/^\d+$/.test(proximo) ? 'cap. ' + proximo : proximo));
+  document.getElementById('clubeDetalheFerramentas').innerHTML = capituloCardHtml(true);
+};
+
+// "Ler": procura o livro do clube em Livros grátis (clássicos de domínio
 // público, como Dom Casmurro, abrem inteiros no leitor do app)
 window.lerLivroDoClube = function () {
   const titulo = (clubeLivroAtualCitacao && clubeLivroAtualCitacao.titulo) || '';
