@@ -321,12 +321,18 @@ async function renderComunidadeEstudoDetalhe() {
   document.getElementById('comunidadeDetalheHeaderIcones').style.display = souMembro ? 'flex' : 'none';
   document.getElementById('comunidadeDetalheHeaderIcones').innerHTML = souMembro
     ? `${(contagemDetalhe && comunidadeTemaAtual.temporizador) ? `<div class="dm-header-icon-btn dm-header-pill" title="${contagemDetalhe}">${icone('relogio',13)} ${contagemDetalhe.replace(/^(faltam?|falta)\s*/i, '')}</div>` : ''}
-         ${!c.privada ? `<button class="dm-header-icon-btn" title="convidar pra comunidade" onclick="abrirCompartilharComunidade()">${icone('convite',15)}</button>` : ''}`
+`
     : '';
 
+  window.COMUNIDADE_ATUAL_PRIVADA = !!c.privada;
   document.getElementById('comunidadeDetalheAcoes').innerHTML = souMembro
     ? ''
-    : `<button class="post-btn" style="width:100%;" onclick="entrarNaComunidadeEstudo()">entrar na comunidade</button>`;
+    // kit item 7: "Entrar" é a ação principal (terracota cheia); "Ver membros" é apoio (contorno sálvia).
+    // .botoes-par = os dois dividem a largura meio a meio (mesmo tamanho sempre)
+    : `<div class="botoes-par">
+         <button class="btn-acao btn-acao-terracota" onclick="entrarNaComunidadeEstudo()">${icone('entrar', 18)}Entrar na comunidade</button>
+         <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirMembrosComunidade()">${icone('pessoas', 18)}Ver membros</button>
+       </div>`;
 
   document.getElementById('comunidadeDetalheFerramentas').innerHTML = souMembro
     ? temaComunidadeCardHtml(souAdmin) + prazoComunidadeCardHtml() + rankingComunidadeCardHtml()
@@ -395,14 +401,13 @@ async function renderMembrosComunidade() {
             <div class="comunidade-membro-papel">${ehCriador ? 'criador' : (m.papel === 'admin' ? 'admin' : 'membro')}</div>
           </div>
           ${souAdmin && !ehCriador && !ehEu ? `
-          <div class="clube-overflow-wrap">
-            <button class="clube-overflow-btn" onclick="toggleMembroMenu(this)">${icone('maisOpcoes',15)}</button>
-            <div class="clube-overflow-menu">
-              ${m.papel === 'admin'
-              ? `<div class="item" onclick="rebaixarAdminComunidade('${m.usuario_id}')">tirar admin</div>`
-              : `<div class="item" onclick="promoverAdminComunidade('${m.usuario_id}')">tornar admin</div>`}
-              <div class="item" onclick="removerMembroComunidade('${m.usuario_id}')">remover da comunidade</div>
-            </div>
+          <!-- kit item 10: botões de quem administra à vista (antes ficavam escondidos no ⋯).
+               Tornar/Tirar admin = contorno sálvia; Remover = contorno terracota -->
+          <div class="botoes-par membro-admin-acoes">
+            ${m.papel === 'admin'
+            ? `<button class="btn-acao btn-acao-contorno-salvia" onclick="rebaixarAdminComunidade('${m.usuario_id}')">Tirar admin</button>`
+            : `<button class="btn-acao btn-acao-contorno-salvia" onclick="promoverAdminComunidade('${m.usuario_id}')">Tornar admin</button>`}
+            <button class="btn-acao btn-acao-contorno-terracota" onclick="removerMembroComunidade('${m.usuario_id}')">Remover</button>
           </div>` : ''}
         </div>`;
   }).join('') : estadoVazio('sem membros ainda', ''));
@@ -528,13 +533,14 @@ window.salvarPrazoComunidade = async function () {
 };
 
 // ---------- ranking de leitura da comunidade (paginas lidas no periodo, por enquanto) ----------
+// kit item 9: Ranking e Convidar viram dois botões de contorno sálvia, lado a lado
+// (comunidade privada não tem convite, aí o Ranking ocupa a largura toda)
 function rankingComunidadeCardHtml() {
+  const privada = !!(window.COMUNIDADE_ATUAL_PRIVADA);
   return `
-      <div class="clube-cap-card" style="cursor:pointer; margin-top:10px;" onclick="abrirRankingComunidade()">
-        <div class="clube-cap-info">
-          <div class="clube-cap-kicker">${icone('trofeu',10)} ranking</div>
-          <div class="clube-cap-valor" style="font-size:15px;">quem mais leu por aqui</div>
-        </div>
+      <div class="botoes-par" style="margin-top:10px;${privada ? ' grid-template-columns:1fr;' : ''}">
+        <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirRankingComunidade()">${icone('trofeu', 18)}Ranking</button>
+        ${privada ? '' : `<button class="btn-acao btn-acao-contorno-salvia" onclick="abrirCompartilharComunidade()">${icone('mais', 18)}Convidar</button>`}
       </div>`;
 }
 

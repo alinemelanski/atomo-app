@@ -54,12 +54,17 @@
 
   /* ---------- aba Livros: chips só com ícone (todos do mesmo tamanho) ---------- */
   .feed-modo-chip.icon-only { padding: 9px 11px; }
-  /* aba Livros: os 5 ícones dividem a largura toda (sem sobra na direita) */
-  .feed-modo-row-livros { gap: 7px; overflow-x: visible; }
-  .feed-modo-row-livros .feed-modo-chip { flex: 1 1 0; min-width: 0; justify-content: center; padding: 11px 0; }
-  /* ícones da aba Livros reagem ao toque: apertam ao pressionar e dão um "pulinho" próprio quando ficam ativos */
-  .feed-modo-row-livros .feed-modo-chip { transition: transform .15s ease, background .25s ease, border-color .25s ease; }
-  .feed-modo-row-livros .feed-modo-chip:active { transform: scale(.9); }
+  /* (#screen-livros na frente = regra mais forte que a pílula de vidro do estante.css) */
+  /* aba Livros (item 1 do kit): cada aba é um BOTÃO DE ÍCONE redondo.
+     Padrão: círculo do cartão com contorno fino. Aberta (.on): sálvia cheia.
+     space-evenly espalha os 4 círculos pela largura toda (sem sobra num canto). */
+  .feed-modo-row-livros { gap: 0; overflow-x: visible; justify-content: space-evenly; padding: 4px 0 10px; }
+  #screen-livros .feed-modo-row-livros .feed-modo-chip { flex: none; width: 52px; height: 52px; min-width: 0; padding: 0; border-radius: 50%;
+    justify-content: center; align-items: center; background: var(--card); border: 1px solid var(--card-b); color: var(--ink);
+    transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease; }
+  .feed-modo-row-livros .feed-modo-chip .icon-svg { width: 22px !important; height: 22px !important; }
+  #screen-livros .feed-modo-row-livros .feed-modo-chip:active { transform: scale(.94); background: var(--salvia-suave); box-shadow: 0 0 0 7px var(--salvia-suave); }
+  #screen-livros .feed-modo-row-livros .feed-modo-chip.on { background: var(--salvia); border-color: var(--salvia); color: #fff; box-shadow: none; }
   .feed-modo-row-livros .feed-modo-chip.on svg { animation: livrosIconePop .55s cubic-bezier(.2,.8,.2,1); }
   .feed-modo-row-livros .feed-modo-chip[data-modo-livros="comunidades"].on svg { animation-name: livrosIconeGira; }
   .feed-modo-row-livros .feed-modo-chip[data-modo-livros="gratuitos"].on svg { animation-name: livrosIconeAbre; }

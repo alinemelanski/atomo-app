@@ -19,13 +19,19 @@ document.addEventListener('pointerdown', (e) => {
 }, { passive: true });
 
 // Explosão de bolinhas ao curtir. Uso: explodirCurtida(botaoDoCoracao)
+// A explosão vai pro <body> com position:fixed no lugar do botão — assim ela
+// continua aparecendo mesmo se o feed for redesenhado logo depois da curtida.
 window.explodirCurtida = function (el) {
   if (!el) return;
-  if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+  const r = el.getBoundingClientRect();
   const caixa = document.createElement('span');
   caixa.className = 'curtida-explosao';
-  // 6 bolinhas, uma a cada 60 graus
-  caixa.innerHTML = [0, 60, 120, 180, 240, 300].map(a => `<i style="--ang:${a}deg"></i>`).join('');
-  el.appendChild(caixa);
+  caixa.style.position = 'fixed';
+  caixa.style.left = (r.left + Math.min(r.width, 34) / 2) + 'px'; // centro do ícone (que fica à esquerda do número)
+  caixa.style.top = (r.top + r.height / 2) + 'px';
+  caixa.style.zIndex = '999';
+  // 8 bolinhas, uma a cada 45 graus
+  caixa.innerHTML = [0, 45, 90, 135, 180, 225, 270, 315].map(a => `<i style="--ang:${a}deg"></i>`).join('');
+  document.body.appendChild(caixa);
   setTimeout(() => caixa.remove(), 600);
 };

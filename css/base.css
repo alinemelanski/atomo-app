@@ -11,7 +11,7 @@
     --ink-faint: #B7A78D;
     --accent-a: #D9714A;
     --accent-a-base: #D9714A;
-    --accent-b: #4A9B8E;
+    --accent-b: #869B83; /* verde sálvia do kit (antes era teal #4A9B8E) */
     --accent-soft: #F5E2D0;
     --accent-soft-base: #F5E2D0;
     --pink: #E06B6B;
@@ -32,7 +32,7 @@
     --ink-faint: #6E6E6E;
     --accent-a: #E08657;
     --accent-a-base: #E08657;
-    --accent-b: #5CB3A4;
+    --accent-b: #9DB29A; /* sálvia clarinha pro escuro (antes teal #5CB3A4) */
     --accent-soft: #2E2418;
     --accent-soft-base: #2E2418;
     --pink: #E68686;
@@ -188,7 +188,7 @@
      ja que os dois sao mutuamente exclusivos (ver toggleTemaClima()). */
   .device.clima-ativo:has(.clima-overlay.on[data-estado="noite"]) {
     --bg: #0D0D0D; --card: #1A1A1A; --card-b: #2C2C2C; --ink: #F2F2F2; --ink-dim: #A8A8A8; --ink-faint: #6E6E6E;
-    --accent-a: #E08657; --accent-b: #5CB3A4; --accent-soft: #2E2418; --pink: #E68686; --pink-soft: #3A2624;
+    --accent-a: #E08657; --accent-b: #9DB29A; --accent-soft: #2E2418; --pink: #E68686; --pink-soft: #3A2624;
     --yellow: #E0A83D; --raiva: #C2503E; --shadow: 0 3px 14px rgba(0,0,0,0.5);
     --bg-tela-suave: #17140F; --vidro-fosco: 91%; --vidro-fosco-leve: 86%;
   }

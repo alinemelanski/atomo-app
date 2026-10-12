@@ -104,7 +104,7 @@ window.abrirSalvos = async function () {
         <div class="post-body">${formatarMencoesEVideo(p.texto)}</div>
         ${p.imagem_url ? `<img src="${p.imagem_url}" class="post-foto-fixa" loading="lazy" />` : ''}
         <div class="post-actions">
-          <div class="post-action" onclick="removerDosSalvos(${p.id})" aria-label="${t('post_remover_salvo')}">${icone('salvar', 14, 0, 'var(--accent-a)')} ${t('post_remover_salvo')}</div>
+          <div class="post-action ativo" onclick="removerDosSalvos(${p.id})" aria-label="${t('post_remover_salvo')}">${icone('salvar', 14, 0)} ${t('post_remover_salvo')}</div>
         </div>
       </div>`;
   }).join('') || estadoVazio(t('salvos_vazio_titulo'), t('salvos_vazio_sub'), null, null);

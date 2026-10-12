@@ -295,7 +295,7 @@ if (gravandoAudio) {
   btn.innerHTML = `⏺ ${m}:${s}`;
   btn.classList.add('gravando');
 } else {
-  btn.innerHTML = '<span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span>';
+  btn.innerHTML = '<span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span>';
   btn.classList.remove('gravando');
 }
 }
@@ -394,7 +394,7 @@ let inicioGravacaoMuralTs = null;
 let intervaloGravacaoMuralUi = null;
 
 const BTN_GRAVAR_MURAL_ID = { clube: 'btnGravarAudioMuralClube', comunidade: 'btnGravarAudioMuralComunidade' };
-const ICONE_MIC_MURAL = '<span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span>';
+const ICONE_MIC_MURAL = '<span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span>';
 
 window.alternarGravacaoAudioMural = async function (origem) {
 if (gravandoAudioMural) { pararGravacaoAudioMural(origem); return; }

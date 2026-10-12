@@ -11,58 +11,78 @@
    As cores vêm de variáveis, então trocar a cor do app inteiro é mudar 1 linha. */
 
 :root {
-  --salvia: #6F8B6A;        /* verde sálvia (texto branco em cima fica legível) */
-  --salvia-suave: #E6ECE1;  /* fundo clarinho da sálvia (contornos, ativos) */
-  --terracota: #D9714A;     /* mesmo tom do --accent-a de sempre */
-  --terracota-suave: #F7E3D8;
+  --salvia: #869B83;          /* verde sálvia do kit */
+  --salvia-suave: #E6ECE4;    /* "tinta" clarinha da sálvia: halo e fundo ao pressionar */
+  --terracota: #D07B60;       /* terracota do kit */
+  --terracota-suave: #F6E3DB;
 }
 #device[data-theme="dark"] {
-  --salvia: #8FAE88;
-  --salvia-suave: #26302A;
-  --terracota: #E08657;
-  --terracota-suave: #3A2A20;
+  --salvia: #9DB29A;
+  --salvia-suave: #2F3A2E;
+  --terracota: #E0907A;
+  --terracota-suave: #44302A;
 }
 
-/* ---------- botão de AÇÃO (pílula) ---------- */
+/* ---------- botão de AÇÃO (pílula) ----------
+   No kit, a pílula "padrão" é CONTORNO (fundo do cartão + borda colorida).
+   Ela só fica CHEIA quando é a ação principal da tela ou está ativa. */
 .btn-acao {
   position: relative; overflow: hidden;           /* overflow segura o "ripple" dentro da pílula */
-  min-height: 46px; padding: 0 20px; border-radius: 999px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .01em;
-  border: 1.5px solid transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .15s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
-}
-.btn-acao:active { transform: scale(.96); }
-.btn-acao:disabled { opacity: .55; pointer-events: none; }
-
-/* cheio (sólido) */
-.btn-acao-salvia    { background: var(--salvia); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--salvia) 30%, transparent); }
-.btn-acao-terracota { background: var(--terracota); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--terracota) 30%, transparent); }
-.btn-acao-salvia:active    { background: color-mix(in srgb, var(--salvia) 85%, #000); }
-.btn-acao-terracota:active { background: color-mix(in srgb, var(--terracota) 85%, #000); }
-
-/* contorno (outline) */
-.btn-acao-contorno-salvia    { background: transparent; color: var(--salvia); border-color: var(--salvia); }
-.btn-acao-contorno-terracota { background: transparent; color: var(--terracota); border-color: var(--terracota); }
-.btn-acao-contorno-salvia:active    { background: var(--salvia-suave); }
-.btn-acao-contorno-terracota:active { background: var(--terracota-suave); }
-/* ativo: o contorno "acende" e vira cheio */
-.btn-acao-contorno-salvia.ativo    { background: var(--salvia); color: #fff; }
-.btn-acao-contorno-terracota.ativo { background: var(--terracota); color: #fff; }
-
-/* ---------- botão de ÍCONE (círculo) ---------- */
-.btn-icone {
-  position: relative; overflow: hidden;
-  width: 40px; height: 40px; border-radius: 50%; flex: none;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: transparent; color: var(--ink); border: 1.5px solid var(--card-b);
+  min-height: 46px; padding: 0 22px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: .01em;
+  background: var(--card); color: var(--ink); border: 1px solid var(--card-b);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
 }
-.btn-icone:active { transform: scale(.92); background: var(--salvia-suave); border-color: var(--salvia); }
-.btn-icone.ativo  { background: var(--salvia); border-color: var(--salvia); color: #fff; }
-.btn-icone-terracota { background: var(--terracota); border-color: var(--terracota); color: #fff; }
-.btn-icone-terracota:active { background: color-mix(in srgb, var(--terracota) 85%, #000); border-color: transparent; }
+.btn-acao .icon-svg { width: 18px !important; height: 18px !important; }
+.btn-acao:active { transform: scale(.97); }
+.btn-acao:disabled { opacity: .55; pointer-events: none; }
+.btn-acao.largo { width: 100%; }
+
+/* contorno (padrão do kit) */
+.btn-acao-contorno-salvia    { border-color: var(--salvia); color: var(--ink); }
+.btn-acao-contorno-terracota { border-color: var(--terracota); color: var(--terracota); }
+.btn-acao-contorno-salvia:active    { background: var(--salvia-suave); }
+.btn-acao-contorno-terracota:active { background: var(--terracota-suave); }
+
+/* cheio = estado "ativo" do kit (também usado na ação principal da tela) */
+.btn-acao-salvia, .btn-acao-contorno-salvia.ativo       { background: var(--salvia); border-color: var(--salvia); color: #fff; }
+.btn-acao-terracota, .btn-acao-contorno-terracota.ativo { background: var(--terracota); border-color: var(--terracota); color: #fff; }
+.btn-acao-salvia:active    { background: color-mix(in srgb, var(--salvia) 86%, #000); }
+.btn-acao-terracota:active { background: color-mix(in srgb, var(--terracota) 86%, #000); }
+
+/* ---------- botão de ÍCONE (círculo) ----------
+   padrão: círculo do cartão com contorno fino
+   pressionado: ganha um HALO (box-shadow espalhado) na cor clarinha
+   ativo: cheio na cor */
+.btn-icone {
+  position: relative; overflow: hidden;
+  width: 44px; height: 44px; border-radius: 50%; flex: none; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--card); color: var(--ink); border: 1px solid var(--card-b);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.btn-icone.grande { width: 52px; height: 52px; }
+.btn-icone .icon-svg { width: 20px !important; height: 20px !important; }
+.btn-icone.grande .icon-svg { width: 22px !important; height: 22px !important; }
+.btn-icone:active { transform: scale(.94); background: var(--salvia-suave); box-shadow: 0 0 0 7px var(--salvia-suave); }
+.btn-icone.terracota:active { background: var(--terracota-suave); box-shadow: 0 0 0 7px var(--terracota-suave); }
+.btn-icone.ativo { background: var(--salvia); border-color: var(--salvia); color: #fff; }
+.btn-icone.terracota.ativo { background: var(--terracota); border-color: var(--terracota); color: #fff; }
+/* o ripple não pode ser cortado pelo halo: no ícone, overflow precisa ser visível
+   enquanto o halo aparece; então o ripple do círculo fica dentro de um clip próprio */
+.btn-icone { overflow: visible; }
+.btn-icone .ripple { display: none; }
+
+/* gravando áudio no mural: o círculo do microfone vira uma pílula com o tempo */
+.btn-icone.gravando { width: auto; padding: 0 14px; border-radius: 22px; background: var(--terracota); border-color: var(--terracota);
+  color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px; }
+
+/* item 2 do catálogo: voltar e ⋯ do app inteiro ganham o halo sálvia ao tocar */
+.back-btn:active, .clube-overflow-btn:active, .dm-header-icon-btn:active {
+  background: var(--salvia-suave) !important; box-shadow: 0 0 0 6px var(--salvia-suave) !important; }
 
 /* ---------- microinteração: ripple (a "ondinha" que sai do dedo) ----------
    O js/botoes.js cria um <span class="ripple"> no ponto do toque; aqui ele
@@ -77,7 +97,7 @@
 
 /* ---------- microinteração: explosão da curtida ----------
    6 bolinhas saem do centro em direções diferentes (cada uma com seu --ang). */
-.curtida-explosao { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.curtida-explosao { width: 0; height: 0; pointer-events: none; }
 .curtida-explosao i {
   position: absolute; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%;
   background: var(--terracota);
@@ -90,3 +110,35 @@
 @media (prefers-reduced-motion: reduce) {
   .ripple, .curtida-explosao i { animation-duration: .01s; }
 }
+
+/* convite (WhatsApp / Telegram / Copiar link): um embaixo do outro, com respiro */
+.convite-opcao + .convite-opcao { margin-top: 10px; }
+
+/* dois botões lado a lado SEMPRE com a mesma largura (regra do app):
+   grid de 2 colunas iguais (1fr 1fr) — o texto maior não "empurra" o vizinho */
+.botoes-par { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.botoes-par .btn-acao { min-width: 0; padding: 0 12px; }
+/* membros: a fileira de botões de admin vai pra linha de baixo, ocupando a largura toda */
+.comunidade-membro-row { flex-wrap: wrap; }
+.membro-admin-acoes { flex-basis: 100%; margin-top: 4px; }
+.membro-admin-acoes .btn-acao { min-height: 38px; font-size: 13px; }
+
+/* clube: fileira de botões do livro (Ler agora / Mudar livro / Avançar capítulo) */
+.clube-livro-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.clube-livro-acoes .btn-acao { min-width: 0; padding: 0 10px; }
+.clube-livro-acoes .ler-agora { grid-column: 1 / -1; } /* linha inteira */
+
+/* ---------- botões dos POSTS (curtir, comentar, compartilhar, salvar, editar...) ----------
+   Todos viram pílulas pequenas de contorno, no mesmo estilo do kit:
+   padrão = contorno fino · pressionado = halo sálvia · ativo = cor cheia clarinha.
+   Curtir é "afetivo" → terracota; Salvar é "apoio" → sálvia. */
+.post-actions { gap: 8px; flex-wrap: wrap; }
+.post-action { position: relative; min-width: 34px; height: 34px; padding: 0 10px; border-radius: 999px; justify-content: center;
+  border: 1px solid var(--card-b); background: var(--card); color: var(--ink-dim);
+  transition: transform .15s ease, background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease; }
+.post-action:active { transform: scale(.94); background: var(--salvia-suave); box-shadow: 0 0 0 5px var(--salvia-suave); }
+.post-action .icon-svg { width: 16px !important; height: 16px !important; }
+.post-action.liked { color: var(--terracota); border-color: var(--terracota); background: var(--terracota-suave); }
+.post-action.liked svg { fill: currentColor; }
+.post-action.ativo { color: var(--salvia); border-color: var(--salvia); background: var(--salvia-suave); }
+.post-action.ativo svg { fill: currentColor; }

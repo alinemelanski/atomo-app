@@ -86,8 +86,7 @@ async function renderClubeDetalhe() {
 
   document.getElementById('clubeDetalheHeaderIcones').style.display = souMembro ? 'flex' : 'none';
   document.getElementById('clubeDetalheHeaderIcones').innerHTML = souMembro
-    ? `${souAdmin ? `<button class="dm-header-icon-btn" title="mudar livro atual" onclick="mudarLivroAtualClube()">${icone('livro',15)}</button>` : ''}
-         <button class="dm-header-icon-btn" title="criar citação" onclick="abrirCartaoCitacaoClubeAtual()">${icone('citacao',15)}</button>
+    ? `<button class="dm-header-icon-btn" title="criar citação" onclick="abrirCartaoCitacaoClubeAtual()">${icone('citacao',15)}</button>
          ${!c.privado ? `<button class="dm-header-icon-btn" title="convidar pro clube" onclick="abrirCompartilharClube()">${icone('convite',15)}</button>` : ''}`
     : '';
 
@@ -95,9 +94,12 @@ async function renderClubeDetalhe() {
   document.getElementById('clubeDetalheAcoes').innerHTML = souMembro
     ? `<button class="btn-acao btn-acao-contorno-salvia clube-mesa-btn" onclick="abrirMesaAoVivoClube()">
          <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span>
-         mesa de leitura ao vivo
+         Entrar na sala de leitura
        </button>`
-    : `<button class="post-btn" onclick="entrarNoClube()">entrar no clube</button>`;
+    : `<div class="botoes-par">
+         <button class="btn-acao btn-acao-terracota" onclick="entrarNoClube()">${icone('entrar', 18)}Entrar no clube</button>
+         <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirMembrosClube()">${icone('pessoas', 18)}Ver membros</button>
+       </div>`;
 
   document.getElementById('clubeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
 
@@ -333,16 +335,35 @@ function capituloCardHtml(souAdmin) {
           <div class="clube-cap-valor">${cap || 'capítulo ainda não definido'}</div>
           ${pag ? `<div class="clube-cap-pagina">página ${pag}</div>` : ''}
         </div>
-        ${souAdmin ? `<button class="clube-cap-editar" onclick="abrirEditarCapituloClube()">${icone('editar',15)}</button>` : ''}
+      </div>
+      <!-- kit item 8: "Ler agora" (sálvia cheia) pra todo membro; quem administra
+           também vê "Mudar livro" e "Avançar capítulo" (contorno sálvia).
+           "Ler agora" ocupa a linha de cima inteira; os outros dois dividem a de baixo meio a meio. -->
+      <div class="clube-livro-acoes">
+        <button class="btn-acao btn-acao-salvia ler-agora" onclick="lerLivroDoClube()">${icone('livro', 18)}Ler agora</button>
+        ${souAdmin ? `<button class="btn-acao btn-acao-contorno-salvia" onclick="mudarLivroAtualClube()">${icone('livro', 18)}Mudar livro</button>
+        <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirEditarCapituloClube()">Avançar capítulo</button>` : ''}
       </div>
       <div class="clube-cap-form" id="clubeCapFormWrap" style="display:none;">
         <div class="clube-cap-form-row">
           <input type="text" id="clubeCapInput" class="busca-input" placeholder="capítulo (ex: cap. 5)" style="flex:2;" value="${cap || ''}" />
           <input type="number" id="clubePagInput" class="busca-input" placeholder="página" style="flex:1;" value="${pag || ''}" />
         </div>
-        <button class="post-btn" onclick="salvarCapituloClube()">avançar pra esse capítulo</button>
+        <button class="btn-acao btn-acao-salvia largo" onclick="salvarCapituloClube()">Avançar pra esse capítulo</button>
       </div>`;
 }
+
+// "Ler agora": procura o livro do clube em Livros grátis (clássicos de domínio
+// público, como Dom Casmurro, abrem inteiros no leitor do app)
+window.lerLivroDoClube = function () {
+  const titulo = (clubeLivroAtualCitacao && clubeLivroAtualCitacao.titulo) || '';
+  if (!titulo) { mostrarToast('o clube ainda não escolheu um livro'); return; }
+  fecharClubeDetalhe();
+  trocarModoLivros('gratuitos');
+  const campo = document.getElementById('buscaLivrosInput');
+  campo.value = titulo;
+  aoDigitarBuscaLivros();
+};
 
 window.abrirEditarCapituloClube = function () {
   const f = document.getElementById('clubeCapFormWrap');

@@ -83,11 +83,11 @@
   <input type="email" id="emailCadastroInput" placeholder="seu e-mail" style="width:100%; margin-bottom:8px; padding:12px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif;" />
   <div style="position:relative; margin-bottom:8px;">
     <input type="password" id="senhaCadastroInput" placeholder="crie uma senha" style="width:100%; padding:12px; padding-right:42px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
-    <button type="button" onclick="alternarVisibilidadeSenha('senhaCadastroInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; line-height:1; color:var(--ink-faint); display:flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
+    <button type="button" onclick="alternarVisibilidadeSenha('senhaCadastroInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; line-height:1; color:var(--ink-faint); display:flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
   </div>
   <div style="position:relative; margin-bottom:8px;">
     <input type="password" id="confirmarSenhaCadastroInput" placeholder="confirme a senha" style="width:100%; padding:12px; padding-right:42px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
-    <button type="button" onclick="alternarVisibilidadeSenha('confirmarSenhaCadastroInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; line-height:1; color:var(--ink-faint); display:flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
+    <button type="button" onclick="alternarVisibilidadeSenha('confirmarSenhaCadastroInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; line-height:1; color:var(--ink-faint); display:flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
   </div>
   <button class="onboard-btn" onclick="cadastrarComEmail()">Criar conta</button>
   <div class="onboard-skip" onclick="voltarTelaInicialAuth()" style="margin-top:10px;">← voltar</div>
@@ -97,7 +97,7 @@
   <input type="email" id="emailLoginInput" placeholder="seu e-mail" style="width:100%; margin-bottom:8px; padding:12px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
   <div style="position:relative; margin-bottom:8px;">
     <input type="password" id="senhaLoginInput" placeholder="sua senha" style="width:100%; padding:12px; padding-right:42px; border-radius:12px; border:1px solid var(--card-b); font-family:'Nunito',sans-serif; box-sizing:border-box;" />
-    <button type="button" onclick="alternarVisibilidadeSenha('senhaLoginInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; line-height:1; color:var(--ink-faint); display:flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
+    <button type="button" onclick="alternarVisibilidadeSenha('senhaLoginInput', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; padding:4px; line-height:1; color:var(--ink-faint); display:flex;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
   </div>
   <button class="onboard-btn" onclick="entrarComEmail()">Entrar</button>
   <div class="onboard-skip" onclick="esqueciMinhaSenha()" style="margin-top:10px; font-size:12px;">esqueci minha senha</div>
@@ -151,7 +151,7 @@
           </div>
           <div class="explorar-extra-btns">
             <button class="top-icon-btn" onclick="abrirMatch()" id="matchBtnTopo" style="display:none;">
-            <svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path d="M12,20.3 C11,19.4 4.3,14.2 4.3,9.3 C4.3,6.4 6.5,4.3 9,4.3 C10.5,4.3 11.7,5 12,6 C12.3,5 13.5,4.3 15,4.3 C17.5,4.3 19.7,6.4 19.7,9.3 C19.7,14.2 13,19.4 12,20.3 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" style="color:var(--ink-dim)"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path d="M12,20.3 C11,19.4 4.3,14.2 4.3,9.3 C4.3,6.4 6.5,4.3 9,4.3 C10.5,4.3 11.7,5 12,6 C12.3,5 13.5,4.3 15,4.3 C17.5,4.3 19.7,6.4 19.7,9.3 C19.7,14.2 13,19.4 12,20.3 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="color:var(--ink-dim)"/></svg>
             </button>
             <button class="top-icon-btn" onclick="openNotifs()">
               <svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path d="M12,3.1 C9,2.9 6.9,5.4 7.2,8.4 L7,10.9 C6.9,12.2 6.2,13.3 5.3,14.1 L4.9,14.5 C4.1,15.2 4.6,16.5 5.6,16.4 L18.4,16.5 C19.4,16.6 19.8,15.3 19,14.6 L18.6,14.2 C17.6,13.3 17,12.3 16.9,11 L16.7,8.5 C17.1,5.4 15,3.3 12,3.1 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" style="color:var(--ink-dim)"/><path d="M9.5,18.1 C9.7,19.6 11.2,20.5 12.6,20.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="color:var(--ink-dim)"/></svg>
@@ -208,14 +208,14 @@
           <textarea id="refCitacao" placeholder="Trecho, citação ou o que te marcou (opcional)"></textarea>
         </div>
         <div class="composer-foot">
-          <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('composer')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
-      <button class="post-btn btn-enviar-post" id="btnPostarFeed" onclick="publicarPost()" aria-label="Postar"><svg class="icone-enviar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
+          <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('composer')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
+      <button class="post-btn btn-enviar-post" id="btnPostarFeed" onclick="publicarPost()" aria-label="Postar"><svg class="icone-enviar-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></button>
         </div>
       </div>
 
       <div class="feed-modo-row">
-        <div class="feed-modo-chip on" data-modo="interesse" onclick="trocarModoFeed('interesse')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span> Pra você</div>
-        <div class="feed-modo-chip" data-modo="recente" onclick="trocarModoFeed('recente')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M12 7.5v5l3.3 2"/></svg></span> Recentes</div>
+        <div class="feed-modo-chip on" data-modo="interesse" onclick="trocarModoFeed('interesse')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span> Pra você</div>
+        <div class="feed-modo-chip" data-modo="recente" onclick="trocarModoFeed('recente')"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M12 7.5v5l3.3 2"/></svg></span> Recentes</div>
       </div>
       <div id="feedList"></div>
 
@@ -232,12 +232,12 @@
     <!-- LIVROS -->
     <div class="screen" id="screen-livros">
       <div class="feed-modo-row-scroll feed-modo-row-livros" style="margin-top:6px;">
-        <div class="feed-modo-chip icon-only on" data-modo-livros="clube" onclick="trocarModoLivros('clube')" title="clube do livro"><span class="icon-svg" style="width:25px;height:25px;animation-duration:3.1s;animation-delay:0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.6" cy="6.4" r="2.5"/><path d="M2.9 14.6c.3-2.7 2.2-4.2 4.7-4.2s4.2 1.5 4.6 4.2"/><circle cx="16.4" cy="6.4" r="2.5"/><path d="M12.9 10.7c1-.3 2-.4 3.5-.3 2.5 0 4.4 1.5 4.7 4.2"/><path d="M3 17.4c3-1.2 6-.9 9 .7 3-1.6 6-1.9 9-.7v4c-3-1.2-6-.9-9 .7-3-1.6-6-1.9-9-.7Z"/><path d="M12 18.1v4"/></svg></span></div>
-        <div class="feed-modo-chip icon-only" data-modo-livros="comunidades" onclick="trocarModoLivros('comunidades')" title="comunidades"><span class="icon-svg" style="width:25px;height:25px;animation-duration:3.1s;animation-delay:0.05s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 2.8 7.4 12 12l9.2-4.6Z"/><path d="M2.8 12 12 16.6l9.2-4.6"/><path d="M2.8 16.6 12 21.2l9.2-4.6"/><circle cx="12" cy="7.4" r="1.1" fill="currentColor" stroke="none"/></svg></span></div>
-        <div class="feed-modo-chip icon-only" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')" title="livros gratuitos"><span class="icon-svg" style="width:25px;height:25px;animation-duration:3.1s;animation-delay:0.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 5.2c3-1.4 6-1 9.2.9v14.2c-3.2-1.9-6.2-2.3-9.2-.9Z"/><path d="M21.2 5.2c-3-1.4-6-1-9.2.9v14.2c3.2-1.9 6.2-2.3 9.2-.9Z"/><path d="M5.4 8.8c1.5-.3 3-.1 4.4.6M5.4 12.4c1.5-.3 3-.1 4.4.6M14.2 9.4c1.4-.7 2.9-.9 4.4-.6M14.2 13c1.4-.7 2.9-.9 4.4-.6"/></svg></span></div>
-        <div class="feed-modo-chip icon-only" data-modo-livros="estante" onclick="trocarModoLivros('estante')" title="minha estante"><span class="icon-svg" style="width:25px;height:25px;animation-duration:3.1s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 21.2h18.4"/><path d="M4.8 21.2V6.6a1 1 0 0 1 1-1H8a1 1 0 0 1 1 1v14.6"/><path d="M4.8 9.2H9M4.8 17H9"/><path d="M11.4 21.2V8.8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12.4"/><path d="M11.4 11.4h4M11.4 17.4h4"/><path d="M17.5 21.2V4.6a1 1 0 0 1 1-1h1.7a1 1 0 0 1 1 1v16.6"/><path d="M17.5 7.4h3.7"/></svg></span></div>
+        <div class="feed-modo-chip icon-only on" data-modo-livros="clube" onclick="trocarModoLivros('clube')" title="clube do livro"><span class="icon-svg" style="width:22px;height:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A4.5 4.5 0 0 1 21 18.5"/></svg></span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="comunidades" onclick="trocarModoLivros('comunidades')" title="comunidades"><span class="icon-svg" style="width:22px;height:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5"/></svg></span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="gratuitos" onclick="trocarModoLivros('gratuitos')" title="livros gratuitos"><span class="icon-svg" style="width:22px;height:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c3-1.5 6-1.2 9 .8 3-2 6-2.3 9-.8V19c-3-1.5-6-1.2-9 .8-3-2-6-2.3-9-.8z"/><path d="M12 6.3v13.5"/></svg></span></div>
+        <div class="feed-modo-chip icon-only" data-modo-livros="estante" onclick="trocarModoLivros('estante')" title="minha estante"><span class="icon-svg" style="width:22px;height:22px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 20V5h3v15M10.5 20V7h3v13M16 20l-1.5-12 2.8-.4L19 20"/></svg></span></div>
       </div>
-      <div class="busca-wrap" id="buscaLivrosWrap" style="display:none;"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaLivrosInput" class="busca-input" placeholder="Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" /></div>
+      <div class="busca-wrap" id="buscaLivrosWrap" style="display:none;"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaLivrosInput" class="busca-input" placeholder="Buscar um livro (título ou autor)..." oninput="aoDigitarBuscaLivros()" style="margin-bottom:12px;" /></div>
       <div id="livrosList"></div>
     </div>
 
@@ -307,8 +307,8 @@
         <div class="home-quick-row">
           <div class="home-quick-titulo-row"><div class="home-section-titulo">Diário rápido</div></div>
           <div class="home-quick-cards">
-            <div class="home-quick-card" onclick="abrirQuickSorriso()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" width="18" height="18"><circle cx="12" cy="12.2" r="4.1"/><path d="M12 3.6v2.3M12 18.3v2.3M4.8 12h2.3M16.9 12h2.3M6.9 6.9l1.6 1.6M15.5 15.5l1.6 1.6M6.9 17.3l1.6-1.6M15.5 8.7l1.6-1.6"/></svg><div>O que te fez sorrir hoje?</div></div>
-            <div class="home-quick-card alt" onclick="abrirQuickGratidao()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/></svg><div>Uma coisa que você é grato(a) hoje.</div></div>
+            <div class="home-quick-card" onclick="abrirQuickSorriso()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18"><circle cx="12" cy="12.2" r="4.1"/><path d="M12 3.6v2.3M12 18.3v2.3M4.8 12h2.3M16.9 12h2.3M6.9 6.9l1.6 1.6M15.5 15.5l1.6 1.6M6.9 17.3l1.6-1.6M15.5 8.7l1.6-1.6"/></svg><div>O que te fez sorrir hoje?</div></div>
+            <div class="home-quick-card alt" onclick="abrirQuickGratidao()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 20.2s-7-4.3-9.4-8.5C1 8.5 2 5.2 5.2 4.2c1.9-.6 3.9.1 5 1.7l1.8 2.6 1.8-2.6c1.1-1.6 3.1-2.3 5-1.7 3.2 1 4.2 4.3 2.6 7.5-2.4 4.2-9.4 8.5-9.4 8.5Z"/></svg><div>Uma coisa que você é grato(a) hoje.</div></div>
           </div>
         </div>
         </div>
@@ -470,7 +470,7 @@
     <div class="composer-glass-bg glass-top" id="perfilInfoOverlay" onclick="if(event.target===this) closeOverlay('perfilInfoOverlay')">
      <div class="composer-glass-card perfil-info-glass-card">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('perfilInfoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('perfilInfoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px; flex:1;">Perfil</h2>
         <button class="back-btn" onclick="closeOverlay('perfilInfoOverlay'); openConfig();" aria-label="Ajustes" title="Ajustes"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3.6V6M12 18v2.4M20.4 12H18M6 12H3.6M17.9 6.1l-1.7 1.7M7.8 16.2l-1.7 1.7M17.9 17.9l-1.7-1.7M7.8 7.8L6.1 6.1"/></svg></span></button>
       </div>
@@ -481,7 +481,7 @@
           <h2 id="profNome" style="font-family:'Fraunces', serif; font-size:18px; margin:0;">ana_art</h2>
           <div class="handle" id="profHandle">@ana_art</div>
         </div>
-        <button class="edit-profile-btn" onclick="abrirEditarPerfil()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l.7-3.4L15.9 5.4a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2L7.2 19.1l-3.4.7Z"/><path d="M14 7.5l2.9 2.9"/></svg></span> Editar</button>
+        <button class="edit-profile-btn" onclick="abrirEditarPerfil()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l.7-3.4L15.9 5.4a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2L7.2 19.1l-3.4.7Z"/><path d="M14 7.5l2.9 2.9"/></svg></span> Editar</button>
       </div>
 
       <div class="perfil-info-stats-row">
@@ -491,8 +491,8 @@
       </div>
 
       <div class="bio-box" id="profBio">poemas, croquis e pensamentos soltos ✏️</div>
-      <div class="streak-chip" onclick="abrirPerguntasPendentes()" style="margin-top:6px;"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.4s;animation-delay:0.5s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> perguntas anônimas <span id="perguntasPendentesBadge" style="display:none; background:var(--accent-a); color:#fff; border-radius:999px; padding:1px 7px; font-size:10px; margin-left:4px;">0</span></div>
-      <div class="streak-chip" onclick="abrirSalvos()" style="margin-top:6px; margin-left:4px;"><span class="icon-svg" style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.4c3.4-.3 6.7-.3 10 .1.4 0 .7.4.7.8l-.2 14.1-5.6-3.7-5.4 3.8-.2-14.2c0-.5.3-.9.7-.9Z"/></svg></span> salvos</div>
+      <div class="streak-chip" onclick="abrirPerguntasPendentes()" style="margin-top:6px;"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.4s;animation-delay:0.5s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> perguntas anônimas <span id="perguntasPendentesBadge" style="display:none; background:var(--accent-a); color:#fff; border-radius:999px; padding:1px 7px; font-size:10px; margin-left:4px;">0</span></div>
+      <div class="streak-chip" onclick="abrirSalvos()" style="margin-top:6px; margin-left:4px;"><span class="icon-svg" style="width:13px;height:13px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.4c3.4-.3 6.7-.3 10 .1.4 0 .7.4.7.8l-.2 14.1-5.6-3.7-5.4 3.8-.2-14.2c0-.5.3-.9.7-.9Z"/></svg></span> salvos</div>
       <div class="home-diario-streak-wrap perfil-streak-wrap">
         <div class="home-diario-streak" id="homeDiarioStreak" onclick="alternarArcoIrisPilula()" title="toque pra colorir sua sequência">
           <div class="streak-fill" id="streakFill"></div>
@@ -506,7 +506,7 @@
     <!-- OVERLAY: PERGUNTAS ANÔNIMAS PENDENTES -->
     <div class="dm-chat-overlay" id="perguntasPendentesOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('perguntasPendentesOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('perguntasPendentesOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Perguntas anônimas</h2>
       </div>
       <div id="perguntasPendentesList" style="overflow-y:auto;"></div>
@@ -516,7 +516,7 @@
     <div class="composer-glass-bg glass-top" id="notifOverlay" onclick="if(event.target===this) closeOverlay('notifOverlay')">
       <div class="composer-glass-card popup-glass-scroll">
         <div class="dm-chat-header">
-          <button class="back-btn" onclick="closeOverlay('notifOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+          <button class="back-btn" onclick="closeOverlay('notifOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
           <h2 style="font-size:16px; flex:1;">Notificações</h2>
         </div>
         <div id="notifList" style="overflow-y:auto;"></div>
@@ -526,8 +526,8 @@
     <!-- POP-UP: DENUNCIAR -->
 <div class="write-popup-bg" id="denunciarPopupBg">
   <div class="write-popup" style="position:relative;">
-    <button class="write-popup-close" onclick="document.getElementById('denunciarPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
-    <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span></span><span class="write-popup-title">Denunciar</span></div>
+    <button class="write-popup-close" onclick="document.getElementById('denunciarPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+    <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.45s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span></span><span class="write-popup-title">Denunciar</span></div>
     <div class="share-option" onclick="enviarDenuncia('Spam')">Spam</div>
     <div class="share-option" onclick="enviarDenuncia('Conteúdo ofensivo')">Conteúdo ofensivo</div>
     <div class="share-option" onclick="enviarDenuncia('Assédio')">Assédio</div>
@@ -538,7 +538,7 @@
 <!-- OVERLAY: REORDENAR TIPOS -->
 <div class="dm-chat-overlay" id="reordenarTiposOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('reordenarTiposOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('reordenarTiposOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px;">Reordenar tipos</h2>
   </div>
   <div class="visitor-lock-note" style="margin-bottom:10px;">Use as setas pra reordenar. Toque no ✕ pra esconder um tipo do composer.</div>
@@ -548,7 +548,7 @@
 <!-- OVERLAY: BLOQUEADOS -->
 <div class="dm-chat-overlay" id="bloqueadosOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('bloqueadosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('bloqueadosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px;">Pessoas bloqueadas</h2>
   </div>
   <div id="bloqueadosList"></div>
@@ -558,7 +558,7 @@
 <div class="composer-glass-bg glass-top" id="matchOverlay" onclick="if(event.target===this) closeOverlay('matchOverlay')">
   <div class="composer-glass-card popup-glass-scroll">
     <div class="dm-chat-header">
-      <button class="back-btn" onclick="closeOverlay('matchOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+      <button class="back-btn" onclick="closeOverlay('matchOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
       <h2 style="font-size:16px; flex:1;">Match</h2>
     </div>
     <div class="visitor-lock-note" style="margin-bottom:14px;">Gente com gosto parecido com o seu. Se as duas curtirem, vira conversa 💬</div>
@@ -569,14 +569,14 @@
     <!-- OVERLAY: PERFIL DE OUTRA PESSOA -->
 <div class="dm-chat-overlay" id="perfilAlheioOverlay">
   <div class="dm-chat-header" style="position:relative;">
-    <button class="back-btn" onclick="closeOverlay('perfilAlheioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('perfilAlheioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1;" id="perfilAlheioTitulo">Perfil</h2>
     <button class="back-btn" onclick="event.stopPropagation(); togglePerfilAlheioMenu()">⋮</button>
     <div id="perfilAlheioMenu" style="display:none; position:absolute; top:42px; right:0; background:var(--card); border:1px solid var(--card-b); border-radius:12px; box-shadow:var(--shadow); z-index:5; overflow:hidden; min-width:170px;">
-      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px;" onclick="fecharPerfilAlheioMenu(); enviarDmDoPerfilAlheio();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.65s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/></svg></span> Enviar DM</div>
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px;" onclick="fecharPerfilAlheioMenu(); enviarDmDoPerfilAlheio();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.65s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.2 6.8c0-1.4 1.1-2.5 2.5-2.5h10.6c1.4 0 2.5 1.1 2.5 2.5v6.7c0 1.4-1.1 2.5-2.5 2.5H9.5L5 19.5v-3.5H6.7c-1.4 0-2.5-1.1-2.5-2.5Z"/></svg></span> Enviar DM</div>
       <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" id="perfilAlheioFavoritarBtn" onclick="fecharPerfilAlheioMenu(); favoritarUsuarioAtual();"></div>
-      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Bloquear</div>
-      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--raiva); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" onclick="denunciarUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.9s;animation-delay:1.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span> Denunciar</div>
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--ink); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" id="perfilAlheioBloquearBtn" onclick="fecharPerfilAlheioMenu(); bloquearUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:4.15s;animation-delay:1.98s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> Bloquear</div>
+      <div style="padding:12px 16px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--raiva); display:flex; align-items:center; gap:7px; border-top:1px solid var(--card-b);" onclick="denunciarUsuarioAtual();"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.9s;animation-delay:1.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span> Denunciar</div>
     </div>
   </div>
   <div style="flex:1; overflow-y:auto;">
@@ -601,7 +601,7 @@
   <div class="selos-perfil-row" id="perfilAlheioSelos"></div>
   <div style="display:flex; gap:8px; margin-top:10px;">
     <button class="seguir-btn" id="perfilAlheioSeguirBtn" onclick="seguirDoOverlay()" style="flex:1; padding:9px 12px;"></button>
-    <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()" style="flex:1; padding:9px 12px;"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> pergunta anônima</button>
+    <button class="seguir-btn pendente" onclick="abrirPerguntaAnonima()" style="flex:1; padding:9px 12px;"><span class="icon-svg" style="width:13px;height:13px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span> pergunta anônima</button>
   </div>
   <div id="perfilAlheioPosts" style="margin-top:18px;"></div>
   <div id="perfilAlheioPerguntasArea" style="margin-top:16px;"></div>
@@ -612,7 +612,7 @@
 <!-- OVERLAY: PRÉVIA DE LIVRO -->
 <div class="dm-chat-overlay" id="livroPreviewOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('livroPreviewOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('livroPreviewOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px;" id="livroPreviewTitulo">Prévia</h2>
   </div>
   <div id="livroPreviewCorpo" style="overflow-y:auto; flex:1;"></div>
@@ -626,9 +626,9 @@
      e fica só a folha. Apagar, compartilhar e PDF moram no menu "⋯" do topo. -->
 <div class="dm-chat-overlay" id="meuDiarioOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('meuDiarioOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('meuDiarioOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <span class="folhas-indicador" id="folhasIndicador"></span>
-    <button class="back-btn lampada-ideia-btn" onclick="abrirEtimologia()" aria-label="Palavra do dia" title="Palavra do dia"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.3 17.2c0-1.6-.6-2.5-1.5-3.6a5.2 5.2 0 1 1 8.4 0c-.9 1.1-1.5 2-1.5 3.6Z" fill="currentColor" fill-opacity=".18"/><path d="M9.6 19.4h4.8M10.4 21.3h3.2"/><path class="raio" d="M12 1.6v1.6M4.6 4.7l1.1 1.1M19.4 4.7l-1.1 1.1M2.6 11h1.5M19.9 11h1.5"/></svg></span></button>
+    <button class="back-btn lampada-ideia-btn" onclick="abrirEtimologia()" aria-label="Palavra do dia" title="Palavra do dia"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.3 17.2c0-1.6-.6-2.5-1.5-3.6a5.2 5.2 0 1 1 8.4 0c-.9 1.1-1.5 2-1.5 3.6Z" fill="currentColor" fill-opacity=".18"/><path d="M9.6 19.4h4.8M10.4 21.3h3.2"/><path class="raio" d="M12 1.6v1.6M4.6 4.7l1.1 1.1M19.4 4.7l-1.1 1.1M2.6 11h1.5M19.9 11h1.5"/></svg></span></button>
     <button class="back-btn bau-pandora-btn" onclick="abrirCaixinhaPandora()" title="Caixinha de Pandora"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 11.2c0-3.5 3-6.1 8.7-6.1s8.7 2.6 8.7 6.1"/><path d="M3 11.3h18v6.4A1.8 1.8 0 0 1 19.2 19.5H4.8A1.8 1.8 0 0 1 3 17.7v-6.4Z"/><path d="M3 13.6h18"/><circle cx="12" cy="14.6" r="1.7" fill="currentColor" stroke="none"/><path d="M12 15.9v1.1"/><circle cx="5.9" cy="14.5" r=".5" fill="currentColor" stroke="none"/><circle cx="18.1" cy="14.5" r=".5" fill="currentColor" stroke="none"/></svg></span></button>
     <button class="back-btn letra-diario-btn" onclick="abrirLetraDiario()" id="letraDiarioBtn" aria-label="Trocar a letra">Aa</button>
     <button class="back-btn" onclick="abrirMenuDiario()" id="diarioMenuBtn" aria-label="Mais opções"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg></span></button>
@@ -680,7 +680,7 @@
 <!-- TELA: PALAVRA DO DIA (etimologia em forma de arvore; cada folha e um dia) -->
 <div class="dm-chat-overlay" id="etimologiaOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('etimologiaOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('etimologiaOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;" id="etimoTitulo">Palavra do dia</h2>
   </div>
   <div class="etimo-pagina">
@@ -701,7 +701,7 @@
 <!-- OVERLAY: CAIXINHA DE PANDORA (motivos guardados de triste/ansiosa/brava) -->
 <div class="dm-chat-overlay" id="pandoraOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('pandoraOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('pandoraOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Caixinha de Pandora</h2>
   </div>
   <div class="visitor-lock-note" style="margin-bottom:14px;">Tudo que você guardou sobre o que te deixou triste, ansiosa ou brava — só você vê isso aqui. Releia quando quiser, ou apague quando não quiser mais carregar.</div>
@@ -711,7 +711,7 @@
 <!-- OVERLAY: RESPOSTAS DO PEDIDO DE APOIO -->
 <div class="dm-chat-overlay" id="respostasApoioOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('respostasApoioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('respostasApoioOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Quem te respondeu</h2>
   </div>
   <div id="respostasApoioList" style="overflow-y:auto;"></div>
@@ -737,7 +737,7 @@
 <!-- OVERLAY: DIARIO RAPIDO - O QUE TE FEZ SORRIR HOJE -->
 <div class="dm-chat-overlay" id="quickSorrisoOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="fecharQuickSorriso()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="fecharQuickSorriso()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Diário rápido</h2>
   </div>
   <div class="quick-diario-scroll">
@@ -776,7 +776,7 @@
     </div>
 
     <div class="edit-field-label">ou um estilo (busca no Deezer)</div>
-    <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaEstiloRadioInput" class="busca-input" placeholder="ex: indie, mpb, lo-fi..." oninput="buscarEstiloRadioReal()" /></div>
+    <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaEstiloRadioInput" class="busca-input" placeholder="ex: indie, mpb, lo-fi..." oninput="buscarEstiloRadioReal()" /></div>
     <div id="resultadosEstiloRadio" style="max-height:220px; overflow-y:auto; margin-top:6px;"></div>
     <button class="livro-link-externo" style="margin:10px 0 0; justify-content:center;" onclick="limparEstiloRadio()">voltar pro top do momento</button>
   </div>
@@ -826,7 +826,7 @@
 <!-- TELA: POSTS SALVOS (favoritos, privados) -->
 <div class="dm-chat-overlay" id="salvosOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="closeOverlay('salvosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="closeOverlay('salvosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1;" id="salvosTitulo">Salvos</h2>
   </div>
   <div id="salvosList" style="flex:1; overflow-y:auto;"></div>
@@ -921,7 +921,7 @@
 <!-- OVERLAY: DIARIO RAPIDO - GRATIDAO (GRADE DE 1, 2 OU 3 FOTOS) -->
 <div class="dm-chat-overlay" id="quickGratidaoOverlay">
   <div class="dm-chat-header">
-    <button class="back-btn" onclick="fecharQuickGratidao()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+    <button class="back-btn" onclick="fecharQuickGratidao()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Diário rápido</h2>
   </div>
   <div class="quick-diario-scroll">
@@ -950,13 +950,13 @@
 
     <div class="dm-chat-overlay" id="editarPerfilOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('editarPerfilOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('editarPerfilOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Editar perfil</h2>
       </div>
             <div style="text-align:center; margin:10px 0;">
         <img id="editAvatarPreview" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:none; margin-bottom:8px;" />
         <div id="editAvatarInfo" style="display:none; font-size:11.5px; color:var(--ink-faint); margin:-2px 0 8px;"></div>
-        <span class="upload-foto-icon" style="margin:0 auto; display:flex; cursor:pointer;" onclick="abrirEscolherFoto('avatar')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
+        <span class="upload-foto-icon" style="margin:0 auto; display:flex; cursor:pointer;" onclick="abrirEscolherFoto('avatar')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
       <input type="file" id="editAvatarInput" accept="image/*" onchange="previewAvatarEscolhido(this)" style="display:none;" />
       <input type="file" id="editAvatarInputCamera" accept="image/*" capture="environment" onchange="previewAvatarEscolhido(this)" style="display:none;" />
       </div>
@@ -974,7 +974,7 @@
     <!-- OVERLAY: CRIAR CLUBE DO LIVRO -->
     <div class="dm-chat-overlay" id="criarClubeOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('criarClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('criarClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Criar clube do livro</h2>
       </div>
       <div class="edit-field-label">Nome do clube</div>
@@ -984,7 +984,8 @@
       <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim); position:relative;">
         <input type="checkbox" id="criarClubePrivado" class="check-custom-input" /><span class="check-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> clube privado (só quem você convidar)
       </label>
-      <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovoClube()">Criar clube</button>
+      <!-- kit item 5: ação principal da tela = terracota cheia, com ícone -->
+      <button class="btn-acao btn-acao-terracota largo" onclick="salvarNovoClube()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>Criar clube</button>
     </div>
 
     <!-- POPUP: ESCREVER NO EXPLORAR (vidro) -->
@@ -998,8 +999,8 @@
         <img id="composerExplorarFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
         <video id="composerExplorarFotoPreviewVideo" controls style="max-width:100%; max-height:220px; border-radius:12px; display:none; margin:6px 0; background:#000;"></video>
         <div class="composer-glass-foot">
-          <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('explorar')"><span class="icon-svg" style="width:18px;height:18px;animation-duration:3.45s;animation-delay:1.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
-          <button class="composer-glass-send" id="btnPostarExplorar" onclick="publicarPostExplorar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
+          <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('explorar')"><span class="icon-svg" style="width:18px;height:18px;animation-duration:3.45s;animation-delay:1.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
+          <button class="composer-glass-send" id="btnPostarExplorar" onclick="publicarPostExplorar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></button>
         </div>
       </div>
     </div>
@@ -1012,11 +1013,11 @@
         <path class="scribble-marca" d="M6,47 C3,37 29,34 53,36 C71,29 95,44 91,54 C97,57 73,67 47,60 C25,72 2,55 6,47 Z" transform="rotate(95 50 50)"/>
       </svg>
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="fecharClubeDetalhe()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="fecharClubeDetalhe()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="clubeDetalheTitulo">Clube</h2>
         <div class="clube-header-icons" id="clubeDetalheHeaderIcones" style="display:none;"></div>
         <div class="clube-overflow-wrap" id="clubeDetalheOverflowWrap" style="display:none;">
-          <button class="clube-overflow-btn" onclick="toggleClubeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
+          <button class="clube-overflow-btn" onclick="toggleClubeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
           <div class="clube-overflow-menu" id="clubeDetalheOverflowMenu">
             <div class="item" onclick="toggleClubeOverflowMenu(); sairDoClube();">sair do clube</div>
           </div>
@@ -1032,12 +1033,12 @@
 
       <div id="clubeDetalheComposerWrap" style="margin-top:10px;">
         <div class="dm-input-row">
-          <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('clube')"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.2s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
-          <button class="dm-send-btn" id="btnGravarAudioMuralClube" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudioMural('clube')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
+          <button class="btn-icone" aria-label="Foto" onclick="abrirEscolherFoto('clube')"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.2s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></button>
+          <button class="btn-icone" aria-label="Gravar áudio" id="btnGravarAudioMuralClube" onclick="alternarGravacaoAudioMural('clube')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span></button>
           <textarea id="clubeComposerText" placeholder="o que você achou até aqui?" rows="2"
             style="flex:1; background:var(--card); background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; min-height:44px; max-height:140px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralClube(); }"></textarea>
-          <button class="dm-send-btn" onclick="publicarNoMuralClube()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
+          <button class="btn-icone terracota ativo" aria-label="Enviar" onclick="publicarNoMuralClube()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></span></button>
         </div>
       </div>
     </div>
@@ -1045,11 +1046,11 @@
     <!-- OVERLAY: DETALHE DE COMUNIDADE DE ESTUDO -->
     <div class="dm-chat-overlay" id="comunidadeDetalheOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('comunidadeDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('comunidadeDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="comunidadeDetalheTitulo">Comunidade</h2>
         <div class="clube-header-icons" id="comunidadeDetalheHeaderIcones" style="display:none;"></div>
         <div class="clube-overflow-wrap" id="comunidadeDetalheOverflowWrap" style="display:none;">
-          <button class="clube-overflow-btn" onclick="toggleComunidadeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
+          <button class="clube-overflow-btn" onclick="toggleComunidadeOverflowMenu()"><span class="icon-svg" style="width:16px;height:16px;animation-duration:3.1s;animation-delay:0.3s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="18.5" r=".9" fill="currentColor" stroke="none"/></svg></span></button>
           <div class="clube-overflow-menu" id="comunidadeDetalheOverflowMenu">
             <div class="item" id="comunidadeMenuEditarPrazo" style="display:none;" onclick="toggleComunidadeOverflowMenu(); abrirEditarPrazoComunidade();">editar prazo</div>
             <div class="item" onclick="toggleComunidadeOverflowMenu(); abrirMembrosComunidade();">ver membros</div>
@@ -1065,12 +1066,12 @@
       <div id="comunidadeDetalheMural" style="overflow-y:auto; flex:1; padding-bottom:74px;"></div>
       <div id="comunidadeDetalheComposerWrap" style="position:absolute; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom));">
         <div class="dm-input-row">
-          <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="abrirEscolherFoto('comunidade')"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></button>
-          <button class="dm-send-btn" id="btnGravarAudioMuralComunidade" style="background:var(--accent-soft); color:var(--accent-a);" onclick="alternarGravacaoAudioMural('comunidade')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
+          <button class="btn-icone" aria-label="Foto" onclick="abrirEscolherFoto('comunidade')"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></button>
+          <button class="btn-icone" aria-label="Gravar áudio" id="btnGravarAudioMuralComunidade" onclick="alternarGravacaoAudioMural('comunidade')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span></button>
           <textarea id="comunidadeComposerText" placeholder="o que você quer compartilhar com a comunidade?" rows="2"
             style="flex:1; background:color-mix(in srgb, var(--card) 62%, transparent); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid color-mix(in srgb, var(--card-b) 65%, transparent); border-radius:18px; padding:10px 14px; color:var(--ink); font-family:'Nunito', sans-serif; font-size:13px; outline:none; resize:none; min-height:44px; max-height:140px;"
             onkeydown="if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); publicarNoMuralComunidadeEstudo(); }"></textarea>
-          <button class="dm-send-btn" onclick="publicarNoMuralComunidadeEstudo()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></button>
+          <button class="btn-icone terracota ativo" aria-label="Enviar" onclick="publicarNoMuralComunidadeEstudo()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></button>
         </div>
       </div>
     </div>
@@ -1078,12 +1079,12 @@
     <!-- OVERLAY: CRIAR COMUNIDADE DE ESTUDO -->
     <div class="dm-chat-overlay" id="criarComunidadeEstudoOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('criarComunidadeEstudoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('criarComunidadeEstudoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Criar comunidade de estudo</h2>
       </div>
       <div class="comunidade-capa-picker" id="comunidadeCapaPickerWrap" onclick="document.getElementById('comunidadeCapaInput').click()">
         <img id="comunidadeCapaPreview" style="display:none;" />
-        <div class="comunidade-capa-picker-vazio" id="comunidadeCapaPickerVazio"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span> adicionar capa (opcional)</div>
+        <div class="comunidade-capa-picker-vazio" id="comunidadeCapaPickerVazio"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span> adicionar capa (opcional)</div>
       </div>
       <input type="file" id="comunidadeCapaInput" accept="image/*" onchange="previewCapaComunidade(this)" style="display:none;" />
       <div class="edit-field-label">Nome da comunidade</div>
@@ -1100,20 +1101,20 @@
       </div>
       <div class="edit-field-label">Prazo (opcional)</div>
       <input type="date" id="criarComunidadeEstudoPrazo" style="display:none;" />
-      <button type="button" class="data-picker-btn" id="criarComunidadeEstudoPrazoBtn" onclick="abrirCalendarioPicker('criarComunidadeEstudoPrazo')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="14" rx="2.4"/><path d="M4 10.5h16"/><path d="M8.3 4v4M15.7 4v4"/></svg></span><span id="criarComunidadeEstudoPrazoTxt" data-placeholder="escolher data (opcional)">escolher data (opcional)</span></button>
+      <button type="button" class="data-picker-btn" id="criarComunidadeEstudoPrazoBtn" onclick="abrirCalendarioPicker('criarComunidadeEstudoPrazo')"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="14" rx="2.4"/><path d="M4 10.5h16"/><path d="M8.3 4v4M15.7 4v4"/></svg></span><span id="criarComunidadeEstudoPrazoTxt" data-placeholder="escolher data (opcional)">escolher data (opcional)</span></button>
       <label style="display:flex; align-items:center; gap:8px; margin:12px 0; cursor:pointer; font-size:13px; color:var(--ink-dim); position:relative;">
         <input type="checkbox" id="criarComunidadeEstudoPrivada" class="check-custom-input" /><span class="check-mini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4 10-10"/></svg></span> comunidade privada (só quem você convidar)
       </label>
-      <button class="post-btn" style="width:100%; padding:12px;" onclick="salvarNovaComunidadeEstudo()">Criar comunidade</button>
+      <button class="btn-acao btn-acao-terracota largo" onclick="salvarNovaComunidadeEstudo()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>Criar comunidade</button>
     </div>
 
     <!-- POPUP: SELETOR DE DATA (calendario proprio, com a cara do app -- reutilizado por qualquer campo de data) -->
     <div class="calendario-popup-overlay" id="calendarioPopupOverlay" onclick="if (event.target === this) fecharCalendarioPicker()">
       <div class="calendario-popup-card">
         <div class="calendario-popup-header">
-          <button type="button" class="calendario-nav-btn" onclick="calendarioMudarMes(-1)"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+          <button type="button" class="calendario-nav-btn" onclick="calendarioMudarMes(-1)"><span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
           <div class="calendario-popup-titulo" id="calendarioPopupTitulo">-</div>
-          <button type="button" class="calendario-nav-btn" onclick="calendarioMudarMes(1)"><span class="icon-svg" style="width:16px;height:16px; transform:scaleX(-1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+          <button type="button" class="calendario-nav-btn" onclick="calendarioMudarMes(1)"><span class="icon-svg" style="width:16px;height:16px; transform:scaleX(-1);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         </div>
         <div class="calendario-popup-semana"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
         <div class="calendario-popup-grade" id="calendarioPopupGrade"></div>
@@ -1128,7 +1129,7 @@
     <!-- OVERLAY: MEMBROS DO CLUBE DO LIVRO -->
     <div class="dm-chat-overlay" id="clubeMembrosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('clubeMembrosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('clubeMembrosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Membros</h2>
       </div>
       <div id="clubeMembrosLista" style="overflow-y:auto; flex:1;"></div>
@@ -1136,7 +1137,7 @@
 
     <div class="dm-chat-overlay" id="comunidadeMembrosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('comunidadeMembrosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('comunidadeMembrosOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Membros</h2>
       </div>
       <div id="comunidadeMembrosLista" style="overflow-y:auto; flex:1;"></div>
@@ -1145,7 +1146,7 @@
     <!-- OVERLAY: RANKING DE LEITURA DA COMUNIDADE -->
     <div class="dm-chat-overlay" id="comunidadeRankingOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('comunidadeRankingOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('comunidadeRankingOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Ranking de leitura</h2>
       </div>
       <div class="ranking-periodo-row" id="comunidadeRankingPeriodoRow"></div>
@@ -1155,7 +1156,7 @@
     <!-- OVERLAY: DETALHE DE LIVRO DA ESTANTE AUTORAL -->
     <div class="dm-chat-overlay" id="livroAutoralDetalheOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('livroAutoralDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('livroAutoralDetalheOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Livro</h2>
       </div>
       <div id="livroAutoralDetalheConteudo" style="overflow-y:auto; flex:1;"></div>
@@ -1164,7 +1165,7 @@
     <!-- OVERLAY: ENVIAR LIVRO PRA ESTANTE AUTORAL -->
     <div class="dm-chat-overlay" id="enviarLivroAutoralOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('enviarLivroAutoralOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('enviarLivroAutoralOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Publicar livro</h2>
       </div>
       <div style="overflow-y:auto; flex:1;">
@@ -1208,7 +1209,7 @@
          veem a seta parar na mesma pessoa. -->
     <div class="sala-estudo-overlay" id="salaEstudoOverlay">
       <div class="sala-header-row">
-        <button class="back-btn" onclick="sairSalaEstudo()" aria-label="Sair da mesa"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="sairSalaEstudo()" aria-label="Sair da mesa"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:14.5px; flex:1;" id="salaEstudoTitulo">Clube</h2>
         <div class="sala-live-pill"><span class="live-dot"></span> ao vivo</div>
       </div>
@@ -1242,7 +1243,7 @@
 
       <div class="sala-controles-bar">
         <button class="sala-ctrl-btn on" id="salaBtnMic" onclick="toggleMicSalaEstudo()" aria-label="Microfone"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span></button>
-        <button class="btn-acao btn-acao-terracota mesa-girar-btn" id="mesaBtnGirar" onclick="girarRoletaMesa()">
+        <button class="btn-acao btn-acao-contorno-terracota mesa-girar-btn" id="mesaBtnGirar" onclick="girarRoletaMesa()">
           <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg></span>
           girar roleta
         </button>
@@ -1253,7 +1254,7 @@
     <!-- OVERLAY: BUSCAR LIVRO GUIA (GOOGLE) PRO CLUBE -->
     <div class="dm-chat-overlay" id="buscaLivroClubeOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('buscaLivroClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('buscaLivroClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="buscaLivroClubeTitulo">Definir livro atual</h2>
       </div>
       <input type="text" id="buscaGuiaClubeInput" class="busca-input" placeholder="Buscar por título ou autor..." oninput="aoDigitarGuiaClube()" style="margin-bottom:12px;" />
@@ -1263,26 +1264,27 @@
     <!-- OVERLAY: CONVIDAR PRO CLUBE -->
     <div class="dm-chat-overlay" id="compartilharClubeOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('compartilharClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('compartilharClubeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Convidar pro clube</h2>
       </div>
       <div class="bio-box" id="compartilharClubeResumo" style="margin-bottom:16px;"></div>
-      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharClubeWhatsapp()">📱 WhatsApp</button>
-      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharClubeTelegram()">✈️ Telegram</button>
-      <button class="post-btn" style="width:100%;" onclick="compartilharClubeCopiar()">🔗 Copiar link</button>
+      <!-- kit item 6: três opções iguais = três contornos sálvia, com ícones de traço (sem emoji) -->
+      <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharClubeWhatsapp()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 7 0 1 1 3 5.5L4 19l1-3.3A6.6 6.6 0 0 1 4 12z"/></svg></span>WhatsApp</button>
+      <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharClubeTelegram()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg></span>Telegram</button>
+      <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharClubeCopiar()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>Copiar link</button>
       <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
     </div>
 
     <!-- OVERLAY: CONVIDAR PRA COMUNIDADE DE ESTUDO -->
     <div class="dm-chat-overlay" id="compartilharComunidadeOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('compartilharComunidadeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('compartilharComunidadeOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Convidar pra comunidade</h2>
       </div>
       <div class="bio-box" id="compartilharComunidadeResumo" style="margin-bottom:16px;"></div>
-      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharComunidadeWhatsapp()">📱 WhatsApp</button>
-      <button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="compartilharComunidadeTelegram()">✈️ Telegram</button>
-      <button class="post-btn" style="width:100%;" onclick="compartilharComunidadeCopiar()">🔗 Copiar link</button>
+      <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharComunidadeWhatsapp()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 7 0 1 1 3 5.5L4 19l1-3.3A6.6 6.6 0 0 1 4 12z"/></svg></span>WhatsApp</button>
+      <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharComunidadeTelegram()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg></span>Telegram</button>
+      <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharComunidadeCopiar()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>Copiar link</button>
       <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
     </div>
 
@@ -1290,7 +1292,7 @@
     <!-- OVERLAY: LEITOR DE EPUB -->
     <div class="dm-chat-overlay" id="leitorEpubOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="fecharLeitorEpub()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="fecharLeitorEpub()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="leitorEpubTitulo">Lendo</h2>
         <span id="leitorEpubProgresso" style="margin-left:auto; font-size:12px; color:var(--ink-faint);">0%</span>
       </div>
@@ -1307,7 +1309,7 @@
     <!-- OVERLAY: LEITOR DE LIVRO (Gutendex, texto integral, folheável) -->
     <div class="dm-chat-overlay" id="leitorLivroOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="fecharLeitorLivro()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="fecharLeitorLivro()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="leitorLivroTitulo">Lendo</h2>
         <span id="leitorLivroProgresso" style="margin-left:auto; font-size:12px; color:var(--ink-faint);"></span>
       </div>
@@ -1320,7 +1322,7 @@
     <!-- OVERLAY: CRIAR CITAÇÃO -->
     <div class="dm-chat-overlay" id="citacaoCartaoOverlay" style="overflow-y:auto;">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('citacaoCartaoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('citacaoCartaoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Criar citação</h2>
       </div>
       <div class="edit-field-label">Trecho do livro</div>
@@ -1345,34 +1347,34 @@
     <!-- OVERLAY: COMENTÁRIOS -->
     <div class="dm-chat-overlay" id="comentariosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('comentariosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('comentariosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Comentários</h2>
       </div>
       <div class="post" id="comentariosPostOriginal" style="margin-bottom:14px;"></div>
       <div id="comentariosList" style="overflow-y:auto; flex:1; margin-bottom:10px;"></div>
       <div class="dm-input-row">
         <input type="text" id="comentarioInput" placeholder="Escreva um comentário..." />
-        <button class="dm-send-btn" onclick="enviarComentario()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
+        <button class="dm-send-btn" onclick="enviarComentario()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></span></button>
       </div>
     </div>
 
     <!-- POP-UP: DETALHE DA SEQUÊNCIA -->
     <div class="write-popup-bg" id="sequenciaPopupBg" onclick="if (event.target === this) fecharSequenciaPopup();">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharSequenciaPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <button class="write-popup-close" onclick="fecharSequenciaPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="icon-svg pe" style="width:20px;height:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="7.3"/><path d="M5.5 10c3.4 2 9.6 2 13 0M4.9 14.5c4 2.3 10.2 2.3 14.2 0M7.3 18c2.6 1.3 6.8 1.3 9.4 0"/></svg></span><span class="write-popup-title">Sua sequência</span></div>
         <div class="sequencia-numero"><span id="seqPopupNum">4</span> dias seguidos</div>
         <div class="sequencia-progresso-track"><div class="sequencia-progresso-fill" id="seqProgressFill"></div></div>
         <div class="sequencia-progresso-label" id="seqProgressLabel">3 dias pro seu primeiro marco (7 dias)</div>
         <div class="sequencia-protecao">Sua sequência conta os dias seguidos em que você escreveu algo — hoje ou ontem, sem pular. Escreva todo dia pra manter ela viva.</div>
-        <button class="post-btn" style="width:100%; margin-top:10px; padding:11px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="abrirColecaoSelos()"><span class="icon-svg" style="width:15px;height:15px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M3.5 9h17M8 4v5M16 4v5"/></svg></span> Ver coleção de selos</button>
+        <button class="post-btn" style="width:100%; margin-top:10px; padding:11px; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="abrirColecaoSelos()"><span class="icon-svg" style="width:15px;height:15px;color:#fff;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M3.5 9h17M8 4v5M16 4v5"/></svg></span> Ver coleção de selos</button>
       </div>
     </div>
 
     <!-- OVERLAY: COLEÇÃO DE SELOS -->
     <div class="dm-chat-overlay" id="colecaoSelosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('colecaoSelosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('colecaoSelosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Coleção de selos</h2>
       </div>
       <div class="selos-sub" id="selosSub">0 de 20 selos desbloqueados</div>
@@ -1402,7 +1404,7 @@
     <!-- POP-UP: TRAILER -->
 <div class="write-popup-bg" id="trailerPopupBg">
   <div class="write-popup" style="position:relative; padding-bottom:0;">
-    <button class="write-popup-close" onclick="fecharTrailerPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+    <button class="write-popup-close" onclick="fecharTrailerPopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     <div class="write-popup-head"><span class="pe">🎬</span><span class="write-popup-title" id="trailerPopupTituloTexto">Prévia</span></div>
     <div id="trailerCorpo"></div>
   </div>
@@ -1411,15 +1413,15 @@
     <!-- POP-UP: COMPARTILHAR -->
     <div class="write-popup-bg" id="compartilharPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharCompartilhar()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
-        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 16 8"/><path d="M9.5 8H16v6.5"/></svg></span></span><span class="write-popup-title">Compartilhar</span></div>
+        <button class="write-popup-close" onclick="fecharCompartilhar()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 16 8"/><path d="M9.5 8H16v6.5"/></svg></span></span><span class="write-popup-title">Compartilhar</span></div>
         <div id="compartilharOpcoesPrincipais">
-          <div class="share-option" onclick="repostarNoFeed()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/></svg></span> Repostar no meu feed</div>
-          <div class="share-option" onclick="abrirEnviarParaAmigo()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.3s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/></svg></span> Enviar pra um amigo</div>
-          <div class="share-option" onclick="copiarLink()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/></svg></span> Compartilhar fora do app</div>
+          <div class="share-option" onclick="repostarNoFeed()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/></svg></span> Repostar no meu feed</div>
+          <div class="share-option" onclick="abrirEnviarParaAmigo()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.3s;animation-delay:0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/></svg></span> Enviar pra um amigo</div>
+          <div class="share-option" onclick="copiarLink()"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 13.8a3.3 3.3 0 0 0 4.9.3l2-2a3.3 3.3 0 0 0-4.6-4.7l-1 1"/><path d="M13.8 10.2a3.3 3.3 0 0 0-4.9-.3l-2 2a3.3 3.3 0 0 0 4.6 4.7l1-1"/></svg></span> Compartilhar fora do app</div>
         </div>
         <div id="compartilharAmigosPicker" style="display:none;">
-          <div class="share-option" onclick="fecharPickerAmigos()" style="margin-bottom:8px;"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span> Voltar</div>
+          <div class="share-option" onclick="fecharPickerAmigos()" style="margin-bottom:8px;"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span> Voltar</div>
           <div id="compartilharAmigosLista" style="max-height:260px; overflow-y:auto;"></div>
         </div>
       </div>
@@ -1428,10 +1430,10 @@
     <!-- POP-UP: ESCOLHER FOTO (câmera x galeria) — reusado em todo lugar que tem o ícone de câmera -->
     <div class="write-popup-bg" id="escolherFotoPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharEscolherFoto()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
-        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span><span class="write-popup-title">Adicionar foto</span></div>
-        <div class="share-option" onclick="dispararFotoGlobal('camera')"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.2s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span> Tirar foto</div>
-        <div class="share-option" onclick="dispararFotoGlobal('galeria')"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.6s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.4"/><circle cx="8.3" cy="9.6" r="1.6"/><path d="M4.5 16.6l4.5-4.3c.5-.5 1.3-.5 1.8 0l2.3 2.2 2.6-2.9c.5-.6 1.4-.6 1.9-.1l2.9 3.1"/></svg></span> Escolher da galeria</div>
+        <button class="write-popup-close" onclick="fecharEscolherFoto()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:1.32s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span><span class="write-popup-title">Adicionar foto</span></div>
+        <div class="share-option" onclick="dispararFotoGlobal('camera')"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.2s;animation-delay:0.44s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span> Tirar foto</div>
+        <div class="share-option" onclick="dispararFotoGlobal('galeria')"><span class="icon-svg" style="width:14px;height:14px;animation-duration:3.6s;animation-delay:0.66s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2.4"/><circle cx="8.3" cy="9.6" r="1.6"/><path d="M4.5 16.6l4.5-4.3c.5-.5 1.3-.5 1.8 0l2.3 2.2 2.6-2.9c.5-.6 1.4-.6 1.9-.1l2.9 3.1"/></svg></span> Escolher da galeria</div>
         <div id="escolherFotoDicaGif" style="display:none; font-size:11.5px; color:var(--ink-faint); text-align:center; margin-top:8px;">GIFs animados também funcionam (até 3 MB)</div>
       </div>
     </div>
@@ -1439,8 +1441,8 @@
     <!-- POP-UP: PERGUNTA ANÔNIMA -->
     <div class="write-popup-bg" id="perguntaAnonimaPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="document.getElementById('perguntaAnonimaPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
-        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span></span><span class="write-popup-title">Pergunta anônima</span></div>
+        <button class="write-popup-close" onclick="document.getElementById('perguntaAnonimaPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span></span><span class="write-popup-title">Pergunta anônima</span></div>
         <div class="write-popup-sub">Ela chega sem o seu nome — só a pessoa vê a pergunta, e pode responder em público</div>
         <textarea id="perguntaAnonimaTexto" placeholder="Escreva sua pergunta..."></textarea>
         <div class="write-popup-foot" style="justify-content:flex-end;">
@@ -1452,7 +1454,7 @@
     <!-- POP-UP: GUIA DE INSTALAÇÃO (adicionar à tela inicial) -->
     <div class="write-popup-bg" id="guiaInstalacaoPopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharGuiaInstalacao()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <button class="write-popup-close" onclick="fecharGuiaInstalacao()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe">📲</span><span class="write-popup-title">Adicione o Átomo à tela inicial</span></div>
         <div class="write-popup-sub">Assim ele abre rapidinho, como um app de verdade — e é onde os lembretes de escrever vão te encontrar.</div>
         <div id="guiaInstalacaoPassos"></div>
@@ -1464,7 +1466,7 @@
     <!-- OVERLAY: VISITANTES -->
     <div class="dm-chat-overlay" id="visitantesOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('visitantesOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('visitantesOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Quem visitou</h2>
       </div>
       <div id="visitantesList" style="overflow-y:auto;"></div>
@@ -1474,10 +1476,10 @@
     <!-- OVERLAY: SEGUIDORES/SEGUINDO -->
     <div class="dm-chat-overlay" id="amigosOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('amigosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('amigosOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="amigosOverlayTitulo">Seguidores</h2>
       </div>
-      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaPessoasInput" class="busca-input" placeholder="Buscar por @usuário ou nome..." oninput="filtrarPessoas()" /></div>
+      <div class="busca-wrap"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span><input type="text" id="buscaPessoasInput" class="busca-input" placeholder="Buscar por @usuário ou nome..." oninput="filtrarPessoas()" /></div>
       <div class="diary-tabs">
         <div class="diary-tab on" id="tabSeguindo" onclick="trocarAbaSeguir('seguindo')">Seguindo</div>
         <div class="diary-tab" id="tabSeguidores" onclick="trocarAbaSeguir('seguidores')">Seguidores</div>
@@ -1492,7 +1494,7 @@
     <!-- OVERLAY: CHAT DE DM -->
     <div class="dm-chat-overlay" id="dmChatOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('dmChatOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('dmChatOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <div class="dm-chat-header-info" onclick="abrirPerfilDoChat()">
           <h2 id="dmChatName" style="font-size:16px;">@pedro_geek</h2>
           <div class="dm-chat-status" id="dmChatStatus"></div>
@@ -1502,7 +1504,7 @@
       <div class="dm-messages" id="dmMessages"></div>
             <div id="stickerPickerArea" style="display:none; padding:8px 0;">
         <div class="busca-wrap" style="margin-bottom:6px;">
-          <span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span>
+          <span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span>
           <input type="text" id="buscaStickerInput" class="busca-input" placeholder="Buscar figurinha (ex: anime, fofo, gato)..." onkeydown="if(event.key==='Enter') buscarStickerReal()" />
         </div>
         <div id="resultadosSticker" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-height:220px; overflow-y:auto;"></div>
@@ -1510,7 +1512,7 @@
       <div class="dm-input-row">
         <div class="dm-input-icons">
           <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleStickerPicker()"><span class="icon-svg" style="width:19px;height:19px;animation-duration:3.2s;animation-delay:0.4s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="17" rx="7.5" ry="3.8"/><ellipse cx="12" cy="17" rx="3.6" ry="1.7"/><ellipse cx="10.3" cy="13.3" rx="5.3" ry="4.4" fill="var(--accent-soft)"/><circle cx="16.1" cy="9" r="3.1" fill="var(--accent-soft)"/><path d="M18.6 8.4 L21.2 9 L18.6 9.9 Z" fill="currentColor" stroke="none"/><circle cx="16.9" cy="7.9" r="0.6" fill="currentColor" stroke="none"/></svg></span></button>
-          <span class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="abrirEscolherFoto('dm')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span></span>
+          <span class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="abrirEscolherFoto('dm')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
         </div>
         <input type="file" id="dmFotoInput" accept="image/*" onchange="enviarFotoDm(this)" style="display:none;" />
         <input type="file" id="dmFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoDm(this)" style="display:none;" />
@@ -1524,16 +1526,16 @@
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <div class="dm-input-wrap">
           <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" oninput="sinalizarDigitando()" />
-          <button class="dm-input-mic-btn" id="btnGravarAudio" onclick="alternarGravacaoAudio()"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.4a3 3 0 0 1 6 .2v6.4a3 3 0 0 1-6-.1Z"/><path d="M6.2 11a5.8 5.8 0 0 0 11.6.2"/><path d="M12 16.8v3"/></svg></span></button>
+          <button class="dm-input-mic-btn" id="btnGravarAudio" onclick="alternarGravacaoAudio()"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span></button>
         </div>
-        <button class="dm-send-btn" onclick="enviarDmMsg()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.3 19.5 4.5l-4.4 15L11 13.8 4 12.3Z"/><path d="M11 13.8l4-5.3"/></svg></span></button>
+        <button class="dm-send-btn" onclick="enviarDmMsg()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></span></button>
       </div>
     </div>
 
     <!-- OVERLAY: PERFIL DA CONVERSA (mini-perfil rapido de dentro do chat, tipo Instagram/Messenger) -->
     <div class="dm-chat-overlay" id="dmInfoOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('dmInfoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeOverlay('dmInfoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:15.5px; flex:1; text-align:center;">Perfil da conversa</h2>
         <div style="width:34px; flex:none;"></div>
       </div>
@@ -1545,29 +1547,29 @@
         </div>
         <div class="dm-info-acoes-row">
           <div class="dm-info-acao" onclick="favoritarUsuarioAtual()">
-            <span class="dm-info-acao-icone"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span></span>
+            <span class="dm-info-acao-icone"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6l2.2 5 5.5.6-4.1 3.7 1.2 5.4-4.8-2.7-4.8 2.7 1.2-5.4-4.1-3.7 5.5-.6Z"/></svg></span></span>
             <span id="dmInfoFavoritarLabel">Favoritar</span>
           </div>
           <div class="dm-info-acao" onclick="toggleTemaConversaPicker()">
-            <span class="dm-info-acao-icone"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/></svg></span></span>
+            <span class="dm-info-acao-icone"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a8 8 0 1 0 .3 16c1 0 1.6-.6 1.6-1.4 0-.4-.2-.7-.4-1-.3-.4-.1-1 .4-1h1.5A3.4 3.4 0 0 0 19 13.2C19 8.2 16 4 12 4Z"/><circle cx="8.3" cy="10.6" r="1" fill="currentColor" stroke="none"/><circle cx="11.6" cy="7.8" r="1" fill="currentColor" stroke="none"/><circle cx="15.1" cy="9.6" r="1" fill="currentColor" stroke="none"/></svg></span></span>
             <span>Tema</span>
           </div>
           <div class="dm-info-acao" onclick="verPerfilCompletoDaConversa()">
-            <span class="dm-info-acao-icone"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.3" r="3.3"/><path d="M5 19.8a7 7 0 0 1 14 0"/></svg></span></span>
+            <span class="dm-info-acao-icone"><span class="icon-svg" style="width:19px;height:19px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.3" r="3.3"/><path d="M5 19.8a7 7 0 0 1 14 0"/></svg></span></span>
             <span>Perfil</span>
           </div>
         </div>
         <div id="dmTemaPickerRow" class="dm-tema-picker" style="display:none;">
           <div class="dm-tema-swatch" data-cor="" style="background:var(--accent-a);" onclick="escolherTemaConversa('')"></div>
-          <div class="dm-tema-swatch" data-cor="#4A9B8E" style="background:#4A9B8E;" onclick="escolherTemaConversa('#4A9B8E')"></div>
+          <div class="dm-tema-swatch" data-cor="#869B83" style="background:#869B83;" onclick="escolherTemaConversa('#869B83')"></div>
           <div class="dm-tema-swatch" data-cor="#E06B6B" style="background:#E06B6B;" onclick="escolherTemaConversa('#E06B6B')"></div>
           <div class="dm-tema-swatch" data-cor="#E8A83D" style="background:#E8A83D;" onclick="escolherTemaConversa('#E8A83D')"></div>
           <div class="dm-tema-swatch" data-cor="#9B6FA8" style="background:#9B6FA8;" onclick="escolherTemaConversa('#9B6FA8')"></div>
           <div class="dm-tema-swatch" data-cor="#5B87A8" style="background:#5B87A8;" onclick="escolherTemaConversa('#5B87A8')"></div>
         </div>
         <div class="dm-info-lista">
-          <div class="dm-info-item" onclick="bloquearUsuarioAtual()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> <span id="dmInfoBloquearLabel">Bloquear</span></div>
-          <div class="dm-info-item" style="color:var(--raiva);" onclick="denunciarUsuarioAtual()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span> Denunciar</div>
+          <div class="dm-info-item" onclick="bloquearUsuarioAtual()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> <span id="dmInfoBloquearLabel">Bloquear</span></div>
+          <div class="dm-info-item" style="color:var(--raiva);" onclick="denunciarUsuarioAtual()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span> Denunciar</div>
         </div>
       </div>
     </div>
@@ -1575,7 +1577,7 @@
     <!-- CONFIGURAÇÕES -->
     <div class="config-overlay" id="configOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeConfig()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
+        <button class="back-btn" onclick="closeConfig()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:17px;">Configurações</h2>
       </div>
 
@@ -1678,7 +1680,7 @@
     <!-- POP-UP: escrita rápida (disparado por notificações tipo "bom dia") -->
     <div class="write-popup-bg" id="writePopupBg">
       <div class="write-popup" style="position:relative;">
-        <button class="write-popup-close" onclick="fecharWritePopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        <button class="write-popup-close" onclick="fecharWritePopup()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe" id="writePopupIcon">☀️</span><span class="write-popup-title" id="writePopupTitle">Como foi seu sonho?</span></div>
         <div class="write-popup-sub" id="writePopupSub">Registra antes que esqueça 💭</div>
         <textarea id="writePopupText" placeholder="Escreve aqui..." autofocus></textarea>
@@ -1693,7 +1695,7 @@
 
     <div class="tabbar">
       <button class="tab-btn active" data-screen="perfil" onclick="showScreen2('perfil')">
-        <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none"><path d="M4.2,11.4 L11.6,4.7 C11.8,4.5 12.2,4.5 12.4,4.7 L19.8,11.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.4,9.8 V18.6 C6.4,19.2 6.9,19.6 7.4,19.6 H16.6 C17.1,19.6 17.6,19.2 17.6,18.6 V9.8" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10.1,19.4 V14.3 C10.1,13.8 10.5,13.4 11,13.4 H13 C13.5,13.4 13.9,13.8 13.9,14.3 V19.4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+        <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none"><path d="M4.2,11.4 L11.6,4.7 C11.8,4.5 12.2,4.5 12.4,4.7 L19.8,11.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.4,9.8 V18.6 C6.4,19.2 6.9,19.6 7.4,19.6 H16.6 C17.1,19.6 17.6,19.2 17.6,18.6 V9.8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10.1,19.4 V14.3 C10.1,13.8 10.5,13.4 11,13.4 H13 C13.5,13.4 13.9,13.8 13.9,14.3 V19.4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
         Home
       </button>
       <button class="tab-btn" data-screen="descobrir" onclick="showScreen2('descobrir')">
@@ -1701,11 +1703,11 @@
         Explorar
       </button>
       <button class="tab-btn" data-screen="livros" onclick="showScreen2('livros')">
-        <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none"><path d="M12,6.4 C9.6,4.7 5.9,4.4 4.2,5.5 C3.9,9.2 4.1,14.9 4.4,18.3 C6.3,17.4 9.8,17.8 12,19.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12,6.4 C14.6,4.6 18.2,4.5 19.8,5.6 C20.1,9.3 19.9,14.8 19.6,18.2 C17.6,17.3 14.1,17.7 12,19.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12,6.4 C12.1,10.6 12,15.1 12,19.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+        <span class="tab-icon-wrap"><svg viewBox="0 0 24 24" fill="none"><path d="M12,6.4 C9.6,4.7 5.9,4.4 4.2,5.5 C3.9,9.2 4.1,14.9 4.4,18.3 C6.3,17.4 9.8,17.8 12,19.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12,6.4 C14.6,4.6 18.2,4.5 19.8,5.6 C20.1,9.3 19.9,14.8 19.6,18.2 C17.6,17.3 14.1,17.7 12,19.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12,6.4 C12.1,10.6 12,15.1 12,19.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
         Livros
       </button>
       <button class="tab-btn" data-screen="mensagens" onclick="showScreen2('mensagens')">
-        <span class="tab-icon-wrap"><span class="tab-badge" id="msgTabBadge"></span><svg viewBox="0 0 24 24" fill="none"><path d="M4.2,6.3 C7.5,5.3 16.8,5.6 19,7 C20,9.6 19.6,13.3 18.8,15.3 C15,16.2 10.3,15.8 8.2,15.6 L4.3,19.4 L5.2,15.2 C4.1,12 4.4,8.6 4.2,6.3 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+        <span class="tab-icon-wrap"><span class="tab-badge" id="msgTabBadge"></span><svg viewBox="0 0 24 24" fill="none"><path d="M4.2,6.3 C7.5,5.3 16.8,5.6 19,7 C20,9.6 19.6,13.3 18.8,15.3 C15,16.2 10.3,15.8 8.2,15.6 L4.3,19.4 L5.2,15.2 C4.1,12 4.4,8.6 4.2,6.3 Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
         Mensagens
       </button>
       <button class="tab-btn" data-screen="loja" onclick="showScreen2('loja')">

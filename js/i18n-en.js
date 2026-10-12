@@ -17,6 +17,11 @@
 
 const EN_UI = {
   // navegação e geral
+  'Loja': 'Shop', 'Criar clube': 'Create club', 'Criar comunidade': 'Create community', 'WhatsApp': 'WhatsApp', 'Telegram': 'Telegram', 'Copiar link': 'Copy link',
+  'Entrar no clube': 'Join club', 'Entrar na comunidade': 'Join community', 'Ver membros': 'See members', 'Ler agora': 'Read now', 'Mudar livro': 'Change book',
+  'Avançar capítulo': 'Next chapter', 'Avançar pra esse capítulo': 'Move to this chapter', 'Ranking': 'Ranking', 'Convidar': 'Invite', 'Tornar admin': 'Make admin',
+  'Tirar admin': 'Remove admin', 'Remover': 'Remove', 'Entrar na sala de leitura': 'Join the reading room', 'girar roleta': 'spin', 'quem lê agora': 'who reads now',
+  'quem começa a discussão': 'who starts the talk', 'ao vivo': 'live', 'lendo agora': 'reading now', 'Salvar': 'Save', 'Nova nota': 'New note',
   'Início': 'Home', 'Home': 'Home', 'Explorar': 'Explore', 'Livros': 'Books', 'Mensagens': 'Messages', 'Ajustes': 'Settings',
   'Perfil': 'Profile', 'Configurações': 'Settings', 'Buscar': 'Search', 'Voltar': 'Back', '← voltar': '← back', '← anterior': '← previous', 'próxima →': 'next →',
   'Continuar': 'Continue', 'Entendi': 'Got it', 'Pronto': 'Done', 'Prontinho ✨': 'All set ✨', 'Salvar': 'Save', 'salvar': 'save', 'cancelar': 'cancel',

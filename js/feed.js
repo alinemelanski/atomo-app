@@ -560,7 +560,7 @@ function renderFeed() {
           <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
           <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length}</div>
           <div class="post-action" onclick="abrirCompartilhar(${i})">${icone('compartilhar',14,i)}</div>
-          <div class="post-action" onclick="alternarSalvarPost(${p.id})" aria-label="${t(p.salvo ? 'post_remover_salvo' : 'post_salvar')}">${p.salvo ? icone('salvar',14,i,'var(--accent-a)') : icone('salvar',14,i)}</div>
+          <div class="post-action${p.salvo ? ' ativo' : ''}" onclick="alternarSalvarPost(${p.id})" aria-label="${t(p.salvo ? 'post_remover_salvo' : 'post_salvar')}">${icone('salvar',14,i)}</div>
           ${ehMeu
           ? `<div class="post-action" onclick="abrirEditarPost(${p.id})" aria-label="${t('post_editar')}">${icone('editar',14)}</div><div class="post-action" onclick="apagarPost(${p.id})">${icone('lixeira',14)}</div>`
           : `<div class="post-action" onclick="abrirDenuncia(${p.id}, '${p.autor_id}')">${icone('denunciar',14)}</div>`}
@@ -794,16 +794,8 @@ if (!post.curtiu && evt) {
   btn.classList.add('curtir-pulsando');
   setTimeout(() => btn.classList.remove('curtir-pulsando'), 400);
 
-  const rect = btn.getBoundingClientRect();
-  for (let p = 0; p < 4; p++) {
-    const particula = document.createElement('div');
-    particula.className = 'particula-coracao';
-    particula.textContent = '💛';
-    particula.style.left = (rect.left + rect.width / 2 + (Math.random() * 30 - 15)) + 'px';
-    particula.style.top = rect.top + 'px';
-    document.body.appendChild(particula);
-    setTimeout(() => particula.remove(), 700);
-  }
+  // microinteração do kit: bolinhas terracota/sálvia saem do coração
+  explodirCurtida(btn);
 }
 
 // atualiza local (otimista) e re-renderiza só a partir da lista já

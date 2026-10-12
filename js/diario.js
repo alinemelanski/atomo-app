@@ -308,7 +308,7 @@ window.abrirMenuDiario = function () {
       <span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${svg}</svg></span>
       <span>${rotulo}</span>
     </button>`;
-  const SVG_FOTO = '<path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/>';
+  const SVG_FOTO = '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/>';
   const SVG_FIXAR = '<path d="M9 4h6l-1 6 3 3H7l3-3-1-6Z"/><path d="M12 13v7"/>';
   const SVG_COMP = '<path d="M12 4v11M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>';
   const SVG_PDF = '<path d="M4.2 5.9c2.5-1.5 5.4-1.2 7.6.4.2.1.4.1.6 0 2.2-1.6 5.1-1.9 7.5-.5v11.6c-2.4-1.4-5.3-1.1-7.5.5-.2.1-.4.1-.6 0-2.2-1.6-5.1-1.9-7.6-.4Z"/><path d="M12.1 6.4v11.5"/>';
@@ -444,7 +444,7 @@ let layoutGratidao = 1;
 let fotosGratidao = [null, null, null]; // arquivos (File) escolhidos
 let casinhaGratidaoAtual = 0;           // qual casinha está esperando foto
 
-const SVG_CAMERA_GRADE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg>';
+const SVG_CAMERA_GRADE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg>';
 
 function desenharGradeGratidao() {
   const grade = document.getElementById('gratidaoGrade');
