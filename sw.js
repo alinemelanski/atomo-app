@@ -3,7 +3,7 @@
 // toda hora); só usa o cache se o celular estiver offline. Nunca mexe em chamadas
 // pra fora (Supabase, TMDB, etc.) — essas passam direto pela rede.
 
-const CACHE_NAME = 'atomo-v15';
+const CACHE_NAME = 'atomo-v16';
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
@@ -15,6 +15,7 @@ const STATIC_ASSETS = [
   './css/mensagens.css',
   './css/toque.css',
   './css/botoes.css',
+  './css/kit-global.css',
   './css/leitor.css',
   './css/config-popups.css',
   './css/icones.css',

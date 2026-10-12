@@ -95,17 +95,25 @@
 }
 @keyframes rippleAbre { to { transform: scale(22); opacity: 0; } }
 
-/* ---------- microinteração: explosão da curtida ----------
-   6 bolinhas saem do centro em direções diferentes (cada uma com seu --ang). */
+/* ---------- microinteração: animação de curtir (igual à imagem do kit) ----------
+   8 risquinhos terracota saem do coração, como raios, e somem.
+   Cada <i> é um tracinho em pé; o rotate(--ang) aponta ele pra uma direção
+   e o translateY negativo empurra ele "pra fora" do centro. */
 .curtida-explosao { width: 0; height: 0; pointer-events: none; }
 .curtida-explosao i {
-  position: absolute; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%;
+  position: absolute; left: -1px; top: -4px; width: 2px; height: 8px; border-radius: 2px;
   background: var(--terracota);
-  transform: rotate(var(--ang)) translateY(0); opacity: 1;
-  animation: curtidaVoa .5s ease-out forwards;
+  transform: rotate(var(--ang)) translateY(-14px); opacity: 1;
+  animation: curtidaRaio .5s ease-out forwards;
 }
-.curtida-explosao i:nth-child(even) { background: var(--salvia); }
-@keyframes curtidaVoa { to { transform: rotate(var(--ang)) translateY(-18px); opacity: 0; } }
+@keyframes curtidaRaio {
+  0%   { transform: rotate(var(--ang)) translateY(-12px) scaleY(.4); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: rotate(var(--ang)) translateY(-26px) scaleY(1); opacity: 0; }
+}
+/* o coração dá um "pulinho" quando é curtido */
+.post-action.liked .icon-svg { animation: coracaoPula .35s ease; }
+@keyframes coracaoPula { 0% { transform: scale(1); } 45% { transform: scale(1.18); } 100% { transform: scale(1); } }
 
 @media (prefers-reduced-motion: reduce) {
   .ripple, .curtida-explosao i { animation-duration: .01s; }

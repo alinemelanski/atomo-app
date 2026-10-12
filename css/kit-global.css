@@ -1,0 +1,132 @@
+/* css/kit-global.css — o KIT DE BOTÕES aplicado no app INTEIRO
+
+   PRA APRENDER: o app tinha ~15 tipos de botão diferentes, cada um com o seu
+   CSS (post-btn, seguir-btn, livro-link-externo, feed-modo-chip...). Em vez de
+   reescrever centenas de botões no HTML/JS, este arquivo "reveste" cada classe
+   antiga com o visual do kit. Ele é carregado POR ÚLTIMO no index.html: quando
+   duas regras têm a mesma força, vence a que vem depois — então o kit ganha.
+
+   Regra de cor do kit (a mesma da imagem da Aline):
+     terracota CHEIA  → a ação principal da tela (Salvar, Publicar, Seguir...)
+     contorno sálvia  → ações de apoio (Cancelar, Agora não, abrir link...)
+     sálvia CHEIA     → algo selecionado/aberto (aba, chip, filtro ativo)
+   E os 3 estados: padrão · pressionado (fundo clarinho + halo) · ativo (cheio).
+
+   [style*="..."] = "atributo style CONTÉM esse texto". Serve pra pegar botões
+   que tinham cor escrita direto no HTML (inline) sem precisar editar um por um;
+   o !important é necessário porque estilo inline normalmente ganha do CSS. */
+
+/* ---------- 1. AÇÃO PRINCIPAL: .post-btn, .onboard-btn, .clube-criar-btn ---------- */
+.post-btn, .onboard-btn, .clube-criar-btn {
+  position: relative; overflow: hidden;
+  min-height: 44px; padding: 0 20px; border-radius: 999px;
+  background: var(--terracota); color: #fff; border: 1px solid var(--terracota);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: .01em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.post-btn:active, .onboard-btn:active, .clube-criar-btn:active {
+  transform: scale(.97); background: color-mix(in srgb, var(--terracota) 86%, #000); }
+.post-btn:disabled, .onboard-btn:disabled { opacity: .55; }
+/* "Buscar" pequenininho dos campos de referência continua compacto */
+.post-btn[style*="padding:8px 12px"] { min-height: 34px; font-size: 12.5px; }
+/* botões "cancelar/recusar" que eram cinza (inline) → contorno sálvia */
+.post-btn[style*="var(--card-b)"] {
+  background: var(--card) !important; color: var(--ink) !important; border-color: var(--salvia) !important; }
+.post-btn[style*="var(--card-b)"]:active { background: var(--salvia-suave) !important; }
+/* confirmar que era rosa → terracota do kit */
+.post-btn[style*="var(--pink)"] { background: var(--terracota) !important; }
+/* botão redondo de enviar post (só o aviãozinho) continua redondo */
+.post-btn.btn-enviar-post { padding: 0; }
+
+/* ---------- 2. AÇÃO DE APOIO: .livro-link-externo ("agora não", links) ---------- */
+.livro-link-externo {
+  position: relative; overflow: hidden;
+  min-height: 44px; padding: 0 20px; border-radius: 999px;
+  background: var(--card); color: var(--ink); border: 1px solid var(--salvia);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; box-shadow: none;
+}
+.livro-link-externo:active { background: var(--salvia-suave); }
+#livroPreviewCorpo .post-btn { background: var(--terracota); color: #fff; }
+#livroPreviewCorpo .livro-link-externo { background: var(--card); color: var(--ink); }
+
+/* ---------- 3. SEGUIR / EDITAR PERFIL (pílulas menores) ---------- */
+.seguir-btn {
+  min-height: 30px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--terracota);
+  background: var(--terracota); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; }
+/* já segue / pedido pendente = contorno (estado "padrão" do kit) */
+.seguir-btn.pendente, .seguir-btn.seguindo {
+  background: var(--card); color: var(--ink); border-color: var(--salvia); }
+.edit-profile-btn {
+  min-height: 30px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px;
+  background: var(--card); color: var(--ink); border: 1px solid var(--salvia); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; }
+.edit-profile-btn:active, .seguir-btn:active { transform: scale(.96); }
+
+/* ---------- 4. CHIPS DE ESCOLHA (filtros, tipos, períodos, assuntos) ----------
+   padrão = contorno fino · escolhido (.on) = sálvia cheia */
+.feed-modo-chip, .type-chip, .period-chip, .modo-chip, .onboard-topic-chip,
+#screen-livros .feed-modo-chip, #screen-descobrir .feed-modo-chip {
+  background: var(--card); color: var(--ink-dim); border: 1px solid var(--card-b);
+  backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; }
+.feed-modo-chip:active, .type-chip:active, .period-chip:active, .modo-chip:active, .onboard-topic-chip:active {
+  background: var(--salvia-suave); box-shadow: 0 0 0 4px var(--salvia-suave); }
+.feed-modo-chip.on, .type-chip.on, .period-chip.on, .modo-chip.on, .onboard-topic-chip.on,
+#screen-livros .feed-modo-chip.on, #screen-descobrir .feed-modo-chip.on {
+  background: var(--salvia); color: #fff; border-color: var(--salvia); }
+
+/* ---------- 5. BOTÕES REDONDOS DE ÍCONE (topo, mensagens) ---------- */
+.top-icon-btn { background: var(--card); border: 1px solid var(--card-b); color: var(--ink); }
+.top-icon-btn:active { background: var(--salvia-suave); box-shadow: 0 0 0 6px var(--salvia-suave); }
+/* enviar (mensagem/comentário) = terracota cheio */
+.dm-send-btn { background: var(--terracota); color: #fff; border: 1px solid var(--terracota); box-shadow: none; }
+/* figurinha e foto (eram laranja clarinho inline) = contorno, como câmera/mic do mural */
+.dm-send-btn[style*="accent-soft"] {
+  background: var(--card) !important; color: var(--ink) !important; border: 1px solid var(--card-b) !important; }
+.dm-send-btn[style*="accent-soft"]:active { background: var(--salvia-suave) !important; box-shadow: 0 0 0 6px var(--salvia-suave); }
+
+/* ---------- 6. OUTROS ---------- */
+.resumo-acao-btn { border-radius: 999px; min-height: 40px; }
+.resumo-acao-btn.dispensar { background: var(--card); color: var(--ink); border: 1px solid var(--salvia); }
+.resumo-acao-btn.compartilhar { background: var(--terracota); color: #fff; border: 1px solid var(--terracota); }
+.share-option { background: var(--card); border: 1px solid var(--salvia); color: var(--ink); }
+.share-option:active { background: var(--salvia-suave); }
+.data-picker-btn { background: var(--card); }
+.data-picker-btn .icon-svg { color: var(--salvia); }
+.apoio-resposta-btn:active { background: var(--salvia-suave); }
+
+/* barra de baixo: aba aberta em sálvia (navegação = sálvia no kit) */
+.tab-btn.active, .tab-btn.active svg,
+[data-theme="dark"] .tab-btn.active, [data-theme="dark"] .tab-btn.active svg { color: var(--salvia); }
+.tab-btn.active .tab-icon-wrap { background: radial-gradient(circle, var(--salvia-suave) 0%, var(--salvia-suave) 45%, transparent 78%); }
+
+/* ---------- 7. BOTÕES DOS POSTS (igual à imagem do kit) ----------
+   Cada ação vira um CÍRCULO com o ícone (o número fica do lado, de fora).
+   Truque: o próprio <span class="icon-svg"> que já existe vira o círculo —
+   assim os 31 lugares que usam .post-action mudam sem tocar no HTML.
+     padrão      → círculo do cartão, contorno fino
+     pressionado → fundo clarinho + halo (sálvia; no curtir, terracota)
+     ativo       → curtir: rosinha com o coração cheio · salvar: terracota cheio */
+.post-actions { gap: 12px; flex-wrap: wrap; align-items: center; }
+.post-action { min-width: 0; height: auto; padding: 0; border: none; background: none; border-radius: 0;
+  gap: 6px; color: var(--ink-dim); font-size: 12px; font-weight: 700; }
+.post-action:active { transform: none; background: none; box-shadow: none; }
+.post-action .icon-svg {
+  width: 38px !important; height: 38px !important; border-radius: 50%; flex: none;
+  background: var(--card); border: 1px solid var(--card-b); color: var(--ink);
+  transition: transform .15s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease; }
+.post-action .icon-svg svg { width: 18px; height: 18px; }
+.post-action:active .icon-svg { transform: scale(.92); background: var(--salvia-suave); box-shadow: 0 0 0 6px var(--salvia-suave); color: color-mix(in srgb, var(--salvia) 70%, var(--ink)); }
+.post-action:active .icon-svg svg { fill: currentColor; }
+.post-action.liked { color: var(--terracota); background: none; border: none; }
+.post-action.liked .icon-svg { background: var(--terracota-suave); border-color: var(--terracota-suave); color: var(--terracota); }
+.post-action.liked .icon-svg svg { fill: currentColor; }
+.post-action.ativo { background: none; border: none; color: var(--ink-dim); }
+.post-action.ativo .icon-svg { background: var(--terracota); border-color: var(--terracota); color: #fff; }
+.post-action.ativo .icon-svg svg { fill: currentColor; }
+/* no "responder" de comentário (pequeno, com texto) o círculo fica menor */
+.post-action[style*="font-size:10px"] .icon-svg { width: 26px !important; height: 26px !important; }
+.post-action[style*="font-size:10px"] .icon-svg svg { width: 13px; height: 13px; }
+
+/* câmera do campo de postar (era laranja clarinho) = contorno, igual ao mural */
+.upload-foto-icon { background: var(--card); color: var(--ink); border: 1px solid var(--card-b); }
+.upload-foto-icon:active { background: var(--salvia-suave); box-shadow: 0 0 0 5px var(--salvia-suave); }

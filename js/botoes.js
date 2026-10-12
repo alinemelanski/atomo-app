@@ -6,7 +6,7 @@
    criados depois pelo JS (cards, folhas...) também ganham o efeito sozinhos. */
 
 document.addEventListener('pointerdown', (e) => {
-  const btn = e.target.closest('.btn-acao, .btn-icone');
+  const btn = e.target.closest('.btn-acao, .btn-icone, .post-btn, .onboard-btn, .livro-link-externo, .clube-criar-btn');
   if (!btn || btn.disabled) return;
   const caixa = btn.getBoundingClientRect();
   const onda = document.createElement('span');
@@ -27,7 +27,7 @@ window.explodirCurtida = function (el) {
   const caixa = document.createElement('span');
   caixa.className = 'curtida-explosao';
   caixa.style.position = 'fixed';
-  caixa.style.left = (r.left + Math.min(r.width, 34) / 2) + 'px'; // centro do ícone (que fica à esquerda do número)
+  caixa.style.left = (r.left + Math.min(r.width, 38) / 2) + 'px'; // centro do círculo do ícone (o número fica à direita)
   caixa.style.top = (r.top + r.height / 2) + 'px';
   caixa.style.zIndex = '999';
   // 8 bolinhas, uma a cada 45 graus
