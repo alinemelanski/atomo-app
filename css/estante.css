@@ -121,3 +121,70 @@
   .perfil-info-glass-card { max-height: 82vh; overflow-y: auto; }
   .popup-glass-scroll { max-height: 82vh; overflow-y: auto; }
 
+
+  /* =====================================================================
+     MINHA ESTANTE — visual novo (design da Aline no ElevenLabs, sem flores;
+     o fundo continua o do tema do app)
+     ===================================================================== */
+  .estante-cabeca { margin: 2px 4px 12px; }
+  /* título escrito à mão com uma linha fininha embaixo */
+  .estante-titulo { margin: 0; font-family: 'Caveat', cursive; font-weight: 500; font-size: 42px; line-height: 1; color: var(--ink);
+    padding-bottom: 6px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); width: fit-content; padding-right: 30px; }
+  .estante-subtitulo { margin-top: 7px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-faint); }
+
+  /* filtros: 4 pílulas do MESMO tamanho (grid de 4 colunas iguais) */
+  .estante-filtros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .estante-filtros .feed-modo-chip { justify-content: center; padding: 9px 4px; min-width: 0; font-weight: 600; font-size: 12.5px; }
+
+  /* ---------- card grande "Continuar lendo" ---------- */
+  .estante-continuar { display: flex; gap: 16px; padding: 14px; margin-bottom: 12px; border-radius: 24px; cursor: pointer;
+    background: var(--card); border: 1px solid var(--card-b); box-shadow: var(--shadow); }
+  .estante-continuar-capa { flex: none; width: 104px; height: 156px; border-radius: 8px; background-size: cover; background-position: center;
+    box-shadow: 0 6px 16px rgba(60,40,20,.22), inset 3px 0 0 rgba(0,0,0,.06); }
+  .estante-continuar-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .estante-continuar-kicker { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; color: var(--ink-faint); letter-spacing: .03em; margin-bottom: 4px; }
+  .estante-continuar-titulo { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; line-height: 1.15; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .estante-continuar-autor { font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--ink-dim); margin-top: 3px; }
+  .estante-continuar .estante-progresso { margin: auto 0 10px; padding-top: 10px; }
+  .estante-continuar-botoes { display: flex; gap: 8px; align-items: center; }
+  .estante-continuar-botoes .btn-acao { flex: 1; min-width: 0; min-height: 44px; }
+
+  /* barra de progresso: trilho clarinho + parte lida em terracota */
+  .estante-progresso { display: flex; align-items: center; gap: 8px; }
+  .estante-progresso-trilho { flex: 1; height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 12%, transparent); overflow: hidden; }
+  .estante-progresso-cheio { height: 100%; border-radius: 999px; background: var(--terracota); transition: width .4s ease; }
+  .estante-progresso span { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-dim); min-width: 30px; text-align: right; }
+
+  /* ---------- grade de 2 colunas ---------- */
+  .estante-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  /* grid com 2 "áreas": em cima capa + texto; embaixo as 4 ações na largura toda do card */
+  .estante-livro-card { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "capa info" "acoes acoes";
+    column-gap: 10px; row-gap: 8px; padding: 10px; border-radius: 18px; cursor: pointer; min-width: 0;
+    background: var(--card); border: 1px solid var(--card-b); box-shadow: var(--shadow);
+    animation: clubeCardEntra .45s cubic-bezier(.2,.8,.2,1) backwards; transition: transform .15s ease;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .estante-livro-card:active { transform: scale(.98); }
+  .estante-livro-capa { grid-area: capa; width: 54px; height: 82px; border-radius: 5px; background-size: cover; background-position: center;
+    box-shadow: 0 4px 10px rgba(60,40,20,.2); }
+  .estante-livro-info { grid-area: info; min-width: 0; display: flex; flex-direction: column; }
+  .estante-livro-titulo { font-family: 'Fraunces', serif; font-size: 13.5px; font-weight: 600; line-height: 1.2; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .estante-livro-autor { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint);
+    margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .estante-livro-card .estante-progresso { margin-top: auto; padding-top: 6px; }
+  /* as 4 ações: círculos menores que os do feed, pra caber na coluna */
+  .estante-livro-card .estante-acoes { grid-area: acoes; gap: 4px; margin: 0; justify-content: space-between; flex-wrap: nowrap; }
+  .estante-livro-card .estante-acoes .post-action .icon-svg { width: 32px !important; height: 32px !important; }
+  .estante-livro-card .estante-acoes .post-action .icon-svg svg { width: 15px; height: 15px; }
+
+  /* capa de papel (livro sem imagem de capa): título em letra de livro, centralizado */
+  .capa-papel { background: #F1EADC; border: 1px solid #E2D8C4; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 10% 8%; text-align: center; color: #3E3A35; overflow: hidden; }
+  .capa-papel-titulo { font-family: 'Fraunces', serif; text-transform: uppercase; letter-spacing: .12em; line-height: 1.25; font-size: 9px;
+    display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; margin-top: 18%; }
+  .estante-continuar-capa .capa-papel-titulo { font-size: 14px; }
+  .capa-papel-autor { font-family: 'Fraunces', serif; font-size: 6.5px; letter-spacing: .14em; text-transform: uppercase; color: #6E6658; }
+  .estante-continuar-capa .capa-papel-autor { font-size: 8.5px; }
+
+  .estante-envios { margin: 2px 0 16px; }

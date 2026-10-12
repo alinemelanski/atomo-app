@@ -81,7 +81,8 @@ function salvarProgressoEpub(cfi, pct) {
   clearTimeout(debounceProgressoEpub);
   debounceProgressoEpub = setTimeout(async () => {
     if (!leitorEpubAtual) return;
-    const patch = { progresso_percentual: pct, ultima_posicao: cfi };
+    // lido_em = "última vez que leu" — a estante usa pra escolher o livro do "Continuar lendo"
+    const patch = { progresso_percentual: pct, ultima_posicao: cfi, lido_em: new Date().toISOString() };
     // primeira vez que passa de 95%, marca a data de conclusão (usada no resumo de leitura)
     let acabouDeTerminar = false;
     if (pct >= 95 && !leitorEpubAtual.item.finalizado_em) {
@@ -89,7 +90,13 @@ function salvarProgressoEpub(cfi, pct) {
       leitorEpubAtual.item.finalizado_em = patch.finalizado_em;
       acabouDeTerminar = true;
     }
-    await supabaseClient.from('estante_pessoal').update(patch).eq('id', leitorEpubAtual.item.id);
+    const { error: erroProgresso } = await supabaseClient.from('estante_pessoal').update(patch).eq('id', leitorEpubAtual.item.id);
+    // se o SQL novo (coluna lido_em) ainda não rodou, salva o progresso sem ela — nunca perde o progresso
+    if (erroProgresso && /lido_em/.test(erroProgresso.message)) {
+      delete patch.lido_em;
+      await supabaseClient.from('estante_pessoal').update(patch).eq('id', leitorEpubAtual.item.id);
+    }
+    leitorEpubAtual.item.progresso_percentual = pct;
     registrarLeituraHoje();
     if (acabouDeTerminar) document.getElementById('livroConcluidoOverlay').classList.add('open');
   }, 1500);

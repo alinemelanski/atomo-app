@@ -122,6 +122,32 @@ async function estatisticasLeituraHtml(usuarioId) {
       </div>`;
 }
 
+// =====================================================================
+// MINHA ESTANTE — visual novo (do design que a Aline fez no ElevenLabs)
+// =====================================================================
+// Estrutura da tela, de cima pra baixo:
+//   1. título "Minha estante" escrito à mão + frase pequena
+//   2. filtros: todos · lendo · lidos · quero ler
+//   3. card grande "Continuar lendo" (o livro que você leu por último)
+//   4. grade de 2 colunas com os outros livros (capa, progresso e 4 ações)
+//   5. "enviar um epub" e "destaques do Kindle" (mesma largura)
+//   6. sua sequência, estatísticas e o que você comprou na Loja
+//
+// PRA APRENDER: os filtros NÃO buscam de novo no banco. A lista inteira já
+// está em window.ITENS_ESTANTE_ATUAIS; o filtro só escolhe quais mostrar.
+// Por isso cada card guarda o índice ORIGINAL (i) do livro na lista inteira:
+// é ele que o leitor (abrirLeitorEpub(i)) usa pra abrir o livro certo.
+let filtroEstante = 'todos';
+let estanteExtrasHtml = { streak: '', stats: '', compras: '' };
+
+// em que "prateleira" o livro está, pelo progresso
+function situacaoLivro(d) {
+  const pct = Math.round(d.progresso_percentual || 0);
+  if (pct >= 95 || d.finalizado_em) return 'lidos';
+  if (pct > 0) return 'lendo';
+  return 'quero';
+}
+
 async function renderEstante() {
   const lista = document.getElementById('livrosList');
   lista.innerHTML = skeletonCardsHtml(3);
@@ -140,43 +166,193 @@ async function renderEstante() {
     // livros comprados na Loja (estante autoral) também moram na sua estante
     supabaseClient.from('vendas_autorais').select('id, livro_id, pago_em, livros_autorais(titulo, capa_url)').eq('comprador_id', usuarioId).eq('status', 'pago').order('pago_em', { ascending: false }),
   ]);
-  // se a tabela da loja ainda não existir no banco, só não mostra essa parte
   const compras = (comprasResp && !comprasResp.error && comprasResp.data) || [];
   window.MINHAS_COMPRAS_AUTORAIS = compras;
-  const comprasHtml = compras.length
-    ? `<div class="estante-secao-titulo">comprados na loja</div>${compras.map((d, i) => cardCompraAutoralHtml(d, i)).join('')}`
-    : '';
+  estanteExtrasHtml = {
+    streak: streakHtml,
+    stats: estatisticasHtml,
+    compras: compras.length ? `<div class="estante-secao-titulo">comprados na loja</div>${compras.map((d, i) => cardCompraAutoralHtml(d, i)).join('')}` : '',
+  };
 
   if (error) {
-    lista.innerHTML = estatisticasHtml + streakHtml + `<div class="visitor-lock-note">Não consegui carregar sua estante agora${error.message.includes('estante_pessoal') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
+    lista.innerHTML = cabecalhoEstanteHtml() + `<div class="visitor-lock-note">Não consegui carregar sua estante agora${error.message.includes('estante_pessoal') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
     return;
   }
 
   window.ITENS_ESTANTE_ATUAIS = data || [];
-  lista.innerHTML = estatisticasHtml + streakHtml + `<div class="estante-btns-row">
-        <button class="btn-enviar-epub" onclick="abrirUploadEpub()">${icone('instalar',15,0,'#fff')} enviar um epub</button>
-        <button class="btn-importar-kindle" onclick="abrirImportarKindle()">${icone('livro',15)} destaques do Kindle</button>
-      </div>` +
-    (data && data.length
-      ? `<div class="estante-madeira">${data.map((d, i) => cardEstanteHtml(d, i)).join('')}</div>`
-      : (compras.length ? '' : estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho'))) +
-    comprasHtml;
+  desenharEstante();
 }
 
-const CORES_LOMBADA_ESTANTE = ['var(--accent-a)', 'var(--accent-b)', 'var(--pink)', 'var(--yellow)', '#8FA06E', '#6FA3C9'];
+function cabecalhoEstanteHtml() {
+  return `
+    <header class="estante-cabeca">
+      <h2 class="estante-titulo">Minha estante</h2>
+      <div class="estante-subtitulo">pequenas histórias, grandes dias</div>
+    </header>`;
+}
+
+// desenha a tela a partir da lista que já está em memória (filtrar é instantâneo)
+function desenharEstante() {
+  const lista = document.getElementById('livrosList');
+  const todos = (window.ITENS_ESTANTE_ATUAIS || []).map((d, i) => ({ d, i })); // guarda o índice original
+
+  // "Continuar lendo" = o livro em andamento que você leu por último
+  const lendo = todos.filter(x => situacaoLivro(x.d) === 'lendo')
+    .sort((a, b) => new Date(b.d.lido_em || b.d.adicionado_em) - new Date(a.d.lido_em || a.d.adicionado_em));
+  const destaque = filtroEstante === 'todos' || filtroEstante === 'lendo' ? lendo[0] : null;
+
+  const visiveis = todos.filter(x => {
+    if (destaque && x.i === destaque.i) return false; // já aparece em cima
+    if (filtroEstante === 'todos') return true;
+    if (filtroEstante === 'quero') return x.d.quero_ler || situacaoLivro(x.d) === 'quero';
+    return situacaoLivro(x.d) === filtroEstante;
+  });
+
+  const filtros = [['todos', 'todos'], ['lendo', 'lendo'], ['lidos', 'lidos'], ['quero', 'quero ler']];
+  const vazio = !todos.length
+    ? estadoVazio('sua estante tá vazia', 'envia um epub pra começar a ler por aqui, sincronizado em qualquer aparelho')
+    : (!destaque && !visiveis.length ? `<div class="visitor-lock-note">Nenhum livro aqui ainda.</div>` : '');
+
+  lista.innerHTML = cabecalhoEstanteHtml() + `
+    <div class="estante-filtros" role="tablist">
+      ${filtros.map(([v, rot]) => `<button class="feed-modo-chip${filtroEstante === v ? ' on' : ''}" role="tab" aria-selected="${filtroEstante === v}" onclick="filtrarEstante('${v}')">${rot}</button>`).join('')}
+    </div>
+    ${destaque ? cardContinuarLendoHtml(destaque.d, destaque.i) : ''}
+    ${visiveis.length ? `<div class="estante-grade">${visiveis.map(x => cardEstanteHtml(x.d, x.i)).join('')}</div>` : ''}
+    ${vazio}
+    <div class="botoes-par estante-envios">
+      <button class="btn-acao btn-acao-contorno-salvia" onclick="abrirUploadEpub()">${icone('instalar', 18)}enviar um epub</button>
+      <button class="btn-acao btn-acao-terracota" onclick="abrirImportarKindle()">${icone('estante', 18)}destaques do Kindle</button>
+    </div>
+    ${estanteExtrasHtml.streak}${estanteExtrasHtml.stats}${estanteExtrasHtml.compras}`;
+  ativarSegurarParaRemover();
+}
+
+window.filtrarEstante = function (v) { filtroEstante = v; desenharEstante(); };
+
+// capa: a imagem do livro, ou uma "capa de papel" com o título em letra de livro
+function capaEstanteHtml(d, classe) {
+  return d.capa_url
+    ? `<div class="${classe}" style="background-image:url('${d.capa_url}');"></div>`
+    : `<div class="${classe} capa-papel"><span class="capa-papel-titulo">${d.titulo}</span>${d.autor ? `<span class="capa-papel-autor">${d.autor}</span>` : ''}</div>`;
+}
+
+function barraProgressoHtml(pct) {
+  return `<div class="estante-progresso"><div class="estante-progresso-trilho"><div class="estante-progresso-cheio" style="width:${pct}%"></div></div><span>${pct}%</span></div>`;
+}
+
+// as 4 ações do card (no mesmo estilo dos botões dos posts)
+function acoesLivroHtml(d, i) {
+  return `
+    <div class="post-actions estante-acoes" onclick="event.stopPropagation()">
+      <div class="post-action${d.favorito ? ' liked' : ''}" onclick="favoritarLivroEstante(${i}, event)" aria-label="Favoritar">${icone('curtir', 14)}</div>
+      <div class="post-action" onclick="comentarLivroEstante(${i})" aria-label="Comentar no feed">${icone('comentar', 14)}</div>
+      <div class="post-action" onclick="compartilharLivroEstante(${i})" aria-label="Compartilhar no feed">${icone('compartilhar', 14)}</div>
+      <div class="post-action${d.quero_ler ? ' ativo' : ''}" onclick="queroLerLivroEstante(${i})" aria-label="Quero ler">${icone('salvar', 14)}</div>
+    </div>`;
+}
+
+function cardContinuarLendoHtml(d, i) {
+  const pct = Math.round(d.progresso_percentual || 0);
+  return `
+    <div class="estante-continuar" data-estante-i="${i}" onclick="abrirLeitorEpub(${i})">
+      ${capaEstanteHtml(d, 'estante-continuar-capa')}
+      <div class="estante-continuar-info">
+        <div class="estante-continuar-kicker">Continuar lendo</div>
+        <div class="estante-continuar-titulo">${d.titulo}</div>
+        ${d.autor ? `<div class="estante-continuar-autor">${d.autor}</div>` : ''}
+        ${barraProgressoHtml(pct)}
+        <div class="estante-continuar-botoes" onclick="event.stopPropagation()">
+          <button class="btn-acao btn-acao-salvia" onclick="abrirLeitorEpub(${i})"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 5.5v13l10-6.5z"/></svg></span>Continuar</button>
+          <button class="btn-icone${d.quero_ler ? ' terracota ativo' : ''}" onclick="queroLerLivroEstante(${i})" aria-label="Quero ler">${icone('salvar', 18)}</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function cardEstanteHtml(d, i) {
   const pct = Math.round(d.progresso_percentual || 0);
-  const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
   return `
-      <div class="livro-lombada" style="animation-delay:${Math.min(i, 10) * 0.06}s;" onclick="abrirLeitorEpub(${i})" title="${d.titulo}">
-        ${d.capa_url
-        ? `<img src="${d.capa_url}" alt="" loading="lazy" width="72" height="104">`
-        : `<div class="livro-lombada-vazia" style="background:${cor};">${icone('livro',20,i,'#fff')}</div>`}
-        <div class="livro-lombada-progresso" style="width:${pct}%;"></div>
-        <div class="livro-lombada-legenda">${d.titulo}</div>
-        <div class="livro-lombada-del" onclick="event.stopPropagation(); excluirDoEstante(${i})">${icone('lixeira',10)}</div>
-      </div>`;
+    <div class="estante-livro-card" data-estante-i="${i}" style="animation-delay:${Math.min(i, 10) * 0.05}s;" onclick="abrirLeitorEpub(${i})" title="${d.titulo}">
+      ${capaEstanteHtml(d, 'estante-livro-capa')}
+      <div class="estante-livro-info">
+        <div class="estante-livro-titulo">${d.titulo}</div>
+        ${d.autor ? `<div class="estante-livro-autor">${d.autor}</div>` : ''}
+        ${barraProgressoHtml(pct)}
+      </div>
+      ${acoesLivroHtml(d, i)}
+    </div>`;
 }
+
+// ---------- ações dos cards ----------
+// grava uma coluna e redesenha; se o SQL novo ainda não rodou, avisa com calma
+async function atualizarLivroEstante(i, patch) {
+  const item = window.ITENS_ESTANTE_ATUAIS[i];
+  if (!item) return false;
+  const { error } = await supabaseClient.from('estante_pessoal').update(patch).eq('id', item.id);
+  if (error) {
+    mostrarToast(/favorito|quero_ler/.test(error.message) ? 'falta rodar o SQL da estante nova no Supabase' : '❌ erro: ' + error.message);
+    return false;
+  }
+  Object.assign(item, patch);
+  desenharEstante();
+  return true;
+}
+
+window.favoritarLivroEstante = async function (i, evt) {
+  const item = window.ITENS_ESTANTE_ATUAIS[i];
+  if (!item) return;
+  if (!item.favorito && evt) explodirCurtida(evt.currentTarget); // raios do kit ao favoritar
+  atualizarLivroEstante(i, { favorito: !item.favorito });
+};
+
+window.queroLerLivroEstante = async function (i) {
+  const item = window.ITENS_ESTANTE_ATUAIS[i];
+  if (!item) return;
+  const ok = await atualizarLivroEstante(i, { quero_ler: !item.quero_ler });
+  if (ok) mostrarToast(item.quero_ler ? '🔖 na sua lista "quero ler"' : 'saiu da lista "quero ler"');
+};
+
+// comentar = escreve um post no feed sobre o livro (mesmo popup do Descobrir)
+window.comentarLivroEstante = function (i) {
+  const item = window.ITENS_ESTANTE_ATUAIS[i];
+  if (!item) return;
+  discoverPendenteReal = { title: item.titulo };
+  abrirWritePopup('💬', 'O que você está achando?', item.titulo + ' — seu comentário vai pro feed');
+};
+
+window.compartilharLivroEstante = async function (i) {
+  const item = window.ITENS_ESTANTE_ATUAIS[i];
+  if (!item) return;
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const pct = Math.round(item.progresso_percentual || 0);
+  const texto = pct >= 95 ? `📖 terminei de ler ${item.titulo}${item.autor ? ' — ' + item.autor : ''}` : `📖 estou lendo ${item.titulo}${item.autor ? ' — ' + item.autor : ''}`;
+  const { error } = await supabaseClient.from('posts').insert({
+    autor_id: sessionData.session.user.id, texto, tipo: 'Livro', privado: false, imagem_url: item.capa_url || null,
+  });
+  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  mostrarToast('↗ Compartilhado no seu feed');
+  if (typeof avisarSeguidores === 'function') avisarSeguidores();
+};
+
+// ---------- remover: SEGURAR o dedo no livro ----------
+// O design não tem lixeira à vista; pra tirar um livro, segura ~0,6s em cima
+// dele e aparece a confirmação (popup do próprio app, nunca o do navegador).
+function ativarSegurarParaRemover() {
+  document.querySelectorAll('#livrosList [data-estante-i]').forEach(el => {
+    let timer = null, segurou = false;
+    const comecar = () => { segurou = false; timer = setTimeout(() => { segurou = true; if (navigator.vibrate) navigator.vibrate(20); excluirDoEstante(Number(el.dataset.estanteI)); }, 600); };
+    const cancelar = () => clearTimeout(timer);
+    el.addEventListener('pointerdown', comecar);
+    ['pointerup', 'pointerleave', 'pointercancel', 'pointermove'].forEach(ev => el.addEventListener(ev, ev === 'pointermove' ? (e) => { if (Math.abs(e.movementX) + Math.abs(e.movementY) > 6) cancelar(); } : cancelar));
+    // se segurou, o "clique" que vem depois não deve abrir o livro
+    el.addEventListener('click', (e) => { if (segurou) { e.stopPropagation(); e.preventDefault(); segurou = false; } }, true);
+    el.addEventListener('contextmenu', (e) => e.preventDefault());
+  });
+}
+
+// cores usadas nas capas sem imagem da Loja (estante-autoral.js usa)
+const CORES_LOMBADA_ESTANTE = ['var(--accent-a)', 'var(--accent-b)', 'var(--pink)', 'var(--yellow)', '#8FA06E', '#6FA3C9'];
 
 window.abrirUploadEpub = function () {
   const input = document.getElementById('uploadEpubInput');
@@ -275,8 +451,10 @@ window.escolherArquivoKindle = async function () {
 window.excluirDoEstante = async function (i) {
   const item = window.ITENS_ESTANTE_ATUAIS[i];
   if (!item) return;
-  await supabaseClient.storage.from('estante-epubs').remove([item.arquivo_path]);
-  await supabaseClient.from('estante_pessoal').delete().eq('id', item.id);
-  mostrarToast('removido da estante');
-  renderEstante();
+  abrirConfirmGenerico('Tirar "' + item.titulo + '" da estante?', 'O arquivo do livro é apagado. Não tem como desfazer.', async () => {
+    await supabaseClient.storage.from('estante-epubs').remove([item.arquivo_path]);
+    await supabaseClient.from('estante_pessoal').delete().eq('id', item.id);
+    mostrarToast('removido da estante');
+    renderEstante();
+  });
 };
