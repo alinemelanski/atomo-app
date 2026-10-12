@@ -1,0 +1,92 @@
+/* css/botoes.css — KIT DE BOTÕES do Átomo (vindo do kit que a Aline montou no ElevenLabs)
+
+   PRA APRENDER: em vez de cada tela inventar o próprio botão, o app passa a ter
+   DUAS famílias, e cada uma tem os mesmos 3 estados:
+     .btn-icone → botão redondo só com ícone (voltar, ⋯, câmera, microfone...)
+     .btn-acao  → botão em pílula com texto (Salvar, Nova nota, Entrar...)
+   Estados:
+     padrão     → como o botão fica parado
+     pressionado→ :active (enquanto o dedo está em cima): encolhe um pouquinho
+     ativo      → classe .ativo (ex.: aba selecionada, curtida marcada)
+   As cores vêm de variáveis, então trocar a cor do app inteiro é mudar 1 linha. */
+
+:root {
+  --salvia: #6F8B6A;        /* verde sálvia (texto branco em cima fica legível) */
+  --salvia-suave: #E6ECE1;  /* fundo clarinho da sálvia (contornos, ativos) */
+  --terracota: #D9714A;     /* mesmo tom do --accent-a de sempre */
+  --terracota-suave: #F7E3D8;
+}
+#device[data-theme="dark"] {
+  --salvia: #8FAE88;
+  --salvia-suave: #26302A;
+  --terracota: #E08657;
+  --terracota-suave: #3A2A20;
+}
+
+/* ---------- botão de AÇÃO (pílula) ---------- */
+.btn-acao {
+  position: relative; overflow: hidden;           /* overflow segura o "ripple" dentro da pílula */
+  min-height: 46px; padding: 0 20px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .01em;
+  border: 1.5px solid transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .15s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.btn-acao:active { transform: scale(.96); }
+.btn-acao:disabled { opacity: .55; pointer-events: none; }
+
+/* cheio (sólido) */
+.btn-acao-salvia    { background: var(--salvia); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--salvia) 30%, transparent); }
+.btn-acao-terracota { background: var(--terracota); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--terracota) 30%, transparent); }
+.btn-acao-salvia:active    { background: color-mix(in srgb, var(--salvia) 85%, #000); }
+.btn-acao-terracota:active { background: color-mix(in srgb, var(--terracota) 85%, #000); }
+
+/* contorno (outline) */
+.btn-acao-contorno-salvia    { background: transparent; color: var(--salvia); border-color: var(--salvia); }
+.btn-acao-contorno-terracota { background: transparent; color: var(--terracota); border-color: var(--terracota); }
+.btn-acao-contorno-salvia:active    { background: var(--salvia-suave); }
+.btn-acao-contorno-terracota:active { background: var(--terracota-suave); }
+/* ativo: o contorno "acende" e vira cheio */
+.btn-acao-contorno-salvia.ativo    { background: var(--salvia); color: #fff; }
+.btn-acao-contorno-terracota.ativo { background: var(--terracota); color: #fff; }
+
+/* ---------- botão de ÍCONE (círculo) ---------- */
+.btn-icone {
+  position: relative; overflow: hidden;
+  width: 40px; height: 40px; border-radius: 50%; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--ink); border: 1.5px solid var(--card-b);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn-icone:active { transform: scale(.92); background: var(--salvia-suave); border-color: var(--salvia); }
+.btn-icone.ativo  { background: var(--salvia); border-color: var(--salvia); color: #fff; }
+.btn-icone-terracota { background: var(--terracota); border-color: var(--terracota); color: #fff; }
+.btn-icone-terracota:active { background: color-mix(in srgb, var(--terracota) 85%, #000); border-color: transparent; }
+
+/* ---------- microinteração: ripple (a "ondinha" que sai do dedo) ----------
+   O js/botoes.js cria um <span class="ripple"> no ponto do toque; aqui ele
+   cresce e some. pointer-events:none pra ele nunca "roubar" o clique. */
+.ripple {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  width: 12px; height: 12px; margin: -6px 0 0 -6px;
+  background: currentColor; opacity: .28; transform: scale(0);
+  animation: rippleAbre .55s ease-out forwards;
+}
+@keyframes rippleAbre { to { transform: scale(22); opacity: 0; } }
+
+/* ---------- microinteração: explosão da curtida ----------
+   6 bolinhas saem do centro em direções diferentes (cada uma com seu --ang). */
+.curtida-explosao { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.curtida-explosao i {
+  position: absolute; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%;
+  background: var(--terracota);
+  transform: rotate(var(--ang)) translateY(0); opacity: 1;
+  animation: curtidaVoa .5s ease-out forwards;
+}
+.curtida-explosao i:nth-child(even) { background: var(--salvia); }
+@keyframes curtidaVoa { to { transform: rotate(var(--ang)) translateY(-18px); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple, .curtida-explosao i { animation-duration: .01s; }
+}

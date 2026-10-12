@@ -306,8 +306,10 @@ exibirPreviewMidia(arquivoFotoComposerPerfil, 'perfilComposerFotoPreview', 'perf
 };
 
 window.publicarPostPerfil = async function () {
+// devolve a linha criada ({ id }) quando dá certo, ou null — o diário usa isso
+// pra mostrar a folha que acabou de ser salva
 const texto = document.getElementById('perfilComposerText').value.trim();
-if (!texto) return;
+if (!texto) return null;
 
 const btnPostar = document.getElementById('btnPostarPerfil');
 if (btnPostar) { btnPostar.disabled = true; btnPostar.classList.add('disparando'); setTimeout(() => btnPostar.classList.remove('disparando'), 1200); }
@@ -317,18 +319,19 @@ const usuarioId = sessionData.session.user.id;
 const ehVideoPerfil = !!(arquivoFotoComposerPerfil && arquivoFotoComposerPerfil.type && arquivoFotoComposerPerfil.type.startsWith('video/'));
 const fotoUrl = await subirFotoParaStorage(usuarioId, arquivoFotoComposerPerfil);
 
-const { error } = await supabaseClient.from('posts').insert({
+// .select('id').single() = "depois de inserir, me devolve o id da linha nova"
+const { data: criado, error } = await supabaseClient.from('posts').insert({
   autor_id: usuarioId,
   texto: texto,
   tipo: tipoSelecionadoDiario || 'Assunto',
   privado: true,
   imagem_url: ehVideoPerfil ? null : fotoUrl,
   video_url: ehVideoPerfil ? fotoUrl : null,
-});
+}).select('id').single();
 
 if (error) {
   if (btnPostar) { btnPostar.disabled = false; }
-  mostrarToast('❌ erro: ' + error.message); return;
+  mostrarToast('❌ erro: ' + error.message); return null;
 }
 
 if (btnPostar) { btnPostar.disabled = false; }
@@ -344,6 +347,7 @@ mostrarToast('🔒 Guardado só pra você');
 renderDiary();
 carregarPostsReais();
 atualizarResumoDiaDepois();
+return criado;
 };
 
 let arquivoFotoComposerExplorar = null;

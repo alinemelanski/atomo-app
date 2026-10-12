@@ -20,6 +20,7 @@ window.abrirPaginaDiario = function () {
   document.getElementById('meuDiarioOverlay').classList.add('open');
   // o diário sempre abre na folha em branco, pronta pra escrever
   folhaAtual = 0;
+  sairEdicaoDiario(); // abre "limpo": só a folha, sem os botões Salvar / Nova nota
   prepararFolhaNova();
   posicionarFolhas();
 };

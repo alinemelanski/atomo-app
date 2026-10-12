@@ -13,10 +13,11 @@ let folhaAtual = 0; // índice da folha que está na frente (0 = folha em branco
 
 // letras disponíveis: muda SÓ a fonte, o papel continua igual
 const LETRAS_DIARIO = {
-  caveat:  { nome: 'Caveat',       familia: "'Caveat', cursive",       tamanho: 24 },
-  kalam:   { nome: 'Kalam',        familia: "'Kalam', cursive",        tamanho: 19 },
-  patrick: { nome: 'Patrick Hand', familia: "'Patrick Hand', cursive", tamanho: 21 },
-  forma:   { nome: null,           familia: "'Nunito', sans-serif",    tamanho: 16 } // nome vem do t()
+  // linha = altura de cada linha do caderno (o texto "senta" em cima da pauta)
+  caveat:  { nome: 'Caveat',       familia: "'Caveat', cursive",       tamanho: 24, linha: 34 },
+  kalam:   { nome: 'Kalam',        familia: "'Kalam', cursive",        tamanho: 19, linha: 32 },
+  patrick: { nome: 'Patrick Hand', familia: "'Patrick Hand', cursive", tamanho: 21, linha: 32 },
+  forma:   { nome: null,           familia: "'Nunito', sans-serif",    tamanho: 16, linha: 30 } // nome vem do t()
 };
 let letraDiario = 'caveat';
 try { letraDiario = localStorage.getItem('atomoLetraDiario') || 'caveat'; } catch (e) { /* sem storage */ }
@@ -30,6 +31,7 @@ function aplicarLetraDiario() {
   const letra = LETRAS_DIARIO[letraDiario];
   overlay.style.setProperty('--letra-diario', letra.familia);
   overlay.style.setProperty('--letra-tam', letra.tamanho + 'px');
+  overlay.style.setProperty('--letra-linha', letra.linha + 'px');
 }
 
 window.abrirLetraDiario = function () {
@@ -104,37 +106,8 @@ const { data, error } = await supabaseClient
 if (error) { console.log('erro ao carregar diario:', error.message); return; }
 diarioEntradasCache = data;
 lembrancaDiario = procurarLembranca(data);
-const assinatura = assinaturaDiario();
 
-document.getElementById('diaryList').innerHTML = data.map(e => {
-  const ref = e.ref_titulo ? { titulo: e.ref_titulo, autor: e.ref_autor, citacao: e.ref_citacao, tipo: e.tipo, trailer: e.ref_trailer, livroId: e.ref_livro_id, filmeId: e.ref_filme_id, capa: e.ref_capa } : null;
-  const ehPolaroidGratidao = e.tipo === 'Gratidão do dia' && e.imagem_url;
-  const corpoHtml = ehPolaroidGratidao
-    ? `<div class="polaroid-card polaroid-card-diario"><div class="polaroid-foto"><img src="${e.imagem_url}" /></div><div class="polaroid-legenda-display">${formatarMencoes(e.texto)}</div></div>`
-    : `<div class="folha-texto">${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" class="folha-foto" loading="lazy" />` : ''}${e.video_url ? `<video src="${e.video_url}" class="folha-foto" data-auto-video muted loop playsinline preload="metadata"></video>` : ''}`;
-  const ehLembranca = lembrancaDiario && lembrancaDiario.id === e.id;
-  return `
-    <article class="folha${e.fixado ? ' fixado' : ''}">
-      ${e.fixado ? `<span class="folha-fixada-marca">${icone('fixar', 13)}</span>` : ''}
-      <div class="folha-corpo">
-        ${ehLembranca ? `<span class="folha-lembranca">${t(lembrancaDiario.tipo === 'ano' ? 'diario_lembranca_ano' : 'diario_lembranca_mes')}</span>` : ''}
-        ${corpoHtml}
-        ${renderRefCard(ref)}
-      </div>
-      <div class="folha-rodape">
-        <span class="folha-acoes">
-          <button class="folha-acao" onclick="fixarPost(${e.id}, ${e.fixado ? 'true' : 'false'})" aria-label="${t(e.fixado ? 'diario_desafixar' : 'diario_fixar')}">${e.fixado ? icone('fixar', 15, 0, 'var(--accent-a)') : icone('fixar', 15)}</button>
-          <button class="folha-acao" onclick="abrirEditarPost(${e.id})" aria-label="${t('diario_editar')}">${icone('editar', 15)}</button>
-          <button class="folha-acao" onclick="abrirCompartilharDiario(${e.id})" aria-label="${t('diario_compartilhar')}">${icone('compartilhar', 15)}</button>
-          <button class="folha-acao" onclick="apagarPost(${e.id})" aria-label="${t('diario_apagar')}">${icone('lixeira', 15)}</button>
-        </span>
-        <span class="folha-assinatura-bloco">
-          <span class="folha-data">${dataLongaFolha(e.criado_em)}</span>
-          <span class="folha-assinatura">${assinatura}</span>
-        </span>
-      </div>
-    </article>`;
-}).join('');
+document.getElementById('diaryList').innerHTML = data.map(folhaSalvaHtml).join('');
 
 // botão "neste dia" só aparece quando existe lembrança
 const btnLembranca = document.getElementById('diarioNesteDiaBtn');
@@ -149,15 +122,42 @@ posicionarFolhas();
 ativarAutoplayVideoEmbeds();
 }
 
-// textos da folha em branco (data de hoje, assinatura, placeholder)
+// ---------- uma folha salva ----------
+// Cabeça (título à mão + data) e corpo pautado. Nada de ícones na folha:
+// as ações ficam no menu "⋯" do topo.
+function folhaSalvaHtml(e) {
+  const ref = e.ref_titulo ? { titulo: e.ref_titulo, autor: e.ref_autor, citacao: e.ref_citacao, tipo: e.tipo, trailer: e.ref_trailer, livroId: e.ref_livro_id, filmeId: e.ref_filme_id, capa: e.ref_capa } : null;
+  // data-editavel marca o pedaço de texto que vira editável quando a pessoa toca na folha
+  const corpoHtml = (typeof corpoGratidaoHtml === 'function' && e.tipo === 'Gratidão do dia' && (e.imagem_url || e.imagens_urls))
+    ? corpoGratidaoHtml(e)
+    : `<div class="folha-texto" data-editavel>${formatarMencoesEVideo(e.texto)}</div>${e.imagem_url ? `<img src="${e.imagem_url}" class="folha-foto" loading="lazy" />` : ''}${e.video_url ? `<video src="${e.video_url}" class="folha-foto" data-auto-video muted loop playsinline preload="metadata"></video>` : ''}`;
+  const ehLembranca = lembrancaDiario && lembrancaDiario.id === e.id;
+  return `
+    <article class="folha${e.fixado ? ' fixado' : ''}" data-post-id="${e.id}">
+      ${e.fixado ? `<span class="folha-fixada-marca">${icone('fixar', 13)}</span>` : ''}
+      <header class="folha-cabeca">
+        <h2 class="folha-titulo">${t('diario_titulo')}</h2>
+        <span class="folha-data-topo">${dataLongaFolha(e.criado_em)}</span>
+      </header>
+      <div class="folha-corpo">
+        ${ehLembranca ? `<span class="folha-lembranca">${t(lembrancaDiario.tipo === 'ano' ? 'diario_lembranca_ano' : 'diario_lembranca_mes')}</span>` : ''}
+        ${corpoHtml}
+        ${renderRefCard(ref)}
+      </div>
+    </article>`;
+}
+
+// textos da folha em branco (data de hoje, título, placeholder, botões)
 function prepararFolhaNova() {
   const input = document.getElementById('perfilComposerText');
   if (input) input.placeholder = t('diario_placeholder');
   const data = document.getElementById('folhaNovaData');
   if (data) data.textContent = dataLongaFolha(new Date().toISOString());
-  document.querySelectorAll('[data-assinatura]').forEach(el => { el.textContent = assinaturaDiario(); });
-  const titulo = document.getElementById('diarioTituloTxt');
-  if (titulo) titulo.textContent = t('diario_titulo');
+  document.querySelectorAll('[data-titulo-diario]').forEach(el => { el.textContent = t('diario_titulo'); });
+  const salvar = document.getElementById('diarioSalvarTxt');
+  if (salvar) salvar.textContent = t('diario_salvar');
+  const nova = document.getElementById('diarioNovaNotaTxt');
+  if (nova) nova.textContent = t('diario_nova_nota');
   aplicarLetraDiario();
 }
 
@@ -190,16 +190,141 @@ function posicionarFolhas() {
   const total = folhas.length;
   const indicador = document.getElementById('folhasIndicador');
   if (indicador) indicador.textContent = total > 1 ? t('diario_folha_x_de_y', { atual: folhaAtual + 1, total }) : '';
-  // botão principal: na folha em branco ele guarda; nas outras ele leva de volta pra folha em branco
-  const txt = document.getElementById('folhasBtnTxt');
-  if (txt) txt.textContent = folhaAtual === 0 ? t('diario_guardar') : t('diario_nova_folha');
 }
 
-window.acaoBotaoFolha = function () {
-  if (folhaAtual === 0) { publicarPostPerfil(); return; }
+// =====================================================================
+// MODO EDIÇÃO: tocar na folha mostra Salvar / Nova nota
+// =====================================================================
+// A classe .editando no overlay é quem faz os botões aparecerem (via CSS).
+// Numa folha JÁ SALVA, o texto vira editável na hora (contenteditable).
+let folhaEditando = null; // { el, id, original } da folha salva que está sendo editada
+
+window.entrarEdicaoDiario = function () {
+  document.getElementById('meuDiarioOverlay').classList.add('editando');
+};
+
+function sairEdicaoDiario() {
+  document.getElementById('meuDiarioOverlay').classList.remove('editando');
+  if (folhaEditando) {
+    folhaEditando.el.removeAttribute('contenteditable');
+    folhaEditando = null;
+  }
+  const input = document.getElementById('perfilComposerText');
+  if (input) input.blur();
+}
+
+function editarFolhaSalva(folha) {
+  const id = Number(folha.dataset.postId);
+  const entrada = diarioEntradasCache.find(e => e.id === id);
+  const alvo = folha.querySelector('[data-editavel]');
+  entrarEdicaoDiario();
+  if (!entrada || !alvo || (folhaEditando && folhaEditando.el === alvo)) return;
+  // mostra o texto "cru" (sem os links de @menção) enquanto edita
+  alvo.textContent = entrada.texto || '';
+  // "plaintext-only" impede colar texto com formatação (negrito, cores...)
+  try { alvo.setAttribute('contenteditable', 'plaintext-only'); } catch (e) { alvo.setAttribute('contenteditable', 'true'); }
+  if (alvo.contentEditable !== 'plaintext-only') alvo.setAttribute('contenteditable', 'true');
+  folhaEditando = { el: alvo, id, original: entrada.texto || '' };
+  alvo.focus();
+}
+
+// Salvar: na folha em branco cria a anotação; numa folha salva, grava a edição.
+// Depois de salvar some tudo e fica SÓ a folha (pedido da Aline).
+window.salvarFolhaDiario = async function () {
+  if (folhaAtual === 0) {
+    const novo = await publicarPostPerfil();
+    if (!novo) return;
+    await renderDiary();
+    const i = diarioEntradasCache.findIndex(e => e.id === novo.id);
+    folhaAtual = i >= 0 ? i + 1 : 1; // mostra a folha que acabou de nascer
+    sairEdicaoDiario();
+    posicionarFolhas();
+    return;
+  }
+  await gravarEdicaoFolha();
+  sairEdicaoDiario();
+};
+
+async function gravarEdicaoFolha() {
+  if (!folhaEditando) return true;
+  const texto = folhaEditando.el.innerText.trim();
+  if (!texto || texto === folhaEditando.original.trim()) { renderDiary(); return true; }
+  const { error } = await supabaseClient.from('posts')
+    .update({ texto, editado_em: new Date().toISOString() })
+    .eq('id', folhaEditando.id);
+  if (error) { mostrarToast('❌ erro: ' + error.message); return false; }
+  mostrarToast(t('diario_guardado'));
+  await renderDiary();
+  return true;
+}
+
+// Nova nota: guarda o que estiver escrito e abre uma folha em branco.
+window.novaNotaDiario = async function () {
+  const input = document.getElementById('perfilComposerText');
+  if (folhaAtual === 0) {
+    if (input.value.trim()) {
+      const novo = await publicarPostPerfil();
+      if (!novo) return;
+    }
+  } else {
+    const ok = await gravarEdicaoFolha();
+    if (!ok) return;
+    folhaEditando = null;
+  }
   folhaAtual = 0;
   posicionarFolhas();
-  setTimeout(() => document.getElementById('perfilComposerText').focus(), 350);
+  entrarEdicaoDiario();
+  setTimeout(() => input.focus(), 350);
+};
+
+// toque na folha da frente → entra no modo edição
+// (ignora toques em links, vídeos, cards de livro e logo depois de deslizar)
+let acabouDeDeslizar = false;
+(function configurarToqueFolha() {
+  const palco = document.getElementById('folhasPalco');
+  if (!palco) return;
+  palco.addEventListener('click', (e) => {
+    if (acabouDeDeslizar) return;
+    if (e.target.closest('a, button, video, .ref-card, .mencao')) return;
+    const folha = e.target.closest('.folha');
+    if (!folha || folha.classList.contains('escondida')) return;
+    if (folha.classList.contains('folha-nova')) {
+      entrarEdicaoDiario();
+      const input = document.getElementById('perfilComposerText');
+      if (document.activeElement !== input) input.focus();
+      return;
+    }
+    editarFolhaSalva(folha);
+  });
+})();
+
+// =====================================================================
+// MENU "⋯" (popup vidro): as opções dependem da folha da frente
+// =====================================================================
+window.abrirMenuDiario = function () {
+  const entrada = folhaAtual > 0 ? diarioEntradasCache[folhaAtual - 1] : null;
+  const item = (acao, rotulo, svg, extraClasse = '') =>
+    `<button class="diario-menu-item ${extraClasse}" onclick="closeOverlay('diarioMenuOverlay'); ${acao}">
+      <span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${svg}</svg></span>
+      <span>${rotulo}</span>
+    </button>`;
+  const SVG_FOTO = '<path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/>';
+  const SVG_FIXAR = '<path d="M9 4h6l-1 6 3 3H7l3-3-1-6Z"/><path d="M12 13v7"/>';
+  const SVG_COMP = '<path d="M12 4v11M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>';
+  const SVG_PDF = '<path d="M4.2 5.9c2.5-1.5 5.4-1.2 7.6.4.2.1.4.1.6 0 2.2-1.6 5.1-1.9 7.5-.5v11.6c-2.4-1.4-5.3-1.1-7.5.5-.2.1-.4.1-.6 0-2.2-1.6-5.1-1.9-7.6-.4Z"/><path d="M12.1 6.4v11.5"/>';
+  const SVG_LIXO = '<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/>';
+
+  let html = '';
+  if (!entrada) {
+    html += item(`abrirEscolherFoto('perfil')`, t('diario_menu_foto'), SVG_FOTO);
+  } else {
+    html += item(`fixarPost(${entrada.id}, ${entrada.fixado ? 'true' : 'false'})`, t(entrada.fixado ? 'diario_desafixar' : 'diario_fixar'), SVG_FIXAR);
+    html += item(`abrirCompartilharDiario(${entrada.id})`, t('diario_compartilhar'), SVG_COMP);
+  }
+  html += item('exportarDiarioPdf()', t('diario_menu_pdf'), SVG_PDF);
+  if (entrada) html += item(`apagarPost(${entrada.id})`, t('diario_apagar'), SVG_LIXO, 'perigo');
+  document.getElementById('diarioMenuLista').innerHTML = html;
+  document.getElementById('diarioMenuOverlay').classList.add('open');
 };
 
 // ---------- gesto de deslizar entre as folhas ----------
@@ -236,12 +361,18 @@ window.acaoBotaoFolha = function () {
   });
 
   function virarFolhaPorGesto(dx, dy) {
+    // qualquer arrasto de verdade (mesmo pequeno) não conta como "toque na folha"
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+      acabouDeDeslizar = true;
+      setTimeout(() => { acabouDeDeslizar = false; }, 350);
+    }
     if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    if (folhaEditando) return; // editando uma folha: não vira (o dedo pode estar selecionando texto)
     const total = document.querySelectorAll('#folhasPalco .folha').length;
     if (dx < 0 && folhaAtual < total - 1) folhaAtual++;
     else if (dx > 0 && folhaAtual > 0) folhaAtual--;
     else return;
-    document.activeElement && document.activeElement.blur && document.activeElement.blur(); // fecha o teclado ao virar
+    sairEdicaoDiario(); // virou a folha: esconde os botões e fecha o teclado
     posicionarFolhas();
   }
 })();

@@ -16,7 +16,11 @@
 
 const TEXTOS = {
   pt: {
-    diario_titulo: 'Meu Diário',
+    diario_titulo: 'Meu diário',
+    diario_salvar: 'Salvar',
+    diario_nova_nota: 'Nova nota',
+    diario_menu_foto: 'Colocar foto na folha',
+    diario_menu_pdf: 'Exportar como livrinho (PDF)',
     diario_placeholder: 'Folha em branco. Escreva o que quiser...',
     diario_guardar: 'guardar folha',
     diario_nova_folha: 'nova folha',
@@ -68,7 +72,11 @@ const TEXTOS = {
     etimo_dias_atras: 'há {n} dia(s)'
   },
   en: {
-    diario_titulo: 'My Diary',
+    diario_titulo: 'My diary',
+    diario_salvar: 'Save',
+    diario_nova_nota: 'New note',
+    diario_menu_foto: 'Add a photo to the page',
+    diario_menu_pdf: 'Export as a little book (PDF)',
     diario_placeholder: 'A blank page. Write whatever you want...',
     diario_guardar: 'keep page',
     diario_nova_folha: 'new page',

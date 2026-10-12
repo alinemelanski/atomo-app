@@ -126,7 +126,7 @@
   .letra-diario-btn { font-family:'Baloo 2', sans-serif; font-size:15px; color:var(--ink); margin-right:6px; }
 
   .diario-folhas-pagina { flex:1; min-height:0; display:flex; flex-direction:column;
-    padding: 4px 6px calc(16px + env(safe-area-inset-bottom)); }
+    padding: 4px 0 calc(14px + env(safe-area-inset-bottom)); }
 
   .diario-neste-dia { align-self:flex-start; display:inline-flex; align-items:center; gap:7px; min-height:36px;
     padding:6px 14px 6px 10px; margin: 0 0 10px; border-radius:999px; border:1px dashed var(--accent-a);
@@ -136,7 +136,7 @@
 
   /* palco: área onde as folhas ficam empilhadas. touch-action pan-y deixa o
      dedo rolar a folha pra cima/baixo, e o deslizar pro lado fica com o js */
-  .folhas-palco { position:relative; flex:1; min-height:0; margin: 4px 10px 0; touch-action: pan-y; }
+  .folhas-palco { position:relative; flex:1; min-height:0; margin: 4px 8px 0; touch-action: pan-y; }
   .folhas-lista { display: contents; } /* as folhas salvas se posicionam no palco, como a folha nova */
 
   .folha {
@@ -201,16 +201,56 @@
 
   .folhas-indicador { text-align:center; font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:700; color:var(--ink-faint);
     padding: 12px 0 10px; }
-  /* botão do diário: pílula pequena e delicada, centralizada (não ocupa a largura toda,
-     pra não competir com a folha). Altura 42px ainda é confortável pro dedo. */
-  .folhas-btn-principal { align-self:center; margin: 0 auto; min-height:42px; padding: 0 22px; border:none; border-radius:999px;
-    background:var(--accent-a); color:#fff; font-family:'DM Sans', sans-serif; font-size:12.5px; font-weight:600; letter-spacing:.02em;
-    display:inline-flex; align-items:center; justify-content:center; gap:7px;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-a) 28%, transparent);
-    cursor:pointer; transition: transform .15s ease; }
-  .folhas-btn-principal .icon-svg { width:14px !important; height:14px !important; }
-  .folhas-btn-principal:active { transform: scale(.97); }
-  .folhas-btn-principal:disabled { opacity:.6; }
+  /* no diário o "folha 2 de 7" mora no topo, no lugar do antigo título */
+  #meuDiarioOverlay .dm-chat-header .folhas-indicador { flex:1; padding:0; text-align:left; margin-left:4px; }
+  #meuDiarioOverlay .dm-chat-header { justify-content:flex-start; gap:8px; }
+  #meuDiarioOverlay .dm-chat-header .back-btn { margin:0; }
+
+  /* ---------- FOLHA DE CADERNO (visual novo do diário) ----------
+     Cabeça: "Meu diário" escrito à mão com um risquinho embaixo + a data.
+     Corpo: linhas pautadas. O truque das linhas é um repeating-linear-gradient
+     com a MESMA altura da linha do texto (--letra-linha); assim cada linha
+     de texto "senta" numa pauta. background-attachment:local faz as linhas
+     rolarem junto com o texto quando a folha é comprida. */
+  #meuDiarioOverlay { --letra-linha: 34px; --pauta: color-mix(in srgb, var(--accent-b) 22%, transparent); }
+  #meuDiarioOverlay .folha { padding: 22px 22px 18px; }
+  .folha-cabeca { display:flex; flex-direction:column; gap:2px; margin-bottom:10px; flex:none; }
+  .folha-titulo { margin:0; font-family:'Caveat', cursive; font-weight:600; font-size:34px; line-height:1.05; color: var(--papel-tinta);
+    width:fit-content; position:relative; padding-bottom:7px; }
+  /* risquinho à mão embaixo do título: um SVG usado como "máscara" e pintado
+     com a cor do tema (assim ele muda de cor sozinho no modo escuro) */
+  .folha-titulo::after { content:''; position:absolute; left:-2px; right:-6px; bottom:0; height:7px; background: var(--accent-a);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5C22 2.5 48 2 70 3.6s34 1.6 48-.4' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5C22 2.5 48 2 70 3.6s34 1.6 48-.4' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+  .folha-data-topo { font-family: var(--letra-diario); font-size: calc(var(--letra-tam) * .7); color: var(--papel-tinta-suave); margin-top:4px; }
+
+  #meuDiarioOverlay .folha-corpo { gap:0;
+    background-image: repeating-linear-gradient(to bottom, transparent 0 calc(var(--letra-linha) - 1px), var(--pauta) calc(var(--letra-linha) - 1px) var(--letra-linha));
+    background-attachment: local; }
+  #meuDiarioOverlay .folha-texto { line-height: var(--letra-linha); min-height: calc(var(--letra-linha) * 3); outline:none; }
+  #meuDiarioOverlay .folha-input { min-height: 100%; }
+  #meuDiarioOverlay .folha-foto, #meuDiarioOverlay .ref-card, #meuDiarioOverlay .folha-lembranca { margin: 10px 0; }
+  #meuDiarioOverlay .folha-lembranca { align-self:flex-start; }
+  /* folha salva em edição: um brilho bem leve na borda avisa "agora dá pra escrever" */
+  #meuDiarioOverlay .folha-texto[contenteditable] { caret-color: var(--accent-a); }
+  #meuDiarioOverlay.editando .folha[aria-hidden="false"] { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-b) 35%, transparent), 0 10px 28px rgba(90,60,30,.16); }
+
+  /* ---------- Salvar / Nova nota: só aparecem tocando na folha ----------
+     Fechada, a barra tem altura 0 (a folha usa a tela toda, sem buraco).
+     Com .editando ela abre com uma transição de altura. */
+  .diario-acoes-barra { display:flex; gap:10px; padding: 0 10px; max-height:0; opacity:0; overflow:hidden; pointer-events:none;
+    transition: max-height .3s cubic-bezier(.2,.8,.25,1), opacity .2s ease, padding .3s ease; }
+  #meuDiarioOverlay.editando .diario-acoes-barra { max-height:80px; opacity:1; padding: 14px 10px 2px; pointer-events:auto; }
+  .diario-acoes-barra .btn-acao { flex:1; min-width:0; } /* flex:1 nos dois = mesma largura sempre */
+
+  /* ---------- menu "⋯" do diário (popup vidro) ---------- */
+  .diario-menu-lista { display:flex; flex-direction:column; gap:4px; }
+  .diario-menu-item { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; padding: 0 14px; border:none; border-radius:14px;
+    background:transparent; color:var(--ink); font-family:'DM Sans', sans-serif; font-size:14px; font-weight:600; text-align:left; cursor:pointer;
+    transition: background .15s ease, transform .15s ease; }
+  .diario-menu-item:active { background: color-mix(in srgb, var(--accent-b) 14%, transparent); transform: scale(.98); }
+  .diario-menu-item .icon-svg { color: var(--accent-b); }
+  .diario-menu-item.perigo, .diario-menu-item.perigo .icon-svg { color: var(--accent-a); }
 
   /* popup de escolher a letra */
   .letra-diario-sub { font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin: -4px 0 12px; line-height:1.4; }
