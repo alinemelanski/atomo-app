@@ -12,6 +12,13 @@
 -- - Depois de criar cada grupo, você entra nele como admin
 --   (as tabelas clube_membros / comunidade_estudo_membros).
 
+-- ---------- PRÉ-REQUISITO: coluna do cronômetro ----------
+-- O app (comunidades.js) lê e grava "temporizador_ativo" pra ligar/desligar
+-- a contagem regressiva, mas essa coluna nunca foi criada no banco.
+-- Sem ela, salvar o prazo de uma comunidade dá erro. "default true" =
+-- toda comunidade com prazo já mostra a contagem.
+alter table comunidades_estudo add column if not exists temporizador_ativo boolean not null default true;
+
 -- ---------- 3 CLUBES DO LIVRO (categorias diferentes) ----------
 with eu as (select id from auth.users where email = 'alinemelanski10@gmail.com'),
 novos as (
