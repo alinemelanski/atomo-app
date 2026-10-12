@@ -187,10 +187,16 @@ async function usuarioDoToken(req) {
 // outros à vontade (foi uma brecha que fechamos). Aqui, com a service role,
 // o servidor confere tudo antes:
 //   1. quem pede é quem diz ser (token de login);
-//   2. o post é mesmo dela, é público e é recente (últimos 2 minutos);
+//   2. o post é mesmo dela, é público e é recente (últimos 5 minutos);
 //   3. pula seguidor que desligou "Notificações de amigos" (notif_ativado = false);
 //   4. no máximo 1 aviso do mesmo autor a cada 30 min pra cada seguidor (anti-spam).
 const ANTISPAM_POST_AMIGO_MIN = 30;
+
+// Teste rápido pelo navegador: abrir https://atomo-app.onrender.com/api/notificar-seguidores
+// Se aparecer {"ok":true,...} é porque o Render já está com esta versão do servidor.
+app.get('/api/notificar-seguidores', (req, res) => {
+  res.json({ ok: true, rota: 'notificar-seguidores', admin: !!supabaseAdmin, push: typeof enviarPushParaUsuario === 'function' });
+});
 
 app.post('/api/notificar-seguidores', async (req, res) => {
   if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado' });
@@ -198,8 +204,10 @@ app.post('/api/notificar-seguidores', async (req, res) => {
     const usuario = await usuarioDoToken(req);
     if (!usuario) return res.status(401).json({ erro: 'precisa estar logado' });
 
-    // o post mais recente e público dessa pessoa, feito agora há pouco
-    const doisMinAtras = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+    // o post mais recente e público dessa pessoa, feito agora há pouco.
+    // 5 minutos (e não 2) porque o Render gratuito "dorme": o 1º pedido depois
+    // de um tempo parado pode levar ~1 min só pra servidor acordar.
+    const doisMinAtras = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const { data: post } = await supabaseAdmin
       .from('posts').select('id, texto, privado, clube_id, comunidade_estudo_id')
       .eq('autor_id', usuario.id).eq('privado', false)
