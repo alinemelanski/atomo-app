@@ -181,6 +181,68 @@ async function usuarioDoToken(req) {
   return userData.user;
 }
 
+// ---------- avisar seguidores quando alguém publica um post ----------
+// Antes não existia: publicar só gravava o post, e quem seguia nunca ficava sabendo.
+// Por que pelo servidor? O banco não deixa um usuário criar notificação pra
+// outros à vontade (foi uma brecha que fechamos). Aqui, com a service role,
+// o servidor confere tudo antes:
+//   1. quem pede é quem diz ser (token de login);
+//   2. o post é mesmo dela, é público e é recente (últimos 2 minutos);
+//   3. pula seguidor que desligou "Notificações de amigos" (notif_ativado = false);
+//   4. no máximo 1 aviso do mesmo autor a cada 30 min pra cada seguidor (anti-spam).
+const ANTISPAM_POST_AMIGO_MIN = 30;
+
+app.post('/api/notificar-seguidores', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado' });
+  try {
+    const usuario = await usuarioDoToken(req);
+    if (!usuario) return res.status(401).json({ erro: 'precisa estar logado' });
+
+    // o post mais recente e público dessa pessoa, feito agora há pouco
+    const doisMinAtras = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+    const { data: post } = await supabaseAdmin
+      .from('posts').select('id, texto, privado, clube_id, comunidade_estudo_id')
+      .eq('autor_id', usuario.id).eq('privado', false)
+      .is('clube_id', null).is('comunidade_estudo_id', null)
+      .gte('criado_em', doisMinAtras)
+      .order('criado_em', { ascending: false }).limit(1).maybeSingle();
+    if (!post) return res.json({ ok: true, avisados: 0, motivo: 'nenhum post público recente' });
+
+    const { data: autor } = await supabaseAdmin.from('usuarios').select('handle').eq('id', usuario.id).maybeSingle();
+    const handle = autor ? autor.handle : 'alguém';
+
+    // quem segue o autor
+    const { data: seg } = await supabaseAdmin.from('seguidores').select('seguidor_id').eq('seguido_id', usuario.id);
+    let ids = [...new Set((seg || []).map(s => s.seguidor_id))].filter(id => id !== usuario.id);
+    if (!ids.length) return res.json({ ok: true, avisados: 0 });
+
+    // tira quem desligou os avisos
+    const { data: prefs } = await supabaseAdmin.from('usuarios').select('id, notif_ativado').in('id', ids);
+    const desligados = new Set((prefs || []).filter(p => p.notif_ativado === false).map(p => p.id));
+    ids = ids.filter(id => !desligados.has(id));
+
+    // anti-spam: tira quem já recebeu aviso desse autor nos últimos 30 min
+    const limite = new Date(Date.now() - ANTISPAM_POST_AMIGO_MIN * 60 * 1000).toISOString();
+    const { data: recentes } = await supabaseAdmin.from('notificacoes').select('usuario_id')
+      .eq('ator_id', usuario.id).eq('tipo', 'post_amigo').gte('criado_em', limite).in('usuario_id', ids.length ? ids : ['00000000-0000-0000-0000-000000000000']);
+    const jaAvisados = new Set((recentes || []).map(r => r.usuario_id));
+    ids = ids.filter(id => !jaAvisados.has(id));
+    if (!ids.length) return res.json({ ok: true, avisados: 0 });
+
+    const trecho = (post.texto || '').replace(/\s+/g, ' ').slice(0, 60);
+    const { error } = await supabaseAdmin.from('notificacoes').insert(ids.map(id => ({
+      usuario_id: id, tipo: 'post_amigo', titulo: `@${handle} postou`, subtitulo: trecho, post_id: post.id, ator_id: usuario.id,
+    })));
+    if (error) return res.status(500).json({ erro: error.message });
+
+    // push pro celular, um por um (sem esperar terminar pra responder o app)
+    ids.forEach(id => enviarPushParaUsuario(id, `@${handle} postou`, trecho || 'tem post novo no Átomo', { tipo: 'post_amigo', post_id: post.id, ator_id: usuario.id }).catch(() => {}));
+    res.json({ ok: true, avisados: ids.length });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
 app.post('/api/estante-autoral/reenviar', async (req, res) => {
   if (!supabaseAdmin) return res.status(500).json({ erro: 'estante autoral não configurada no servidor (falta SUPABASE_SERVICE_ROLE_KEY)' });
   const usuario = await usuarioDoToken(req);

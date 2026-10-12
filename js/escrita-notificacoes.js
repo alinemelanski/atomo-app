@@ -106,7 +106,7 @@ if (idx >= 0) {
 // funcionava pra comentário (e só se o post já estivesse carregado no feed)
 window.abrirNotificacao = async function (n) {
 closeOverlay('notifOverlay');
-if (n.tipo === 'comentario' || n.tipo === 'curtida') {
+if (n.tipo === 'comentario' || n.tipo === 'curtida' || n.tipo === 'post_amigo') { // post_amigo = alguém que você segue postou
   if (n.post_id) { irParaPostDaNotif(n.post_id); } else { showScreen2('descobrir'); }
 } else if (n.tipo === 'seguidor' && n.ator_id) {
   abrirPerfilAlheio(n.ator_id);

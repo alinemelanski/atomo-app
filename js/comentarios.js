@@ -214,6 +214,7 @@ window.repostarNoFeed = async function () {
   });
   if (error) { mostrarToast('❌ erro ao repostar: ' + error.message); return; }
   mostrarToast('🔁 Repostado no seu feed');
+  avisarSeguidores();
   carregarPostsReais();
 };
 window.copiarLink = async function () {

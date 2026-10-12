@@ -115,6 +115,7 @@ await supabaseClient.from('posts').insert({
 });
 
 mostrarToast('↗ Compartilhado no seu feed');
+avisarSeguidores();
 carregarPostsReais();
 };
 
@@ -156,6 +157,7 @@ await supabaseClient.from('posts').insert({
 });
 
 mostrarToast('↗ Compartilhado no seu feed');
+avisarSeguidores();
 carregarPostsReais();
 };
 

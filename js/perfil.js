@@ -427,6 +427,7 @@ try {
 } catch (e) { console.log('não consegui publicar a resposta no feed:', e); }
 
 mostrarToast('✅ Resposta publicada no seu perfil e no feed');
+avisarSeguidores();
 await renderPerguntasPendentes();
 await carregarPerguntasPublicasMinhas();
 if (typeof carregarPostsReais === 'function') carregarPostsReais();

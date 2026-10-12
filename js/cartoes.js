@@ -242,6 +242,7 @@ window.compartilharCartaoCitacaoFeed = function () {
     });
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
     mostrarToast('✨ postado no feed!');
+    avisarSeguidores();
     closeOverlay('citacaoCartaoOverlay');
     carregarPostsReais();
   }, 'image/png');
@@ -265,6 +266,7 @@ window.compartilharCartaoDiarioNoFeed = function () {
     });
     if (error) { mostrarToast('❌ erro: ' + error.message); return; }
     mostrarToast('✨ postado no feed!');
+    avisarSeguidores();
     closeOverlay('diarioShareOverlay');
     carregarPostsReais();
   }, 'image/png');

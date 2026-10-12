@@ -93,6 +93,7 @@ ${item.desc}` : ''}`;
   });
 
   mostrarToast('↗ Compartilhado no seu feed');
+  avisarSeguidores();
   carregarPostsReais();
 };
 

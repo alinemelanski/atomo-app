@@ -392,6 +392,7 @@ document.getElementById('explorarComposerFotoInput').value = '';
 arquivoFotoComposerExplorar = null;
 closeOverlay('composerExplorarOverlay');
 mostrarToast('✨ Compartilhado no explorar');
+avisarSeguidores();
 if (typeof renderDiscover === 'function') renderDiscover();
 carregarPostsReais();
 };
@@ -460,6 +461,7 @@ if (error) {
 }
 
 if (btnPostarFeed) { btnPostarFeed.disabled = false; }
+if (!composerPrivado) avisarSeguidores(); // post público: quem te segue fica sabendo
 document.getElementById('composerText').value = '';
 document.getElementById('refTitulo').value = '';
 document.getElementById('refAutor').value = '';
@@ -752,6 +754,21 @@ renderDiary();
 
 // dispara push pro evento (curtida/comentário/seguidor/mensagem) chamando o
 // servidor — silencioso se falhar (nunca pode travar a ação principal do usuário)
+// avisa quem segue a pessoa que ela acabou de postar (o servidor confere tudo:
+// se o post é dela, se é público, quem desligou os avisos e o anti-spam de 30 min).
+// Chamar só DEPOIS que um post público foi gravado com sucesso.
+async function avisarSeguidores() {
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data || !data.session) return;
+    fetch(`${API_BASE}/api/notificar-seguidores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + data.session.access_token },
+    }).catch(() => {}); // aviso é extra: se o servidor estiver dormindo, o post continua publicado normalmente
+  } catch (e) { /* nunca atrapalha a publicação */ }
+}
+window.avisarSeguidores = avisarSeguidores;
+
 function notificarPushEvento(destinatarioId, tipo, dados) {
   if (!destinatarioId || destinatarioId === window.MEU_USUARIO_ID) return;
   fetch(`${API_BASE}/api/push/notificar`, {
