@@ -171,3 +171,13 @@
 
   /* botão da mesa ao vivo no clube (contorno sálvia do kit), largura toda */
   .clube-mesa-btn { width:100%; }
+
+  /* ---------- card de comunidade COMPACTO (igual aos cards de clube, mais baixinho) ----------
+     PRA APRENDER: "-webkit-line-clamp: 1" corta a descrição em 1 linha e põe "…"
+     no fim — o texto inteiro continua lá dentro do detalhe da comunidade. */
+  .comunidade-card { padding: 11px 13px; margin-bottom: 10px; border-radius: 18px; }
+  .comunidade-card-top { align-items: center; gap: 10px; margin-bottom: 4px; }
+  .comunidade-icone { width: 34px; height: 34px; border-radius: 11px; }
+  .comunidade-titulo { font-size: 14px; line-height: 1.2; }
+  .comunidade-desc { margin: 2px 0 6px; font-size: 11.5px;
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
