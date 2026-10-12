@@ -168,6 +168,9 @@ if (jaFavoritado) {
 
 window.abrirPerfilAlheio = async function (autorId) {
 window.PERFIL_ALHEIO_ATUAL_ID = autorId;
+// limpa a foto de quem foi aberto antes, pra ela não aparecer enquanto o novo perfil carrega
+const avatarAnterior = document.getElementById('perfilAlheioAvatar');
+if (avatarAnterior) { avatarAnterior.style.backgroundImage = 'none'; avatarAnterior.textContent = ''; }
 
 const { data: sessionData } = await supabaseClient.auth.getSession();
 const meuId = sessionData.session.user.id;
@@ -193,12 +196,18 @@ document.getElementById('perfilAlheioBio').textContent = usuario.bio || '';
 renderSelosPerfilAlheio(autorId); // selos da pessoa (qualquer um pode ver)
 renderStreakPerfilAlheio(autorId); // dias escrevendo da pessoa (só o número)
 
+// A tela do perfil de outra pessoa é UMA SÓ e é reaproveitada pra todo mundo.
+// Bug antigo: ao abrir alguém SEM foto depois de alguém COM foto, a foto da
+// pessoa anterior continuava no fundo (ninguém apagava o backgroundImage) e a
+// inicial aparecia por cima dela. Agora os dois casos limpam o que o outro deixou.
 const avatarDiv = document.getElementById('perfilAlheioAvatar');
 if (usuario.avatar_url) {
   avatarDiv.style.backgroundImage = `url('${usuario.avatar_url}')`;
   avatarDiv.style.backgroundSize = 'cover';
+  avatarDiv.style.backgroundPosition = 'center';
   avatarDiv.textContent = '';
 } else {
+  avatarDiv.style.backgroundImage = 'none';
   avatarDiv.textContent = usuario.handle[0].toUpperCase();
 }
 
