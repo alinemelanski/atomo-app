@@ -51,10 +51,10 @@ async function renderComunidades() {
         <div class="clube-kicker">gente estudando junto</div>
         <div class="clube-titulo-grande">Comunidades</div>
         <div class="clube-sub-grande">${totalComunidades} comunidade${totalComunidades === 1 ? '' : 's'}${minhas ? ` · você participa de ${minhas}` : ''}</div>
-        <button class="clube-criar-btn" onclick="abrirCriarComunidade()">+ criar comunidade</button>
+        <button class="clube-criar-btn" onclick="abrirCriarComunidade()">criar comunidade</button>
         ${totalComunidades
         ? estudos.map((c, i) => cardComunidadeHtml(c, i, meuId)).join('')
-        : estadoVazio('nenhuma comunidade ainda', 'crie a primeira — vestibular, concurso, idioma, filosofia...', '+ criar comunidade', 'abrirCriarComunidade()')}
+        : estadoVazio('nenhuma comunidade ainda', 'crie a primeira — vestibular, concurso, idioma, filosofia...', 'criar comunidade', 'abrirCriarComunidade()')}
       </div>`;
 }
 

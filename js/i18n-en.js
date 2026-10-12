@@ -176,7 +176,7 @@ const EN_UI = {
   '❌ esse clube ainda não tem um livro definido': '❌ this club doesn\'t have a book yet', '📖 capítulo atualizado': '📖 chapter updated', 'capítulo (ex: cap. 5)': 'chapter (e.g. ch. 5)',
   'avançar pra esse capítulo': 'move to this chapter', 'Membros': 'Members', 'ver membros': 'see members', 'ver os membros': 'see the members', 'sem membros ainda': 'no members yet',
   'Sugerir livro pra roleta': 'Suggest a book for the wheel', '🎲 sugestão adicionada pra roleta': '🎲 suggestion added to the wheel', '❌ precisa de pelo menos 1 sugestão pra girar': '❌ you need at least 1 suggestion to spin',
-  'Criar comunidade': 'Create community', 'Criar comunidade de estudo': 'Create study community', '+ criar comunidade': '+ create community', 'Nome da comunidade': 'Community name',
+  'Criar comunidade': 'Create community', 'Criar comunidade de estudo': 'Create study community', '+ criar comunidade': '+ create community', 'criar comunidade': 'create community', 'criar clube': 'create club', 'Nome da comunidade': 'Community name',
   'ex: Vestibular 2027': 'e.g. Finals 2027', 'sobre o que é essa comunidade...': 'what is this community about...', 'comunidade privada (só quem você convidar)': 'private community (only people you invite)',
   'Categoria': 'Category', 'Comunidade': 'Community', 'Clube': 'Club', 'Convidar pra comunidade': 'Invite to the community', 'convidar pra comunidade': 'invite to the community',
   'entrar na comunidade': 'join the community', 'sair da comunidade': 'leave the community', '🎉 você entrou na comunidade': '🎉 you joined the community', '👋 você saiu da comunidade': '👋 you left the community',

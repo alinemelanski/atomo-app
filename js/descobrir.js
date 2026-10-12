@@ -97,7 +97,7 @@ async function renderClubes() {
         </svg>
         <div class="clube-titulo-grande">Clube do Livro</div>
         <div class="clube-sub-grande">${totalClubes} clube${totalClubes === 1 ? '' : 's'}${meusClubes ? ` · você participa de ${meusClubes}` : ''}</div>
-        <button class="clube-criar-btn" onclick="abrirCriarClube()">Criar novo clube</button>
+        <button class="clube-criar-btn" onclick="abrirCriarClube()">criar clube</button>
         ${clubes && clubes.length
         ? clubes.map((c, i) => cardClubeHtml(c, i, meuId)).join('')
         : estadoVazio('nenhum clube ainda', 'crie o primeiro e chame gente pra discutir livro junto')}

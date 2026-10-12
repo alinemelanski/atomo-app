@@ -130,3 +130,7 @@
 /* câmera do campo de postar (era laranja clarinho) = contorno, igual ao mural */
 .upload-foto-icon { background: var(--card); color: var(--ink); border: 1px solid var(--card-b); }
 .upload-foto-icon:active { background: var(--salvia-suave); box-shadow: 0 0 0 5px var(--salvia-suave); }
+
+/* "criar clube" e "criar comunidade": exatamente do MESMO tamanho nas duas abas
+   (largura fixa — sem isso, cada um teria a largura do próprio texto) */
+.clube-criar-btn { width: 200px; margin-bottom: 16px; }
