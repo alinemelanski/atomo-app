@@ -279,3 +279,5 @@
   /* pílula de dias escrevendo no Perfil (a sua e a de quem você visita) */
   .perfil-streak-wrap { margin: 12px 0 2px; }
   .pilula-alheia { cursor: default; }
+  /* o "Guardar" da gratidão acompanha a largura da grade (fica tudo alinhado) */
+  #btnSalvarQuickGratidao { max-width: 280px; align-self: center; }
