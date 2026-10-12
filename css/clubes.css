@@ -156,3 +156,6 @@
   .ranking-paginas small { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 9.5px; color: var(--ink-faint); margin-left: 2px; }
   .ranking-periodo-row { display: flex; gap: 8px; margin-bottom: 14px; }
 
+
+  /* botão da mesa ao vivo no clube (contorno sálvia do kit), largura toda */
+  .clube-mesa-btn { width:100%; }

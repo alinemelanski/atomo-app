@@ -332,7 +332,6 @@ async function renderComunidadeEstudoDetalhe() {
     ? temaComunidadeCardHtml(souAdmin) + prazoComunidadeCardHtml() + rankingComunidadeCardHtml()
     : '';
 
-  document.getElementById('comunidadeIniciarSalaBtn').style.display = souMembro ? 'flex' : 'none';
   document.getElementById('comunidadeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
 
   await renderMuralComunidadeEstudo();
@@ -723,16 +722,3 @@ window.publicarNoMuralComunidadeEstudo = async function () {
   renderMuralComunidadeEstudo();
 };
 
-window.abrirSalaDaComunidadeAtual = async function () {
-  const { data: c } = await supabaseClient.from('comunidades_estudo').select('*').eq('id', comunidadeEstudoAtualId).single();
-  if (!c) return;
-  closeOverlay('comunidadeDetalheOverlay');
-  iniciarSalaEstudo({
-    salaId: comunidadeEstudoAtualId,
-    titulo: c.titulo,
-    mesaEyebrow: c.tema_atual ? 'na mesa agora' : 'sem tema definido ainda',
-    mesaTitulo: c.tema_atual || 'defina um tema pra essa sessão',
-    mesaSub: '',
-    meuStatus: 'por aqui',
-  });
-};

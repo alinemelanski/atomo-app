@@ -91,8 +91,12 @@ async function renderClubeDetalhe() {
          ${!c.privado ? `<button class="dm-header-icon-btn" title="convidar pro clube" onclick="abrirCompartilharClube()">${icone('convite',15)}</button>` : ''}`
     : '';
 
+  // membro vê o botão da MESA AO VIVO (a call saiu das comunidades e veio pra cá)
   document.getElementById('clubeDetalheAcoes').innerHTML = souMembro
-    ? ''
+    ? `<button class="btn-acao btn-acao-contorno-salvia clube-mesa-btn" onclick="abrirMesaAoVivoClube()">
+         <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4Z"/><path d="M6 11v1a6 6 0 0 0 12 0v-1M12 18v3"/></svg></span>
+         mesa de leitura ao vivo
+       </button>`
     : `<button class="post-btn" onclick="entrarNoClube()">entrar no clube</button>`;
 
   document.getElementById('clubeDetalheComposerWrap').style.display = souMembro ? 'block' : 'none';
@@ -100,6 +104,19 @@ async function renderClubeDetalhe() {
   await renderFerramentasClube(c, souMembro, souAdmin, meuId);
   await renderMuralClube();
 }
+
+// abre a mesa ao vivo do clube atual (áudio + roleta de quem lê / quem começa)
+window.abrirMesaAoVivoClube = async function () {
+  const { data: c } = await supabaseClient.from('clubes_livro').select('nome, livro_titulo, livro_autor, capitulo_atual').eq('id', clubeAtualId).single();
+  if (!c) return;
+  iniciarSalaEstudo({
+    salaId: 'clube-' + clubeAtualId, // "clube-" na frente: nunca cai na mesma sala de outra coisa com o mesmo número
+    titulo: c.nome,
+    mesaEyebrow: c.capitulo_atual ? 'lendo agora · ' + c.capitulo_atual : 'lendo agora',
+    mesaTitulo: c.livro_titulo || 'livro ainda não definido',
+    mesaSub: c.livro_autor || '',
+  });
+};
 
 // lista de membros do clube (abre ao tocar no chip "N membros")
 window.abrirMembrosClube = async function () {

@@ -118,6 +118,7 @@ if (session) {
   }
   window.MEU_USUARIO_ID = session.user.id;
   window.MEU_HANDLE = (perfil && perfil.handle) || '';
+  window.MINHA_FOTO = (perfil && perfil.avatar_url) || ''; // a mesa ao vivo do clube mostra essa foto pros outros
   window.iniciarRascunhos();
          // nome de verdade em vez do e-mail inteiro — cai pro @handle se não tiver
          // nome salvo, e só usa "por aqui" como último recurso (nunca o e-mail)
