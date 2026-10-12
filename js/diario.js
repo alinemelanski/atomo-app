@@ -144,6 +144,7 @@ function folhaSalvaHtml(e) {
         ${corpoHtml}
         ${renderRefCard(ref)}
       </div>
+      <footer class="folha-assinatura-rodape"><span class="folha-assinatura">${assinaturaDiario()}</span></footer>
     </article>`;
 }
 
@@ -154,6 +155,8 @@ function prepararFolhaNova() {
   const data = document.getElementById('folhaNovaData');
   if (data) data.textContent = dataLongaFolha(new Date().toISOString());
   document.querySelectorAll('[data-titulo-diario]').forEach(el => { el.textContent = t('diario_titulo'); });
+  // assinatura da folha em branco = primeiro nome (ex: "Aline")
+  document.querySelectorAll('[data-assinatura]').forEach(el => { el.textContent = assinaturaDiario(); });
   const salvar = document.getElementById('diarioSalvarTxt');
   if (salvar) salvar.textContent = t('diario_salvar');
   const nova = document.getElementById('diarioNovaNotaTxt');

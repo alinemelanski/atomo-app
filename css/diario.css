@@ -281,3 +281,5 @@
   .pilula-alheia { cursor: default; }
   /* o "Guardar" da gratidão acompanha a largura da grade (fica tudo alinhado) */
   #btnSalvarQuickGratidao { max-width: 280px; align-self: center; }
+  /* assinatura à mão no canto inferior direito de toda folha (fora da área que rola) */
+  .folha-assinatura-rodape { flex:none; display:flex; justify-content:flex-end; padding-top:6px; }
