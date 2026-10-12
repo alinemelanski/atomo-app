@@ -1,4 +1,4 @@
-/* Home/Diário, Meu Diário, diário rápido e polaroid */
+/* Home/Diário, Meu Diário, diário rápido e grade de fotos da gratidão */
   /* ---------- home / diario (topo da tela inicio) ---------- */
   .home-diario-wrap { margin-bottom: 6px; }
   .home-semana-row { display:flex; justify-content:space-between; gap:4px; margin-bottom:14px; }
@@ -83,32 +83,45 @@
   .quick-diario-composer textarea { min-height: 120px; }
   .quick-diario-salvar { width: calc(100% - 32px); margin: 0 16px; padding:13px; transition: opacity .25s ease; }
 
-  /* ---------- diario rapido: gratidao em forma de polaroid vintage ---------- */
-  .polaroid-card { width: calc(100% - 64px); max-width: 250px; margin: 8px auto 18px; background:#FBF8F1;
-    padding: 12px 12px 22px; border-radius: 3px; box-shadow: 0 12px 26px rgba(40,25,10,0.22), 0 1px 0 rgba(0,0,0,0.06);
-    transform: rotate(-1.6deg); transition: opacity .25s ease, transform .25s ease; }
-  .polaroid-card:active { transform: rotate(-1.6deg) scale(0.98); }
-  .polaroid-foto { position:relative; width:100%; aspect-ratio: 1/1; background: linear-gradient(160deg, #EDE3D3, #D8C6A0);
-    border-radius:2px; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  .polaroid-foto img { width:100%; height:100%; object-fit:cover; display:block;
-    filter: sepia(.32) saturate(1.28) contrast(1.06) brightness(1.05) hue-rotate(-4deg); }
-  .polaroid-foto::after { content:''; position:absolute; inset:0; pointer-events:none;
-    box-shadow: inset 0 0 22px 9px rgba(60,38,14,.3); mix-blend-mode:multiply; }
-  .polaroid-foto-placeholder { display:flex; flex-direction:column; align-items:center; gap:8px; color:#8A7860;
-    font-family:'Nunito', sans-serif; font-size:11px; font-weight:700; text-align:center; padding: 0 14px; }
-  .polaroid-legenda-input { width:100%; border:none; background:none; outline:none; text-align:center; margin-top:12px;
-    font-family:'Nunito', sans-serif; font-style:italic; font-size:16px; color:#3A2E22; }
-  .polaroid-legenda-input::placeholder { color:#B7A78D; }
-  .polaroid-foto.revelando img { animation: polaroidRevelar 1.5s ease forwards; }
-  @keyframes polaroidRevelar { 0% { filter: brightness(2.3) contrast(.5) saturate(.12) blur(3px) sepia(0); opacity:.3; }
-    100% { filter: sepia(.32) saturate(1.28) contrast(1.06) brightness(1.05) hue-rotate(-4deg) blur(0); opacity:1; } }
-  /* variante do card de polaroid usada DENTRO do diario (post ja salvo) —
-     mesma cara da tela de criar, só sem o input/placeholder de câmera */
-  .polaroid-card-diario { margin: 4px auto 2px; max-width: 190px; transform: rotate(-5deg); }
-  .polaroid-card-diario:active { transform: rotate(-5deg) scale(0.98); }
-  .polaroid-legenda-display { width:100%; text-align:center; margin-top:12px; font-family:'Nunito', sans-serif;
-    font-style:italic; font-size:13px; color:#3A2E22; line-height:1.4; word-wrap:break-word; }
+  /* ---------- diario rapido: gratidão em GRADE de 1, 2 ou 3 fotos (estilo Instagram) ----------
+     PRA APRENDER: CSS Grid. A grade tem 2 colunas e 2 linhas "invisíveis";
+     cada layout diz quanto espaço cada foto ocupa:
+       layout-1 → 1 foto ocupa tudo
+       layout-2 → 2 fotos, uma em cada coluna
+       layout-3 → a 1ª ocupa a coluna da esquerda inteira (grid-row: span 2)
+                  e as outras duas se empilham na direita */
+  .gratidao-card { width: calc(100% - 32px); max-width: 360px; margin: 4px auto 16px; display:flex; flex-direction:column; gap:12px;
+    transition: opacity .25s ease; }
+  .gratidao-layouts { display:flex; justify-content:center; gap:10px; }
+  .gratidao-layout-btn { width:52px; height:40px; border-radius:12px; border:1.5px solid var(--card-b); background:var(--card);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; transition: transform .15s ease, border-color .2s ease, background .2s ease; }
+  .gratidao-layout-btn:active { transform: scale(.94); }
+  .gratidao-layout-btn.on { border-color: var(--accent-b); background: color-mix(in srgb, var(--accent-b) 14%, var(--card)); }
+  /* o desenhinho de cada layout dentro do botão */
+  .gratidao-layout-btn .mini { display:grid; gap:2px; width:24px; height:20px; }
+  .gratidao-layout-btn .mini i { display:block; border-radius:3px; background: var(--ink-faint); }
+  .gratidao-layout-btn.on .mini i { background: var(--accent-b); }
+  .mini-2 { grid-template-columns: 1fr 1fr; }
+  .mini-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .mini-3 i:first-child { grid-row: span 2; }
 
+  .gratidao-grade { display:grid; gap:4px; width:100%; aspect-ratio: 4 / 5; border-radius:18px; overflow:hidden; }
+  .gratidao-grade.layout-1 { grid-template-columns: 1fr; }
+  .gratidao-grade.layout-2 { grid-template-columns: 1fr 1fr; }
+  .gratidao-grade.layout-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .gratidao-grade.layout-3 > :first-child { grid-row: span 2; }
+  .gratidao-casa { position:relative; min-width:0; min-height:0; border:none; padding:0; border-radius:6px; overflow:hidden; cursor:pointer;
+    background: color-mix(in srgb, var(--accent-b) 12%, var(--card)); color: var(--accent-b);
+    display:flex; align-items:center; justify-content:center; transition: transform .15s ease; }
+  .gratidao-casa:active { transform: scale(.98); }
+  .gratidao-casa img { width:100%; height:100%; object-fit:cover; display:block; }
+  .gratidao-legenda-input { width:100%; box-sizing:border-box; min-height:46px; border:1.5px solid var(--card-b); border-radius:14px; background:var(--card);
+    padding: 0 14px; outline:none; font-family:'Nunito', sans-serif; font-size:15px; color:var(--ink); }
+  .gratidao-legenda-input:focus { border-color: var(--accent-b); }
+  .gratidao-legenda-input::placeholder { color: var(--ink-faint); }
+  /* dentro da folha do diário: mesma grade, um pouco menor, sem clique */
+  .gratidao-grade-diario { max-width: 300px; align-self:center; margin: 6px 0 10px; box-shadow: 0 6px 16px rgba(60,40,20,.15); }
+  .gratidao-grade-diario .gratidao-casa { cursor: default; }
 
   /* ==========================================================================
      DIÁRIO EM FOLHAS
@@ -181,7 +194,6 @@
   .folha-foto { width:82%; max-height:220px; object-fit:cover; align-self:center; border-radius:3px;
     transform: rotate(-1.5deg); box-shadow: 0 6px 16px rgba(60,40,20,.2);
     filter: sepia(.2) saturate(1.1) contrast(1.04); }
-  .folha .polaroid-card-diario { margin: 6px auto; }
   .folha .ref-card { margin-top:4px; }
 
   .folha-lembranca { align-self:flex-start; padding:4px 10px; border-radius:999px; background: color-mix(in srgb, var(--accent-b) 16%, transparent);

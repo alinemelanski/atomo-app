@@ -90,7 +90,7 @@ const EN_UI = {
   'Meu Diário': 'My Diary', 'um espacinho pra você': 'a little space for you', 'Diário rápido': 'Quick diary', 'O que te fez sorrir hoje?': 'What made you smile today?',
   'Pode ser pequeno. Um instante, uma lembrança, alguém.': 'It can be small. A moment, a memory, someone.', 'Escreve aqui...': 'Write here...',
   'Uma coisa que você é grato(a) hoje': 'Something you\'re grateful for today', 'Uma coisa que você é grato(a) hoje.': 'Something you\'re grateful for today.',
-  'escreve sua gratidão aqui...': 'write your gratitude here...', 'Tira uma fotinho do momento (ou não) e escreve embaixo, tipo uma polaroid.': 'Snap a little photo of the moment (or not) and write underneath, like a polaroid.',
+  'escreve sua gratidão aqui...': 'write your gratitude here...', 'Escolhe 1, 2 ou 3 fotos do momento (ou nenhuma) e escreve embaixo.': 'Pick 1, 2 or 3 photos of the moment (or none) and write underneath.', 'Tira uma fotinha do momento e grave com uma frase embaixo.': 'Pick 1, 2 or 3 photos of the moment and write a line underneath.',
   'Tira uma fotinha do momento e grave com uma frase embaixo.': 'Snap a little photo of the moment and keep it with a line underneath.', 'toque pra tirar uma foto': 'tap to take a photo',
   'obrigada por dividir isso com você mesma.': 'thanks for sharing this with yourself.', 'obrigada por reparar nisso hoje.': 'thanks for noticing this today.',
   '☀️ guardado no seu diário': '☀️ kept in your diary', '📸 guardado no seu diário': '📸 kept in your diary', '🔒 Guardado só pra você': '🔒 Kept just for you',

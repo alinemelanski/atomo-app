@@ -918,7 +918,7 @@
   </div>
 </div>
 
-<!-- OVERLAY: DIARIO RAPIDO - GRATIDAO (POLAROID) -->
+<!-- OVERLAY: DIARIO RAPIDO - GRATIDAO (GRADE DE 1, 2 OU 3 FOTOS) -->
 <div class="dm-chat-overlay" id="quickGratidaoOverlay">
   <div class="dm-chat-header">
     <button class="back-btn" onclick="fecharQuickGratidao()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span></button>
@@ -926,19 +926,21 @@
   </div>
   <div class="quick-diario-scroll">
     <div class="quick-diario-pergunta" id="quickGratidaoPerguntaTxt" style="margin-top:6px;">Uma coisa que você é grato(a) hoje</div>
-    <div class="quick-diario-sub" id="quickGratidaoSubTxt">Tira uma fotinho do momento (ou não) e escreve embaixo, tipo uma polaroid.</div>
+    <div class="quick-diario-sub" id="quickGratidaoSubTxt">Escolhe 1, 2 ou 3 fotos do momento (ou nenhuma) e escreve embaixo.</div>
 
-    <div class="polaroid-card" id="polaroidCard">
-      <div class="polaroid-foto" id="polaroidFotoArea" onclick="abrirCameraGratidao()">
-        <img id="polaroidFotoImg" src="" style="display:none;" />
-        <div class="polaroid-foto-placeholder" id="polaroidFotoPlaceholder">
-          <span class="icon-svg" style="width:28px;height:28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg></span>
-          <div>toque pra tirar uma foto</div>
-        </div>
+    <!-- GRADE DE FOTOS estilo Instagram: a pessoa escolhe 1, 2 ou 3 fotos.
+         O js/diario.js desenha as casinhas dentro de #gratidaoGrade conforme
+         o layout escolhido nos 3 botõezinhos de cima. -->
+    <div class="gratidao-card" id="polaroidCard">
+      <div class="gratidao-layouts" id="gratidaoLayouts" role="radiogroup" aria-label="Quantas fotos">
+        <button class="gratidao-layout-btn on" data-layout="1" onclick="escolherLayoutGratidao(1)" aria-label="1 foto"><span class="mini mini-1"><i></i></span></button>
+        <button class="gratidao-layout-btn" data-layout="2" onclick="escolherLayoutGratidao(2)" aria-label="2 fotos"><span class="mini mini-2"><i></i><i></i></span></button>
+        <button class="gratidao-layout-btn" data-layout="3" onclick="escolherLayoutGratidao(3)" aria-label="3 fotos"><span class="mini mini-3"><i></i><i></i><i></i></span></button>
       </div>
-      <input type="text" id="polaroidLegendaInput" class="polaroid-legenda-input" placeholder="escreve sua gratidão aqui..." />
+      <div class="gratidao-grade layout-1" id="gratidaoGrade"></div>
+      <input type="text" id="polaroidLegendaInput" class="gratidao-legenda-input" placeholder="escreve sua gratidão aqui..." />
     </div>
-    <input type="file" id="polaroidFotoInput" accept="image/*" capture="environment" onchange="previewFotoPolaroid(this)" style="display:none;" />
+    <input type="file" id="polaroidFotoInput" accept="image/*" onchange="previewFotoPolaroid(this)" style="display:none;" />
 
     <button class="post-btn quick-diario-salvar" id="btnSalvarQuickGratidao" onclick="salvarQuickGratidao()">Guardar</button>
   </div>

@@ -1,0 +1,12 @@
+-- =====================================================================
+-- Átomo — Gratidão com grade de 1, 2 ou 3 fotos
+-- Rodar no SQL Editor do Supabase. Seguro rodar mais de uma vez.
+-- =====================================================================
+-- PRA APRENDER: "text[]" é uma coluna do tipo LISTA de textos. Cada post de
+-- gratidão guarda ali os links das fotos, na ordem da grade:
+--   ['foto1.jpg']                       → 1 foto
+--   ['foto1.jpg', 'foto2.jpg']          → 2 lado a lado
+--   ['foto1.jpg', 'foto2.jpg', 'f3.jpg']→ 1 grande + 2 empilhadas
+-- A coluna antiga "imagem_url" continua recebendo a PRIMEIRA foto, pra
+-- tudo que já usava ela (cartão de compartilhar, PDF, feed) seguir funcionando.
+alter table posts add column if not exists imagens_urls text[];

@@ -1,4 +1,4 @@
-/* js/diario.js — Diário privado, "o que te fez sorrir" e gratidão (polaroid)
+/* js/diario.js — Diário privado, "o que te fez sorrir" e gratidão (grade de fotos)
    Script comum (sem módulo): divide o escopo global com os outros arquivos de js/.
    A ordem dos <script> no index.html importa. */
 
@@ -436,19 +436,52 @@ window.salvarQuickSorriso = async function () {
   }, 1500);
 };
 
-// ---------- diario rapido: gratidao em forma de polaroid vintage ----------
-let arquivoFotoGratidao = null;
+// ---------- diario rapido: gratidão com grade de 1, 2 ou 3 fotos ----------
+// PRA APRENDER: guardamos as fotos escolhidas num array com "casinhas"
+// (fotosGratidao[0], [1], [2]). O layout diz quantas casinhas aparecem.
+// Tocar numa casinha abre a galeria/câmera e a foto vai pra AQUELA casinha.
+let layoutGratidao = 1;
+let fotosGratidao = [null, null, null]; // arquivos (File) escolhidos
+let casinhaGratidaoAtual = 0;           // qual casinha está esperando foto
+
+const SVG_CAMERA_GRADE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.6c0-1 .8-1.8 1.8-1.8h1L7.6 5h6.8l.8 1.8h1c1 0 1.8.8 1.8 1.8v7.6c0 1-.8 1.8-1.8 1.8H5.8C4.8 18 4 17.2 4 16.2V8.6Z"/><circle cx="12" cy="12.3" r="3"/></svg>';
+
+function desenharGradeGratidao() {
+  const grade = document.getElementById('gratidaoGrade');
+  grade.className = 'gratidao-grade layout-' + layoutGratidao;
+  let html = '';
+  for (let i = 0; i < layoutGratidao; i++) {
+    const arq = fotosGratidao[i];
+    html += arq
+      ? `<button class="gratidao-casa cheia" onclick="escolherFotoCasinha(${i})" aria-label="Trocar foto ${i + 1}"><img src="${URL.createObjectURL(arq)}" alt="" /></button>`
+      : `<button class="gratidao-casa" onclick="escolherFotoCasinha(${i})" aria-label="Escolher foto ${i + 1}"><span class="icon-svg" style="width:24px;height:24px;">${SVG_CAMERA_GRADE}</span></button>`;
+  }
+  grade.innerHTML = html;
+  document.querySelectorAll('.gratidao-layout-btn').forEach(b => {
+    const on = Number(b.dataset.layout) === layoutGratidao;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+}
+
+window.escolherLayoutGratidao = function (n) {
+  layoutGratidao = n;
+  desenharGradeGratidao();
+};
+
+window.escolherFotoCasinha = function (i) {
+  casinhaGratidaoAtual = i;
+  document.getElementById('polaroidFotoInput').click();
+};
 
 window.abrirQuickGratidao = function () {
   document.getElementById('polaroidLegendaInput').value = '';
-  const img = document.getElementById('polaroidFotoImg');
-  img.src = ''; img.style.display = 'none';
-  document.getElementById('polaroidFotoPlaceholder').style.display = 'flex';
-  document.getElementById('polaroidFotoArea').classList.remove('revelando');
-  arquivoFotoGratidao = null;
+  fotosGratidao = [null, null, null];
+  layoutGratidao = 1;
+  desenharGradeGratidao();
   const gratoAdj = meuGenero === 'Mulher' ? 'grata' : meuGenero === 'Homem' ? 'grato' : 'grato(a)';
   document.getElementById('quickGratidaoPerguntaTxt').textContent = 'Guarde algo que você é ' + gratoAdj + ' hoje';
-  document.getElementById('quickGratidaoSubTxt').textContent = 'Tira uma fotinha do momento e grave com uma frase embaixo.';
+  document.getElementById('quickGratidaoSubTxt').textContent = 'Escolhe 1, 2 ou 3 fotos do momento (ou nenhuma) e escreve embaixo.';
   const card = document.getElementById('polaroidCard');
   card.style.display = ''; card.style.opacity = '1';
   const btn = document.getElementById('btnSalvarQuickGratidao');
@@ -460,22 +493,12 @@ window.fecharQuickGratidao = function () {
   document.getElementById('quickGratidaoOverlay').classList.remove('open');
 };
 
-window.abrirCameraGratidao = function () {
-  document.getElementById('polaroidFotoInput').click();
-};
-
+// (nome antigo mantido: o <input type="file"> do index.html chama essa função)
 window.previewFotoPolaroid = function (input) {
   if (!input.files || !input.files[0]) return;
-  arquivoFotoGratidao = input.files[0];
-  const img = document.getElementById('polaroidFotoImg');
-  const area = document.getElementById('polaroidFotoArea');
-  img.src = URL.createObjectURL(arquivoFotoGratidao);
-  img.style.display = 'block';
-  document.getElementById('polaroidFotoPlaceholder').style.display = 'none';
-  // efeito "revelando" tipo polaroid de verdade saindo da camera
-  area.classList.remove('revelando');
-  void area.offsetWidth;
-  area.classList.add('revelando');
+  fotosGratidao[casinhaGratidaoAtual] = input.files[0];
+  input.value = ''; // limpa, senão escolher a MESMA foto de novo não dispara o onchange
+  desenharGradeGratidao();
 };
 
 window.salvarQuickGratidao = async function () {
@@ -487,14 +510,23 @@ window.salvarQuickGratidao = async function () {
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
-  const fotoUrl = await subirFotoParaStorage(usuarioId, arquivoFotoGratidao);
+
+  // sobe uma foto de cada vez (o nome do arquivo usa a hora em milissegundos;
+  // em paralelo, duas fotos poderiam ganhar o MESMO nome)
+  const urls = [];
+  for (const arq of fotosGratidao.slice(0, layoutGratidao)) {
+    if (!arq) continue;
+    const url = await subirFotoParaStorage(usuarioId, arq);
+    if (url) urls.push(url);
+  }
 
   const { error } = await supabaseClient.from('posts').insert({
     autor_id: usuarioId,
     texto: legenda,
     tipo: 'Gratidão do dia',
     privado: true,
-    imagem_url: fotoUrl,
+    imagem_url: urls[0] || null,              // a 1ª foto (compatível com o que já existia)
+    imagens_urls: urls.length ? urls : null,  // todas, na ordem da grade
   });
 
   if (error) {
@@ -519,3 +551,14 @@ window.salvarQuickGratidao = async function () {
     mostrarToast('📸 guardado no seu diário');
   }, 1500);
 };
+
+// Como a gratidão aparece DENTRO da folha do diário: a mesma grade, já com as fotos.
+// Posts antigos (só imagem_url) viram uma grade de 1 foto.
+function corpoGratidaoHtml(e) {
+  const urls = (e.imagens_urls && e.imagens_urls.length ? e.imagens_urls : [e.imagem_url]).filter(Boolean).slice(0, 3);
+  return `
+    <div class="gratidao-grade layout-${urls.length} gratidao-grade-diario">
+      ${urls.map(u => `<div class="gratidao-casa cheia"><img src="${u}" loading="lazy" alt="" /></div>`).join('')}
+    </div>
+    <div class="folha-texto" data-editavel>${formatarMencoes(e.texto)}</div>`;
+}
