@@ -5,6 +5,7 @@
   "main": "servidor.js",
   "scripts": {
     "start": "node servidor.js",
+    "dev": "concurrently \"node servidor.js\" \"npx serve -l 3000\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,5 +18,8 @@
     "dotenv": "^16.6.1",
     "express": "^5.2.1",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }
