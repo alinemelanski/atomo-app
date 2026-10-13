@@ -49,9 +49,12 @@ async function renderComunidades() {
           <path d="M12 3 3 7.5 12 12l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
         </svg>
         <div class="clube-kicker">gente estudando junto</div>
-        <div class="clube-titulo-grande">Comunidades</div>
+        <!-- título + botão "+" na MESMA linha (o botão grande "criar comunidade" saiu pra sobrar tela) -->
+        <div class="clube-titulo-linha">
+          <div class="clube-titulo-grande">Comunidades</div>
+          <button class="btn-icone terracota ativo clube-criar-mais" onclick="abrirCriarComunidade()" aria-label="Criar comunidade" title="criar comunidade"><span class="icon-svg" style="width:20px;height:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        </div>
         <div class="clube-sub-grande">${totalComunidades} comunidade${totalComunidades === 1 ? '' : 's'}${minhas ? ` · você participa de ${minhas}` : ''}</div>
-        <button class="clube-criar-btn" onclick="abrirCriarComunidade()">criar comunidade</button>
         ${totalComunidades
         ? estudos.map((c, i) => cardComunidadeHtml(c, i, meuId)).join('')
         : estadoVazio('nenhuma comunidade ainda', 'crie a primeira — vestibular, concurso, idioma, filosofia...', 'criar comunidade', 'abrirCriarComunidade()')}

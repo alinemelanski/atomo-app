@@ -137,3 +137,9 @@
 
 /* aviso (toast): mensagens compridas quebram linha em vez de sair da tela */
 .world-toast2 { z-index: 1000; white-space: normal; max-width: calc(100% - 40px); width: max-content; text-align: center; line-height: 1.35; }
+
+/* título da aba (Clube do Livro / Comunidades) com o "+" de criar na mesma linha,
+   encostado à direita (justify-content: space-between empurra um pra cada ponta) */
+.clube-titulo-linha { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.clube-titulo-linha .clube-titulo-grande { margin-bottom: 0; }
+.clube-criar-mais { width: 42px; height: 42px; }

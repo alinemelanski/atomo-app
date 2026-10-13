@@ -95,9 +95,11 @@ async function renderClubes() {
           <path class="scribble-marca" d="M3,52 C7,39 27,32 51,37 C73,31 98,43 94,52 C99,61 77,68 48,62 C21,69 1,58 3,52 Z" transform="rotate(15 50 50)"/>
           <path class="scribble-marca" d="M6,47 C3,37 29,34 53,36 C71,29 95,44 91,54 C97,57 73,67 47,60 C25,72 2,55 6,47 Z" transform="rotate(95 50 50)"/>
         </svg>
-        <div class="clube-titulo-grande">Clube do Livro</div>
+        <div class="clube-titulo-linha">
+          <div class="clube-titulo-grande">Clube do Livro</div>
+          <button class="btn-icone terracota ativo clube-criar-mais" onclick="abrirCriarClube()" aria-label="Criar clube" title="criar clube"><span class="icon-svg" style="width:20px;height:20px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span></button>
+        </div>
         <div class="clube-sub-grande">${totalClubes} clube${totalClubes === 1 ? '' : 's'}${meusClubes ? ` · você participa de ${meusClubes}` : ''}</div>
-        <button class="clube-criar-btn" onclick="abrirCriarClube()">criar clube</button>
         ${clubes && clubes.length
         ? clubes.map((c, i) => cardClubeHtml(c, i, meuId)).join('')
         : estadoVazio('nenhum clube ainda', 'crie o primeiro e chame gente pra discutir livro junto')}
