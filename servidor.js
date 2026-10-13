@@ -1137,8 +1137,10 @@ app.post('/api/lista-espera', async (req, res) => {
   res.json({ ok: true });
 });
 
-console.log('TOKEN CARREGADO:', process.env.TMDB_API_KEY ? process.env.TMDB_API_KEY.slice(0, 20) + '...' : 'VAZIO/UNDEFINED');
-console.log('V3 EM JSON:', JSON.stringify(process.env.TMDB_API_KEY_V3));
+// SEGURANÇA: nunca escrever chave de API no log (nem um pedaço dela) — o log
+// fica guardado no Render e qualquer pessoa com acesso ao painel leria a chave.
+// Pra conferir se a chave carregou, basta dizer SIM ou NÃO:
+console.log('chave TMDB carregada:', process.env.TMDB_API_KEY ? 'sim' : 'NÃO', '| chave TMDB v3:', process.env.TMDB_API_KEY_V3 ? 'sim' : 'NÃO');
 
 app.get('/api/buscar-filme', async (req, res) => {
   const termo = req.query.q;
