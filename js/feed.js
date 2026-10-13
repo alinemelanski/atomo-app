@@ -791,8 +791,6 @@ const meuId = sessionData.session.user.id;
 
 if (!post.curtiu && evt) {
   const btn = evt.currentTarget;
-  btn.classList.add('curtir-pulsando');
-  setTimeout(() => btn.classList.remove('curtir-pulsando'), 400);
 
   // microinteração do kit: bolinhas terracota/sálvia saem do coração
   explodirCurtida(btn);
