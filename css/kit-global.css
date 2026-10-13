@@ -136,4 +136,4 @@
 .clube-criar-btn { width: 200px; margin-bottom: 16px; }
 
 /* aviso (toast): mensagens compridas quebram linha em vez de sair da tela */
-.world-toast2 { white-space: normal; max-width: calc(100% - 40px); width: max-content; text-align: center; line-height: 1.35; }
+.world-toast2 { z-index: 1000; white-space: normal; max-width: calc(100% - 40px); width: max-content; text-align: center; line-height: 1.35; }
