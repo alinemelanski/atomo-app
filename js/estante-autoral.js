@@ -398,13 +398,17 @@ async function renderRevisaoLivrosAutorais() {
     (data && data.length ? data.map((d, i) => cardRevisaoAutoralHtml(d, i)).join('') : estadoVazio('fila vazia', 'nenhum livro esperando revisão agora'));
 }
 
+const SERVIDOR_PUBLICADO = 'https://atomo-app.onrender.com';
 window.configurarWebhookAsaas = async function () {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
   if (!token) { mostrarToast('entra na sua conta de novo pra configurar'); return; }
   mostrarToast('configurando o webhook...');
   try {
-    const resp = await fetch(`${API_BASE}/api/estante-autoral/configurar-webhook`, {
+    // SEMPRE no servidor publicado (Render), mesmo testando no localhost:
+    // o webhook é o endereço que o Asaas chama pela internet, então ele tem
+    // que ser o do Render — o seu computador o Asaas não consegue alcançar.
+    const resp = await fetch(`${SERVIDOR_PUBLICADO}/api/estante-autoral/configurar-webhook`, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + token },
     });
@@ -412,7 +416,7 @@ window.configurarWebhookAsaas = async function () {
     if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'erro ao configurar')); return; }
     mostrarToast('✅ ' + (resultado.mensagem || 'webhook configurado'));
   } catch (e) {
-    mostrarToast(mensagemServidorForaDoAr());
+    mostrarToast('❌ o servidor do Render não respondeu — espera uns segundos (ele pode estar acordando) e tenta de novo');
   }
 };
 
