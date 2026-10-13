@@ -188,3 +188,20 @@
   .estante-continuar-capa .capa-papel-autor { font-size: 8.5px; }
 
   .estante-envios { margin: 2px 0 16px; }
+
+  /* ---------- MEUS DESTAQUES ---------- */
+  .destaques-scroll { flex: 1; overflow-y: auto; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  .destaques-intro { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 14px; margin-bottom: 16px; }
+  .destaques-intro-titulo { display: flex; align-items: center; gap: 7px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+  .destaques-intro p { font-family: 'Nunito', sans-serif; font-size: 12.5px; line-height: 1.5; color: var(--ink-dim); margin: 6px 0 12px; }
+  .destaques-livro { margin-bottom: 18px; }
+  .destaques-livro-cab { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 0 4px 8px; }
+  .destaques-livro-titulo { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: var(--ink); }
+  .destaques-livro-autor { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+  .destaques-livro-conta { margin-left: auto; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; color: var(--salvia);
+    background: var(--salvia-suave); border-radius: 999px; padding: 2px 9px; }
+  /* cada destaque: papel clarinho com uma faixa sálvia à esquerda, como marca-texto */
+  .destaque-card { margin: 0 0 8px; padding: 12px 12px 10px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-b);
+    box-shadow: inset 4px 0 0 var(--salvia); }
+  .destaque-card blockquote { margin: 0; font-family: 'Fraunces', serif; font-size: 14.5px; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
+  .destaque-acoes { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }

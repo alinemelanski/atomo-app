@@ -1531,6 +1531,14 @@
         <input type="file" id="comunidadeFotoInput" accept="image/*" onchange="enviarFotoComunidade(this)" style="display:none;" />
         <input type="file" id="comunidadeFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoComunidade(this)" style="display:none;" />
         <input type="file" id="uploadEpubInput" accept=".epub" onchange="escolherArquivoEpub()" style="display:none;" />
+<!-- TELA: MEUS DESTAQUES (o que você grifou no leitor + o que veio do Kindle) -->
+<div class="dm-chat-overlay" id="destaquesOverlay">
+  <div class="dm-chat-header">
+    <button class="back-btn" onclick="closeOverlay('destaquesOverlay')" aria-label="Voltar"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
+    <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Meus destaques</h2>
+  </div>
+  <div class="destaques-scroll" id="destaquesLista"></div>
+</div>
 <input type="file" id="importarKindleInput" accept=".txt" onchange="escolherArquivoKindle()" style="display:none;" />
         <input type="file" id="explorarComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />

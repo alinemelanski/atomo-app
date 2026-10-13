@@ -390,10 +390,87 @@ window.escolherArquivoEpub = async function () {
 };
 
 // ---------- importar destaques do Kindle (My Clippings.txt, sem precisar de senha/API) ----------
+// "destaques do Kindle" agora abre a tela MEUS DESTAQUES: ela mostra tudo que
+// você grifou (no leitor do app ou no Kindle) e tem o botão de importar.
+// Antes o botão só abria a escolha de arquivo, sem explicar nada, e os
+// destaques importados não apareciam em lugar nenhum.
 window.abrirImportarKindle = function () {
+  document.getElementById('destaquesOverlay').classList.add('open');
+  renderDestaques();
+};
+
+window.escolherArquivoKindleAgora = function () {
   const input = document.getElementById('importarKindleInput');
   input.value = '';
   input.click();
+};
+
+window.DESTAQUES_ATUAIS = [];
+async function renderDestaques() {
+  const wrap = document.getElementById('destaquesLista');
+  const intro = `
+    <div class="destaques-intro">
+      <div class="destaques-intro-titulo">${icone('estante', 16)} trazer do Kindle</div>
+      <p>Ligue o Kindle no computador pelo cabo USB, abra a pasta <b>documents</b> e escolha o arquivo <b>My Clippings.txt</b>. Todos os trechos que você marcou lá aparecem aqui, separados por livro.</p>
+      <button class="btn-acao btn-acao-terracota largo" onclick="escolherArquivoKindleAgora()">${icone('instalar', 18)}escolher My Clippings.txt</button>
+    </div>`;
+  wrap.innerHTML = intro + `<div class="visitor-lock-note">Carregando...</div>`;
+
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session) return;
+  const { data, error } = await supabaseClient.from('grifos_livro').select('*')
+    .eq('usuario_id', sessionData.session.user.id).order('criado_em', { ascending: false });
+  if (error) { wrap.innerHTML = intro + `<div class="visitor-lock-note">Não consegui carregar seus destaques.</div>`; return; }
+  window.DESTAQUES_ATUAIS = data || [];
+  if (!data || !data.length) {
+    wrap.innerHTML = intro + estadoVazio('nenhum destaque ainda', 'grife um trecho no leitor ou importe do Kindle');
+    return;
+  }
+  // agrupa por livro (PRA APRENDER: reduce monta um objeto { "título": [destaques...] })
+  const porLivro = data.reduce((acc, d, i) => {
+    const chave = d.livro_titulo || 'sem título';
+    (acc[chave] = acc[chave] || { autor: d.livro_autor, itens: [] }).itens.push({ d, i });
+    return acc;
+  }, {});
+  wrap.innerHTML = intro + Object.entries(porLivro).map(([titulo, g]) => `
+    <section class="destaques-livro">
+      <div class="destaques-livro-cab">
+        <div class="destaques-livro-titulo">${titulo}</div>
+        ${g.autor ? `<div class="destaques-livro-autor">${g.autor}</div>` : ''}
+        <span class="destaques-livro-conta">${g.itens.length}</span>
+      </div>
+      ${g.itens.map(({ d, i }) => `
+        <figure class="destaque-card">
+          <blockquote>${d.texto}</blockquote>
+          <div class="destaque-acoes">
+            <button class="btn-icone btn-icone-mini" onclick="compartilharDestaque(${i})" aria-label="Virar cartão de citação">${icone('compartilhar', 14)}</button>
+            <button class="btn-icone btn-icone-mini terracota" onclick="apagarDestaque(${i})" aria-label="Apagar destaque">${icone('lixeira', 14)}</button>
+          </div>
+        </figure>`).join('')}
+    </section>`).join('');
+}
+
+// abre o mesmo cartão de citação que o leitor usa, já preenchido
+window.compartilharDestaque = function (i) {
+  const d = window.DESTAQUES_ATUAIS[i];
+  if (!d) return;
+  document.getElementById('citacaoTextoInput').value = d.texto;
+  document.getElementById('citacaoTituloInput').value = d.livro_titulo || '';
+  document.getElementById('citacaoAutorInput').value = d.livro_autor || '';
+  window.CITACAO_CLUBE_ID = null;
+  mostrarPreviaCitacao(false);
+  document.getElementById('citacaoAcoes').style.display = 'none';
+  document.getElementById('citacaoCartaoOverlay').classList.add('open');
+};
+
+window.apagarDestaque = function (i) {
+  const d = window.DESTAQUES_ATUAIS[i];
+  if (!d) return;
+  abrirConfirmGenerico('Apagar esse destaque?', 'Ele sai da sua lista de destaques.', async () => {
+    const { error } = await supabaseClient.from('grifos_livro').delete().eq('id', d.id);
+    if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+    renderDestaques();
+  });
 };
 
 // o My Clippings.txt separa cada destaque por uma linha "==========", no formato:
@@ -446,6 +523,7 @@ window.escolherArquivoKindle = async function () {
   const { error } = await supabaseClient.from('grifos_livro').insert(linhas);
   if (error) { mostrarToast('❌ erro ao importar: ' + error.message); return; }
   mostrarToast(`📚 ${destaques.length} destaque${destaques.length === 1 ? '' : 's'} do Kindle importado${destaques.length === 1 ? '' : 's'}!`);
+  renderDestaques();
 };
 
 window.excluirDoEstante = async function (i) {
