@@ -453,7 +453,14 @@ app.post('/api/estante-autoral/configurar-webhook', async (req, res) => {
     return res.status(403).json({ erro: 'só a conta administradora pode configurar isso' });
   }
 
-  const urlWebhook = `${req.protocol}://${req.get('host')}/api/estante-autoral/webhook-asaas`;
+  // O Asaas precisa conseguir chamar esse endereço pela internet. "localhost"
+  // só existe dentro do seu computador — se registrar ele, os pagamentos nunca
+  // seriam confirmados. Então, rodando local, o servidor recusa e explica.
+  if (/localhost|127\.0\.0\.1/.test(req.get('host') || '')) {
+    return res.status(400).json({ erro: 'configure o webhook pelo app publicado (Render), não pelo localhost — o Asaas não enxerga o seu computador' });
+  }
+  // atrás do Render o protocolo chega como http; o Asaas exige https
+  const urlWebhook = `https://${req.get('host')}/api/estante-autoral/webhook-asaas`;
 
   try {
     const respLista = await fetch(`${ASAAS_API_BASE}/webhooks`, { headers: { 'access_token': ASAAS_API_KEY } });
