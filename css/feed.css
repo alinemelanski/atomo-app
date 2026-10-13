@@ -154,7 +154,7 @@
   background: var(--accent-a); color: #fff; font-size: 11px; font-weight: 800;
   display: flex; align-items: center; justify-content: center; }
 .guia-passo .icon-svg { display: inline-flex; vertical-align: -3px; }
-.notif-banner { position: fixed; left: 16px; right: 16px; max-width: 420px; margin: 0 auto; bottom: 84px;
+.notif-banner { position: fixed; left: 16px; right: 16px; max-width: 420px; margin: 0 auto; bottom: 104px;
   background: var(--card); border: 1px solid var(--card-b); border-radius: 16px; padding: 14px 16px;
   box-shadow: var(--shadow); z-index: 45; display: flex; gap: 12px; align-items: flex-start;
   transform: translateY(160%); transition: transform .4s ease; }

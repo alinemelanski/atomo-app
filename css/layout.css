@@ -22,24 +22,47 @@
   .notif-item .n-s { font-size: 10.5px; color: var(--ink-faint); margin-top: 1px; }
 
   /* ---------- barra de navegação ---------- */
-  .tabbar { position: absolute; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + 6px); left: 14px; right: 14px; background: var(--card); border: 1px solid var(--card-b);
-    border-radius: 26px; display: flex; padding: 8px; gap: 4px; box-shadow: var(--shadow); z-index: 20; }
+  /* PRA APRENDER: as cores da barra ficam em "variáveis" (--tabbar-...). O tema escuro só troca o valor
+     das variáveis, e o resto do CSS não precisa saber de que tema estamos. */
+  :root {
+    --tabbar-bg: #DBDFD7;           /* verde-acinzentado bem clarinho, tirado do desenho */
+    --tabbar-ink: #6F675B;          /* ícone e texto das abas fechadas */
+    --tabbar-ativo: #3F5A4A;        /* verde-escuro da aba aberta */
+    --tabbar-brilho: rgba(255, 255, 255, .78);  /* "luz" redonda atrás do ícone da aba aberta */
+    --tabbar-pill: #ACB1A9;         /* tracinho de baixo (indicador de início) */
+    --tabbar-sombra: rgba(40, 56, 44, .14);
+  }
+  [data-theme="dark"] {
+    --tabbar-bg: #1B201C; --tabbar-ink: #8E8A80; --tabbar-ativo: #B7CDB3;
+    --tabbar-brilho: rgba(157, 178, 154, .20); --tabbar-pill: #3A413B; --tabbar-sombra: rgba(0, 0, 0, .5);
+  }
+
+  /* barra colada na base da tela, com as pontas de cima arredondadas */
+  .tabbar { position: absolute; bottom: 0; left: 0; right: 0; background: var(--tabbar-bg); border: none;
+    border-radius: 30px 30px 0 0; display: flex; gap: 2px; z-index: 20;
+    padding: 12px 10px calc(26px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -6px 24px var(--tabbar-sombra); }
+  /* o tracinho de baixo é só enfeite do desenho (pra tirar, apague este bloco ::after) */
+  .tabbar::after { content: ''; position: absolute; left: 50%; bottom: calc(9px + env(safe-area-inset-bottom, 0px));
+    width: 36%; max-width: 150px; height: 5px; border-radius: 3px; background: var(--tabbar-pill);
+    transform: translateX(-50%); pointer-events: none; }
   .tab-btn { flex: 1; background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative;
-    padding: 6px 2px 8px; border-radius: 18px; cursor: pointer; color: var(--ink-faint); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 10px;
+    padding: 2px 2px 0; border-radius: 18px; cursor: pointer; color: var(--tabbar-ink); font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 11px;
     transition: color .25s ease; }
-  .tab-icon-wrap { position: relative; width: 36px; height: 36px; border-radius: 40%; display: flex; align-items: center; justify-content: center;
+  .tab-icon-wrap { position: relative; width: 44px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
     transition: background .25s cubic-bezier(.2,.8,.2,1), transform .25s cubic-bezier(.2,.8,.2,1); }
-  .tab-badge { position: absolute; top: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%;
-    background: var(--pink); box-shadow: 0 0 0 2px var(--card); display: none; z-index: 1; }
+  .tab-badge { position: absolute; top: 3px; right: 6px; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--pink); box-shadow: 0 0 0 2px var(--tabbar-bg); display: none; z-index: 1; }
   .tab-badge.on { display: block; }
   .dm-unread-badge { flex: none; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--pink);
     color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-left: auto; }
-  .tab-btn.active { color: var(--accent-a); }
-  .tab-btn.active .tab-icon-wrap { background: radial-gradient(circle, var(--accent-soft) 0%, var(--accent-soft) 45%, transparent 78%);
-    transform: scale(1.08); animation: tabGlowBreath 2.6s ease-in-out infinite; }
-  .tab-btn.active svg { color: var(--accent-a); }
+  /* aba aberta: texto e ícone em verde-escuro, texto mais grosso e a "luz" redonda atrás do ícone */
+  .tab-btn.active { color: var(--tabbar-ativo); font-weight: 800; }
+  .tab-btn.active .tab-icon-wrap { background: radial-gradient(circle, var(--tabbar-brilho) 0%, var(--tabbar-brilho) 38%, transparent 72%);
+    animation: tabGlowBreath 2.6s ease-in-out infinite; }
+  .tab-btn.active svg { color: var(--tabbar-ativo); }
   .tab-btn:active .tab-icon-wrap { transform: scale(.9); }
-  .tab-btn svg { width: 20px; height: 20px; transition: transform .25s ease; position: relative; z-index: 1; }
+  .tab-btn svg { width: 22px; height: 22px; transition: transform .25s ease; position: relative; z-index: 1; }
   .tab-btn[data-screen="descobrir"].active .tab-icon-wrap svg { animation: atomoGiraTab 7s linear infinite; }
   @keyframes tabGlowBreath { 0%, 100% { opacity: .8; } 50% { opacity: 1; } }
   @keyframes atomoGiraTab { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
