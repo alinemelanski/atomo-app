@@ -94,7 +94,10 @@
 .data-picker-btn .icon-svg { color: var(--salvia); }
 .apoio-resposta-btn:active { background: var(--salvia-suave); }
 
-/* (barra de baixo: as cores da aba aberta agora vêm das variáveis --tabbar-* em css/layout.css) */
+/* barra de baixo: aba aberta em sálvia (navegação = sálvia no kit) */
+.tab-btn.active, .tab-btn.active svg,
+[data-theme="dark"] .tab-btn.active, [data-theme="dark"] .tab-btn.active svg { color: var(--salvia); }
+.tab-btn.active .tab-icon-wrap { background: radial-gradient(circle, var(--salvia-suave) 0%, var(--salvia-suave) 45%, transparent 78%); }
 
 /* ---------- 7. BOTÕES DOS POSTS (igual à imagem do kit) ----------
    Cada ação vira um CÍRCULO com o ícone (o número fica do lado, de fora).
