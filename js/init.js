@@ -120,9 +120,8 @@ if (session) {
   window.MEU_HANDLE = (perfil && perfil.handle) || '';
   window.MINHA_FOTO = (perfil && perfil.avatar_url) || ''; // a mesa ao vivo do clube mostra essa foto pros outros
   window.iniciarRascunhos();
-         // nome de verdade em vez do e-mail inteiro — cai pro @handle se não tiver
-         // nome salvo, e só usa "por aqui" como último recurso (nunca o e-mail)
-         mostrarToast('✨ Bem-vinda de volta, ' + ((perfil && perfil.nome) || (perfil && perfil.handle && ('@' + perfil.handle)) || 'por aqui') + '!');
+  // (o aviso "Bem-vinda de volta" foi retirado a pedido da Aline: a saudação
+  //  "Olá, Aline" do topo do Home já cumpre esse papel, sem aviso piscando)
   // saudação do topo do Home com o primeiro nome (ex: "Ana Paula" -> "Olá, Ana")
   const nomeExibicaoHome = (perfil && perfil.nome && perfil.nome.trim().split(/\s+/)[0])
     || (perfil && perfil.handle && ('@' + perfil.handle))
