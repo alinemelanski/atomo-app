@@ -401,8 +401,8 @@ async function renderRevisaoLivrosAutorais() {
 window.configurarWebhookAsaas = async function () {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
-  if (!token) return;
-  mostrarToast('configurando...');
+  if (!token) { mostrarToast('entra na sua conta de novo pra configurar'); return; }
+  mostrarToast('configurando o webhook...');
   try {
     const resp = await fetch(`${API_BASE}/api/estante-autoral/configurar-webhook`, {
       method: 'POST',
@@ -412,7 +412,7 @@ window.configurarWebhookAsaas = async function () {
     if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'erro ao configurar')); return; }
     mostrarToast('✅ ' + (resultado.mensagem || 'webhook configurado'));
   } catch (e) {
-    mostrarToast('❌ erro ao configurar webhook');
+    mostrarToast(mensagemServidorForaDoAr());
   }
 };
 
@@ -452,14 +452,30 @@ window.confirmarRecusarLivroAutoral = async function () {
 async function enviarRevisaoAutoral(livroId, aprovado, motivo) {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
-  if (!token) return;
-  const resp = await fetch(`${API_BASE}/api/estante-autoral/revisar`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: JSON.stringify({ livroId, aprovado, motivo }),
-  });
-  const resultado = await resp.json().catch(() => ({}));
-  if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'erro')); return; }
-  mostrarToast(aprovado ? '✅ aprovado' : '🚫 recusado');
-  renderEstanteAutoral();
+  if (!token) { mostrarToast('entra na sua conta de novo pra revisar'); return; }
+  // PRA APRENDER: antes, se o servidor não respondesse, o fetch "explodia" em
+  // silêncio e parecia que o botão não fazia nada. Agora: aviso na hora,
+  // try/catch pra pegar falha de rede e uma mensagem dizendo o que aconteceu.
+  mostrarToast(aprovado ? 'aprovando...' : 'recusando...');
+  try {
+    const resp = await fetch(`${API_BASE}/api/estante-autoral/revisar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ livroId, aprovado, motivo }),
+    });
+    const resultado = await resp.json().catch(() => ({}));
+    if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'erro ' + resp.status)); return; }
+    mostrarToast(aprovado ? '✅ aprovado — já está na Loja' : '🚫 recusado');
+    renderEstanteAutoral();
+  } catch (e) {
+    mostrarToast(mensagemServidorForaDoAr());
+  }
+}
+
+// mensagem pra quando o servidor nem responde (rede caiu, Render acordando,
+// ou — testando no computador — o servidor.js não está rodando)
+function mensagemServidorForaDoAr() {
+  return API_BASE.includes('localhost')
+    ? '❌ o servidor local não respondeu — rode "node servidor.js" no terminal'
+    : '❌ o servidor não respondeu — espera uns segundos (ele pode estar acordando) e tenta de novo';
 }
