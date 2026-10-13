@@ -419,6 +419,28 @@ app.post('/api/estante-autoral/webhook-asaas', async (req, res) => {
 
 // link assinado (expira em 1h) pro epub -- só pra quem comprou (ou é a
 // própria autora/autor). Nunca serve o arquivo público direto.
+// Grava a capa de um livro autoral que foi enviado SEM capa (o app tira a capa
+// de dentro do próprio epub e manda o link aqui). Pode: quem escreveu o livro
+// ou a conta que revisa a Loja. Por segurança, só aceita link de imagem do
+// NOSSO storage (midia-posts) — ninguém consegue apontar a capa pra outro site.
+app.post('/api/estante-autoral/capa', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'não configurado' });
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+  const { livroId, capaUrl } = req.body || {};
+  if (!livroId || !capaUrl) return res.status(400).json({ erro: 'faltou livroId ou capaUrl' });
+  if (!String(capaUrl).startsWith('https://wfhikucbygmjeawrfsfq.supabase.co/storage/v1/object/public/midia-posts/')) {
+    return res.status(400).json({ erro: 'capa precisa estar no storage do app' });
+  }
+  const { data: livro } = await supabaseAdmin.from('livros_autorais').select('autor_id').eq('id', livroId).maybeSingle();
+  if (!livro) return res.status(404).json({ erro: 'livro não encontrado' });
+  const ehAdmin = (usuario.email || '').toLowerCase() === EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase();
+  if (livro.autor_id !== usuario.id && !ehAdmin) return res.status(403).json({ erro: 'só quem escreveu o livro pode mudar a capa' });
+  const { error } = await supabaseAdmin.from('livros_autorais').update({ capa_url: capaUrl }).eq('id', livroId);
+  if (error) return res.status(500).json({ erro: error.message });
+  res.json({ ok: true });
+});
+
 app.post('/api/estante-autoral/arquivo', async (req, res) => {
   if (!supabaseAdmin) return res.status(500).json({ erro: 'não configurado' });
   const usuario = await usuarioDoToken(req);
@@ -430,7 +452,8 @@ app.post('/api/estante-autoral/arquivo', async (req, res) => {
   const { data: livro } = await supabaseAdmin.from('livros_autorais').select('autor_id, arquivo_path').eq('id', livroId).maybeSingle();
   if (!livro || !livro.arquivo_path) return res.status(404).json({ erro: 'livro não encontrado' });
 
-  let podeBaixar = livro.autor_id === usuario.id;
+  let podeBaixar = livro.autor_id === usuario.id
+    || (usuario.email || '').toLowerCase() === EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase(); // quem revisa precisa ler o livro
   if (!podeBaixar) {
     const { data: venda } = await supabaseAdmin.from('vendas_autorais').select('id').eq('livro_id', livroId).eq('comprador_id', usuario.id).eq('status', 'pago').maybeSingle();
     podeBaixar = !!venda;

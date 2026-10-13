@@ -138,6 +138,8 @@ window.abrirLivroAutoralDetalhe = async function (i) {
 
   document.getElementById('livroAutoralDetalheOverlay').classList.add('open');
   renderAvaliacoesLivroAutoral(d.id);
+  // livro sem capa e quem abriu é quem escreveu: busca a capa de dentro do epub
+  if (!d.capa_url && souAutor) completarCapaLivroAutoral(d);
 };
 
 function avaliarLivroAutoralHtml() {
@@ -253,7 +255,93 @@ window.escolherEpubAutoral = function () {
   if (!input.files || !input.files[0]) return;
   arquivoEpubAutoralEscolhido = input.files[0];
   document.getElementById('autoralEpubPreviewTxt').textContent = arquivoEpubAutoralEscolhido.name;
+  if (!arquivoCapaAutoralEscolhido) {
+    extrairCapaDoEpub(arquivoEpubAutoralEscolhido).then(capa => {
+      if (capa && !arquivoCapaAutoralEscolhido) document.getElementById('autoralCapaPreviewTxt').textContent = 'capa encontrada dentro do epub ✓';
+    }).catch(() => {});
+  }
 };
+
+// =====================================================================
+// CAPA DE DENTRO DO EPUB
+// =====================================================================
+// PRA APRENDER: um arquivo .epub é, na verdade, um .zip com páginas HTML e
+// imagens dentro. Um arquivo "índice" (o .opf) lista tudo e, quase sempre,
+// diz qual imagem é a capa. O caminho até ela:
+//   1. META-INF/container.xml → diz onde está o .opf
+//   2. no .opf, procura (nesta ordem):
+//        <meta name="cover" content="ID">          (epub 2)
+//        <item properties="cover-image" ...>         (epub 3)
+//        uma imagem com "cover"/"capa" no nome
+//        a primeira imagem da lista (muitos livros feitos no Word/Calibre)
+//   3. lê essa imagem de dentro do zip e devolve como arquivo
+// JSZip é a biblioteca que abre o .zip no navegador (a mesma que o leitor usa).
+async function extrairCapaDoEpub(arquivoEpub) {
+  await carregarEpubJs(); // carrega o JSZip sob demanda
+  const zip = await JSZip.loadAsync(arquivoEpub);
+  const container = await zip.file('META-INF/container.xml').async('string');
+  const caminhoOpf = (container.match(/full-path="([^"]+)"/) || [])[1];
+  if (!caminhoOpf) return null;
+  const opf = await zip.file(caminhoOpf).async('string');
+  const pasta = caminhoOpf.includes('/') ? caminhoOpf.slice(0, caminhoOpf.lastIndexOf('/') + 1) : '';
+
+  const doc = new DOMParser().parseFromString(opf, 'application/xml');
+  const itens = [...doc.getElementsByTagName('item')];
+  const imagens = itens.filter(it => /^image\//.test(it.getAttribute('media-type') || ''));
+  const metaCapa = [...doc.getElementsByTagName('meta')].find(m => m.getAttribute('name') === 'cover');
+  const idCapa = metaCapa && metaCapa.getAttribute('content');
+  const escolhida = (idCapa && itens.find(it => it.getAttribute('id') === idCapa))
+    || itens.find(it => /cover-image/.test(it.getAttribute('properties') || ''))
+    || imagens.find(it => /cover|capa/i.test((it.getAttribute('href') || '') + (it.getAttribute('id') || '')))
+    || imagens[0];
+  if (!escolhida) return null;
+
+  const href = decodeURIComponent(escolhida.getAttribute('href'));
+  const arquivoImg = zip.file(pasta + href) || zip.file(href);
+  if (!arquivoImg) return null;
+  const blob = await arquivoImg.async('blob');
+  const tipo = escolhida.getAttribute('media-type') || 'image/jpeg';
+  const extensao = tipo.split('/')[1].replace('jpeg', 'jpg');
+  return new File([blob], 'capa-do-epub.' + extensao, { type: tipo });
+}
+
+// sobe a imagem no storage público e devolve o link
+async function subirCapaAutoral(usuarioId, arquivo) {
+  const caminho = `${usuarioId}/${Date.now()}-${arquivo.name}`;
+  const { error } = await supabaseClient.storage.from('midia-posts').upload(caminho, arquivo);
+  if (error) return null;
+  return supabaseClient.storage.from('midia-posts').getPublicUrl(caminho).data.publicUrl;
+}
+
+// Livro que já está na Loja SEM capa: quem escreveu (ou quem revisa) abre o
+// livro, o app baixa o epub, tira a capa de dentro e grava pelo servidor.
+async function completarCapaLivroAutoral(d) {
+  try {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const token = sessionData.session.access_token;
+    const respArq = await fetch(`${API_BASE}/api/estante-autoral/arquivo`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ livroId: d.id }),
+    });
+    const { url } = await respArq.json();
+    if (!url) return;
+    const epub = await (await fetch(url)).blob();
+    const capa = await extrairCapaDoEpub(epub);
+    if (!capa) { mostrarToast('esse epub não tem imagem de capa dentro'); return; }
+    const capaUrl = await subirCapaAutoral(sessionData.session.user.id, capa);
+    if (!capaUrl) return;
+    const resp = await fetch(`${API_BASE}/api/estante-autoral/capa`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ livroId: d.id, capaUrl }),
+    });
+    if (!resp.ok) return;
+    d.capa_url = capaUrl;
+    // troca o retângulo colorido pela capa na hora
+    const caixa = document.querySelector('#livroAutoralDetalheConteudo .livro-grid-capa');
+    if (caixa) { caixa.style.background = ''; caixa.style.backgroundImage = `url('${capaUrl}')`; caixa.innerHTML = ''; }
+    mostrarToast('📕 capa colocada (veio de dentro do epub)');
+  } catch (e) { console.log('não consegui tirar a capa do epub:', e.message); }
+}
 
 window.enviarLivroAutoral = async function () {
   const titulo = document.getElementById('autoralTituloInput').value.trim();
@@ -269,15 +357,12 @@ window.enviarLivroAutoral = async function () {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
 
-  let capaUrl = null;
-  if (arquivoCapaAutoralEscolhido) {
-    const caminhoCapa = `${usuarioId}/${Date.now()}-${arquivoCapaAutoralEscolhido.name}`;
-    const { error: erroCapa } = await supabaseClient.storage.from('midia-posts').upload(caminhoCapa, arquivoCapaAutoralEscolhido);
-    if (!erroCapa) {
-      const { data: urlCapa } = supabaseClient.storage.from('midia-posts').getPublicUrl(caminhoCapa);
-      capaUrl = urlCapa.publicUrl;
-    }
+  // capa: a que a pessoa escolheu; se não escolheu nenhuma, tira de dentro do epub
+  let arquivoCapa = arquivoCapaAutoralEscolhido;
+  if (!arquivoCapa) {
+    try { arquivoCapa = await extrairCapaDoEpub(arquivoEpubAutoralEscolhido); } catch (e) { arquivoCapa = null; }
   }
+  const capaUrl = arquivoCapa ? await subirCapaAutoral(usuarioId, arquivoCapa) : null;
 
   const caminhoEpub = `${usuarioId}/${Date.now()}-${arquivoEpubAutoralEscolhido.name}`;
   const { error: erroEpub } = await supabaseClient.storage.from('estante-autoral-epubs').upload(caminhoEpub, arquivoEpubAutoralEscolhido);
@@ -327,19 +412,34 @@ function carteiraAutoralCardHtml(perfil) {
           <div class="clube-cap-kicker">${icone('moeda',10)} recebimento</div>
           <div class="clube-cap-valor" style="font-size:14px;">pra receber suas vendas, cola aqui sua wallet id do Asaas</div>
         </div>
-        <input id="autoralWalletInput" class="busca-input" style="width:100%; margin-bottom:8px;" placeholder="wallet id do Asaas" value="${wallet}">
-        <button class="post-btn" style="width:100%;" onclick="salvarWalletAutoral()">salvar</button>
+        <input id="autoralWalletInput" class="busca-input" style="width:100%; margin-bottom:8px;" placeholder="wallet id do Asaas" value="${wallet}" oninput="document.getElementById('autoralWalletBtn').textContent = 'salvar'">
+        <button class="post-btn" id="autoralWalletBtn" style="width:100%;" onclick="salvarWalletAutoral()">${wallet ? 'salvo ✓' : 'salvar'}</button>
       </div>`;
 }
 
 window.salvarWalletAutoral = async function () {
+  // PRA APRENDER: o resultado aparece no PRÓPRIO botão ("salvando..." →
+  // "salvo ✓"), não só no aviso que some — assim dá pra ver que funcionou.
+  const btn = document.getElementById('autoralWalletBtn');
   const valor = document.getElementById('autoralWalletInput').value.trim();
   if (!valor) { mostrarToast('cola sua wallet id primeiro'); return; }
+  // a wallet id do Asaas é um código no formato 8-4-4-4-12 (letras e números)
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(valor)) {
+    if (btn) btn.textContent = 'código inválido — confere e cola de novo';
+    return;
+  }
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session ? sessionData.session.user.id : null;
-  if (!usuarioId) return;
+  if (!usuarioId) { if (btn) btn.textContent = 'entra na sua conta de novo'; return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'salvando...'; }
   const { error } = await supabaseClient.from('usuarios').update({ asaas_wallet_id: valor }).eq('id', usuarioId);
-  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  if (btn) btn.disabled = false;
+  if (error) {
+    if (btn) btn.textContent = 'não salvou — tenta de novo';
+    mostrarToast('❌ erro: ' + error.message);
+    return;
+  }
+  if (btn) btn.textContent = 'salvo ✓';
   mostrarToast('💰 wallet salva');
 };
 
