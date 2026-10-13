@@ -77,7 +77,11 @@ const btn = document.getElementById('curtirBtnComentarios');
 const contador = document.getElementById('curtirCountComentarios');
 if (btn) btn.classList.toggle('liked', p.curtiu);
 if (contador) contador.textContent = p.likes;
-if (!jaCurtia && btn) explodirCurtida(btn); // microinteração do kit
+if (!jaCurtia && btn) {
+  explodirCurtida(btn); // microinteração do kit
+  btn.classList.add('pulando');
+  setTimeout(() => btn.classList.remove('pulando'), 450);
+}
 
 let erro;
 if (jaCurtia) {

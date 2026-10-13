@@ -89,6 +89,8 @@ if (jaCurtiu) {
 } else {
   await supabaseClient.from('curtidas_descobrir').insert({ usuario_id: meuId, item_titulo: item.title, item_tipo: item.kind });
   botao.classList.add('liked');
+  botao.classList.add('pulando');
+  setTimeout(() => botao.classList.remove('pulando'), 450);
 }
 };
 

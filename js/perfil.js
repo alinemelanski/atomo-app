@@ -96,11 +96,12 @@ document.getElementById('perfilAlheioPosts').innerHTML = lista.length
           <div class="post-body">${formatarMencoes(p.texto)}</div>
           <div style="font-size:10px; color:var(--ink-faint); margin-top:6px; margin-bottom:8px;">${p.tipo} · ${p.tempo}</div>
           <div class="post-actions">
-            <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPostAlheio(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
+            <div class="post-action ${p.curtiu ? 'liked' : ''}${p.id === postRecemCurtidoId ? ' pulando' : ''}" onclick="curtirPostAlheio(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
             <div class="post-action" onclick="abrirComentarios(${i}, perfilAlheioPostsAtuais)">${icone('comentar',14,i)} ${p.comentarios.length}</div>
           </div>
         </div>`).join('')
   : `<div class="visitor-lock-note">Nada compartilhado ainda.</div>`;
+postRecemCurtidoId = null; // já pulou: no próximo desenho ninguém pula
 }
 
 window.curtirPostAlheio = async function (i, evt) {
@@ -112,6 +113,7 @@ const meuId = sessionData.session.user.id;
 const jaCurtia = post.curtiu;
 post.curtiu = !jaCurtia;
 post.likes = (post.likes || 0) + (jaCurtia ? -1 : 1);
+postRecemCurtidoId = jaCurtia ? null : post.id; // só este coração pula (variável criada em feed.js)
 renderPerfilAlheioPosts();
 
 let erro;

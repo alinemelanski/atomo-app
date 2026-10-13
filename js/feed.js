@@ -557,7 +557,7 @@ function renderFeed() {
         ${p.video_url ? `<video src="${p.video_url}" data-auto-video muted loop playsinline preload="metadata" style="width:100%; border-radius:12px; margin-top:8px; display:block; background:#000;"></video>` : ''}
         ${renderRefCard(p.ref)}
         <div class="post-actions">
-          <div class="post-action ${p.curtiu ? 'liked' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
+          <div class="post-action ${p.curtiu ? 'liked' : ''}${p.id === postRecemCurtidoId ? ' pulando' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
           <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length}</div>
           <div class="post-action" onclick="abrirCompartilhar(${i})">${icone('compartilhar',14,i)}</div>
           <div class="post-action${p.salvo ? ' ativo' : ''}" onclick="alternarSalvarPost(${p.id})" aria-label="${t(p.salvo ? 'post_remover_salvo' : 'post_salvar')}">${icone('salvar',14,i)}</div>
@@ -581,6 +581,7 @@ function renderFeed() {
     : postsHtml;
 
   document.getElementById('feedList').innerHTML = listaFinal.join('');
+postRecemCurtidoId = null; // já pulou: no próximo desenho ninguém pula
   ativarAutoplayVideoEmbeds();
 }
 
@@ -782,6 +783,9 @@ function notificarPushEvento(destinatarioId, tipo, dados) {
   }).catch(() => {});
 }
 
+// id do post que acabou de ser curtido: só ele recebe a classe "pulando" no próximo desenho da lista
+let postRecemCurtidoId = null;
+
 window.curtirPost = async function (i, evt) {
 
   vibrar(15); 
@@ -802,6 +806,7 @@ if (!post.curtiu && evt) {
 const jaCurtia = post.curtiu;
 post.curtiu = !jaCurtia;
 post.likes = (post.likes || 0) + (jaCurtia ? -1 : 1);
+postRecemCurtidoId = jaCurtia ? null : post.id; // só este coração vai pular (ver renderFeed)
 renderFeed();
 
 let erro;

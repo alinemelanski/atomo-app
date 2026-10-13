@@ -111,9 +111,12 @@
   30%  { opacity: 1; }
   100% { transform: rotate(var(--ang)) translateY(-26px) scaleY(1); opacity: 0; }
 }
-/* (removido) o coração dava um "pulinho" aqui. Como o feed é redesenhado a cada curtida, a animação
-   tocava de novo em TODOS os corações já curtidos, e o feed inteiro parecia pular. Agora o feedback da
-   curtida é só a cor, a vibração e os risquinhos que saem do coração (explodirCurtida). */
+/* o coração dá um pulo quando é curtido.
+   PRA APRENDER: a animação fica na classe ".pulando", e NÃO em ".liked". Como o feed é redesenhado a cada
+   curtida, ".liked" estava presente em todos os corações já curtidos, e todos pulavam de novo juntos.
+   Agora só o coração que acabou de ser curtido recebe ".pulando". */
+.post-action.pulando .icon-svg { animation: curtirPulo .4s ease; }
+@keyframes curtirPulo { 0% { transform: scale(1); } 35% { transform: scale(1.3); } 60% { transform: scale(.92); } 100% { transform: scale(1); } }
 
 @media (prefers-reduced-motion: reduce) {
   .ripple, .curtida-explosao i { animation-duration: .01s; }
