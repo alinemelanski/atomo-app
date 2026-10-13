@@ -399,6 +399,15 @@ window.abrirImportarKindle = function () {
   renderDestaques();
 };
 
+// abre/fecha o balãozinho de ajuda
+window.alternarBalaoKindle = function (btn) {
+  const balao = document.getElementById('kindleBalao');
+  const abrir = balao.hidden;
+  balao.hidden = !abrir;
+  btn.classList.toggle('ativo', abrir);
+  btn.setAttribute('aria-expanded', abrir);
+};
+
 window.escolherArquivoKindleAgora = function () {
   const input = document.getElementById('importarKindleInput');
   input.value = '';
@@ -408,11 +417,25 @@ window.escolherArquivoKindleAgora = function () {
 window.DESTAQUES_ATUAIS = [];
 async function renderDestaques() {
   const wrap = document.getElementById('destaquesLista');
+  // balãozinho explicando passo a passo (aparece aberto até a pessoa importar
+  // a primeira vez; depois vira um "?" que abre e fecha o balão)
+  let jaImportou = false;
+  try { jaImportou = localStorage.getItem('atomoKindleJaImportou') === '1'; } catch (e) { /* sem storage */ }
   const intro = `
-    <div class="destaques-intro">
-      <div class="destaques-intro-titulo">${icone('estante', 16)} trazer do Kindle</div>
-      <p>Ligue o Kindle no computador pelo cabo USB, abra a pasta <b>documents</b> e escolha o arquivo <b>My Clippings.txt</b>. Todos os trechos que você marcou lá aparecem aqui, separados por livro.</p>
-      <button class="btn-acao btn-acao-terracota largo" onclick="escolherArquivoKindleAgora()">${icone('instalar', 18)}escolher My Clippings.txt</button>
+    <div class="kindle-ajuda">
+      <div class="kindle-ajuda-linha">
+        <button class="btn-acao btn-acao-terracota" onclick="escolherArquivoKindleAgora()">${icone('instalar', 18)}importar do Kindle</button>
+        <button class="btn-icone kindle-ajuda-btn${jaImportou ? '' : ' ativo'}" onclick="alternarBalaoKindle(this)" aria-label="Como funciona?" aria-expanded="${!jaImportou}">?</button>
+      </div>
+      <div class="kindle-balao" id="kindleBalao" ${jaImportou ? 'hidden' : ''}>
+        <div class="kindle-balao-titulo">como trazer seus destaques do Kindle</div>
+        <ol>
+          <li>Ligue o Kindle no computador com o <b>cabo USB</b>. Ele aparece como um pendrive.</li>
+          <li>Abra a pasta <b>documents</b> dentro do Kindle.</li>
+          <li>Toque em <b>importar do Kindle</b> e escolha o arquivo <b>My Clippings.txt</b>.</li>
+        </ol>
+        <p>Pronto: todos os trechos que você marcou no Kindle aparecem aqui, separados por livro. Pode importar de novo sempre que marcar coisas novas.</p>
+      </div>
     </div>`;
   wrap.innerHTML = intro + `<div class="visitor-lock-note">Carregando...</div>`;
 
@@ -523,6 +546,7 @@ window.escolherArquivoKindle = async function () {
   const { error } = await supabaseClient.from('grifos_livro').insert(linhas);
   if (error) { mostrarToast('❌ erro ao importar: ' + error.message); return; }
   mostrarToast(`📚 ${destaques.length} destaque${destaques.length === 1 ? '' : 's'} do Kindle importado${destaques.length === 1 ? '' : 's'}!`);
+  try { localStorage.setItem('atomoKindleJaImportou', '1'); } catch (e) { /* sem storage */ }
   renderDestaques();
 };
 

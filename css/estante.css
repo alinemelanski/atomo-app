@@ -205,3 +205,23 @@
     box-shadow: inset 4px 0 0 var(--salvia); }
   .destaque-card blockquote { margin: 0; font-family: 'Fraunces', serif; font-size: 14.5px; line-height: 1.5; color: var(--ink); white-space: pre-wrap; }
   .destaque-acoes { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+
+  /* ---------- balãozinho de ajuda do Kindle ----------
+     PRA APRENDER: o "biquinho" do balão é um quadradinho girado 45° (::before)
+     com a mesma cor e borda do balão, encaixado na parte de cima, apontando
+     pro botão "?". */
+  .kindle-ajuda { margin-bottom: 16px; }
+  .kindle-ajuda-linha { display: flex; gap: 10px; align-items: center; }
+  .kindle-ajuda-linha .btn-acao { flex: 1; min-width: 0; }
+  .kindle-ajuda-btn { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 17px; }
+  .kindle-balao { position: relative; margin-top: 12px; padding: 14px 14px 12px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--salvia); box-shadow: var(--shadow);
+    animation: balaoAbre .25s cubic-bezier(.2,.8,.2,1); }
+  .kindle-balao[hidden] { display: none; }
+  .kindle-balao::before { content: ''; position: absolute; top: -7px; right: 15px; width: 12px; height: 12px;
+    background: var(--card); border-left: 1px solid var(--salvia); border-top: 1px solid var(--salvia); transform: rotate(45deg); }
+  @keyframes balaoAbre { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .kindle-balao-titulo { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink); margin-bottom: 6px; }
+  .kindle-balao ol { margin: 0 0 8px; padding-left: 20px; font-family: 'Nunito', sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--ink-dim); }
+  .kindle-balao li { margin-bottom: 3px; }
+  .kindle-balao p { margin: 0; font-family: 'Nunito', sans-serif; font-size: 12px; line-height: 1.5; color: var(--ink-faint); }
