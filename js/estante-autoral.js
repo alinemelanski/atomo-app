@@ -241,7 +241,18 @@ window.abrirEnviarLivroAutoral = function () {
   document.getElementById('autoralCapaPreviewTxt').textContent = 'escolher capa (opcional)';
   document.getElementById('autoralEpubPreviewTxt').textContent = 'escolher arquivo epub';
   document.getElementById('enviarLivroAutoralOverlay').classList.add('open');
+  preencherWalletNoEnvio();
 };
+
+// dentro de "enviar livro": a wallet aparece de novo, já preenchida, pra conferir
+async function preencherWalletNoEnvio() {
+  const wrap = document.getElementById('autoralWalletEnvioWrap');
+  if (!wrap) return;
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session) return;
+  const { data: perfil } = await supabaseClient.from('usuarios').select('asaas_wallet_id').eq('id', sessionData.session.user.id).maybeSingle();
+  wrap.innerHTML = carteiraAutoralCardHtml(perfil);
+}
 
 window.escolherCapaAutoral = function () {
   const input = document.getElementById('autoralCapaInput');
@@ -400,7 +411,9 @@ async function renderMeusLivrosAutorais(usuarioId) {
   if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
   window.MEUS_LIVROS_AUTORAIS = data || [];
   lista.innerHTML = estanteAutoralCabecalhoHtml() +
-    carteiraAutoralCardHtml(perfil) +
+    // a caixa da wallet só aparece enquanto ela não foi salva; depois ela
+    // mora dentro de "enviar outro livro" (pra conferir antes de publicar)
+    (perfil && perfil.asaas_wallet_id ? '' : carteiraAutoralCardHtml(perfil)) +
     `<button class="post-btn" style="width:100%; margin-bottom:12px;" onclick="abrirEnviarLivroAutoral()">+ enviar outro livro</button>` +
     (data && data.length ? data.map((d, i) => cardMeuLivroAutoralHtml(d, i)).join('') : estadoVazio('nenhum livro enviado ainda', ''));
 }
@@ -441,6 +454,8 @@ window.salvarWalletAutoral = async function () {
   }
   if (btn) btn.textContent = 'salvo ✓';
   mostrarToast('💰 wallet salva');
+  // na aba "meus livros", a caixa some depois de salvar (fica guardada)
+  if (subModoAutoral === 'meus') setTimeout(() => renderEstanteAutoral(), 900);
 };
 
 function cardMeuLivroAutoralHtml(d, i) {
@@ -493,9 +508,26 @@ async function renderRevisaoLivrosAutorais() {
   const { data, error } = await supabaseClient.from('livros_autorais').select('*, usuarios(handle)').eq('status', 'em_revisao').order('criado_em', { ascending: true });
   if (error) { lista.innerHTML = estanteAutoralCabecalhoHtml() + `<div class="visitor-lock-note">Não consegui carregar.</div>`; return; }
   window.FILA_REVISAO_AUTORAL = data || [];
-  const configWebhook = `<button class="post-btn" style="width:100%; margin-bottom:12px; background:var(--card-b); color:var(--ink);" onclick="configurarWebhookAsaas()">configurar webhook do Asaas (uma vez só)</button>`;
+  // o botão do webhook começa ESCONDIDO e só aparece se o servidor disser que
+  // ainda não está configurado (depois de configurado, some de vez)
+  const configWebhook = `<div id="autoralWebhookWrap"></div>`;
   lista.innerHTML = estanteAutoralCabecalhoHtml() + configWebhook +
     (data && data.length ? data.map((d, i) => cardRevisaoAutoralHtml(d, i)).join('') : estadoVazio('fila vazia', 'nenhum livro esperando revisão agora'));
+  mostrarBotaoWebhookSePrecisar();
+}
+
+async function mostrarBotaoWebhookSePrecisar() {
+  try {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const resp = await fetch(`${SERVIDOR_PUBLICADO}/api/estante-autoral/webhook-status`, {
+      headers: { Authorization: 'Bearer ' + sessionData.session.access_token },
+    });
+    const { configurado } = await resp.json();
+    const wrap = document.getElementById('autoralWebhookWrap');
+    if (wrap && configurado === false) {
+      wrap.innerHTML = `<button class="post-btn" style="width:100%; margin-bottom:12px; background:var(--card-b); color:var(--ink);" onclick="configurarWebhookAsaas()">configurar webhook do Asaas (uma vez só)</button>`;
+    }
+  } catch (e) { /* servidor fora do ar: não mostra nada */ }
 }
 
 const SERVIDOR_PUBLICADO = 'https://atomo-app.onrender.com';
@@ -515,6 +547,8 @@ window.configurarWebhookAsaas = async function () {
     const resultado = await resp.json().catch(() => ({}));
     if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'erro ao configurar')); return; }
     mostrarToast('✅ ' + (resultado.mensagem || 'webhook configurado'));
+    const wrapWebhook = document.getElementById('autoralWebhookWrap');
+    if (wrapWebhook) wrapWebhook.innerHTML = ''; // pronto: o botão some
   } catch (e) {
     mostrarToast('❌ o servidor do Render não respondeu — espera uns segundos (ele pode estar acordando) e tenta de novo');
   }

@@ -468,6 +468,24 @@ app.post('/api/estante-autoral/arquivo', async (req, res) => {
 // configuração de uma vez só: registra nosso webhook no Asaas (ele reaproveita
 // se já existir um com essa mesma URL, então rodar de novo não duplica). Só a
 // conta administradora pode chamar isso.
+// Só responde "já está configurado?" — o app usa pra esconder o botão de
+// configurar quando não precisa mais dele.
+app.get('/api/estante-autoral/webhook-status', async (req, res) => {
+  const usuario = await usuarioDoToken(req);
+  if (!usuario || (usuario.email || '').toLowerCase() !== EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase()) {
+    return res.status(403).json({ erro: 'só a conta administradora' });
+  }
+  if (!ASAAS_API_KEY) return res.json({ configurado: false });
+  try {
+    const resp = await fetch(`${ASAAS_API_BASE}/webhooks`, { headers: { 'access_token': ASAAS_API_KEY } });
+    const lista = await resp.json();
+    const configurado = (lista.data || []).some((w) => /\/api\/estante-autoral\/webhook-asaas$/.test(w.url || '') && /^https:/.test(w.url || ''));
+    res.json({ configurado });
+  } catch (e) {
+    res.json({ configurado: true }); // na dúvida, não fica mostrando o botão
+  }
+});
+
 app.post('/api/estante-autoral/configurar-webhook', async (req, res) => {
   if (!ASAAS_API_KEY) return res.status(503).json({ erro: 'ASAAS_API_KEY não configurada' });
   if (!ASAAS_WEBHOOK_AUTH_TOKEN) return res.status(500).json({ erro: 'falta ASAAS_WEBHOOK_AUTH_TOKEN no servidor.env/Render' });
