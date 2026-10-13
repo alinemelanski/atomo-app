@@ -2,15 +2,21 @@
 
   /* ---------- ícones do cabeçalho do Meu Diário ---------- */
   /* baú de pandora agora é PRATA (antes dourado) */
-  /* prata de verdade = degradê metálico (claro em cima, mais escuro embaixo) +
-     ícone com contraste forte. Antes era cinza claro sobre cinza claro e,
-     no modo escuro, o baú quase sumia. */
-  .bau-pandora-btn { color: #4A535C !important; border-color: #9AA4AE !important;
-    background: linear-gradient(160deg, #F4F6F8 0%, #C9D0D7 55%, #A9B2BB 100%) !important;
-    box-shadow: 0 0 10px rgba(201,209,217,.55), inset 0 1px 0 rgba(255,255,255,.8) !important; }
-  #device[data-theme="dark"] .bau-pandora-btn { color: #F2F5F8 !important; border-color: #B9C2CB !important;
-    background: linear-gradient(160deg, #8E98A3 0%, #5E6872 55%, #434B54 100%) !important;
-    box-shadow: 0 0 12px rgba(200,210,220,.45), inset 0 1px 0 rgba(255,255,255,.35) !important; }
+  /* baú de MADEIRA IMBUIA: marrom escuro puxado pro avermelhado, com veios.
+     PRA APRENDER: o degradê de baixo é a cor da madeira (clara em cima, escura
+     embaixo, como luz batendo); o "repeating-linear-gradient" de cima desenha
+     listrinhas quase transparentes inclinadas — são os veios da madeira.
+     O ícone fica num dourado envelhecido, como as ferragens de um baú antigo. */
+  .bau-pandora-btn { color: #E8C98E !important; border-color: #3B2416 !important;
+    background:
+      repeating-linear-gradient(100deg, rgba(0,0,0,0) 0 5px, rgba(30,15,6,.22) 5px 6px, rgba(0,0,0,0) 6px 11px),
+      linear-gradient(160deg, #8A5A3B 0%, #5E3B26 55%, #3E2516 100%) !important;
+    box-shadow: 0 2px 8px rgba(62,37,22,.45), inset 0 1px 0 rgba(255,220,180,.25) !important; }
+  #device[data-theme="dark"] .bau-pandora-btn { color: #F0D49C !important; border-color: #A87A55 !important;
+    background:
+      repeating-linear-gradient(100deg, rgba(0,0,0,0) 0 5px, rgba(20,10,4,.25) 5px 6px, rgba(0,0,0,0) 6px 11px),
+      linear-gradient(160deg, #9C6A47 0%, #6B4429 55%, #4A2D1B 100%) !important;
+    box-shadow: 0 0 10px rgba(168,122,85,.35), inset 0 1px 0 rgba(255,220,180,.25) !important; }
   /* lâmpada de ideia DOURADA, com um brilho que "respira" */
   .lampada-ideia-btn { color: #B8860B; background: color-mix(in srgb, #F2C94C 34%, var(--card));
     border-color: color-mix(in srgb, #E8B94A 60%, transparent); margin-right: 6px;
