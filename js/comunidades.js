@@ -293,7 +293,7 @@ window.abrirComunidadePorId = async function (id) {
 let comunidadeSouAdminAtual = false;
 window.tocarFotoComunidade = function () {
   if (!comunidadeSouAdminAtual) return; // pra quem não administra, a foto é só pra ver
-  document.getElementById('comunidadeFotoInput').click();
+  document.getElementById('comunidadeFotoGrupoInput').click();
 };
 window.trocarFotoComunidade = async function (input) {
   const arquivo = input.files && input.files[0];
