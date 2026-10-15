@@ -215,8 +215,6 @@
     transition: flex .25s ease, opacity .25s ease; }
   #msgTopRow .msg-titulo-bloco h1 { flex: none; font-family: 'Caveat', cursive; font-weight: 600; font-size: 42px; line-height: 1;
     align-self: flex-start; padding: 0 24px 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); }
-  .msg-subtitulo { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
-    color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #msgTopRow.busca-aberta .msg-titulo-bloco { flex: 0; opacity: 0; width: 0; overflow: hidden; }
 
   /* botão "+" vira o círculo terracota do kit (fechado); aberto, vira o campo de busca de vidro */

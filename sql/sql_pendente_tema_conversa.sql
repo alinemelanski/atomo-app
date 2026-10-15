@@ -15,7 +15,11 @@
 
 alter table public.conversas add column if not exists tema_cor text;
 
-create or replace function public.definir_tema_conversa(p_conversa uuid, p_tema text)
+-- O id das conversas é NÚMERO (bigint), não uuid. A primeira versão desta
+-- função esperava uuid e dava "invalid input syntax for type uuid". Apaga ela:
+drop function if exists public.definir_tema_conversa(uuid, text);
+
+create or replace function public.definir_tema_conversa(p_conversa bigint, p_tema text)
 returns boolean
 language plpgsql
 security definer
@@ -36,4 +40,4 @@ begin
 end;
 $$;
 
-grant execute on function public.definir_tema_conversa(uuid, text) to authenticated;
+grant execute on function public.definir_tema_conversa(bigint, text) to authenticated;
