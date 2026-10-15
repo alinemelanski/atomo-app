@@ -13,6 +13,27 @@ let livroAutoralRecusarAtualId = null;
 let notaAutoralEscolhida = 0;
 const LABEL_STATUS_AUTORAL = { em_revisao: 'em revisão', aprovado: 'aprovado', recusado: 'recusado' };
 
+// Categorias da Loja (a MESMA lista está no servidor.js, rota /editar — se mudar uma, muda a outra)
+const CATEGORIAS_AUTORAIS = ['Romance', 'Fantasia', 'Ficção científica', 'Suspense e mistério', 'Terror', 'Poesia',
+  'Contos e crônicas', 'Jovem adulto', 'LGBT+', 'Infantil', 'Biografia e memórias', 'Autoajuda', 'Não ficção', 'HQ e mangá', 'Outros'];
+let categoriaFiltroAutoral = 'todas'; // filtro da vitrine
+let categoriaEnvioAutoral = '';       // categoria escolhida ao publicar
+let categoriaEdicaoAutoral = '';      // categoria escolhida ao editar
+let arquivoCapaEdicaoAutoral = null;  // capa nova escolhida ao editar
+let livroAutoralEditandoId = null;
+
+// protege textos escritos pelas pessoas antes de virar HTML
+function escaparAutoral(texto) {
+  return String(texto || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// botõezinhos de categoria (usados ao publicar e ao editar)
+function chipsCategoriasHtml(selecionada, funcao) {
+  return CATEGORIAS_AUTORAIS.map((c) =>
+    `<button type="button" class="autoral-categoria-chip${c === selecionada ? ' on' : ''}" aria-pressed="${c === selecionada}" onclick="${funcao}('${c}')">${c}</button>`
+  ).join('');
+}
+
 function estanteAutoralCabecalhoHtml() {
   const abas = [['comprar', 'descobrir']];
   if (window.TEM_LIVROS_AUTORAIS_PROPRIOS) abas.push(['meus', 'meus livros']);
@@ -79,11 +100,38 @@ async function renderVitrineLivrosAutorais() {
     return;
   }
 
-  lista.innerHTML = estanteAutoralCabecalhoHtml() + convite +
-    (data && data.length
-      ? `<div class="livros-grid">${data.map((d, i) => cardLivroAutoralHtml(d, i)).join('')}</div>`
-      : estadoVazio('ainda não tem livro nenhum aqui', 'seja a primeira pessoa a publicar um livro'));
+  window.CONVITE_ESTANTE_AUTORAL = convite;
+  desenharVitrineAutoral();
 }
+
+// Desenha a vitrine a partir do que já foi carregado — trocar de categoria
+// não consulta o banco de novo, só filtra a lista que já está na memória.
+function desenharVitrineAutoral() {
+  const lista = document.getElementById('lojaList');
+  const todos = window.ITENS_ESTANTE_AUTORAL || [];
+  if (!todos.length) {
+    lista.innerHTML = estanteAutoralCabecalhoHtml() + (window.CONVITE_ESTANTE_AUTORAL || '') +
+      estadoVazio('ainda não tem livro nenhum aqui', 'seja a primeira pessoa a publicar um livro');
+    return;
+  }
+  // só mostra no filtro as categorias que têm livro (pra não ter filtro vazio)
+  const presentes = CATEGORIAS_AUTORAIS.filter((c) => todos.some((d) => d.categoria === c));
+  if (categoriaFiltroAutoral !== 'todas' && !presentes.includes(categoriaFiltroAutoral)) categoriaFiltroAutoral = 'todas';
+  const filtros = presentes.length
+    ? `<div class="autoral-filtro-row" role="tablist" aria-label="Filtrar por categoria">${['todas'].concat(presentes).map((c) =>
+        `<button type="button" class="feed-modo-chip${categoriaFiltroAutoral === c ? ' on' : ''}" role="tab" aria-selected="${categoriaFiltroAutoral === c}" onclick="filtrarCategoriaAutoral('${c}')">${c}</button>`
+      ).join('')}</div>`
+    : '';
+  const visiveis = todos.filter((d) => categoriaFiltroAutoral === 'todas' || d.categoria === categoriaFiltroAutoral);
+  // o índice passado pro card é o da lista COMPLETA (o detalhe abre por ele)
+  lista.innerHTML = estanteAutoralCabecalhoHtml() + (window.CONVITE_ESTANTE_AUTORAL || '') + filtros +
+    `<div class="livros-grid">${visiveis.map((d) => cardLivroAutoralHtml(d, todos.indexOf(d))).join('')}</div>`;
+}
+
+window.filtrarCategoriaAutoral = function (categoria) {
+  categoriaFiltroAutoral = categoria;
+  desenharVitrineAutoral();
+};
 
 function cardLivroAutoralHtml(d, i) {
   const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
@@ -97,6 +145,7 @@ function cardLivroAutoralHtml(d, i) {
         <div class="livro-grid-meta">
           <div class="livro-grid-titulo">${d.titulo}</div>
           <div class="livro-grid-fonte">@${d.usuarios ? d.usuarios.handle : 'alguém'}</div>
+          ${d.categoria ? `<div class="autoral-categoria-tag">${escaparAutoral(d.categoria)}</div>` : ''}
           <div class="autoral-preco-tag">R$ ${preco}</div>
         </div>
       </div>`;
@@ -131,7 +180,8 @@ window.abrirLivroAutoralDetalhe = async function (i) {
       </div>
       <div style="font-family:'Fraunces',serif; font-size:21px; font-weight:700;">${d.titulo}</div>
       <div style="color:var(--ink-faint); font-size:13px; margin:2px 0 10px;">@${d.usuarios ? d.usuarios.handle : 'alguém'}${media ? ` · ⭐ ${media} (${notas.length})` : ''}</div>
-      ${d.descricao ? `<div style="font-size:13.5px; line-height:1.5; margin-bottom:14px;">${d.descricao}</div>` : ''}
+      ${d.categoria ? `<div class="autoral-categoria-tag" style="margin-bottom:12px;">${escaparAutoral(d.categoria)}</div>` : ''}
+      ${d.descricao ? `<div class="autoral-sinopse-titulo">Sinopse</div><div class="autoral-sinopse">${escaparAutoral(d.descricao)}</div>` : ''}
       ${botaoAcao}
       ${jaComprou ? avaliarLivroAutoralHtml() : ''}
       <div id="livroAutoralAvaliacoesLista"></div>`;
@@ -236,6 +286,8 @@ window.abrirEnviarLivroAutoral = function () {
   document.getElementById('autoralTituloInput').value = '';
   document.getElementById('autoralDescricaoInput').value = '';
   document.getElementById('autoralPrecoInput').value = '';
+  categoriaEnvioAutoral = '';
+  document.getElementById('autoralCategoriasEnvio').innerHTML = chipsCategoriasHtml('', 'escolherCategoriaEnvioAutoral');
   arquivoCapaAutoralEscolhido = null;
   arquivoEpubAutoralEscolhido = null;
   document.getElementById('autoralCapaPreviewTxt').textContent = 'escolher capa (opcional)';
@@ -253,6 +305,11 @@ async function preencherWalletNoEnvio() {
   const { data: perfil } = await supabaseClient.from('usuarios').select('asaas_wallet_id').eq('id', sessionData.session.user.id).maybeSingle();
   wrap.innerHTML = carteiraAutoralCardHtml(perfil);
 }
+
+window.escolherCategoriaEnvioAutoral = function (categoria) {
+  categoriaEnvioAutoral = categoria;
+  document.getElementById('autoralCategoriasEnvio').innerHTML = chipsCategoriasHtml(categoria, 'escolherCategoriaEnvioAutoral');
+};
 
 window.escolherCapaAutoral = function () {
   const input = document.getElementById('autoralCapaInput');
@@ -354,7 +411,17 @@ async function completarCapaLivroAutoral(d) {
   } catch (e) { console.log('não consegui tirar a capa do epub:', e.message); }
 }
 
-window.enviarLivroAutoral = async function () {
+// Aviso antes de publicar: o preço é simbólico, pra comunidade Átomo.
+// enviarLivroAutoral() mostra o popup; "publicar" chama de novo com confirmado = true.
+window.fecharAvisoPrecoAutoral = function () {
+  document.getElementById('autoralAvisoPrecoOverlay').classList.remove('show');
+};
+window.confirmarAvisoPrecoAutoral = function () {
+  fecharAvisoPrecoAutoral();
+  enviarLivroAutoral(true);
+};
+
+window.enviarLivroAutoral = async function (confirmado) {
   const titulo = document.getElementById('autoralTituloInput').value.trim();
   const descricao = document.getElementById('autoralDescricaoInput').value.trim();
   const precoTexto = document.getElementById('autoralPrecoInput').value.replace(',', '.').trim();
@@ -362,7 +429,14 @@ window.enviarLivroAutoral = async function () {
 
   if (!titulo) { mostrarToast('escreve um título'); return; }
   if (!precoTexto || isNaN(preco) || preco <= 0) { mostrarToast('escreve um preço válido'); return; }
+  if (!categoriaEnvioAutoral) { mostrarToast('escolhe uma categoria'); return; }
   if (!arquivoEpubAutoralEscolhido) { mostrarToast('escolhe o arquivo epub'); return; }
+  if (confirmado !== true) {
+    // mostra o valor que a pessoa digitou dentro do aviso
+    document.getElementById('autoralAvisoPrecoValor').textContent = 'R$ ' + (preco / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    document.getElementById('autoralAvisoPrecoOverlay').classList.add('show');
+    return;
+  }
 
   mostrarToast('enviando...');
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -387,12 +461,18 @@ window.enviarLivroAutoral = async function () {
     capa_url: capaUrl,
     arquivo_path: caminhoEpub,
     idioma: idiomaLivroAutoral,
+    categoria: categoriaEnvioAutoral,
   };
   let { error } = await supabaseClient.from('livros_autorais').insert(novoLivro);
   // se a coluna "idioma" ainda não foi criada no banco (SQL pendente), envia sem ela
   // em vez de travar a publicação do livro
   if (error && /idioma/.test(error.message)) {
     delete novoLivro.idioma;
+    ({ error } = await supabaseClient.from('livros_autorais').insert(novoLivro));
+  }
+  // mesma ideia pra "categoria" (sql/sql_pendente_loja_categoria.sql ainda não rodado)
+  if (error && /categoria/.test(error.message)) {
+    delete novoLivro.categoria;
     ({ error } = await supabaseClient.from('livros_autorais').insert(novoLivro));
   }
 
@@ -465,9 +545,71 @@ function cardMeuLivroAutoralHtml(d, i) {
           <div class="clube-cap-info"><div class="clube-cap-valor" style="font-size:16px;">${d.titulo}</div><div class="clube-cap-pagina">R$ ${preco}</div></div>
           <span class="autoral-status-badge ${d.status}">${LABEL_STATUS_AUTORAL[d.status] || d.status}</span>
         </div>
+        ${d.categoria ? `<div class="autoral-categoria-tag" style="margin-top:6px;">${escaparAutoral(d.categoria)}</div>` : ''}
         ${d.status === 'recusado' && d.motivo_recusa ? `<div class="autoral-motivo">motivo: ${d.motivo_recusa}</div><button class="post-btn" style="margin-top:8px;" onclick="reenviarLivroAutoral(${d.id})">corrigir e reenviar</button>` : ''}
+        <button class="btn-acao btn-acao-contorno-salvia btn-mini" style="margin-top:10px;" onclick="abrirEditarLivroAutoral(${i})">${icone('editar', 14)} editar sinopse, categoria e capa</button>
       </div>`;
 }
+
+// ---------- editar livro: só sinopse, categoria e capa ----------
+window.abrirEditarLivroAutoral = function (i) {
+  const d = (window.MEUS_LIVROS_AUTORAIS || [])[i];
+  if (!d) return;
+  livroAutoralEditandoId = d.id;
+  categoriaEdicaoAutoral = d.categoria || '';
+  arquivoCapaEdicaoAutoral = null;
+  document.getElementById('autoralEditarTitulo').textContent = d.titulo;
+  document.getElementById('autoralEditarSinopse').value = d.descricao || '';
+  document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoriaEdicaoAutoral, 'escolherCategoriaEdicaoAutoral');
+  const capa = document.getElementById('autoralEditarCapaPreview');
+  capa.style.backgroundImage = d.capa_url ? `url('${d.capa_url}')` : '';
+  capa.textContent = d.capa_url ? '' : 'sem capa';
+  document.getElementById('autoralEditarCapaInput').value = '';
+  document.getElementById('editarLivroAutoralOverlay').classList.add('open');
+};
+
+window.escolherCategoriaEdicaoAutoral = function (categoria) {
+  categoriaEdicaoAutoral = categoria;
+  document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoria, 'escolherCategoriaEdicaoAutoral');
+};
+
+window.escolherCapaEdicaoAutoral = function () {
+  const input = document.getElementById('autoralEditarCapaInput');
+  if (!input.files || !input.files[0]) return;
+  arquivoCapaEdicaoAutoral = input.files[0];
+  // mostra a capa nova na hora (antes de salvar), lendo o arquivo do próprio aparelho
+  const capa = document.getElementById('autoralEditarCapaPreview');
+  capa.style.backgroundImage = `url('${URL.createObjectURL(arquivoCapaEdicaoAutoral)}')`;
+  capa.textContent = '';
+};
+
+window.salvarEdicaoLivroAutoral = async function () {
+  if (!livroAutoralEditandoId) return;
+  if (!categoriaEdicaoAutoral) { mostrarToast('escolhe uma categoria'); return; }
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session) return;
+  mostrarToast('salvando...');
+
+  const corpo = { livroId: livroAutoralEditandoId, descricao: document.getElementById('autoralEditarSinopse').value, categoria: categoriaEdicaoAutoral };
+  if (arquivoCapaEdicaoAutoral) {
+    const capaUrl = await subirCapaAutoral(sessionData.session.user.id, arquivoCapaEdicaoAutoral);
+    if (!capaUrl) { mostrarToast('❌ não consegui subir a capa'); return; }
+    corpo.capaUrl = capaUrl;
+  }
+  try {
+    // passa pelo servidor: ele confere que você é quem escreveu e só deixa mudar esses 3 campos
+    const resp = await fetch(`${API_BASE}/api/estante-autoral/editar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sessionData.session.access_token },
+      body: JSON.stringify(corpo),
+    });
+    const resultado = await resp.json().catch(() => ({}));
+    if (!resp.ok) { mostrarToast('❌ ' + (resultado.erro || 'não consegui salvar')); return; }
+  } catch (e) { mostrarToast(mensagemServidorForaDoAr()); return; }
+  mostrarToast('✅ livro atualizado');
+  closeOverlay('editarLivroAutoralOverlay');
+  renderEstanteAutoral();
+};
 
 window.reenviarLivroAutoral = async function (livroId) {
   const { data: sessionData } = await supabaseClient.auth.getSession();

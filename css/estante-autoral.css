@@ -25,3 +25,34 @@
   .loja-titulo { font-family:'Fraunces', serif; font-weight:700; font-size:24px; color:var(--ink); margin: 6px 0 14px; }
   .estante-secao-titulo { font-family:'DM Sans', sans-serif; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
     color: var(--ink-faint); margin: 20px 0 10px; }
+
+  /* ---------- Loja: categoria, filtro, sinopse e edição ---------- */
+  /* filtro de categorias: uma linha que rola pro lado (sem barra de rolagem) */
+  .autoral-filtro-row { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 14px; padding: 0 16px 2px; scrollbar-width: none; }
+  .autoral-filtro-row::-webkit-scrollbar { display: none; }
+  .autoral-filtro-row .feed-modo-chip { flex: none; white-space: nowrap; }
+  /* etiqueta de categoria no card e no detalhe */
+  .autoral-categoria-tag { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: 999px; margin-top: 4px;
+    background: color-mix(in srgb, var(--salvia) 18%, transparent); color: var(--ink-dim); }
+  .autoral-sinopse-titulo { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+  .autoral-sinopse { font-size: 14px; line-height: 1.55; margin-bottom: 14px; white-space: pre-line; color: var(--ink); }
+  /* escolher categoria (publicar/editar): grade de pílulas */
+  .autoral-campo-rotulo { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink-dim); margin: 4px 0 8px; }
+  .autoral-categorias { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .autoral-categoria-chip { min-height: 34px; padding: 0 12px; border-radius: 999px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+    background: var(--card); color: var(--ink-dim); border: 1px solid var(--card-b);
+    transition: transform .15s ease, background .2s ease; -webkit-tap-highlight-color: transparent; }
+  .autoral-categoria-chip:active { transform: scale(.95); }
+  .autoral-categoria-chip.on { background: var(--salvia); border-color: var(--salvia); color: #fff; }
+  .autoral-dica-preco { font-size: 11.5px; line-height: 1.45; color: var(--ink-faint); margin-bottom: 12px; }
+  /* popup "antes de publicar" */
+  .autoral-aviso-texto { font-size: 13px; line-height: 1.5; color: var(--ink); margin-bottom: 10px; }
+  .autoral-aviso-valor { font-size: 12.5px; color: var(--ink-dim); margin-bottom: 14px; }
+  /* editar: capa + botão lado a lado */
+  .autoral-editar-capa-linha { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .autoral-editar-capa { width: 84px; height: 124px; flex: none; border-radius: 10px; background-color: var(--card-b);
+    background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--ink-faint); }

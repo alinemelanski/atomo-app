@@ -1198,8 +1198,11 @@
         <!-- a wallet (onde cai o dinheiro das vendas) aparece aqui pra conferir antes de publicar -->
         <div id="autoralWalletEnvioWrap"></div>
         <input type="text" id="autoralTituloInput" class="busca-input" style="width:100%; margin-bottom:10px;" placeholder="título do livro" />
-        <textarea id="autoralDescricaoInput" class="busca-input" style="width:100%; min-height:80px; margin-bottom:10px;" placeholder="descrição (opcional)"></textarea>
-        <input type="text" id="autoralPrecoInput" class="busca-input" style="width:100%; margin-bottom:10px;" placeholder="preço (ex: 19,90)" inputmode="decimal" />
+        <textarea id="autoralDescricaoInput" class="busca-input" style="width:100%; min-height:110px; margin-bottom:10px;" placeholder="sinopse: do que o livro fala? (opcional)" maxlength="3000"></textarea>
+        <div class="autoral-campo-rotulo">Categoria</div>
+        <div class="autoral-categorias" id="autoralCategoriasEnvio"></div>
+        <input type="text" id="autoralPrecoInput" class="busca-input" style="width:100%; margin-bottom:6px;" placeholder="preço simbólico (ex: 5,00)" inputmode="decimal" />
+        <div class="autoral-dica-preco">💛 a Loja é da comunidade Átomo: o valor deve ser simbólico, pra que mais gente consiga ler e apoiar quem escreve.</div>
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
           <span style="font-family:'DM Sans', sans-serif; font-size:12px; font-weight:700; color:var(--ink-dim);">Idioma do livro</span>
           <div class="idioma-pilulas">
@@ -1213,6 +1216,40 @@
         <button class="btn-importar-kindle" style="width:100%; margin-bottom:14px;" onclick="document.getElementById('autoralEpubInput').click()"><span id="autoralEpubPreviewTxt">escolher arquivo epub</span></button>
         <div style="font-size:11.5px; color:var(--ink-faint); margin-bottom:14px;">seu livro entra numa fila de revisão antes de aparecer pra outras pessoas. se for recusado, você recebe o motivo e pode corrigir e reenviar.</div>
         <button class="post-btn" style="width:100%;" onclick="enviarLivroAutoral()">enviar pra revisão</button>
+      </div>
+    </div>
+
+    <!-- POPUP: AVISO DE PREÇO SIMBÓLICO (aparece ao tocar em "enviar pra revisão") -->
+    <div class="prazo-popup-overlay" id="autoralAvisoPrecoOverlay" onclick="if (event.target === this) fecharAvisoPrecoAutoral()">
+      <div class="prazo-popup-card" role="dialog" aria-labelledby="autoralAvisoPrecoTitulo">
+        <div class="prazo-popup-titulo" id="autoralAvisoPrecoTitulo">Antes de publicar 💛</div>
+        <div class="autoral-aviso-texto">A Loja é da <b>comunidade Átomo</b>. Aqui o valor dos livros deve ser <b>simbólico</b>: um apoio pra quem escreve, sem pesar no bolso de quem lê.</div>
+        <div class="autoral-aviso-valor">valor escolhido: <b id="autoralAvisoPrecoValor"></b></div>
+        <div class="prazo-popup-acoes">
+          <button class="btn-acao btn-acao-contorno-salvia" style="flex:1;" onclick="fecharAvisoPrecoAutoral()">ajustar</button>
+          <button class="btn-acao btn-acao-terracota" style="flex:1;" onclick="confirmarAvisoPrecoAutoral()">publicar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERLAY: EDITAR LIVRO DA LOJA (só sinopse, categoria e capa) -->
+    <div class="dm-chat-overlay" id="editarLivroAutoralOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" aria-label="Voltar" onclick="closeOverlay('editarLivroAutoralOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
+        <h2 style="font-size:16px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="autoralEditarTitulo">Editar livro</h2>
+      </div>
+      <div style="overflow-y:auto; flex:1;">
+        <div class="autoral-editar-capa-linha">
+          <div class="livro-grid-capa autoral-editar-capa" id="autoralEditarCapaPreview"></div>
+          <input type="file" id="autoralEditarCapaInput" accept="image/*" onchange="escolherCapaEdicaoAutoral()" style="display:none;" />
+          <button class="btn-acao btn-acao-contorno-salvia btn-mini" onclick="document.getElementById('autoralEditarCapaInput').click()">trocar capa</button>
+        </div>
+        <div class="autoral-campo-rotulo">Categoria</div>
+        <div class="autoral-categorias" id="autoralEditarCategorias"></div>
+        <div class="autoral-campo-rotulo">Sinopse</div>
+        <textarea id="autoralEditarSinopse" class="busca-input" style="width:100%; min-height:150px; margin-bottom:8px;" placeholder="do que o livro fala?" maxlength="3000"></textarea>
+        <div class="autoral-dica-preco" style="margin-bottom:14px;">título, preço e arquivo não mudam por aqui.</div>
+        <button class="btn-acao btn-acao-terracota" style="width:100%;" onclick="salvarEdicaoLivroAutoral()">salvar</button>
       </div>
     </div>
 

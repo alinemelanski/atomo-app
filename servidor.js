@@ -441,6 +441,45 @@ app.post('/api/estante-autoral/capa', async (req, res) => {
   res.json({ ok: true });
 });
 
+// Editar livro da Loja: quem escreveu só pode mudar SINOPSE, CATEGORIA e CAPA.
+// Título, preço e o arquivo continuam travados (mudar isso seria outro livro).
+const CATEGORIAS_LOJA = ['Romance', 'Fantasia', 'Ficção científica', 'Suspense e mistério', 'Terror', 'Poesia',
+  'Contos e crônicas', 'Jovem adulto', 'LGBT+', 'Infantil', 'Biografia e memórias', 'Autoajuda', 'Não ficção', 'HQ e mangá', 'Outros'];
+app.post('/api/estante-autoral/editar', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'não configurado' });
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+  const { livroId, descricao, categoria, capaUrl } = req.body || {};
+  if (!livroId) return res.status(400).json({ erro: 'faltou livroId' });
+
+  const patch = {};
+  if (descricao !== undefined) {
+    const texto = String(descricao || '').trim();
+    if (texto.length > 3000) return res.status(400).json({ erro: 'a sinopse pode ter até 3000 letras' });
+    patch.descricao = texto || null;
+  }
+  if (categoria !== undefined) {
+    if (!CATEGORIAS_LOJA.includes(categoria)) return res.status(400).json({ erro: 'categoria inválida' });
+    patch.categoria = categoria;
+  }
+  if (capaUrl) {
+    if (!String(capaUrl).startsWith('https://wfhikucbygmjeawrfsfq.supabase.co/storage/v1/object/public/midia-posts/')) {
+      return res.status(400).json({ erro: 'capa precisa estar no storage do app' });
+    }
+    patch.capa_url = capaUrl;
+  }
+  if (!Object.keys(patch).length) return res.status(400).json({ erro: 'nada pra mudar' });
+
+  const { data: livro } = await supabaseAdmin.from('livros_autorais').select('autor_id').eq('id', livroId).maybeSingle();
+  if (!livro) return res.status(404).json({ erro: 'livro não encontrado' });
+  const ehAdmin = (usuario.email || '').toLowerCase() === EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase();
+  if (livro.autor_id !== usuario.id && !ehAdmin) return res.status(403).json({ erro: 'só quem escreveu o livro pode editar' });
+
+  const { error } = await supabaseAdmin.from('livros_autorais').update(patch).eq('id', livroId);
+  if (error) return res.status(500).json({ erro: /categoria/.test(error.message) ? 'falta rodar o SQL sql_pendente_loja_categoria.sql' : error.message });
+  res.json({ ok: true });
+});
+
 app.post('/api/estante-autoral/arquivo', async (req, res) => {
   if (!supabaseAdmin) return res.status(500).json({ erro: 'não configurado' });
   const usuario = await usuarioDoToken(req);
