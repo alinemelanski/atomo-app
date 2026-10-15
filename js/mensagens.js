@@ -36,6 +36,46 @@ window.iniciarRascunhos = function () {
   // ---------- mensagens ----------
 const MAX_CONVERSAS_FIXADAS = 3;
 
+// ---------- lista de conversas (visual do protótipo "Átomo — Mensagens") ----------
+// renderDmList BUSCA os dados no Supabase e guarda em dmConversasCache.
+// desenharListaDm só DESENHA a partir do cache — assim, trocar o filtro
+// (todas / não lidas / fixadas) é instantâneo, sem consultar o banco de novo.
+let dmConversasCache = [];
+let dmFiltroAtual = 'todas';
+
+// protege o texto antes de colocar no HTML (senão uma mensagem com "<b>" viraria HTML de verdade)
+function escaparDm(texto) {
+  return String(texto || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// "09:42" se foi hoje, "ontem", "seg" se foi nesta semana, senão "12/10"
+function quandoCurto(dataIso) {
+  if (!dataIso) return '';
+  const d = new Date(dataIso);
+  const hoje = new Date();
+  const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()).getTime();
+  const dia = 24 * 60 * 60 * 1000;
+  if (d.getTime() >= inicioHoje) return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (d.getTime() >= inicioHoje - dia) return 'ontem';
+  if (d.getTime() >= inicioHoje - 6 * dia) return d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+// "há 5 min", "há 3h" — usado no cartão de carta nova
+function haQuantoTempo(dataIso) {
+  const min = Math.max(1, Math.floor((Date.now() - new Date(dataIso).getTime()) / 60000));
+  if (min < 60) return `há ${min} min`;
+  if (min < 24 * 60) return `há ${Math.floor(min / 60)}h`;
+  return quandoCurto(dataIso);
+}
+
+// prévia da última mensagem: foto/áudio/figurinha viram um texto curto em vez da URL
+function previaDaMensagem(msg) {
+  if (!msg) return 'nenhuma mensagem ainda';
+  const tipos = { audio: '🎤 áudio', foto: '📷 foto', gif: 'GIF', sticker: 'figurinha', post: '📎 post compartilhado' };
+  return tipos[msg.tipo_conteudo] || escaparDm(msg.texto);
+}
+
 async function renderDmList() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData.session) return;
@@ -54,14 +94,14 @@ async function renderDmList() {
   });
 
   let totalNaoLidas = 0;
-  const linhas = await Promise.all(conversasVisiveis.map(async (c) => {
+  dmConversasCache = await Promise.all(conversasVisiveis.map(async (c) => {
     const outroId = c.usuario1_id === meuId ? c.usuario2_id : c.usuario1_id;
 
     const { data: outroUsuario } = await supabaseClient
-      .from('usuarios').select('handle, avatar_url').eq('id', outroId).maybeSingle();
+      .from('usuarios').select('handle, avatar_url, ultima_atividade').eq('id', outroId).maybeSingle();
 
     const { data: ultimaMsg } = await supabaseClient
-      .from('mensagens').select('texto, criado_em').eq('conversa_id', c.id)
+      .from('mensagens').select('texto, criado_em, tipo_conteudo, autor_id').eq('conversa_id', c.id)
       .order('criado_em', { ascending: false }).limit(1).maybeSingle();
 
     const { count: naoLidas } = await supabaseClient
@@ -70,37 +110,112 @@ async function renderDmList() {
     const qtdNaoLidas = naoLidas || 0;
     totalNaoLidas += qtdNaoLidas;
 
-    const nome = outroUsuario ? outroUsuario.handle : 'alguém';
-    const avatarUrl = outroUsuario ? outroUsuario.avatar_url : null;
-    const fixada = !!c.fixada;
-    // ordem de chegada: a conversa com a mensagem mais recente (minha ou dela) sobe pro topo
-    const ordem = new Date((ultimaMsg && ultimaMsg.criado_em) || c.criado_em || 0).getTime() || 0;
-    // texto que a pessoa deixou escrito e não enviou aparece como "draft:"
-    const rascunho = (window.lerRascunho && window.lerRascunho('dm_' + c.id)) || '';
-    const rascunhoSeguro = rascunho.slice(0, 80).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return { fixada, ordem, html: `<div class="dm-swipe-wrap" id="swipeWrap-${c.id}">
-        <div class="dm-swipe-actions">
-          <button class="dm-swipe-btn fixar" onclick="event.stopPropagation(); toggleFixarConversa('${c.id}', ${fixada})">${icone('estrela', 17)}${fixada ? 'desafixar' : 'fixar'}</button>
-          <button class="dm-swipe-btn deletar" onclick="event.stopPropagation(); deletarConversa('${c.id}', ${c.usuario1_id === meuId})">${icone('lixeira', 17)}esconder</button>
-        </div>
-        <div class="dm-list-row dm-swipe-content ${fixada ? 'fixada' : ''}" onclick="abrirDm('${outroId}', '${nome}')">
-          <div class="friend-avatar" style="${avatarEstiloBg(avatarUrl)}">${avatarConteudo(avatarUrl)}</div>
-          <div class="dm-preview"><div class="n">${fixada ? icone('estrela', 11) + ' ' : ''}@${nome}</div><div class="msg">${rascunho ? `<span class="dm-draft">draft:</span> ${rascunhoSeguro}` : (ultimaMsg ? ultimaMsg.texto : 'nenhuma mensagem ainda')}</div></div>
-          ${qtdNaoLidas ? `<span class="dm-unread-badge">${qtdNaoLidas > 9 ? '9+' : qtdNaoLidas}</span>` : ''}
-        </div>
-      </div>` };
+    const atividade = outroUsuario ? textoUltimaAtividade(outroUsuario.ultima_atividade) : '';
+    return {
+      id: c.id,
+      outroId,
+      souUsuario1: c.usuario1_id === meuId,
+      nome: outroUsuario ? outroUsuario.handle : 'alguém',
+      avatarUrl: outroUsuario ? outroUsuario.avatar_url : null,
+      online: !!(atividade && atividade.online),
+      fixada: !!c.fixada,
+      naoLidas: qtdNaoLidas,
+      ultimaMsg,
+      euMandeiAUltima: !!(ultimaMsg && ultimaMsg.autor_id === meuId),
+      // ordem de chegada: a conversa com a mensagem mais recente (minha ou dela) sobe pro topo
+      ordem: new Date((ultimaMsg && ultimaMsg.criado_em) || c.criado_em || 0).getTime() || 0,
+      // texto que a pessoa deixou escrito e não enviou aparece como "draft:"
+      rascunho: (window.lerRascunho && window.lerRascunho('dm_' + c.id)) || ''
+    };
   }));
 
   // conversas fixadas (ate 3) sempre no topo; o resto por ordem de chegada (mais recente primeiro)
-  linhas.sort((a, b) => ((b.fixada ? 1 : 0) - (a.fixada ? 1 : 0)) || (b.ordem - a.ordem));
-
-  document.getElementById('dmListWrap').innerHTML = linhas.length
-    ? linhas.map(l => l.html).join('')
-    : `<div class="visitor-lock-note">Nenhuma conversa ainda — toca no + aqui em cima pra começar uma 💬</div>`;
+  dmConversasCache.sort((a, b) => ((b.fixada ? 1 : 0) - (a.fixada ? 1 : 0)) || (b.ordem - a.ordem));
 
   const badge = document.getElementById('msgTabBadge');
   if (badge) badge.classList.toggle('on', totalNaoLidas > 0);
 
+  desenharListaDm();
+}
+
+// chips "todas / não lidas / fixadas"
+window.filtrarConversas = function (filtro) {
+  dmFiltroAtual = filtro;
+  document.querySelectorAll('.msg-filtro').forEach((b) => {
+    const ativo = b.dataset.filtro === filtro;
+    b.classList.toggle('ativo', ativo);
+    b.setAttribute('aria-selected', ativo ? 'true' : 'false');
+  });
+  desenharListaDm();
+};
+
+function linhaConversaHtml(c) {
+  const previa = c.rascunho
+    ? `<span class="dm-draft">draft:</span> ${escaparDm(c.rascunho.slice(0, 80))}`
+    : (c.euMandeiAUltima ? 'você: ' : '') + previaDaMensagem(c.ultimaMsg);
+  return `<div class="dm-swipe-wrap" id="swipeWrap-${c.id}">
+      <div class="dm-swipe-actions">
+        <button class="dm-swipe-btn fixar" onclick="event.stopPropagation(); toggleFixarConversa('${c.id}', ${c.fixada})">${icone('estrela', 17)}${c.fixada ? 'desafixar' : 'fixar'}</button>
+        <button class="dm-swipe-btn deletar" onclick="event.stopPropagation(); deletarConversa('${c.id}', ${c.souUsuario1})">${icone('lixeira', 17)}esconder</button>
+      </div>
+      <div class="dm-list-row dm-swipe-content ${c.fixada ? 'fixada' : ''}" onclick="abrirDm('${c.outroId}', '${escaparDm(c.nome)}')">
+        <div class="dm-avatar-wrap">
+          <div class="friend-avatar" style="${avatarEstiloBg(c.avatarUrl)}">${avatarConteudo(c.avatarUrl)}</div>
+          ${c.online ? '<span class="dm-online-dot" aria-label="online"></span>' : ''}
+        </div>
+        <div class="dm-preview">
+          <div class="dm-linha-topo">
+            <span class="n">${c.fixada ? icone('estrela', 11) + ' ' : ''}@${escaparDm(c.nome)}</span>
+            <span class="dm-quando">${quandoCurto(c.ultimaMsg && c.ultimaMsg.criado_em)}</span>
+          </div>
+          <div class="dm-linha-baixo">
+            <span class="msg${c.naoLidas ? ' nao-lida' : ''}">${previa}</span>
+            ${c.naoLidas ? `<span class="dm-unread-badge">${c.naoLidas > 9 ? '9+' : c.naoLidas}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// cartão em destaque: a conversa mais recente que tem mensagem nova pra você
+function cartaNovaHtml(c) {
+  return `<div class="msg-carta" role="button" tabindex="0" onclick="abrirDm('${c.outroId}', '${escaparDm(c.nome)}')">
+      <div class="msg-carta-topo">
+        <div class="friend-avatar" style="${avatarEstiloBg(c.avatarUrl)}">${avatarConteudo(c.avatarUrl)}</div>
+        <div class="msg-carta-quem"><span class="msg-carta-de">${c.naoLidas > 1 ? c.naoLidas + ' mensagens novas de' : 'Mensagem nova de'}</span><span class="msg-carta-nome">@${escaparDm(c.nome)}</span></div>
+        <span class="msg-carta-quando">${haQuantoTempo(c.ultimaMsg.criado_em)}</span>
+      </div>
+      <p class="msg-carta-texto">${previaDaMensagem(c.ultimaMsg)}</p>
+      <span class="btn-acao btn-acao-salvia msg-carta-responder">${icone('comentar', 17)} Responder</span>
+    </div>`;
+}
+
+function desenharListaDm() {
+  const wrap = document.getElementById('dmListWrap');
+  if (!wrap) return;
+  const filtradas = dmConversasCache.filter((c) =>
+    dmFiltroAtual === 'naolidas' ? c.naoLidas > 0 :
+    dmFiltroAtual === 'fixadas' ? c.fixada : true);
+
+  // a "carta nova" só aparece em "todas" e "não lidas", e sai da lista de baixo pra não repetir
+  const carta = dmFiltroAtual !== 'fixadas' ? filtradas.find((c) => c.naoLidas > 0 && c.ultimaMsg) : null;
+  const resto = carta ? filtradas.filter((c) => c !== carta) : filtradas;
+
+  const titulos = { todas: 'todas as conversas', naolidas: 'não lidas', fixadas: 'fixadas' };
+  const vazios = {
+    todas: 'Nenhuma conversa ainda — toca no + aqui em cima pra começar uma 💬',
+    naolidas: 'Tudo lido por aqui 🌿',
+    fixadas: 'Nenhuma conversa fixada. Arraste uma conversa pro lado pra fixar ⭐'
+  };
+
+  if (!filtradas.length) {
+    wrap.innerHTML = `<div class="visitor-lock-note">${vazios[dmFiltroAtual]}</div>`;
+    return;
+  }
+  wrap.innerHTML =
+    (carta ? cartaNovaHtml(carta) : '') +
+    (resto.length ? `<div class="msg-secao"><span>${titulos[dmFiltroAtual]}</span><span>${resto.length} ${resto.length === 1 ? 'conversa' : 'conversas'}</span></div>` : '') +
+    resto.map(linhaConversaHtml).join('');
   initSwipeDm();
 }
 

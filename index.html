@@ -246,7 +246,11 @@
     <!-- MENSAGENS -->
     <div class="screen" id="screen-mensagens">
       <div class="top-row" id="msgTopRow">
-        <h1>Mensagens</h1>
+        <!-- título manuscrito com traço embaixo + subtítulo em versalete (visual da Estante) -->
+        <div class="msg-titulo-bloco">
+          <h1>Mensagens</h1>
+          <span class="msg-subtitulo">palavras que chegam com calma</span>
+        </div>
         <div class="msg-busca-widget" id="msgBuscaWidget">
           <div class="msg-busca-toggle-icone" id="msgAddBtn" onclick="toggleBuscaPoteAmigos()">
             <svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path id="msgAddBtnLinhaV" d="M12,4.6 L11.8,19.3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color:var(--accent-a); transition: transform .25s ease;"/><path d="M4.7,12.2 L19.2,11.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="color:var(--accent-a)"/></svg>
@@ -256,6 +260,12 @@
             <button class="msg-busca-lupa" onclick="confirmarBuscaOutrosUsuarios()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></button>
           </div>
         </div>
+      </div>
+      <!-- filtros: mesma largura, o ativo fica sálvia (filtrarConversas em mensagens.js) -->
+      <div class="msg-filtros" role="tablist" aria-label="Filtrar conversas">
+        <button class="msg-filtro ativo" role="tab" aria-selected="true" data-filtro="todas" onclick="filtrarConversas('todas')">todas</button>
+        <button class="msg-filtro" role="tab" aria-selected="false" data-filtro="naolidas" onclick="filtrarConversas('naolidas')">não lidas</button>
+        <button class="msg-filtro" role="tab" aria-selected="false" data-filtro="fixadas" onclick="filtrarConversas('fixadas')">fixadas</button>
       </div>
       <div id="dmListWrap" style="flex:1; overflow-y:auto; overflow-x:hidden;"></div>
     </div>

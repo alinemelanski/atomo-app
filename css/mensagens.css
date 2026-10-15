@@ -201,3 +201,79 @@
     box-shadow: 0 0 0 2px var(--chat-superficie), 0 0 0 4px var(--terracota); }
   /* temas escuros: sombra não aparece em fundo preto, só suja */
   #dmChatOverlay.chat-escuro .dm-bubble.other { box-shadow: none; }
+
+  /* =====================================================================
+     LISTA DE CONVERSAS — visual do protótipo "Átomo — Mensagens"
+     (título manuscrito da Estante, chips iguais, cards creme arredondados,
+     contador terracota). Usa as variáveis do tema do app (--card, --ink...),
+     então funciona no claro, no escuro e no clima.
+     ===================================================================== */
+
+  /* ---------- cabeçalho ---------- */
+  #msgTopRow { align-items: flex-start; }
+  .msg-titulo-bloco { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;
+    transition: flex .25s ease, opacity .25s ease; }
+  #msgTopRow .msg-titulo-bloco h1 { flex: none; font-family: 'Caveat', cursive; font-weight: 600; font-size: 42px; line-height: 1;
+    align-self: flex-start; padding: 0 24px 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); }
+  .msg-subtitulo { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #msgTopRow.busca-aberta .msg-titulo-bloco { flex: 0; opacity: 0; width: 0; overflow: hidden; }
+
+  /* botão "+" vira o círculo terracota do kit (fechado); aberto, vira o campo de busca de vidro */
+  #msgTopRow .msg-busca-widget { height: 44px; border-radius: 22px; margin-top: 4px; }
+  #msgTopRow .msg-busca-widget:not(.aberto) { width: 44px; background: transparent; border: none; box-shadow: none;
+    backdrop-filter: none; -webkit-backdrop-filter: none; }
+  #msgTopRow .msg-busca-toggle-icone { width: 44px; height: 44px; border-radius: 50%; background: var(--terracota); }
+  #msgTopRow .msg-busca-toggle-icone svg path { color: #fff !important; } /* o SVG tem cor escrita direto no HTML */
+  #msgTopRow .msg-busca-toggle-icone:active { transform: scale(.94); }
+
+  /* ---------- chips de filtro: todos com a mesma largura ---------- */
+  .msg-filtros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 14px; flex: none; }
+  .msg-filtro { min-height: 40px; border-radius: 999px; cursor: pointer; padding: 0 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    background: var(--card); color: var(--ink-dim); border: 1px solid var(--card-b);
+    transition: transform .15s ease, background .2s ease, color .2s ease; -webkit-tap-highlight-color: transparent; }
+  .msg-filtro:active { transform: scale(.96); }
+  .msg-filtro.ativo { background: var(--salvia); border-color: var(--salvia); color: #fff; }
+
+  /* ---------- cartão "mensagem nova" ---------- */
+  .msg-carta { display: flex; flex-direction: column; gap: 10px; padding: 16px 16px 14px; margin-bottom: 16px; cursor: pointer;
+    border-radius: 24px; background: var(--card); border: 1px solid var(--card-b);
+    box-shadow: 0 6px 18px rgba(80,60,40,.08); transition: transform .15s ease; }
+  .msg-carta:active { transform: scale(.985); }
+  .msg-carta-topo { display: flex; align-items: center; gap: 10px; }
+  .msg-carta-topo .friend-avatar { width: 40px; height: 40px; flex: none; }
+  .msg-carta-quem { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .msg-carta-de { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; color: var(--ink-faint); }
+  .msg-carta-nome { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .msg-carta-quando { flex: none; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-faint); }
+  .msg-carta-texto { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .msg-carta-responder { width: 100%; box-sizing: border-box; pointer-events: none; } /* o card inteiro já é clicável */
+
+  /* ---------- rótulo da seção ---------- */
+  .msg-secao { display: flex; align-items: baseline; justify-content: space-between; padding: 0 4px 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-faint); }
+  .msg-secao span:first-child { font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+
+  /* ---------- cada conversa vira um card arredondado ---------- */
+  #screen-mensagens .dm-swipe-wrap { border-radius: 20px; margin-bottom: 10px; }
+  #screen-mensagens .dm-list-row { gap: 12px; padding: 12px; border-radius: 20px; border: 1px solid var(--card-b);
+    background: var(--card); box-shadow: 0 4px 12px rgba(80,60,40,.06); }
+  #screen-mensagens .dm-list-row:active { background: var(--card); transform: scale(.985); }
+  #screen-mensagens .dm-list-row.fixada { background: color-mix(in srgb, var(--salvia) 12%, var(--card)); }
+  .dm-avatar-wrap { position: relative; flex: none; }
+  #screen-mensagens .dm-list-row .friend-avatar { width: 52px; height: 52px; }
+  .dm-online-dot { position: absolute; right: 0; bottom: 1px; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--salvia); border: 2px solid var(--card); }
+  #screen-mensagens .dm-preview { display: flex; flex-direction: column; gap: 3px; }
+  .dm-linha-topo, .dm-linha-baixo { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  #screen-mensagens .dm-preview .n { flex: 1; min-width: 0; font-family: 'Fraunces', serif; font-size: 15.5px; font-weight: 600;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dm-quando { flex: none; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-faint); }
+  #screen-mensagens .dm-preview .msg { flex: 1; min-width: 0; font-size: 13px; }
+  #screen-mensagens .dm-preview .msg.nao-lida { color: var(--ink); font-weight: 700; }
+  #screen-mensagens .dm-unread-badge { min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box;
+    background: var(--terracota); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; }
