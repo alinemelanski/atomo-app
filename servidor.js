@@ -459,8 +459,12 @@ app.post('/api/estante-autoral/editar', async (req, res) => {
     patch.descricao = texto || null;
   }
   if (categoria !== undefined) {
-    if (!CATEGORIAS_LOJA.includes(categoria)) return res.status(400).json({ erro: 'categoria inválida' });
-    patch.categoria = categoria;
+    // até 2 categorias, guardadas juntas separadas por "|" (ex.: "Romance|LGBT+")
+    const lista = [...new Set(String(categoria || '').split('|').map((c) => c.trim()).filter(Boolean))];
+    if (!lista.length || lista.length > 2 || !lista.every((c) => CATEGORIAS_LOJA.includes(c))) {
+      return res.status(400).json({ erro: 'escolha de 1 a 2 categorias da lista' });
+    }
+    patch.categoria = lista.join('|');
   }
   if (capaUrl) {
     if (!String(capaUrl).startsWith('https://wfhikucbygmjeawrfsfq.supabase.co/storage/v1/object/public/midia-posts/')) {

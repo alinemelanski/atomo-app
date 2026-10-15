@@ -56,3 +56,19 @@
   .autoral-editar-capa { width: 84px; height: 124px; flex: none; border-radius: 10px; background-color: var(--card-b);
     background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;
     font-size: 11px; color: var(--ink-faint); }
+
+  /* até 2 categorias lado a lado */
+  .autoral-categoria-linha { display: flex; flex-wrap: wrap; gap: 4px; }
+  .autoral-categoria-linha .autoral-categoria-tag { margin-top: 0; }
+  .autoral-categoria-linha { margin-top: 4px; }
+  .autoral-campo-dica { font-weight: 500; color: var(--ink-faint); }
+
+  /* sinopse em "papel claro", mesmo no tema escuro (pedido da Aline):
+     o campo de escrever (publicar/editar) e o bloco no detalhe do livro */
+  #autoralDescricaoInput, #autoralEditarSinopse {
+    border-radius: 16px !important; padding: 12px 14px !important; resize: vertical;
+    background: #FBF6EC !important; color: #2C2925 !important; border: 1px solid #E5DDD1 !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    font-size: 15px; line-height: 1.5; }
+  #autoralDescricaoInput::placeholder, #autoralEditarSinopse::placeholder { color: #9A9184; }
+  .autoral-sinopse { background: #FBF6EC; color: #2C2925; border: 1px solid #E5DDD1; border-radius: 16px; padding: 12px 14px; }

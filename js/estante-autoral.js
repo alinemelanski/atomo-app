@@ -17,8 +17,9 @@ const LABEL_STATUS_AUTORAL = { em_revisao: 'em revisão', aprovado: 'aprovado', 
 const CATEGORIAS_AUTORAIS = ['Romance', 'Fantasia', 'Ficção científica', 'Suspense e mistério', 'Terror', 'Poesia',
   'Contos e crônicas', 'Jovem adulto', 'LGBT+', 'Infantil', 'Biografia e memórias', 'Autoajuda', 'Não ficção', 'HQ e mangá', 'Outros'];
 let categoriaFiltroAutoral = 'todas'; // filtro da vitrine
-let categoriaEnvioAutoral = '';       // categoria escolhida ao publicar
-let categoriaEdicaoAutoral = '';      // categoria escolhida ao editar
+let categoriasEnvioAutoral = [];      // até 2 categorias escolhidas ao publicar
+let categoriasEdicaoAutoral = [];     // até 2 categorias escolhidas ao editar
+const MAX_CATEGORIAS_AUTORAIS = 2;
 let arquivoCapaEdicaoAutoral = null;  // capa nova escolhida ao editar
 let livroAutoralEditandoId = null;
 
@@ -27,11 +28,31 @@ function escaparAutoral(texto) {
   return String(texto || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// O livro pode ter até 2 categorias. No banco elas ficam numa coluna de texto
+// só, separadas por "|"  (ex.: "Romance|LGBT+"). Estas duas funções fazem a ida e a volta.
+function categoriasDoLivro(d) {
+  return String((d && d.categoria) || '').split('|').map((c) => c.trim()).filter(Boolean);
+}
+function juntarCategorias(lista) { return lista.join('|'); }
+
+// etiquetas de categoria (card, detalhe, meus livros)
+function etiquetasCategoriaHtml(d, estilo) {
+  return categoriasDoLivro(d).map((c) => `<span class="autoral-categoria-tag"${estilo ? ` style="${estilo}"` : ''}>${escaparAutoral(c)}</span>`).join(' ');
+}
+
 // botõezinhos de categoria (usados ao publicar e ao editar)
-function chipsCategoriasHtml(selecionada, funcao) {
-  return CATEGORIAS_AUTORAIS.map((c) =>
-    `<button type="button" class="autoral-categoria-chip${c === selecionada ? ' on' : ''}" aria-pressed="${c === selecionada}" onclick="${funcao}('${c}')">${c}</button>`
-  ).join('');
+function chipsCategoriasHtml(selecionadas, funcao) {
+  return CATEGORIAS_AUTORAIS.map((c) => {
+    const on = selecionadas.includes(c);
+    return `<button type="button" class="autoral-categoria-chip${on ? ' on' : ''}" aria-pressed="${on}" onclick="${funcao}('${c}')">${c}</button>`;
+  }).join('');
+}
+
+// liga/desliga uma categoria na lista, sem passar de 2
+function alternarCategoria(lista, categoria) {
+  if (lista.includes(categoria)) return lista.filter((c) => c !== categoria);
+  if (lista.length >= MAX_CATEGORIAS_AUTORAIS) { mostrarToast('escolha até 2 categorias'); return lista; }
+  return lista.concat(categoria);
 }
 
 function estanteAutoralCabecalhoHtml() {
@@ -115,14 +136,14 @@ function desenharVitrineAutoral() {
     return;
   }
   // só mostra no filtro as categorias que têm livro (pra não ter filtro vazio)
-  const presentes = CATEGORIAS_AUTORAIS.filter((c) => todos.some((d) => d.categoria === c));
+  const presentes = CATEGORIAS_AUTORAIS.filter((c) => todos.some((d) => categoriasDoLivro(d).includes(c)));
   if (categoriaFiltroAutoral !== 'todas' && !presentes.includes(categoriaFiltroAutoral)) categoriaFiltroAutoral = 'todas';
   const filtros = presentes.length
     ? `<div class="autoral-filtro-row" role="tablist" aria-label="Filtrar por categoria">${['todas'].concat(presentes).map((c) =>
         `<button type="button" class="feed-modo-chip${categoriaFiltroAutoral === c ? ' on' : ''}" role="tab" aria-selected="${categoriaFiltroAutoral === c}" onclick="filtrarCategoriaAutoral('${c}')">${c}</button>`
       ).join('')}</div>`
     : '';
-  const visiveis = todos.filter((d) => categoriaFiltroAutoral === 'todas' || d.categoria === categoriaFiltroAutoral);
+  const visiveis = todos.filter((d) => categoriaFiltroAutoral === 'todas' || categoriasDoLivro(d).includes(categoriaFiltroAutoral));
   // o índice passado pro card é o da lista COMPLETA (o detalhe abre por ele)
   lista.innerHTML = estanteAutoralCabecalhoHtml() + (window.CONVITE_ESTANTE_AUTORAL || '') + filtros +
     `<div class="livros-grid">${visiveis.map((d) => cardLivroAutoralHtml(d, todos.indexOf(d))).join('')}</div>`;
@@ -145,7 +166,7 @@ function cardLivroAutoralHtml(d, i) {
         <div class="livro-grid-meta">
           <div class="livro-grid-titulo">${d.titulo}</div>
           <div class="livro-grid-fonte">@${d.usuarios ? d.usuarios.handle : 'alguém'}</div>
-          ${d.categoria ? `<div class="autoral-categoria-tag">${escaparAutoral(d.categoria)}</div>` : ''}
+          ${d.categoria ? `<div class="autoral-categoria-linha">${etiquetasCategoriaHtml(d)}</div>` : ''}
           <div class="autoral-preco-tag">R$ ${preco}</div>
         </div>
       </div>`;
@@ -180,7 +201,7 @@ window.abrirLivroAutoralDetalhe = async function (i) {
       </div>
       <div style="font-family:'Fraunces',serif; font-size:21px; font-weight:700;">${d.titulo}</div>
       <div style="color:var(--ink-faint); font-size:13px; margin:2px 0 10px;">@${d.usuarios ? d.usuarios.handle : 'alguém'}${media ? ` · ⭐ ${media} (${notas.length})` : ''}</div>
-      ${d.categoria ? `<div class="autoral-categoria-tag" style="margin-bottom:12px;">${escaparAutoral(d.categoria)}</div>` : ''}
+      ${d.categoria ? `<div class="autoral-categoria-linha" style="margin-bottom:12px;">${etiquetasCategoriaHtml(d)}</div>` : ''}
       ${d.descricao ? `<div class="autoral-sinopse-titulo">Sinopse</div><div class="autoral-sinopse">${escaparAutoral(d.descricao)}</div>` : ''}
       ${botaoAcao}
       ${jaComprou ? avaliarLivroAutoralHtml() : ''}
@@ -286,8 +307,8 @@ window.abrirEnviarLivroAutoral = function () {
   document.getElementById('autoralTituloInput').value = '';
   document.getElementById('autoralDescricaoInput').value = '';
   document.getElementById('autoralPrecoInput').value = '';
-  categoriaEnvioAutoral = '';
-  document.getElementById('autoralCategoriasEnvio').innerHTML = chipsCategoriasHtml('', 'escolherCategoriaEnvioAutoral');
+  categoriasEnvioAutoral = [];
+  document.getElementById('autoralCategoriasEnvio').innerHTML = chipsCategoriasHtml([], 'escolherCategoriaEnvioAutoral');
   arquivoCapaAutoralEscolhido = null;
   arquivoEpubAutoralEscolhido = null;
   document.getElementById('autoralCapaPreviewTxt').textContent = 'escolher capa (opcional)';
@@ -307,8 +328,8 @@ async function preencherWalletNoEnvio() {
 }
 
 window.escolherCategoriaEnvioAutoral = function (categoria) {
-  categoriaEnvioAutoral = categoria;
-  document.getElementById('autoralCategoriasEnvio').innerHTML = chipsCategoriasHtml(categoria, 'escolherCategoriaEnvioAutoral');
+  categoriasEnvioAutoral = alternarCategoria(categoriasEnvioAutoral, categoria);
+  document.getElementById('autoralCategoriasEnvio').innerHTML = chipsCategoriasHtml(categoriasEnvioAutoral, 'escolherCategoriaEnvioAutoral');
 };
 
 window.escolherCapaAutoral = function () {
@@ -429,7 +450,7 @@ window.enviarLivroAutoral = async function (confirmado) {
 
   if (!titulo) { mostrarToast('escreve um título'); return; }
   if (!precoTexto || isNaN(preco) || preco <= 0) { mostrarToast('escreve um preço válido'); return; }
-  if (!categoriaEnvioAutoral) { mostrarToast('escolhe uma categoria'); return; }
+  if (!categoriasEnvioAutoral.length) { mostrarToast('escolhe pelo menos uma categoria'); return; }
   if (!arquivoEpubAutoralEscolhido) { mostrarToast('escolhe o arquivo epub'); return; }
   if (confirmado !== true) {
     // mostra o valor que a pessoa digitou dentro do aviso
@@ -461,7 +482,7 @@ window.enviarLivroAutoral = async function (confirmado) {
     capa_url: capaUrl,
     arquivo_path: caminhoEpub,
     idioma: idiomaLivroAutoral,
-    categoria: categoriaEnvioAutoral,
+    categoria: juntarCategorias(categoriasEnvioAutoral),
   };
   let { error } = await supabaseClient.from('livros_autorais').insert(novoLivro);
   // se a coluna "idioma" ainda não foi criada no banco (SQL pendente), envia sem ela
@@ -545,7 +566,7 @@ function cardMeuLivroAutoralHtml(d, i) {
           <div class="clube-cap-info"><div class="clube-cap-valor" style="font-size:16px;">${d.titulo}</div><div class="clube-cap-pagina">R$ ${preco}</div></div>
           <span class="autoral-status-badge ${d.status}">${LABEL_STATUS_AUTORAL[d.status] || d.status}</span>
         </div>
-        ${d.categoria ? `<div class="autoral-categoria-tag" style="margin-top:6px;">${escaparAutoral(d.categoria)}</div>` : ''}
+        ${d.categoria ? `<div class="autoral-categoria-linha" style="margin-top:6px;">${etiquetasCategoriaHtml(d)}</div>` : ''}
         ${d.status === 'recusado' && d.motivo_recusa ? `<div class="autoral-motivo">motivo: ${d.motivo_recusa}</div><button class="post-btn" style="margin-top:8px;" onclick="reenviarLivroAutoral(${d.id})">corrigir e reenviar</button>` : ''}
         <button class="btn-acao btn-acao-contorno-salvia btn-mini" style="margin-top:10px;" onclick="abrirEditarLivroAutoral(${i})">${icone('editar', 14)} editar sinopse, categoria e capa</button>
       </div>`;
@@ -556,11 +577,11 @@ window.abrirEditarLivroAutoral = function (i) {
   const d = (window.MEUS_LIVROS_AUTORAIS || [])[i];
   if (!d) return;
   livroAutoralEditandoId = d.id;
-  categoriaEdicaoAutoral = d.categoria || '';
+  categoriasEdicaoAutoral = categoriasDoLivro(d);
   arquivoCapaEdicaoAutoral = null;
   document.getElementById('autoralEditarTitulo').textContent = d.titulo;
   document.getElementById('autoralEditarSinopse').value = d.descricao || '';
-  document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoriaEdicaoAutoral, 'escolherCategoriaEdicaoAutoral');
+  document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoriasEdicaoAutoral, 'escolherCategoriaEdicaoAutoral');
   const capa = document.getElementById('autoralEditarCapaPreview');
   capa.style.backgroundImage = d.capa_url ? `url('${d.capa_url}')` : '';
   capa.textContent = d.capa_url ? '' : 'sem capa';
@@ -569,8 +590,8 @@ window.abrirEditarLivroAutoral = function (i) {
 };
 
 window.escolherCategoriaEdicaoAutoral = function (categoria) {
-  categoriaEdicaoAutoral = categoria;
-  document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoria, 'escolherCategoriaEdicaoAutoral');
+  categoriasEdicaoAutoral = alternarCategoria(categoriasEdicaoAutoral, categoria);
+  document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoriasEdicaoAutoral, 'escolherCategoriaEdicaoAutoral');
 };
 
 window.escolherCapaEdicaoAutoral = function () {
@@ -585,12 +606,12 @@ window.escolherCapaEdicaoAutoral = function () {
 
 window.salvarEdicaoLivroAutoral = async function () {
   if (!livroAutoralEditandoId) return;
-  if (!categoriaEdicaoAutoral) { mostrarToast('escolhe uma categoria'); return; }
+  if (!categoriasEdicaoAutoral.length) { mostrarToast('escolhe pelo menos uma categoria'); return; }
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData.session) return;
   mostrarToast('salvando...');
 
-  const corpo = { livroId: livroAutoralEditandoId, descricao: document.getElementById('autoralEditarSinopse').value, categoria: categoriaEdicaoAutoral };
+  const corpo = { livroId: livroAutoralEditandoId, descricao: document.getElementById('autoralEditarSinopse').value, categoria: juntarCategorias(categoriasEdicaoAutoral) };
   if (arquivoCapaEdicaoAutoral) {
     const capaUrl = await subirCapaAutoral(sessionData.session.user.id, arquivoCapaEdicaoAutoral);
     if (!capaUrl) { mostrarToast('❌ não consegui subir a capa'); return; }
