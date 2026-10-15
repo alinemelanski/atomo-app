@@ -434,14 +434,14 @@ app.post('/api/estante-autoral/capa', async (req, res) => {
   }
   const { data: livro } = await supabaseAdmin.from('livros_autorais').select('autor_id').eq('id', livroId).maybeSingle();
   if (!livro) return res.status(404).json({ erro: 'livro não encontrado' });
-  const ehAdmin = (usuario.email || '').toLowerCase() === EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase();
-  if (livro.autor_id !== usuario.id && !ehAdmin) return res.status(403).json({ erro: 'só quem escreveu o livro pode mudar a capa' });
+  // capa também é só do AUTOR (mesma regra da rota /editar)
+  if (livro.autor_id !== usuario.id) return res.status(403).json({ erro: 'só quem escreveu o livro pode mudar a capa' });
   const { error } = await supabaseAdmin.from('livros_autorais').update({ capa_url: capaUrl }).eq('id', livroId);
   if (error) return res.status(500).json({ erro: error.message });
   res.json({ ok: true });
 });
 
-// Editar livro da Loja: quem escreveu só pode mudar SINOPSE, CATEGORIA e CAPA.
+// Editar livro da Loja: SÓ o autor que enviou o livro, e só SINOPSE, CATEGORIA e CAPA.
 // Título, preço e o arquivo continuam travados (mudar isso seria outro livro).
 const CATEGORIAS_LOJA = ['Romance', 'Fantasia', 'Ficção científica', 'Suspense e mistério', 'Terror', 'Poesia',
   'Contos e crônicas', 'Jovem adulto', 'LGBT+', 'Infantil', 'Biografia e memórias', 'Autoajuda', 'Não ficção', 'HQ e mangá', 'Outros'];
@@ -472,8 +472,8 @@ app.post('/api/estante-autoral/editar', async (req, res) => {
 
   const { data: livro } = await supabaseAdmin.from('livros_autorais').select('autor_id').eq('id', livroId).maybeSingle();
   if (!livro) return res.status(404).json({ erro: 'livro não encontrado' });
-  const ehAdmin = (usuario.email || '').toLowerCase() === EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase();
-  if (livro.autor_id !== usuario.id && !ehAdmin) return res.status(403).json({ erro: 'só quem escreveu o livro pode editar' });
+  // só o AUTOR que enviou o livro edita — nem a conta admin passa daqui
+  if (livro.autor_id !== usuario.id) return res.status(403).json({ erro: 'só quem escreveu o livro pode editar' });
 
   const { error } = await supabaseAdmin.from('livros_autorais').update(patch).eq('id', livroId);
   if (error) return res.status(500).json({ erro: /categoria/.test(error.message) ? 'falta rodar o SQL sql_pendente_loja_categoria.sql' : error.message });
