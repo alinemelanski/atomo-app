@@ -380,9 +380,15 @@ if (!conversaAbertaId) return;
 const anterior = dmTemaCorAtual;
 aplicarTemaConversa(id); // muda na hora, sem esperar o banco (fica mais rápido)
 fecharSeletorFundo();
-const { error } = await supabaseClient.from('conversas').update({ tema_cor: id || null }).eq('id', conversaAbertaId);
-if (error) { aplicarTemaConversa(anterior); mostrarToast('❌ ' + error.message); return; } // deu erro: desfaz
-mostrarToast('🎨 fundo da conversa atualizado');
+// Salva pela função definir_tema_conversa (sql/sql_pendente_tema_conversa.sql).
+// Um update direto não funcionava: sem regra de UPDATE na tabela, o Supabase
+// não dá erro, só não salva nada — e o fundo voltava ao reabrir a conversa.
+const { data: salvou, error } = await supabaseClient.rpc('definir_tema_conversa', { p_conversa: conversaAbertaId, p_tema: id || '' });
+if (error || !salvou) {
+  aplicarTemaConversa(anterior); // não salvou: volta pro fundo de antes, pra tela não mentir
+  mostrarToast('❌ não consegui salvar o fundo' + (error ? ': ' + error.message : ''));
+}
+// deu certo: sem aviso nenhum — a própria tela mudando já mostra que funcionou
 };
 
 window.verPerfilCompletoDaConversa = function () {
