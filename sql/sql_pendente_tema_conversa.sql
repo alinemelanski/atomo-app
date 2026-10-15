@@ -27,7 +27,7 @@ set search_path = public
 as $$
 begin
   -- aceita vazio (= "Do app"), nomes de tema (só letras minúsculas) ou cor antiga (#RRGGBB)
-  if p_tema is not null and p_tema !~ '^([a-z]{1,20}|#[0-9A-Fa-f]{6})$' then
+  if p_tema is not null and p_tema !~ '^([a-z]{1,20}|#[0-9A-Fa-f]{6})?$' then
     raise exception 'tema inválido';
   end if;
 
