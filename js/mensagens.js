@@ -569,6 +569,7 @@ if (usuario) {
 
 const { data: jaFavoritado } = await supabaseClient.from('amigos_favoritos').select('amigo_id').eq('usuario_id', meuId).eq('amigo_id', dmOutroUsuarioIdAtual).maybeSingle();
 document.getElementById('dmInfoFavoritarLabel').textContent = jaFavoritado ? 'Desfavoritar' : 'Favoritar';
+marcarFavoritoVisual(!!jaFavoritado);
 
 const { data: jaBloqueado } = await supabaseClient.from('bloqueios').select('id').eq('usuario_id', meuId).eq('bloqueado_id', dmOutroUsuarioIdAtual).maybeSingle();
 document.getElementById('dmInfoBloquearLabel').textContent = jaBloqueado ? 'Desbloquear' : 'Bloquear';

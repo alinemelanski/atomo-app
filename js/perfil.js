@@ -145,6 +145,16 @@ if (erro) {
 }
 };
 
+// Estrela dourada quando a pessoa é favorita: liga/desliga a classe .favoritado
+// no botão do perfil da conversa e no item "Favoritar" do menu do perfil
+// (a cor fica no CSS: css/mensagens.css)
+window.marcarFavoritoVisual = function (favorito) {
+const labelChat = document.getElementById('dmInfoFavoritarLabel');
+if (labelChat && labelChat.parentElement) labelChat.parentElement.classList.toggle('favoritado', !!favorito);
+const btnPerfil = document.getElementById('perfilAlheioFavoritarBtn');
+if (btnPerfil) btnPerfil.classList.toggle('favoritado', !!favorito);
+};
+
 window.favoritarUsuarioAtual = async function () {
 const autorId = window.PERFIL_ALHEIO_ATUAL_ID;
 if (!autorId) return;
@@ -159,12 +169,14 @@ if (jaFavoritado) {
   mostrarToast('☆ removido dos favoritos');
   if (btnPerfil) btnPerfil.innerHTML = icone('estrela',13) + ' Favoritar';
   if (labelChat) labelChat.textContent = 'Favoritar';
+  marcarFavoritoVisual(false);
 } else {
   const { error } = await supabaseClient.from('amigos_favoritos').insert({ usuario_id: meuId, amigo_id: autorId });
   if (error) { mostrarToast('❌ ' + error.message); return; }
   mostrarToast('⭐ adicionado aos favoritos');
   if (btnPerfil) btnPerfil.innerHTML = icone('estrela',13) + ' Desfavoritar';
   if (labelChat) labelChat.textContent = 'Desfavoritar';
+  marcarFavoritoVisual(true);
 }
 };
 
@@ -191,6 +203,7 @@ const { data: jaBloqueado } = await supabaseClient.from('bloqueios').select('id'
 document.getElementById('perfilAlheioBloquearBtn').innerHTML = jaBloqueado ? (icone('check',13) + ' Desbloquear') : (icone('bloquear',13) + ' Bloquear');
 const { data: jaFavoritado } = await supabaseClient.from('amigos_favoritos').select('amigo_id').eq('usuario_id', meuId).eq('amigo_id', autorId).maybeSingle();
 document.getElementById('perfilAlheioFavoritarBtn').innerHTML = jaFavoritado ? (icone('estrela',13) + ' Desfavoritar') : (icone('estrela',13) + ' Favoritar');
+marcarFavoritoVisual(!!jaFavoritado);
 document.getElementById('perfilAlheioTitulo').textContent = '@' + usuario.handle;
 document.getElementById('perfilAlheioNome').textContent = usuario.nome;
 document.getElementById('perfilAlheioHandle').textContent = '@' + usuario.handle;

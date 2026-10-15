@@ -342,3 +342,8 @@
   /* busca de amigos aberta: some o X — fecha tocando fora (mensagens.js) */
   #msgTopRow .msg-busca-widget.aberto .msg-busca-toggle-icone { width: 0; opacity: 0; pointer-events: none; overflow: hidden; }
   #msgTopRow .msg-busca-widget.aberto .msg-busca-campo-wrap { padding-left: 16px; }
+
+  /* ---------- favorito: estrela dourada preenchida ---------- */
+  .dm-info-acao.favoritado .dm-info-acao-icone { background: color-mix(in srgb, #E8B94A 22%, var(--card)); color: #D4A017; }
+  .dm-info-acao.favoritado .dm-info-acao-icone svg path,
+  #perfilAlheioFavoritarBtn.favoritado svg path { fill: #E8B94A; stroke: #C9971F; }
