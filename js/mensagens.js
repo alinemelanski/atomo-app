@@ -581,8 +581,19 @@ return { texto: `visto(a) por último há ${d}d`, online: false };
 async function atualizarStatusChatHeader(outroId) {
 const statusEl = document.getElementById('dmChatStatus');
 if (!statusEl) return;
-const { data } = await supabaseClient.from('usuarios').select('ultima_atividade').eq('id', outroId).maybeSingle();
+const { data } = await supabaseClient.from('usuarios').select('ultima_atividade, avatar_url').eq('id', outroId).maybeSingle();
 const info = textoUltimaAtividade(data && data.ultima_atividade);
+
+// foto da pessoa no topo do chat (sem foto: cara do átomo) + bolinha verde se estiver online
+const avatarEl = document.getElementById('dmChatAvatar');
+if (avatarEl) {
+  const url = data && data.avatar_url;
+  avatarEl.setAttribute('style', avatarEstiloBg(url));
+  avatarEl.innerHTML = avatarConteudo(url);
+}
+const pontoOnline = document.getElementById('dmChatOnlineDot');
+if (pontoOnline) pontoOnline.style.display = info && info.online ? '' : 'none';
+
 if (!info) { statusEl.textContent = ''; statusEl.classList.remove('online'); return; }
 statusEl.textContent = info.texto;
 statusEl.classList.toggle('online', !!info.online);
@@ -625,6 +636,22 @@ setTimeout(() => {
 };
 
 
+// "Terça, 13 de out. · 09:31" (hoje e ontem viram "Hoje"/"Ontem")
+function dataDivisoria(dataIso) {
+const d = new Date(dataIso);
+const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+const hoje = new Date();
+const ontem = new Date(Date.now() - 24 * 60 * 60 * 1000);
+let dia;
+if (d.toDateString() === hoje.toDateString()) dia = '<b>Hoje</b>';
+else if (d.toDateString() === ontem.toDateString()) dia = '<b>Ontem</b>';
+else {
+  const semana = d.toLocaleDateString('pt-BR', { weekday: 'long' }).split('-')[0];
+  dia = `<b>${semana.charAt(0).toUpperCase() + semana.slice(1)}</b>, ${d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}`;
+}
+return `${dia} · ${hora}`;
+}
+
 async function renderDmMsgs() {
 const { data: sessionData } = await supabaseClient.auth.getSession();
 const meuId = sessionData.session.user.id;
@@ -663,10 +690,14 @@ document.getElementById('dmMessages').innerHTML = (data && data.length)
       const fimDoGrupo = !proxima || proxima.autor_id !== m.autor_id
         || (new Date(proxima.criado_em) - new Date(m.criado_em)) > CINCO_MIN;
       const lado = minha ? 'own' : 'other';
+      // divisória de data ("Terça, 13 de out. · 09:31") na 1ª mensagem de cada dia
+      const anterior = data[i - 1];
+      const mudouDia = m.criado_em && (!anterior || new Date(anterior.criado_em).toDateString() !== new Date(m.criado_em).toDateString());
+      const divisoria = mudouDia ? `<div class="dm-data-divisoria">${dataDivisoria(m.criado_em)}</div>` : '';
       const hora = fimDoGrupo && m.criado_em
         ? `<div class="dm-hora ${lado}">${new Date(m.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>`
         : '';
-      return `<div class="dm-bubble ${lado}${classeExtra}${fimDoGrupo ? '' : ' meio-grupo'}">${conteudo}</div>${hora}`;
+      return `${divisoria}<div class="dm-bubble ${lado}${classeExtra}${fimDoGrupo ? '' : ' meio-grupo'}">${conteudo}</div>${hora}`;
     }).join('')
   : `<div class="dm-empty-state">${icone('comentar',34)}<div class="titulo">Comece a conversa</div><div class="sub">Manda um oi, um GIF ou um sticker — a conversa começa aqui 💬</div></div>`;
 

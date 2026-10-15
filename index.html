@@ -1522,13 +1522,19 @@
     <!-- OVERLAY: CHAT DE DM -->
     <div class="dm-chat-overlay" id="dmChatOverlay">
       <div class="dm-chat-header">
-        <button class="back-btn" onclick="closeOverlay('dmChatOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
+        <button class="back-btn" aria-label="Voltar" onclick="closeOverlay('dmChatOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
+        <!-- foto da pessoa + bolinha verde quando online (preenchidas por atualizarStatusChatHeader) -->
+        <div class="dm-chat-avatar-wrap" onclick="abrirPerfilDoChat()">
+          <div class="friend-avatar" id="dmChatAvatar"></div>
+          <span class="dm-online-dot" id="dmChatOnlineDot" style="display:none;"></span>
+        </div>
         <div class="dm-chat-header-info" onclick="abrirPerfilDoChat()">
           <h2 id="dmChatName" style="font-size:16px;">@pedro_geek</h2>
           <div class="dm-chat-status" id="dmChatStatus"></div>
         </div>
         <!-- paleta: escolher o fundo da conversa (abre o popup logo abaixo) -->
         <button class="btn-icone dm-fundo-btn" id="dmFundoBtn" aria-label="Escolher fundo da conversa" aria-expanded="false" onclick="abrirSeletorFundo()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.3 0 2-.8 2-1.8 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.7 1.9-1.7h2.1c2.1 0 3.7-1.6 3.7-3.7C20.5 6.6 16.7 3.5 12 3.5z"/><circle cx="7.6" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle cx="10.5" cy="7.4" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></span></button>
+        <button class="btn-icone dm-mais-btn" aria-label="Mais opções da conversa" onclick="abrirPerfilDoChat()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span></button>
       </div>
       <!-- popup de vidro com os fundos (as bolinhas são desenhadas pelo JS: desenharSeletoresTema) -->
       <div class="dm-fundo-popup" id="dmFundoPopup" role="dialog" aria-label="Fundo da conversa">
@@ -1545,8 +1551,9 @@
       </div>
       <div class="dm-input-row">
         <div class="dm-input-icons">
-          <button class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a);" onclick="toggleStickerPicker()"><span class="icon-svg" style="width:19px;height:19px;animation-duration:3.2s;animation-delay:0.4s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="17" rx="7.5" ry="3.8"/><ellipse cx="12" cy="17" rx="3.6" ry="1.7"/><ellipse cx="10.3" cy="13.3" rx="5.3" ry="4.4" fill="var(--accent-soft)"/><circle cx="16.1" cy="9" r="3.1" fill="var(--accent-soft)"/><path d="M18.6 8.4 L21.2 9 L18.6 9.9 Z" fill="currentColor" stroke="none"/><circle cx="16.9" cy="7.9" r="0.6" fill="currentColor" stroke="none"/></svg></span></button>
-          <span class="dm-send-btn" style="background:var(--accent-soft); color:var(--accent-a); cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="abrirEscolherFoto('dm')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
+          <!-- câmera e microfone: círculos de contorno, como no protótipo -->
+          <button class="dm-icone-contorno" aria-label="Enviar foto" onclick="abrirEscolherFoto('dm')"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></button>
+          <button class="dm-input-mic-btn dm-icone-contorno" aria-label="Gravar áudio" id="btnGravarAudio" onclick="alternarGravacaoAudio()"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span></button>
         </div>
         <input type="file" id="dmFotoInput" accept="image/*" onchange="enviarFotoDm(this)" style="display:none;" />
         <input type="file" id="dmFotoInputCamera" accept="image/*" capture="environment" onchange="enviarFotoDm(this)" style="display:none;" />
@@ -1559,10 +1566,10 @@
         <input type="file" id="explorarComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <input type="file" id="explorarComposerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposerExplorar(this)" style="display:none;" />
         <div class="dm-input-wrap">
-          <input type="text" id="dmChatInput" placeholder="Escreva algo..." onkeydown="if(event.key==='Enter') enviarDmMsg()" oninput="sinalizarDigitando()" />
-          <button class="dm-input-mic-btn" id="btnGravarAudio" onclick="alternarGravacaoAudio()"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5"/></svg></span></button>
+          <input type="text" id="dmChatInput" placeholder="Mensagem" onkeydown="if(event.key==='Enter') enviarDmMsg()" oninput="sinalizarDigitando()" />
+          <button class="dm-input-sticker-btn" aria-label="Figurinhas" onclick="toggleStickerPicker()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="17" rx="7.5" ry="3.8"/><ellipse cx="12" cy="17" rx="3.6" ry="1.7"/><ellipse cx="10.3" cy="13.3" rx="5.3" ry="4.4" fill="var(--accent-soft)"/><circle cx="16.1" cy="9" r="3.1" fill="var(--accent-soft)"/><path d="M18.6 8.4 L21.2 9 L18.6 9.9 Z" fill="currentColor" stroke="none"/><circle cx="16.9" cy="7.9" r="0.6" fill="currentColor" stroke="none"/></svg></span></button>
         </div>
-        <button class="dm-send-btn" onclick="enviarDmMsg()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.1s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-7-6 16-2.5-6.5z"/></svg></span></button>
+        <button class="dm-send-btn" aria-label="Enviar mensagem" onclick="enviarDmMsg()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span></button>
       </div>
     </div>
 

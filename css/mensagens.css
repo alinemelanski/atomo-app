@@ -275,3 +275,66 @@
   #screen-mensagens .dm-unread-badge { min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box;
     background: var(--terracota); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
     display: flex; align-items: center; justify-content: center; }
+
+  /* =====================================================================
+     DENTRO DO CHAT — igual ao protótipo "Dentro do chat"
+     Cada cor usa a variável do tema escolhido (--chat-...) e, se a conversa
+     estiver em "Do app", cai na cor do app (--card, --ink...): é o 2º valor
+     dentro do var(). Ex.: var(--chat-borda, var(--card-b)).
+     ===================================================================== */
+
+  /* ---------- cabeçalho: barra de vidro de ponta a ponta ---------- */
+  #dmChatOverlay .dm-chat-header { gap: 10px; margin: calc(-18px - env(safe-area-inset-top)) -16px 0;
+    padding: calc(16px + env(safe-area-inset-top)) 14px 12px;
+    border-bottom: 1px solid var(--chat-borda, var(--card-b));
+    background: color-mix(in srgb, var(--chat-superficie, var(--card)) 62%, transparent);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  /* voltar, paleta e ⋯ viram círculos com borda (o seletor é comprido pra ganhar do toque.css) */
+  #dmChatOverlay.dm-chat-overlay .dm-chat-header .back-btn,
+  #dmChatOverlay.dm-chat-overlay .dm-chat-header .btn-icone {
+    width: 40px; height: 40px; flex: none; border-radius: 50%; padding: 0;
+    background: var(--chat-superficie, var(--card)); border: 1px solid var(--chat-borda, var(--card-b));
+    color: var(--chat-texto, var(--ink)); box-shadow: none; }
+  #dmChatOverlay.dm-chat-overlay .dm-chat-header .dm-fundo-btn.ativo { background: var(--salvia); border-color: var(--salvia); color: #fff; }
+  #dmChatOverlay .dm-chat-header .btn-icone .icon-svg { width: 18px !important; height: 18px !important; }
+  .dm-chat-avatar-wrap { position: relative; flex: none; cursor: pointer; }
+  #dmChatAvatar { width: 42px; height: 42px; }
+  #dmChatOnlineDot { border-color: var(--chat-fundo, var(--bg)); }
+  /* nome alinhado à esquerda, como no iMessage */
+  #dmChatOverlay .dm-chat-header-info { align-items: flex-start; }
+  #dmChatOverlay .dm-chat-header-info h2 { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+    font-weight: 600; color: var(--chat-texto, var(--ink)); }
+  #dmChatOverlay .dm-chat-status { font-size: 12px; font-weight: 500; color: var(--chat-sub, var(--ink-faint)); }
+  #dmChatOverlay .dm-chat-status.online { color: var(--salvia); }
+  #dmChatOverlay .dm-fundo-popup { top: calc(74px + env(safe-area-inset-top)); }
+
+  /* ---------- divisória de data ---------- */
+  #dmMessages { padding-top: 12px; }
+  .dm-data-divisoria { align-self: center; margin: 6px 0 10px; font-size: 11.5px; color: var(--chat-sub, var(--ink-faint));
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif; }
+  .dm-data-divisoria b { font-weight: 600; }
+
+  /* ---------- barra de escrever: uma pílula só com tudo dentro ---------- */
+  #dmChatOverlay .dm-input-row { gap: 8px; padding: 7px; margin-top: 6px; border-radius: 28px;
+    background: var(--chat-superficie, var(--card)); border: 1px solid var(--chat-borda, var(--card-b));
+    box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  #dmChatOverlay .dm-input-icons { gap: 8px; }
+  #dmChatOverlay .dm-icone-contorno { width: 40px; height: 40px; flex: none; border-radius: 50%; padding: 0;
+    /* relative (e não static): o toque.css põe um ::after que precisa ficar preso ao botão */
+    position: relative; top: auto; right: auto; transform: none;
+    background: transparent; border: 1px solid var(--chat-borda, var(--card-b)); color: var(--chat-sub, var(--ink-faint));
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  #dmChatOverlay .dm-icone-contorno:active { transform: scale(.94); }
+  #dmChatOverlay .dm-icone-contorno .icon-svg { width: 18px !important; height: 18px !important; }
+  /* gravando: o microfone vira a pílula com o tempo (⏺ 0:12) */
+  #dmChatOverlay .dm-input-mic-btn.gravando { width: auto; padding: 0 12px; border-radius: 20px;
+    background: var(--pink); border-color: var(--pink); color: #fff; }
+  /* o campo fica transparente: quem tem fundo e borda agora é a pílula inteira */
+  #dmChatOverlay.dm-chat-overlay .dm-input-row .dm-input-wrap input { background: transparent; border: none;
+    backdrop-filter: none; -webkit-backdrop-filter: none; padding: 10px 40px 10px 6px; color: var(--chat-texto, var(--ink)); }
+  #dmChatOverlay .dm-input-wrap input::placeholder { color: var(--chat-sub, var(--ink-faint)); }
+  .dm-input-sticker-btn { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px;
+    border: none; border-radius: 50%; background: transparent; color: var(--chat-sub, var(--ink-faint));
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .dm-input-sticker-btn .icon-svg { width: 20px; height: 20px; }
+  #dmChatOverlay .dm-input-row > .dm-send-btn { width: 40px; height: 40px; border: none; background: var(--terracota); color: #fff; }
