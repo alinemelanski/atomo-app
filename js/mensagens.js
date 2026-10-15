@@ -330,7 +330,7 @@ marcarTemaSelecionado();
 }
 
 // Desenha as bolinhas de fundo em todo lugar que tiver .seletor-tema-grade
-// (popup do chat e "Tema" no perfil da conversa). Fica tudo gerado a partir do
+// (popup de fundo dentro do chat). Fica tudo gerado a partir do
 // TEMAS_CHAT: se um dia você criar um tema novo lá, ele aparece aqui sozinho.
 function desenharSeletoresTema() {
 const opcoes = [{ id: '', nome: 'Do app', amostra: 'linear-gradient(135deg, var(--accent-a), var(--accent-b))' }]
@@ -374,14 +374,6 @@ const botao = document.getElementById('dmFundoBtn');
 if (popup) popup.classList.remove('aberto');
 if (botao) { botao.classList.remove('ativo'); botao.setAttribute('aria-expanded', 'false'); }
 }
-
-// "Tema" dentro do perfil da conversa
-window.toggleTemaConversaPicker = function () {
-const row = document.getElementById('dmTemaPickerRow');
-if (!row) return;
-desenharSeletoresTema();
-row.style.display = row.style.display === 'none' ? 'grid' : 'none';
-};
 
 window.escolherTemaConversa = async function (id) {
 if (!conversaAbertaId) return;
@@ -433,7 +425,6 @@ document.getElementById('dmInfoFavoritarLabel').textContent = jaFavoritado ? 'De
 const { data: jaBloqueado } = await supabaseClient.from('bloqueios').select('id').eq('usuario_id', meuId).eq('bloqueado_id', dmOutroUsuarioIdAtual).maybeSingle();
 document.getElementById('dmInfoBloquearLabel').textContent = jaBloqueado ? 'Desbloquear' : 'Bloquear';
 
-document.getElementById('dmTemaPickerRow').style.display = 'none';
 marcarTemaSelecionado();
 
 document.getElementById('dmInfoOverlay').classList.add('open');
