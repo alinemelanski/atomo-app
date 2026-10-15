@@ -294,27 +294,103 @@ clearTimeout(timeoutDigitandoRemoto);
 
 let dmTemaCorAtual = '';
 
-function aplicarTemaConversa(cor) {
+/* ---------- Fundo (tema) da conversa ----------
+   O tema escolhido fica salvo em conversas.tema_cor como um NOME de tema
+   ('preto', 'azul'...), que vem do armário TEMAS_CHAT (js/tema-chat.js).
+   Vazio = "Do app": o chat segue o visual normal do app (claro/escuro/clima).
+   Conversas antigas guardavam uma COR ('#869B83') — essas continuam funcionando:
+   só pintam o balão que você envia, como era antes. */
+const CHAVES_TEMA_CHAT = ['fundo', 'recebido', 'enviado', 'texto', 'sub', 'borda', 'superficie'];
+
+function aplicarTemaConversa(valor) {
 const overlay = document.getElementById('dmChatOverlay');
-dmTemaCorAtual = cor || '';
+dmTemaCorAtual = valor || '';
 if (!overlay) return;
-if (dmTemaCorAtual) overlay.style.setProperty('--dm-tema-cor', dmTemaCorAtual);
-else overlay.style.removeProperty('--dm-tema-cor');
+
+// TEMAS_CHAT[valor] direto (e não pegarTemaChat) porque aqui queremos SABER se é
+// um tema de verdade — pegarTemaChat devolveria o creme pra qualquer coisa
+const ehTema = !!(dmTemaCorAtual && TEMAS_CHAT[dmTemaCorAtual]);
+
+// 1) limpa o que o tema anterior deixou
+CHAVES_TEMA_CHAT.forEach((chave) => overlay.style.removeProperty('--chat-' + chave));
+overlay.style.removeProperty('--dm-tema-cor');
+
+// 2) a classe liga as regras do CSS que usam as variáveis (css/mensagens.css)
+overlay.classList.toggle('tema-chat-ativo', ehTema);
+overlay.classList.toggle('chat-escuro', ehTema && TEMAS_CHAT[dmTemaCorAtual].escuro);
+
+if (ehTema) {
+  // 3) uma variável CSS pra cada cor: --chat-fundo, --chat-recebido...
+  const tema = pegarTemaChat(dmTemaCorAtual);
+  CHAVES_TEMA_CHAT.forEach((chave) => overlay.style.setProperty('--chat-' + chave, tema[chave]));
+} else if (dmTemaCorAtual.startsWith('#')) {
+  overlay.style.setProperty('--dm-tema-cor', dmTemaCorAtual); // formato antigo (só a cor do balão)
+}
+marcarTemaSelecionado();
 }
 
+// Desenha as bolinhas de fundo em todo lugar que tiver .seletor-tema-grade
+// (popup do chat e "Tema" no perfil da conversa). Fica tudo gerado a partir do
+// TEMAS_CHAT: se um dia você criar um tema novo lá, ele aparece aqui sozinho.
+function desenharSeletoresTema() {
+const opcoes = [{ id: '', nome: 'Do app', amostra: 'linear-gradient(135deg, var(--accent-a), var(--accent-b))' }]
+  .concat(Object.keys(TEMAS_CHAT).map((id) => ({ id, nome: TEMAS_CHAT[id].nome, amostra: TEMAS_CHAT[id].fundo })));
+document.querySelectorAll('.seletor-tema-grade').forEach((grade) => {
+  if (grade.dataset.desenhado) return; // já desenhou antes, não precisa refazer
+  grade.dataset.desenhado = '1';
+  grade.innerHTML = opcoes.map((o) => `
+    <button type="button" class="seletor-tema-opcao" data-tema="${o.id}" aria-pressed="false" onclick="escolherTemaConversa('${o.id}')">
+      <span class="seletor-tema-bolinha" style="background:${o.amostra};"></span>
+      <span class="seletor-tema-nome">${o.nome}</span>
+    </button>`).join('');
+});
+marcarTemaSelecionado();
+}
+
+// Põe o anel em volta da bolinha do tema atual
+function marcarTemaSelecionado() {
+const atual = TEMAS_CHAT[dmTemaCorAtual] ? dmTemaCorAtual : ''; // cor antiga conta como "Do app"
+document.querySelectorAll('.seletor-tema-opcao').forEach((b) => {
+  const sel = b.dataset.tema === atual;
+  b.classList.toggle('selecionado', sel);
+  b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+});
+}
+
+// Botão de paleta no topo do chat: abre/fecha o popup de vidro
+window.abrirSeletorFundo = function () {
+const popup = document.getElementById('dmFundoPopup');
+const botao = document.getElementById('dmFundoBtn');
+if (!popup) return;
+desenharSeletoresTema();
+const abrir = !popup.classList.contains('aberto');
+popup.classList.toggle('aberto', abrir);
+if (botao) { botao.classList.toggle('ativo', abrir); botao.setAttribute('aria-expanded', abrir ? 'true' : 'false'); }
+};
+
+function fecharSeletorFundo() {
+const popup = document.getElementById('dmFundoPopup');
+const botao = document.getElementById('dmFundoBtn');
+if (popup) popup.classList.remove('aberto');
+if (botao) { botao.classList.remove('ativo'); botao.setAttribute('aria-expanded', 'false'); }
+}
+
+// "Tema" dentro do perfil da conversa
 window.toggleTemaConversaPicker = function () {
 const row = document.getElementById('dmTemaPickerRow');
 if (!row) return;
-row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+desenharSeletoresTema();
+row.style.display = row.style.display === 'none' ? 'grid' : 'none';
 };
 
-window.escolherTemaConversa = async function (cor) {
+window.escolherTemaConversa = async function (id) {
 if (!conversaAbertaId) return;
-const { error } = await supabaseClient.from('conversas').update({ tema_cor: cor || null }).eq('id', conversaAbertaId);
-if (error) { mostrarToast('❌ ' + error.message); return; }
-aplicarTemaConversa(cor);
-document.querySelectorAll('.dm-tema-swatch').forEach((s) => s.classList.toggle('selecionado', (s.dataset.cor || '') === (cor || '')));
-mostrarToast('🎨 tema da conversa atualizado');
+const anterior = dmTemaCorAtual;
+aplicarTemaConversa(id); // muda na hora, sem esperar o banco (fica mais rápido)
+fecharSeletorFundo();
+const { error } = await supabaseClient.from('conversas').update({ tema_cor: id || null }).eq('id', conversaAbertaId);
+if (error) { aplicarTemaConversa(anterior); mostrarToast('❌ ' + error.message); return; } // deu erro: desfaz
+mostrarToast('🎨 fundo da conversa atualizado');
 };
 
 window.verPerfilCompletoDaConversa = function () {
@@ -358,7 +434,7 @@ const { data: jaBloqueado } = await supabaseClient.from('bloqueios').select('id'
 document.getElementById('dmInfoBloquearLabel').textContent = jaBloqueado ? 'Desbloquear' : 'Bloquear';
 
 document.getElementById('dmTemaPickerRow').style.display = 'none';
-document.querySelectorAll('.dm-tema-swatch').forEach((s) => s.classList.toggle('selecionado', (s.dataset.cor || '') === dmTemaCorAtual));
+marcarTemaSelecionado();
 
 document.getElementById('dmInfoOverlay').classList.add('open');
 };
@@ -408,6 +484,7 @@ conversaAbertaId = await encontrarOuCriarConversa(outroId, meuId);
 if (!conversaAbertaId) { mostrarToast('❌ erro ao abrir conversa'); return; }
 
 conectarCanalDigitando(conversaAbertaId, meuId);
+fecharSeletorFundo();
 dmOutroUsuarioIdAtual = outroId;
 document.getElementById('dmChatName').textContent = '@' + outroNome;
 document.getElementById('dmChatOverlay').classList.add('open');
@@ -448,8 +525,12 @@ const { data, error } = await supabaseClient
 
 if (error) { console.log('erro ao carregar mensagens:', error.message); return; }
 
+// Agrupar como no iMessage: mensagens seguidas da mesma pessoa (com menos de
+// 5 min entre elas) ficam "coladas". Só a ÚLTIMA do grupo ganha o cantinho reto
+// e a hora embaixo; as do meio ficam com todos os cantos redondos (.meio-grupo).
+const CINCO_MIN = 5 * 60 * 1000;
 document.getElementById('dmMessages').innerHTML = (data && data.length)
-  ? data.map(m => {
+  ? data.map((m, i) => {
       let conteudo;
       let classeExtra = '';
       if (m.tipo_conteudo === 'audio') {
@@ -465,7 +546,15 @@ document.getElementById('dmMessages').innerHTML = (data && data.length)
       } else {
         conteudo = formatarMencoes(m.texto);
       }
-      return `<div class="dm-bubble ${m.autor_id === meuId ? 'own' : 'other'}${classeExtra}">${conteudo}</div>`;
+      const minha = m.autor_id === meuId;
+      const proxima = data[i + 1];
+      const fimDoGrupo = !proxima || proxima.autor_id !== m.autor_id
+        || (new Date(proxima.criado_em) - new Date(m.criado_em)) > CINCO_MIN;
+      const lado = minha ? 'own' : 'other';
+      const hora = fimDoGrupo && m.criado_em
+        ? `<div class="dm-hora ${lado}">${new Date(m.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>`
+        : '';
+      return `<div class="dm-bubble ${lado}${classeExtra}${fimDoGrupo ? '' : ' meio-grupo'}">${conteudo}</div>${hora}`;
     }).join('')
   : `<div class="dm-empty-state">${icone('comentar',34)}<div class="titulo">Comece a conversa</div><div class="sub">Manda um oi, um GIF ou um sticker — a conversa começa aqui 💬</div></div>`;
 

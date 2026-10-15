@@ -1518,7 +1518,13 @@
           <h2 id="dmChatName" style="font-size:16px;">@pedro_geek</h2>
           <div class="dm-chat-status" id="dmChatStatus"></div>
         </div>
-        <div style="width:34px; flex:none;"></div>
+        <!-- paleta: escolher o fundo da conversa (abre o popup logo abaixo) -->
+        <button class="btn-icone dm-fundo-btn" id="dmFundoBtn" aria-label="Escolher fundo da conversa" aria-expanded="false" onclick="abrirSeletorFundo()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.3 0 2-.8 2-1.8 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.7 1.9-1.7h2.1c2.1 0 3.7-1.6 3.7-3.7C20.5 6.6 16.7 3.5 12 3.5z"/><circle cx="7.6" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle cx="10.5" cy="7.4" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg></span></button>
+      </div>
+      <!-- popup de vidro com os fundos (as bolinhas são desenhadas pelo JS: desenharSeletoresTema) -->
+      <div class="dm-fundo-popup" id="dmFundoPopup" role="dialog" aria-label="Fundo da conversa">
+        <div class="dm-fundo-popup-titulo">Fundo da conversa</div>
+        <div class="seletor-tema-grade"></div>
       </div>
       <div class="dm-messages" id="dmMessages"></div>
             <div id="stickerPickerArea" style="display:none; padding:8px 0;">
@@ -1578,14 +1584,7 @@
             <span>Perfil</span>
           </div>
         </div>
-        <div id="dmTemaPickerRow" class="dm-tema-picker" style="display:none;">
-          <div class="dm-tema-swatch" data-cor="" style="background:var(--accent-a);" onclick="escolherTemaConversa('')"></div>
-          <div class="dm-tema-swatch" data-cor="#869B83" style="background:#869B83;" onclick="escolherTemaConversa('#869B83')"></div>
-          <div class="dm-tema-swatch" data-cor="#E06B6B" style="background:#E06B6B;" onclick="escolherTemaConversa('#E06B6B')"></div>
-          <div class="dm-tema-swatch" data-cor="#E8A83D" style="background:#E8A83D;" onclick="escolherTemaConversa('#E8A83D')"></div>
-          <div class="dm-tema-swatch" data-cor="#9B6FA8" style="background:#9B6FA8;" onclick="escolherTemaConversa('#9B6FA8')"></div>
-          <div class="dm-tema-swatch" data-cor="#5B87A8" style="background:#5B87A8;" onclick="escolherTemaConversa('#5B87A8')"></div>
-        </div>
+        <div id="dmTemaPickerRow" class="dm-tema-picker seletor-tema-grade" style="display:none;"></div>
         <div class="dm-info-lista">
           <div class="dm-info-item" onclick="bloquearUsuarioAtual()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg></span> <span id="dmInfoBloquearLabel">Bloquear</span></div>
           <div class="dm-info-item" style="color:var(--raiva);" onclick="denunciarUsuarioAtual()"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v17"/><path d="M6 4.5h11l-2.3 4L17 12.5H6"/></svg></span> Denunciar</div>
@@ -1769,6 +1768,7 @@
 <script src="js/cartoes.js"></script>
 <script src="js/leitor.js"></script>
 <script src="js/descobrir-itens.js"></script>
+<script src="js/tema-chat.js"></script>
 <script src="js/mensagens.js"></script>
 <script src="js/mensagens-midia.js"></script>
 <script src="js/navegacao.js"></script>

@@ -28,6 +28,15 @@
 .post-btn:active, .onboard-btn:active, .clube-criar-btn:active {
   transform: scale(.97); background: color-mix(in srgb, var(--terracota) 86%, #000); }
 .post-btn:disabled, .onboard-btn:disabled { opacity: .55; }
+/* Botão do Google: branco, como o próprio Google recomenda.
+   ".onboard-btn.google-btn" (duas classes juntas, sem espaço) é mais forte
+   que ".onboard-btn" sozinho, então ganha do terracota acima. */
+.onboard-btn.google-btn {
+  background: #fff; color: #3C4043; border: 1px solid #DADCE0;
+  box-shadow: 0 1px 3px rgba(60,64,67,.12);
+}
+/* ao apertar: cinza bem clarinho, em vez do terracota escuro do :active geral */
+.onboard-btn.google-btn:active { background: #F1F3F4; }
 /* "Buscar" pequenininho dos campos de referência continua compacto */
 .post-btn[style*="padding:8px 12px"] { min-height: 34px; font-size: 12.5px; }
 /* botões "cancelar/recusar" que eram cinza (inline) → contorno sálvia */

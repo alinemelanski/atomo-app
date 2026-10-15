@@ -125,3 +125,83 @@
   .bau-pandora-btn { color: #B8860B; background: color-mix(in srgb, #E8B94A 34%, var(--card));
     border-color: color-mix(in srgb, #E8B94A 55%, transparent); box-shadow: 0 0 10px color-mix(in srgb, #E8B94A 35%, transparent); }
 
+
+  /* =====================================================================
+     CHAT ESTILO iMESSAGE + FUNDO ESCOLHIDO PELO USUÁRIO
+     Tudo com #dmChatOverlay na frente: a classe .dm-chat-overlay também é
+     usada por outras telas (perfil da conversa, clubes, diário...), e a
+     gente só quer mudar o chat.
+     ===================================================================== */
+
+  /* ---------- Etapa 3: fonte do sistema (San Francisco no iPhone, Roboto no Android) ---------- */
+  #dmChatOverlay .dm-bubble, #dmChatOverlay .dm-hora, #dmChatOverlay .dm-input-wrap input {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  }
+  /* 16px: abaixo disso o iPhone dá zoom sozinho ao tocar no campo */
+  #dmChatOverlay .dm-bubble { font-size: 16px; line-height: 1.35; letter-spacing: -.01em;
+    padding: 8px 14px; border-radius: 20px; max-width: 78%; }
+
+  /* ---------- Etapa 6: balões agrupados ---------- */
+  #dmMessages { gap: 3px; }
+  /* último balão do grupo: cantinho reto do lado de quem mandou */
+  #dmChatOverlay .dm-bubble.own { border-bottom-right-radius: 6px; }
+  #dmChatOverlay .dm-bubble.other { border-bottom-left-radius: 6px; }
+  /* balões do meio do grupo: todos os cantos redondos */
+  #dmChatOverlay .dm-bubble.own.meio-grupo { border-bottom-right-radius: 20px; }
+  #dmChatOverlay .dm-bubble.other.meio-grupo { border-bottom-left-radius: 20px; }
+  .dm-hora { font-size: 11px; color: var(--ink-faint); margin: 1px 6px 10px; }
+  .dm-hora.own { align-self: flex-end; }
+  .dm-hora.other { align-self: flex-start; }
+
+  /* ---------- Etapa 4: botão da paleta + popup de vidro ---------- */
+  /* mesmo jeitinho "nativo" do botão voltar (toque.css): sem fundo */
+  #dmChatOverlay .dm-fundo-btn { width: 34px; height: 34px; background: transparent; border: none; color: var(--accent-a); }
+  #dmChatOverlay .dm-fundo-btn.ativo { background: var(--salvia); color: #fff; }
+  .dm-fundo-popup { position: absolute; z-index: 5; left: 12px; right: 12px; top: calc(66px + env(safe-area-inset-top));
+    padding: 14px 14px 16px; border-radius: 24px; color: var(--ink);
+    background: color-mix(in srgb, var(--card) 72%, transparent);
+    backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid var(--card-b); box-shadow: 0 14px 34px rgba(0,0,0,.18);
+    /* escondido por padrão; .aberto mostra com uma animação curtinha */
+    opacity: 0; transform: translateY(-6px) scale(.98); pointer-events: none; visibility: hidden;
+    transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s; }
+  .dm-fundo-popup.aberto { opacity: 1; transform: none; pointer-events: auto; visibility: visible;
+    transition: opacity .2s ease, transform .2s ease, visibility 0s; }
+  .dm-fundo-popup-titulo { font-size: 12px; font-weight: 700; opacity: .7; margin-bottom: 12px; }
+
+  /* grade de bolinhas (popup do chat e "Tema" no perfil da conversa) */
+  .seletor-tema-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 6px; }
+  #dmTemaPickerRow { margin: 0 8px 16px; }
+  .seletor-tema-opcao { background: none; border: none; padding: 0; cursor: pointer; color: inherit; font: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 6px; -webkit-tap-highlight-color: transparent; }
+  .seletor-tema-opcao:active { transform: scale(.94); }
+  .seletor-tema-bolinha { width: 44px; height: 44px; border-radius: 50%; box-sizing: border-box;
+    border: 1px solid rgba(128,128,128,.35); transition: box-shadow .2s ease; }
+  /* anel terracota em volta do fundo escolhido */
+  .seletor-tema-opcao.selecionado .seletor-tema-bolinha { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--terracota); }
+  .seletor-tema-nome { font-size: 11px; font-weight: 600; color: var(--ink-dim); }
+
+  /* ---------- Etapa 2: o tema pinta o chat (variáveis --chat-*, definidas pelo JS) ---------- */
+  /* !important só no fundo: as regras do clima (base.css) são muito "fortes"
+     e pintariam por cima. Fundo escolhido pela pessoa tem que ganhar do clima. */
+  #dmChatOverlay.tema-chat-ativo { background: var(--chat-fundo) !important; color: var(--chat-texto); }
+  #dmChatOverlay.tema-chat-ativo .dm-chat-header h2 { color: var(--chat-texto); }
+  #dmChatOverlay.tema-chat-ativo .dm-chat-status { color: var(--chat-sub); }
+  #dmChatOverlay.tema-chat-ativo .dm-chat-header .back-btn,
+  #dmChatOverlay.tema-chat-ativo .dm-fundo-btn:not(.ativo) { color: var(--chat-texto); }
+  #dmChatOverlay.tema-chat-ativo .dm-bubble.other { background: var(--chat-recebido); color: var(--chat-texto);
+    backdrop-filter: none; -webkit-backdrop-filter: none; border: none; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  #dmChatOverlay.tema-chat-ativo .dm-bubble.own { background: var(--chat-enviado); color: #fff; }
+  #dmChatOverlay.tema-chat-ativo .dm-hora { color: var(--chat-sub); }
+  #dmChatOverlay.tema-chat-ativo .dm-input-wrap input { background: var(--chat-superficie); color: var(--chat-texto);
+    border: 1px solid var(--chat-borda); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  #dmChatOverlay.tema-chat-ativo .dm-input-wrap input::placeholder { color: var(--chat-sub); }
+  #dmChatOverlay.tema-chat-ativo .dm-input-icons .dm-send-btn { color: var(--chat-sub) !important; }
+  /* popup também segue o tema escolhido */
+  #dmChatOverlay.tema-chat-ativo .dm-fundo-popup { color: var(--chat-texto);
+    background: color-mix(in srgb, var(--chat-superficie) 78%, transparent); border-color: var(--chat-borda); }
+  #dmChatOverlay.tema-chat-ativo .seletor-tema-nome { color: var(--chat-texto); }
+  #dmChatOverlay.tema-chat-ativo .seletor-tema-opcao.selecionado .seletor-tema-bolinha {
+    box-shadow: 0 0 0 2px var(--chat-superficie), 0 0 0 4px var(--terracota); }
+  /* temas escuros: sombra não aparece em fundo preto, só suja */
+  #dmChatOverlay.chat-escuro .dm-bubble.other { box-shadow: none; }
