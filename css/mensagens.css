@@ -338,3 +338,7 @@
     display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .dm-input-sticker-btn .icon-svg { width: 20px; height: 20px; }
   #dmChatOverlay .dm-input-row > .dm-send-btn { width: 40px; height: 40px; border: none; background: var(--terracota); color: #fff; }
+
+  /* busca de amigos aberta: some o X — fecha tocando fora (mensagens.js) */
+  #msgTopRow .msg-busca-widget.aberto .msg-busca-toggle-icone { width: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+  #msgTopRow .msg-busca-widget.aberto .msg-busca-campo-wrap { padding-left: 16px; }

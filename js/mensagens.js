@@ -336,6 +336,33 @@ window.toggleBuscaPoteAmigos = function () {
   if (vaiAbrir) { input.value = ''; setTimeout(() => input.focus(), 200); }
 };
 
+function fecharBuscaPoteAmigos() {
+  const widget = document.getElementById('msgBuscaWidget');
+  if (!widget || !widget.classList.contains('aberto')) return;
+  widget.classList.remove('aberto');
+  const topRow = document.getElementById('msgTopRow');
+  if (topRow) topRow.classList.remove('busca-aberta');
+}
+
+// Fechar tocando fora: em vez de um botão X, qualquer toque FORA da busca
+// (ou do popup de fundo do chat) fecha ele sozinho. Um único "ouvinte" no
+// documento inteiro confere onde foi o toque com .contains().
+document.addEventListener('click', (e) => {
+  const busca = document.getElementById('msgBuscaWidget');
+  if (busca && busca.classList.contains('aberto') && !busca.contains(e.target)) fecharBuscaPoteAmigos();
+
+  const popupFundo = document.getElementById('dmFundoPopup');
+  const botaoFundo = document.getElementById('dmFundoBtn');
+  if (popupFundo && popupFundo.classList.contains('aberto') && !popupFundo.contains(e.target)
+      && !(botaoFundo && botaoFundo.contains(e.target))) fecharSeletorFundo();
+});
+// no computador, Esc também fecha
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  fecharBuscaPoteAmigos();
+  fecharSeletorFundo();
+});
+
 // lupa da busca do pote: abre a busca completa de outras pessoas (com foto e bio),
 // ja com o que a pessoa tinha digitado
 window.confirmarBuscaOutrosUsuarios = async function () {
