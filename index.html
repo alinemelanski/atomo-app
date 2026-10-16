@@ -1521,13 +1521,27 @@
   </div>
 </div>
 
-    <!-- NOVO SELO DESBLOQUEADO -->
-    <div class="marco-celebracao" id="seloCelebracao">
-      <div class="marco-card">
-        <div class="selo-grande" id="seloGrandeSvg"></div>
-        <h3 id="seloTitulo">Novo selo!</h3>
-        <p id="seloTexto">Uma semana inteira escrevendo. Guardado na sua coleção 📮</p>
-        <button class="post-btn" style="width:100%; padding:11px;" onclick="fecharSeloCelebracao()">Continuar</button>
+    <!-- NOVO SELO: pacotinho de papel kraft que desembrulha (js/perfil.js) -->
+    <div class="selo-pacote-overlay" id="seloPacoteOverlay" role="dialog" aria-label="Você ganhou um selo">
+      <div class="selo-pacote-contador" id="seloPacoteContador"></div>
+      <div class="selo-pacote-cena">
+        <!-- o selo fica ATRÁS do papel; quando o papel abre, ele aparece -->
+        <div class="selo-pacote-selo">
+          <div class="selo-grande selo-pacote-img" id="seloPacoteImagem"></div>
+          <span class="selo-pacote-brilho" aria-hidden="true"></span>
+        </div>
+        <button class="selo-pacote" onclick="desembrulharSelo()" aria-label="Abrir o presente">
+          <span class="selo-pacote-aba esquerda" aria-hidden="true"></span>
+          <span class="selo-pacote-aba direita" aria-hidden="true"></span>
+          <span class="selo-pacote-fita" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="selo-pacote-dica">toque no pacotinho para abrir</div>
+      <div class="selo-pacote-info">
+        <div class="selo-pacote-kicker">novo selo</div>
+        <h3 id="seloPacoteNome"></h3>
+        <p id="seloPacoteFrase"></p>
+        <button class="btn-acao btn-acao-terracota" style="width:100%;" onclick="guardarSeloNaEstante()">guardar na estante de selos</button>
       </div>
     </div>
  

@@ -49,42 +49,68 @@ async function renderStreakPerfilAlheio(autorId) {
 
 //checar novo selo(streak antigo e streak novo
 
-async function checarNovoSelo(streakAntigo, streakNovo) {
+// ---------- NOVO SELO: chega embrulhado num pacotinho de papel kraft ----------
+// 1. aparece o pacotinho parado, com "toque para abrir"
+// 2. tocou: o papel desembrulha (as duas abas se abrem pros lados)
+// 3. o selo aparece brilhando (um reflexo de luz passa por cima) e o celular vibra
+// 4. "guardar na estante de selos": se ganhou mais de um de uma vez, vem o próximo pacotinho
+// Sem som, de propósito.
+let filaSelosNovos = [];      // selos ganhos agora, um pacotinho pra cada
+let totalSelosNaFila = 0;
 
-const semanasAntes = Math.floor(streakAntigo / 7);
-const semanasDepois = Math.floor(streakNovo / 7);
-if (semanasDepois > semanasAntes && semanasDepois <= SELOS.length) {
-  const selo = SELOS[semanasDepois - 1];
+async function checarNovoSelo(streakAntigo, streakNovo) {
+  const semanasAntes = Math.floor(streakAntigo / 7);
+  const semanasDepois = Math.min(Math.floor(streakNovo / 7), SELOS.length);
+  if (semanasDepois <= semanasAntes) return false;
 
   const { data: sessionData } = await supabaseClient.auth.getSession();
-  if (!selosGanhos.has(semanasDepois)) {
-    selosGanhos.add(semanasDepois);
-    try { localStorage.setItem('atomo_selos_' + sessionData.session.user.id, JSON.stringify([...selosGanhos])); } catch (e) { /* sem storage */ }
-    await supabaseClient.from('selos_desbloqueados').insert({
-      usuario_id: sessionData.session.user.id,
-      selo_numero: semanasDepois,
-    });
-    renderSelosPerfil();
+  const novos = [];
+  // pode ter ganhado mais de um selo de uma vez (ex.: voltou depois de dias e a sequência foi recalculada)
+  for (let n = semanasAntes + 1; n <= semanasDepois; n++) {
+    if (selosGanhos.has(n)) continue;
+    selosGanhos.add(n);
+    novos.push(n);
   }
+  if (!novos.length) return false;
+  try { localStorage.setItem('atomo_selos_' + sessionData.session.user.id, JSON.stringify([...selosGanhos])); } catch (e) { /* sem storage */ }
+  await supabaseClient.from('selos_desbloqueados').insert(novos.map(n => ({ usuario_id: sessionData.session.user.id, selo_numero: n })));
+  renderSelosPerfil();
 
-  const svgGrandeEl = document.getElementById('seloGrandeSvg');
-  svgGrandeEl.innerHTML = conteudoSelo(selo);
-  svgGrandeEl.classList.remove('celebra');
-  void svgGrandeEl.offsetWidth;
-  svgGrandeEl.classList.add('celebra');
-  document.getElementById('seloTitulo').textContent = `Novo selo: "${selo.nome}"`;
-  document.getElementById('seloTexto').textContent = selo.frase || 'Uma semana inteira escrevendo. Guardado na sua coleção \ud83d\udcee';
-  document.getElementById('seloCelebracao').classList.add('show');
-  vibrar([30, 60, 30, 60, 90]); tocarSom('selo');
+  filaSelosNovos = novos.slice();
+  totalSelosNaFila = novos.length;
+  mostrarProximoPacoteSelo();
   return true;
 }
-return false;
+
+function mostrarProximoPacoteSelo() {
+  const numero = filaSelosNovos.shift();
+  const overlay = document.getElementById('seloPacoteOverlay');
+  if (!numero) { overlay.classList.remove('show'); return; }
+  const selo = SELOS[numero - 1];
+  const posicao = totalSelosNaFila - filaSelosNovos.length; // 1, 2, 3...
+  document.getElementById('seloPacoteContador').textContent = totalSelosNaFila > 1 ? `presente ${posicao} de ${totalSelosNaFila}` : '';
+  document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
+  document.getElementById('seloPacoteNome').textContent = selo.nome;
+  document.getElementById('seloPacoteFrase').textContent = selo.frase || 'Uma semana inteira escrevendo.';
+  overlay.classList.remove('aberto'); // volta pro pacotinho fechado
+  overlay.classList.add('show');
 }
 
-window.fecharSeloCelebracao = function () {
-document.getElementById('seloCelebracao').classList.remove('show');
-
+window.desembrulharSelo = function () {
+  const overlay = document.getElementById('seloPacoteOverlay');
+  if (overlay.classList.contains('aberto')) return;
+  overlay.classList.add('aberto'); // o CSS faz o papel abrir e o selo aparecer
+  // a vibração acontece quando o selo aparece (o papel leva ~0,5s pra abrir)
+  setTimeout(() => vibrar([40, 70, 40, 70, 120]), 480);
 };
+
+window.guardarSeloNaEstante = function () {
+  if (filaSelosNovos.length) mostrarProximoPacoteSelo();
+  else document.getElementById('seloPacoteOverlay').classList.remove('show');
+};
+
+// compatibilidade com quem ainda chama o nome antigo
+window.fecharSeloCelebracao = window.guardarSeloNaEstante;
 
 let perfilAlheioPostsAtuais = [];
 

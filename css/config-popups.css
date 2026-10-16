@@ -164,3 +164,59 @@
     background: var(--salvia); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
     box-shadow: 0 8px 22px rgba(0,0,0,.18); white-space: nowrap; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
   .aviso-versao-nova.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+
+  /* =====================================================================
+     NOVO SELO: pacotinho de papel kraft (sem laço, parado) que desembrulha
+     .show = aparece o pacotinho · .aberto = o papel abriu e o selo apareceu
+     ===================================================================== */
+  .selo-pacote-overlay { position: fixed; inset: 0; z-index: 96; display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; background: color-mix(in srgb, #1b140d 62%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .selo-pacote-overlay.show { display: flex; }
+  .selo-pacote-contador { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(255,255,255,.75); min-height: 16px; margin-bottom: 14px; }
+  .selo-pacote-cena { position: relative; width: 190px; height: 230px; perspective: 900px; }
+
+  /* o selo, escondido atrás do papel */
+  .selo-pacote-selo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: scale(.6); transition: opacity .35s ease .35s, transform .6s cubic-bezier(.34,1.56,.64,1) .35s; overflow: hidden; border-radius: 20px; }
+  .selo-pacote-img { margin: 0; width: 150px; height: 200px; }
+  /* reflexo de luz passando por cima do selo, de tempos em tempos, como moeda nova */
+  .selo-pacote-brilho { position: absolute; top: -20%; bottom: -20%; width: 40%; left: -60%; pointer-events: none;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent); transform: skewX(-18deg); }
+  .selo-pacote-overlay.aberto .selo-pacote-selo { opacity: 1; transform: scale(1); }
+  .selo-pacote-overlay.aberto .selo-pacote-brilho { animation: seloBrilho 2.6s ease-in-out .9s infinite; }
+  @keyframes seloBrilho { 0% { left: -60%; } 45%, 100% { left: 130%; } }
+  .selo-pacote-overlay.aberto .selo-pacote-img img { filter: drop-shadow(0 0 18px rgba(255,214,120,.55)) drop-shadow(0 6px 14px rgba(0,0,0,.3)); }
+
+  /* o pacotinho: papel kraft com textura de fibra e dobras, sem laço, parado */
+  .selo-pacote { position: absolute; inset: 0; border: none; padding: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .selo-pacote-aba { position: absolute; top: 0; bottom: 0; width: 50%;
+    background-color: #C49A6C;
+    background-image:
+      repeating-linear-gradient(85deg, rgba(90,60,30,.07) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(-8deg, rgba(255,255,255,.06) 0 1px, transparent 1px 9px),
+      linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.08));
+    box-shadow: inset 0 0 0 1px rgba(90,60,30,.18), 0 12px 30px rgba(0,0,0,.35);
+    transition: transform .55s cubic-bezier(.6,.05,.3,1), opacity .4s ease .25s; }
+  .selo-pacote-aba.esquerda { left: 0; border-radius: 16px 0 0 16px; transform-origin: left center; }
+  .selo-pacote-aba.direita { right: 0; border-radius: 0 16px 16px 0; transform-origin: right center;
+    box-shadow: inset 1px 0 0 rgba(90,60,30,.28), inset 0 0 0 1px rgba(90,60,30,.18), 0 12px 30px rgba(0,0,0,.35); }
+  /* tira de papel colada no meio (a "fita adesiva" do embrulho, discreta) */
+  .selo-pacote-fita { position: absolute; left: 50%; top: 0; bottom: 0; width: 26px; transform: translateX(-50%);
+    background: rgba(240,225,200,.35); box-shadow: inset 0 0 0 1px rgba(90,60,30,.12); transition: opacity .2s ease; }
+  /* abrindo: cada aba gira pro seu lado, como papel de presente sendo aberto */
+  .selo-pacote-overlay.aberto .selo-pacote-aba.esquerda { transform: rotateY(-115deg); opacity: 0; }
+  .selo-pacote-overlay.aberto .selo-pacote-aba.direita { transform: rotateY(115deg); opacity: 0; }
+  .selo-pacote-overlay.aberto .selo-pacote-fita { opacity: 0; }
+  .selo-pacote-overlay.aberto .selo-pacote { pointer-events: none; }
+
+  .selo-pacote-dica { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.8); transition: opacity .2s ease; }
+  .selo-pacote-overlay.aberto .selo-pacote-dica { display: none; }
+  /* nome, frase e botão só aparecem depois de abrir */
+  .selo-pacote-info { display: none; width: 100%; max-width: 300px; margin-top: 18px; text-align: center;
+    background: var(--card); border-radius: 24px; padding: 18px 18px 16px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+  .selo-pacote-overlay.aberto .selo-pacote-info { display: block; animation: seloInfoSobe .45s ease .5s both; }
+  @keyframes seloInfoSobe { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  .selo-pacote-kicker { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--terracota); }
+  .selo-pacote-info h3 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--ink); margin: 4px 0 6px; }
+  .selo-pacote-info p { font-size: 13.5px; color: var(--ink-dim); line-height: 1.5; margin: 0 0 14px; }
