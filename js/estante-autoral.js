@@ -239,6 +239,17 @@ window.enviarAvaliacaoAutoral = async function () {
     livro_id: d.id, usuario_id: usuarioId, nota: notaAutoralEscolhida, comentario: comentario || null,
   }, { onConflict: 'livro_id,usuario_id' });
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  if (d.autor_id && d.autor_id !== usuarioId) {
+    // ator_id fica vazio de propósito: quem avalia continua anônimo pro autor
+    supabaseClient.from('notificacoes').insert({
+      usuario_id: d.autor_id, tipo: 'avaliacao_autoral', titulo: '⭐ Nova avaliação',
+      subtitulo: `"${d.titulo}" recebeu ${notaAutoralEscolhida} estrela${notaAutoralEscolhida === 1 ? '' : 's'}`,
+    }).then(({ error: e }) => { if (e) console.log('erro ao avisar o autor:', e.message); });
+    fetch(`${API_BASE}/api/push/notificar`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuarioId: d.autor_id, tipo: 'avaliacao_autoral', dados: { titulo: d.titulo, nota: notaAutoralEscolhida } }),
+    }).catch(() => {});
+  }
   mostrarToast('⭐ avaliação enviada');
   notaAutoralEscolhida = 0;
   renderAvaliacoesLivroAutoral(d.id);

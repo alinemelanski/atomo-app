@@ -141,6 +141,7 @@ const MODELOS_NOTIFICACAO_PUSH = {
   livro_autoral_recusado: (d) => ({ titulo: '📬 Seu livro precisa de ajustes', corpo: `"${d.titulo || 'seu livro'}" foi recusado: ${String(d.motivo || '').slice(0, 100)}` }),
   venda_autoral_vendedor: (d) => ({ titulo: '💰 Você vendeu um livro!', corpo: `"${d.titulo || 'seu livro'}" acabou de ser comprado` }),
   venda_autoral_comprador: (d) => ({ titulo: '✅ Compra confirmada', corpo: `"${d.titulo || 'o livro'}" já está liberado na sua estante` }),
+  avaliacao_autoral: (d) => ({ titulo: '⭐ Nova avaliação', corpo: `"${d.titulo || 'seu livro'}" recebeu ${d.nota || ''} estrela${d.nota == 1 ? '' : 's'}` }),
 };
 
 app.post('/api/push/notificar', async (req, res) => {
@@ -196,6 +197,87 @@ const ANTISPAM_POST_AMIGO_MIN = 30;
 // Se aparecer {"ok":true,...} é porque o Render já está com esta versão do servidor.
 app.get('/api/notificar-seguidores', (req, res) => {
   res.json({ ok: true, rota: 'notificar-seguidores', admin: !!supabaseAdmin, push: typeof enviarPushParaUsuario === 'function' });
+});
+
+// ---------- notificação no SINO do app (tabela notificacoes) pelo servidor ----------
+// O push vai pro celular; isto aqui é o que aparece na lista do sino dentro do app.
+// grupo_id é opcional (coluna nova, sql/sql_pendente_notificacoes_grupos.sql): se ela
+// ainda não existir no banco, tenta de novo sem ela em vez de perder a notificação.
+async function criarNotificacoesNoApp(linhas) {
+  if (!supabaseAdmin || !linhas.length) return;
+  let { error } = await supabaseAdmin.from('notificacoes').insert(linhas);
+  if (error && /grupo_id/.test(error.message)) {
+    ({ error } = await supabaseAdmin.from('notificacoes').insert(linhas.map(({ grupo_id, ...resto }) => resto)));
+  }
+  if (error) console.log('erro ao criar notificação no app:', error.message);
+}
+
+// ---------- avisos de CLUBE DO LIVRO e COMUNIDADE ----------
+// O app chama depois de: postar no mural (evento "post"), avançar capítulo ("capitulo")
+// ou alguém entrar no grupo ("membro_novo"). O servidor confere tudo (quem chamou é membro,
+// quem desligou avisos, anti-spam) e avisa quem precisa, no sino E no celular.
+const ANTISPAM_GRUPO_MIN = 30; // no máximo 1 aviso de post por grupo a cada 30 min pra mesma pessoa
+const CONFIG_GRUPOS = {
+  clube: { tabela: 'clubes_livro', membros: 'clube_membros', colunaId: 'clube_id', nome: 'clube' },
+  comunidade: { tabela: 'comunidades_estudo', membros: 'comunidade_estudo_membros', colunaId: 'comunidade_id', nome: 'comunidade' },
+};
+app.post('/api/notificar-grupo', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado' });
+  try {
+    const usuario = await usuarioDoToken(req);
+    if (!usuario) return res.status(401).json({ erro: 'precisa estar logado' });
+    const { grupo, grupoId, evento, texto, postId } = req.body || {};
+    const cfg = CONFIG_GRUPOS[grupo];
+    if (!cfg || !grupoId || !['post', 'capitulo', 'membro_novo'].includes(evento)) return res.status(400).json({ erro: 'dados inválidos' });
+
+    // quem chamou precisa ser membro (senão qualquer um mandaria aviso pro grupo dos outros)
+    const { data: membros } = await supabaseAdmin.from(cfg.membros).select('usuario_id, papel').eq(cfg.colunaId, grupoId);
+    if (!(membros || []).some(m => m.usuario_id === usuario.id)) return res.status(403).json({ erro: 'você não é membro' });
+
+    const { data: g } = await supabaseAdmin.from(cfg.tabela).select('*').eq('id', grupoId).maybeSingle();
+    const nomeGrupo = (g && g.nome) || cfg.nome;
+    const { data: autor } = await supabaseAdmin.from('usuarios').select('handle').eq('id', usuario.id).maybeSingle();
+    const handle = autor ? autor.handle : 'alguém';
+
+    // pra quem vai: membro novo avisa só os admins; o resto avisa todo mundo (menos quem fez)
+    let ids = (membros || [])
+      .filter(m => m.usuario_id !== usuario.id && (evento !== 'membro_novo' || m.papel === 'admin'))
+      .map(m => m.usuario_id);
+    if (!ids.length) return res.json({ ok: true, avisados: 0 });
+
+    // tira quem desligou os avisos
+    const { data: prefs } = await supabaseAdmin.from('usuarios').select('id, notif_ativado').in('id', ids);
+    const desligados = new Set((prefs || []).filter(p => p.notif_ativado === false).map(p => p.id));
+    ids = ids.filter(id => !desligados.has(id));
+
+    const tipo = `${grupo}_${evento}`; // ex.: clube_post, comunidade_membro_novo
+    // anti-spam só pra post (capítulo e membro novo são raros)
+    if (evento === 'post' && ids.length) {
+      const limite = new Date(Date.now() - ANTISPAM_GRUPO_MIN * 60 * 1000).toISOString();
+      const { data: recentes } = await supabaseAdmin.from('notificacoes').select('usuario_id')
+        .eq('tipo', tipo).eq('titulo', `Novidade em ${nomeGrupo}`).gte('criado_em', limite).in('usuario_id', ids);
+      const ja = new Set((recentes || []).map(r => r.usuario_id));
+      ids = ids.filter(id => !ja.has(id));
+    }
+    if (!ids.length) return res.json({ ok: true, avisados: 0 });
+
+    const trecho = String(texto || '').replace(/\s+/g, ' ').trim().slice(0, 70);
+    const capitulo = g && g.capitulo_atual ? (/^\d+$/.test(g.capitulo_atual) ? 'cap. ' + g.capitulo_atual : g.capitulo_atual) : 'o próximo capítulo';
+    const msg = {
+      post: { titulo: `Novidade em ${nomeGrupo}`, corpo: `@${handle}: ${trecho || 'mandou uma foto'}` },
+      capitulo: { titulo: `📖 ${nomeGrupo} avançou`, corpo: `agora é ${capitulo}. bora ler?` },
+      membro_novo: { titulo: `👋 Gente nova em ${nomeGrupo}`, corpo: `@${handle} entrou no ${cfg.nome}` },
+    }[evento];
+
+    await criarNotificacoesNoApp(ids.map(id => ({
+      usuario_id: id, tipo, titulo: msg.titulo, subtitulo: msg.corpo,
+      post_id: postId || null, ator_id: usuario.id, grupo_id: String(grupoId),
+    })));
+    ids.forEach(id => enviarPushParaUsuario(id, msg.titulo, msg.corpo, { tipo, ator_id: usuario.id }).catch(() => {}));
+    res.json({ ok: true, avisados: ids.length });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
 });
 
 app.post('/api/notificar-seguidores', async (req, res) => {
@@ -292,6 +374,10 @@ app.post('/api/estante-autoral/revisar', async (req, res) => {
   const { error } = await supabaseAdmin.from('livros_autorais').update(patch).eq('id', livroId);
   if (error) return res.status(500).json({ erro: error.message });
 
+  const modeloRevisao = aprovado
+    ? MODELOS_NOTIFICACAO_PUSH.livro_autoral_aprovado({ titulo: livro.titulo })
+    : MODELOS_NOTIFICACAO_PUSH.livro_autoral_recusado({ titulo: livro.titulo, motivo });
+  criarNotificacoesNoApp([{ usuario_id: livro.autor_id, tipo: aprovado ? 'livro_autoral_aprovado' : 'livro_autoral_recusado', titulo: modeloRevisao.titulo, subtitulo: modeloRevisao.corpo }]);
   enviarPushParaUsuario(
     livro.autor_id,
     ...(aprovado
@@ -410,6 +496,10 @@ app.post('/api/estante-autoral/webhook-asaas', async (req, res) => {
     const dadosNotificacao = { titulo: livro ? livro.titulo : null };
     const modeloVendedor = MODELOS_NOTIFICACAO_PUSH.venda_autoral_vendedor(dadosNotificacao);
     const modeloComprador = MODELOS_NOTIFICACAO_PUSH.venda_autoral_comprador(dadosNotificacao);
+    criarNotificacoesNoApp([
+      { usuario_id: venda.autor_id, tipo: 'venda_autoral_vendedor', titulo: modeloVendedor.titulo, subtitulo: modeloVendedor.corpo },
+      { usuario_id: venda.comprador_id, tipo: 'venda_autoral_comprador', titulo: modeloComprador.titulo, subtitulo: modeloComprador.corpo },
+    ]);
     enviarPushParaUsuario(venda.autor_id, modeloVendedor.titulo, modeloVendedor.corpo, { tipo: 'venda_autoral_vendedor' }).catch(() => {});
     enviarPushParaUsuario(venda.comprador_id, modeloComprador.titulo, modeloComprador.corpo, { tipo: 'venda_autoral_comprador' }).catch(() => {});
   } catch (erro) {

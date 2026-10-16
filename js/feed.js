@@ -783,6 +783,23 @@ function notificarPushEvento(destinatarioId, tipo, dados) {
   }).catch(() => {});
 }
 
+// Aviso pros membros de um CLUBE ou COMUNIDADE (sino + celular).
+// O servidor decide quem recebe (confere se você é membro, quem desligou avisos e o anti-spam).
+// grupo: 'clube' | 'comunidade' · evento: 'post' | 'capitulo' | 'membro_novo'
+async function avisarGrupo(grupo, grupoId, evento, texto) {
+  try {
+    if (!grupoId) return;
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data || !data.session) return;
+    fetch(`${API_BASE}/api/notificar-grupo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + data.session.access_token },
+      body: JSON.stringify({ grupo, grupoId, evento, texto: texto || '' }),
+    }).catch(() => {}); // aviso é extra: se o servidor estiver dormindo, nada quebra
+  } catch (e) { /* nunca atrapalha a ação principal */ }
+}
+window.avisarGrupo = avisarGrupo;
+
 // id do post que acabou de ser curtido: só ele recebe a classe "pulando" no próximo desenho da lista
 let postRecemCurtidoId = null;
 

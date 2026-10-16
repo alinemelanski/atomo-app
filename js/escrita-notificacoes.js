@@ -118,7 +118,16 @@ if (n.tipo === 'comentario' || n.tipo === 'curtida' || n.tipo === 'post_amigo') 
 } else if (n.tipo === 'pergunta_do_dia' && n.post_id) {
   // pergunta do dia do @Átomo: abre direto os comentários, pronto pra responder
   irParaPostDaNotif(n.post_id);
+} else if (/^clube_/.test(n.tipo)) {
+  // aviso de clube do livro: abre o clube (grupo_id); sem ele, abre a aba de clubes
+  if (n.grupo_id) abrirClubePorId(n.grupo_id); else showScreen2('livros');
+} else if (/^comunidade_/.test(n.tipo)) {
+  if (n.grupo_id) abrirComunidadePorId(n.grupo_id); else showScreen2('descobrir');
+} else if (/autoral/.test(n.tipo)) {
+  // Loja: livro aprovado/recusado, venda, compra, avaliação
+  showScreen2('loja');
 }
+
 };
 
 window.openNotifs = async function () {
@@ -128,7 +137,7 @@ await carregarNotificacoes();
 const lista = window.NOTIFICACOES_REAIS || [];
 
 document.getElementById('notifList').innerHTML = lista.length
-  ? lista.map((n, i) => `<div class="notif-item" onclick="abrirNotificacao(window.NOTIFICACOES_REAIS[${i}])" style="cursor:pointer;"><div class="ic">${n.tipo === 'comentario' ? icone('comentar',18) : n.tipo === 'curtida' ? icone('curtir',18) : n.tipo === 'seguidor' ? icone('pessoa',18) : n.tipo === 'pergunta' ? icone('pergunta',18) : n.tipo === 'mensagem' ? icone('comentar',18) : n.tipo === 'post_amigo' ? icone('pessoas',18) : icone('sino',18)}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
+  ? lista.map((n, i) => `<div class="notif-item" onclick="abrirNotificacao(window.NOTIFICACOES_REAIS[${i}])" style="cursor:pointer;"><div class="ic">${n.tipo === 'comentario' ? icone('comentar',18) : n.tipo === 'curtida' ? icone('curtir',18) : n.tipo === 'seguidor' ? icone('pessoa',18) : n.tipo === 'pergunta' ? icone('pergunta',18) : n.tipo === 'mensagem' ? icone('comentar',18) : n.tipo === 'post_amigo' ? icone('pessoas',18) : /^(clube|comunidade)_/.test(n.tipo) ? icone('pessoas',18) : /autoral/.test(n.tipo) ? icone('livro',18) : icone('sino',18)}</div><div><div class="n-t">${n.titulo}</div><div class="n-s">${n.subtitulo || ''}</div></div></div>`).join('')
   : `<div class="visitor-lock-note">Nenhuma notificação ainda 🌱</div>`;
 
 const { data: sessionData } = await supabaseClient.auth.getSession();

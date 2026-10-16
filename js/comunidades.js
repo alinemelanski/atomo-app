@@ -386,6 +386,7 @@ window.entrarNaComunidadeEstudo = async function () {
   const { error } = await supabaseClient.from('comunidade_estudo_membros').insert({ comunidade_id: comunidadeEstudoAtualId, usuario_id: usuarioId, papel: 'membro' });
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
   mostrarToast('🎉 você entrou na comunidade');
+  avisarGrupo('comunidade', comunidadeEstudoAtualId, 'membro_novo');
   renderComunidadeEstudoDetalhe();
 };
 
@@ -761,6 +762,7 @@ window.publicarNoMuralComunidadeEstudo = async function () {
   });
 
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  avisarGrupo('comunidade', comunidadeEstudoAtualId, 'post', texto);
   document.getElementById('comunidadeComposerText').value = '';
   renderMuralComunidadeEstudo();
 };

@@ -206,6 +206,7 @@ window.enviarFotoClube = async function (el) {
 
   input.value = '';
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  avisarGrupo('clube', clubeAtualId, 'post', '📷 mandou uma foto');
   renderMuralClube();
 };
 
@@ -236,6 +237,7 @@ window.enviarFotoComunidade = async function (el) {
 
   input.value = '';
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  avisarGrupo('comunidade', comunidadeEstudoAtualId, 'post', '📷 mandou uma foto');
   renderMuralComunidadeEstudo();
 };
 
@@ -369,6 +371,7 @@ window.avancarCapituloClube = async function () {
     .eq('id', clubeAtualId);
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
   clubeCapituloAtual = { capitulo: proximo, pagina: null };
+  avisarGrupo('clube', clubeAtualId, 'capitulo');
   if (typeof vibrar === 'function') vibrar(15); // tremidinha de confirmação (se o aparelho tiver)
   mostrarToast('📖 o clube avançou pro ' + (/^\d+$/.test(proximo) ? 'cap. ' + proximo : proximo));
   document.getElementById('clubeDetalheFerramentas').innerHTML = capituloCardHtml(true);
@@ -400,6 +403,7 @@ window.salvarCapituloClube = async function () {
     .eq('id', clubeAtualId);
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
   clubeCapituloAtual = { capitulo: capitulo || null, pagina };
+  if (capitulo) avisarGrupo('clube', clubeAtualId, 'capitulo');
   mostrarToast('📖 capítulo atualizado');
   document.getElementById('clubeDetalheFerramentas').innerHTML = capituloCardHtml(true);
 };
@@ -472,6 +476,7 @@ window.entrarNoClube = async function () {
   const { error } = await supabaseClient.from('clube_membros').insert({ clube_id: clubeAtualId, usuario_id: usuarioId, papel: 'membro' });
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
   mostrarToast('🎉 você entrou no clube');
+  avisarGrupo('clube', clubeAtualId, 'membro_novo'); // avisa os admins do clube
   renderClubeDetalhe();
 };
 
@@ -703,6 +708,7 @@ window.publicarNoMuralClube = async function () {
   });
 
   if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  avisarGrupo('clube', clubeAtualId, 'post', texto); // avisa os membros (com anti-spam)
   document.getElementById('clubeComposerText').value = '';
   renderMuralClube();
 };
