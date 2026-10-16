@@ -554,7 +554,7 @@
     <button class="back-btn" onclick="closeOverlay('reordenarTiposOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px;">Reordenar tipos</h2>
   </div>
-  <div class="visitor-lock-note" style="margin-bottom:10px;">Use as setas pra reordenar. Toque no ✕ pra esconder um tipo do composer.</div>
+  <div class="visitor-lock-note" data-dica-unica="composer-reordenar" style="margin-bottom:10px;">Use as setas pra reordenar. Toque no ✕ pra esconder um tipo do composer.</div>
   <div id="reordenarTiposList" style="display:flex; flex-direction:column; gap:8px;"></div>
 </div>
 
@@ -574,7 +574,7 @@
       <button class="back-btn" onclick="closeOverlay('matchOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
       <h2 style="font-size:16px; flex:1;">Match</h2>
     </div>
-    <div class="visitor-lock-note" style="margin-bottom:14px;">Gente com gosto parecido com o seu. Se as duas curtirem, vira conversa 💬</div>
+    <div class="visitor-lock-note" data-dica-unica="gosto-parecido" style="margin-bottom:14px;">Gente com gosto parecido com o seu. Se as duas curtirem, vira conversa 💬</div>
     <div id="matchCirculos" style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center;"></div>
   </div>
 </div>
@@ -728,7 +728,7 @@
     <button class="back-btn" onclick="closeOverlay('pandoraOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
     <h2 style="font-size:16px; flex:1; font-family:'Fraunces', serif;">Caixinha de Pandora</h2>
   </div>
-  <div class="visitor-lock-note" style="margin-bottom:14px;">Tudo que você guardou sobre o que te deixou triste, ansiosa ou brava — só você vê isso aqui. Releia quando quiser, ou apague quando não quiser mais carregar.</div>
+  <div class="visitor-lock-note" data-dica-unica="pesos-so-voce" style="margin-bottom:14px;">Tudo que você guardou sobre o que te deixou triste, ansiosa ou brava — só você vê isso aqui. Releia quando quiser, ou apague quando não quiser mais carregar.</div>
   <div id="pandoraList" style="overflow-y:auto;"></div>
 </div>
 
@@ -813,7 +813,7 @@
       <h2 id="humorMotivoTitulo">O que te deixou assim?</h2>
       <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('humorMotivoOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     </div>
-    <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">fica guardado só no seu perfil.</div>
+    <div data-dica-unica="guardado-no-perfil" style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">fica guardado só no seu perfil.</div>
     <textarea id="humorMotivoInput" class="edit-bio-textarea" placeholder="o motivo, se quiser contar..." style="min-height:90px;"></textarea>
     <div style="display:flex; gap:8px; margin-top:12px;">
       <button class="livro-link-externo" style="flex:1; min-width:0; margin:0; justify-content:center; padding:12px 16px;" onclick="closeOverlay('humorMotivoOverlay')">agora não</button>
@@ -875,7 +875,7 @@
       <h2 id="lembretePickerTitulo">Avisar em que horário?</h2>
       <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('checklistLembreteOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     </div>
-    <div id="lembretePickerDesc" style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">o app avisa nesse horário até você marcar como feito.</div>
+    <div id="lembretePickerDesc" data-dica-unica="lembrete-avisa" style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">o app avisa nesse horário até você marcar como feito.</div>
     <!-- horário escolhido por RODA DE ROLAGEM (js/roda-tempo.js), não mais por setinhas -->
     <div class="tempo-picker">
       <div class="tempo-picker-faixa" aria-hidden="true"></div>
@@ -935,7 +935,7 @@
       <h2>Suporte e feedback</h2>
       <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('feedbackOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     </div>
-    <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">manda uma sugestão ou reclamação — chega direto pra gente.</div>
+    <div data-dica-unica="feedback-chega" style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">manda uma sugestão ou reclamação — chega direto pra gente.</div>
     <div style="display:flex; gap:8px; margin-bottom:10px;">
       <div class="onboard-topic-chip on" id="feedbackTipoSugestao" onclick="escolherTipoFeedback('sugestao')">💡 Sugestão</div>
       <div class="onboard-topic-chip" id="feedbackTipoReclamacao" onclick="escolherTipoFeedback('reclamacao')">⚠️ Reclamação</div>
@@ -969,7 +969,7 @@
   </div>
   <div class="quick-diario-scroll">
     <div class="quick-diario-pergunta" id="quickGratidaoPerguntaTxt" style="margin-top:6px;">Uma coisa que você é grato(a) hoje</div>
-    <div class="quick-diario-sub" id="quickGratidaoSubTxt">Escolhe 1, 2 ou 3 fotos do momento (ou nenhuma) e escreve embaixo.</div>
+    <div class="quick-diario-sub" id="quickGratidaoSubTxt" data-dica-unica="gratidao-fotos">Escolhe 1, 2 ou 3 fotos do momento (ou nenhuma) e escreve embaixo.</div>
 
     <!-- GRADE DE FOTOS estilo Instagram: a pessoa escolhe 1, 2 ou 3 fotos.
          O js/diario.js desenha as casinhas dentro de #gratidaoGrade conforme
@@ -1225,7 +1225,7 @@
         <div class="autoral-campo-rotulo">Categorias <span class="autoral-campo-dica">(até 2)</span></div>
         <div class="autoral-categorias" id="autoralCategoriasEnvio"></div>
         <input type="text" id="autoralPrecoInput" class="busca-input" style="width:100%; margin-bottom:6px;" placeholder="preço simbólico (ex: 5,00)" inputmode="decimal" />
-        <div class="autoral-dica-preco">💛 a Loja é da comunidade Átomo: o valor deve ser simbólico, pra que mais gente consiga ler e apoiar quem escreve.</div>
+        <div class="autoral-dica-preco" data-dica-unica="loja-preco-simbolico">💛 a Loja é da comunidade Átomo: o valor deve ser simbólico, pra que mais gente consiga ler e apoiar quem escreve.</div>
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
           <span style="font-family:'DM Sans', sans-serif; font-size:12px; font-weight:700; color:var(--ink-dim);">Idioma do livro</span>
           <div class="idioma-pilulas">
@@ -1237,7 +1237,7 @@
         <button class="btn-importar-kindle" style="width:100%; margin-bottom:10px;" onclick="document.getElementById('autoralCapaInput').click()"><span id="autoralCapaPreviewTxt">escolher capa (opcional)</span></button>
         <input type="file" id="autoralEpubInput" accept=".epub" onchange="escolherEpubAutoral()" style="display:none;" />
         <button class="btn-importar-kindle" style="width:100%; margin-bottom:14px;" onclick="document.getElementById('autoralEpubInput').click()"><span id="autoralEpubPreviewTxt">escolher arquivo epub</span></button>
-        <div style="font-size:11.5px; color:var(--ink-faint); margin-bottom:14px;">seu livro entra numa fila de revisão antes de aparecer pra outras pessoas. se for recusado, você recebe o motivo e pode corrigir e reenviar.</div>
+        <div data-dica-unica="loja-fila-revisao" style="font-size:11.5px; color:var(--ink-faint); margin-bottom:14px;">seu livro entra numa fila de revisão antes de aparecer pra outras pessoas. se for recusado, você recebe o motivo e pode corrigir e reenviar.</div>
         <button class="post-btn" style="width:100%;" onclick="enviarLivroAutoral()">enviar pra revisão</button>
       </div>
     </div>
@@ -1271,9 +1271,9 @@
         <div class="autoral-categorias" id="autoralEditarCategorias"></div>
         <div class="autoral-campo-rotulo">Sinopse</div>
         <textarea id="autoralEditarSinopse" class="busca-input" style="width:100%; min-height:150px; margin-bottom:8px;" placeholder="do que o livro fala?" maxlength="3000"></textarea>
-        <div class="autoral-campo-rotulo">Dedicatória <span class="autoral-campo-dica">(quem comprar vê ao abrir o livro)</span></div>
+        <div class="autoral-campo-rotulo">Dedicatória <span class="autoral-campo-dica" data-dica-unica="loja-dedicatoria">(quem comprar vê ao abrir o livro)</span></div>
         <textarea id="autoralEditarDedicatoria" class="busca-input autoral-dedicatoria-input" style="width:100%; min-height:64px; margin-bottom:8px;" placeholder="uma frase sua pra quem comprar (opcional)" maxlength="280"></textarea>
-        <div class="autoral-dica-preco" style="margin-bottom:14px;">título, preço e arquivo não mudam por aqui.</div>
+        <div class="autoral-dica-preco" data-dica-unica="loja-editar-limites" style="margin-bottom:14px;">título, preço e arquivo não mudam por aqui.</div>
         <button class="btn-acao btn-acao-terracota" style="width:100%;" onclick="salvarEdicaoLivroAutoral()">salvar</button>
       </div>
     </div>
@@ -1362,7 +1362,7 @@
       <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharClubeWhatsapp()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 7 0 1 1 3 5.5L4 19l1-3.3A6.6 6.6 0 0 1 4 12z"/></svg></span>WhatsApp</button>
       <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharClubeTelegram()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg></span>Telegram</button>
       <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharClubeCopiar()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>Copiar link</button>
-      <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
+      <div class="visitor-lock-note" data-dica-unica="colar-link">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
     </div>
 
     <!-- OVERLAY: CONVIDAR PRA COMUNIDADE DE ESTUDO -->
@@ -1375,7 +1375,7 @@
       <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharComunidadeWhatsapp()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 7 0 1 1 3 5.5L4 19l1-3.3A6.6 6.6 0 0 1 4 12z"/></svg></span>WhatsApp</button>
       <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharComunidadeTelegram()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg></span>Telegram</button>
       <button class="btn-acao btn-acao-contorno-salvia largo convite-opcao" onclick="compartilharComunidadeCopiar()"><span class="icon-svg" style="width:18px;height:18px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>Copiar link</button>
-      <div class="visitor-lock-note">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
+      <div class="visitor-lock-note" data-dica-unica="colar-link">cola o link em qualquer rede — Instagram, Twitter, onde quiser.</div>
     </div>
 
 
@@ -1569,7 +1569,7 @@
           <span class="selo-papel-aba" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="selo-pacote-dica" id="seloPacoteDica">toque no papel para abrir</div>
+      <div class="selo-pacote-dica" id="seloPacoteDica"><span class="dica-abrir" data-dica-unica="selo-abrir">toque no papel para abrir</span><span class="dica-fechar" data-dica-unica="selo-fechar">toque em qualquer lugar para fechar</span></div>
       <!-- (nome, frase e botão saíram daqui: a frase vai escrita na folha e o toque em qualquer lugar fecha) -->
     </div>
  
@@ -1615,7 +1615,7 @@
       <div class="write-popup" style="position:relative;">
         <button class="write-popup-close" onclick="document.getElementById('perguntaAnonimaPopupBg').classList.remove('show')"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe"><span class="icon-svg" style="width:20px;height:20px;animation-duration:3.8s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.3"/><path d="M9.4 9.7a2.6 2.6 0 1 1 3.7 2.4c-.9.5-1.3 1-1.3 2.1"/><circle cx="12" cy="16.7" r=".15" fill="currentColor" stroke="none"/></svg></span></span><span class="write-popup-title">Pergunta anônima</span></div>
-        <div class="write-popup-sub">Ela chega sem o seu nome — só a pessoa vê a pergunta, e pode responder em público</div>
+        <div class="write-popup-sub" data-dica-unica="pergunta-anonima">Ela chega sem o seu nome — só a pessoa vê a pergunta, e pode responder em público</div>
         <textarea id="perguntaAnonimaTexto" placeholder="Escreva sua pergunta..."></textarea>
         <div class="write-popup-foot" style="justify-content:flex-end;">
           <button class="post-btn" onclick="enviarPerguntaAnonima()">Enviar</button>
@@ -1628,7 +1628,7 @@
       <div class="write-popup" style="position:relative;">
         <button class="write-popup-close" onclick="fecharGuiaInstalacao()"><span class="icon-svg" style="width:15px;height:15px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         <div class="write-popup-head"><span class="pe">📲</span><span class="write-popup-title">Adicione o Átomo à tela inicial</span></div>
-        <div class="write-popup-sub">Assim ele abre rapidinho, como um app de verdade — e é onde os lembretes de escrever vão te encontrar.</div>
+        <div class="write-popup-sub" data-dica-unica="instalar-app">Assim ele abre rapidinho, como um app de verdade — e é onde os lembretes de escrever vão te encontrar.</div>
         <div id="guiaInstalacaoPassos"></div>
         <button class="post-btn" id="guiaInstalacaoBtnInstalar" style="display:none; width:100%; margin-bottom:8px;" onclick="instalarAgoraPwa()">Instalar agora</button>
         <button class="seguir-btn pendente" style="width:100%;" onclick="fecharGuiaInstalacao()">Entendi</button>
@@ -1642,7 +1642,7 @@
         <h2 style="font-size:16px;">Quem visitou</h2>
       </div>
       <div id="visitantesList" style="overflow-y:auto;"></div>
-      <div class="visitor-lock-note">Toda visita conta — não tem como visitar sem aparecer. Se não quer que alguém saiba que você viu o perfil, não visite.</div>
+      <div class="visitor-lock-note" data-dica-unica="visitas-contam">Toda visita conta — não tem como visitar sem aparecer. Se não quer que alguém saiba que você viu o perfil, não visite.</div>
     </div>
 
     <!-- OVERLAY: SEGUIDORES/SEGUINDO -->
@@ -1893,6 +1893,7 @@
 <script src="js/versao.js"></script>
 <script src="js/config.js"></script>
 <script src="js/registro-erros.js"></script>
+<script src="js/dicas-unicas.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/i18n-en.js"></script>
 <script src="js/feedback-sensorial.js"></script>

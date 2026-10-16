@@ -92,7 +92,6 @@ function mostrarProximoPacoteSelo() {
   document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
   document.getElementById('seloPacoteFrase').textContent = selo.frase || 'Uma semana inteira escrevendo.';
   overlay.setAttribute('aria-label', 'Você ganhou o selo ' + selo.nome);
-  document.getElementById('seloPacoteDica').textContent = 'toque no papel para abrir';
   overlay.classList.remove('aberto'); // volta pro pacotinho fechado
   overlay.classList.add('show');
 }
@@ -108,7 +107,6 @@ window.reabrirPacoteSelo = function (selo) {
   document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
   document.getElementById('seloPacoteFrase').textContent = selo.frase || '';
   overlay.setAttribute('aria-label', 'Seu selo ' + selo.nome);
-  document.getElementById('seloPacoteDica').textContent = 'toque no papel para abrir';
   overlay.classList.remove('aberto');
   overlay.classList.add('show');
 };
@@ -130,7 +128,6 @@ window.desembrulharSelo = function () {
   overlay.classList.add('aberto'); // o CSS desamassa o papel e o selo aparece
   seloAbertoEm = Date.now();
   if (typeof tocarSomPapel === 'function') tocarSomPapel(); // "crec crec" do papel (feedback-sensorial.js)
-  document.getElementById('seloPacoteDica').textContent = 'toque em qualquer lugar para fechar';
   // vibrações curtinhas enquanto o papel desamassa (como o "crec" do papel) e uma maior quando o selo aparece
   vibrar([12, 40, 10, 60, 14]);
   setTimeout(() => vibrar([40, 70, 120]), 820);

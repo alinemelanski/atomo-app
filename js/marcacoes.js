@@ -320,7 +320,7 @@ function desenharMarcacoes() {
             <button class="btn-icone btn-icone-mini terracota" aria-label="Apagar marcador" onclick="event.stopPropagation(); apagarMarcacao('marcador', '${m.id}')">${icone('lixeira', 14)}</button>
           </div>
         </div>`).join('')
-      : `<div class="marcacoes-vazio">Nenhuma página marcada.<br>Toque na fitinha no topo do leitor pra marcar.</div>`;
+      : `<div class="marcacoes-vazio">Nenhuma página marcada.<span data-dica-unica="marcador-como"><br>Toque na fitinha no topo do leitor pra marcar.</span></div>`;
   }
 }
 

@@ -199,7 +199,7 @@ window.abrirLivroAutoralDetalhe = async function (i) {
           <span class="autoral-painel-autora-selo">${icone('editar', 14)} este livro é seu</span>
           <span class="autoral-preco-tag">R$ ${preco}</span>
         </div>
-        <div class="autoral-painel-autora-dica">é assim que os leitores veem seu livro na Loja.</div>
+        <div class="autoral-painel-autora-dica" data-dica-unica="loja-visao-autora">é assim que os leitores veem seu livro na Loja.</div>
         <div class="autoral-painel-autora-botoes">
           <button class="btn-acao btn-acao-salvia" onclick="lerLivroComprado(${d.id})">${icone('livro', 18)} ler meu livro</button>
           <button class="btn-acao btn-acao-contorno-salvia" onclick="editarLivroAutoralPeloDetalhe()">${icone('editar', 16)} editar</button>

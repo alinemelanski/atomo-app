@@ -203,9 +203,9 @@ function desenharListaDm() {
 
   const titulos = { todas: 'todas as conversas', naolidas: 'não lidas', fixadas: 'fixadas' };
   const vazios = {
-    todas: 'Nenhuma conversa ainda — toca no + aqui em cima pra começar uma 💬',
+    todas: 'Nenhuma conversa ainda<span data-dica-unica="dm-comecar"> — toca no + aqui em cima pra começar uma</span> 💬',
     naolidas: 'Tudo lido por aqui 🌿',
-    fixadas: 'Nenhuma conversa fixada. Arraste uma conversa pro lado pra fixar ⭐'
+    fixadas: 'Nenhuma conversa fixada.<span data-dica-unica="dm-fixar"> Arraste uma conversa pro lado pra fixar</span> ⭐'
   };
 
   if (!filtradas.length) {

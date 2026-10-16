@@ -135,7 +135,13 @@ function posicionarFolhasEtimo() {
     folha.setAttribute('aria-hidden', d === 0 ? 'false' : 'true');
   });
   const ind = document.getElementById('etimoIndicador');
-  if (ind) ind.textContent = etimoFolhaAtual === 0 ? t('etimo_hoje') : t('etimo_dias_atras', { n: etimoFolhaAtual });
+  if (ind) {
+    if (etimoFolhaAtual === 0) {
+      // "hoje" fica sempre; o "· deslize pra ver os dias anteriores" é dica e aparece só na primeira vez
+      const [hoje, dica] = t('etimo_hoje').split(' · ');
+      ind.innerHTML = hoje + (dica ? `<span data-dica-unica="etimo-deslize"> · ${dica}</span>` : '');
+    } else ind.textContent = t('etimo_dias_atras', { n: etimoFolhaAtual });
+  }
 }
 
 // deslizar pro lado vira a página (mesma regra do diário: tem que ser bem mais pro lado do que pra cima)

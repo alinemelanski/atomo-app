@@ -40,6 +40,7 @@ const STATIC_ASSETS = [
   './js/i18n.js',
   './js/i18n-en.js',
   './js/feedback-sensorial.js',
+  './js/dicas-unicas.js',
   './js/botoes.js',
   './js/icones.js',
   './js/feed.js',

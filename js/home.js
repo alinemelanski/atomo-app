@@ -146,7 +146,7 @@ function reagirHumorCheio(emocoes, emocaoMudou) {
     try { jaRespondeu = localStorage.getItem(chaveRespostaFeliz()) === '1'; } catch (e) { /* sem storage */ }
     caixa.className = 'home-humor-cheio boa';
     caixa.innerHTML = jaRespondeu
-      ? `<div class="home-humor-cheio-titulo">☀️ 100% ${cheia.nome} hoje</div><div class="home-humor-cheio-sub">guardado na sua gratidão, e o dia ganhou uma estrela ★</div>`
+      ? `<div class="home-humor-cheio-titulo">☀️ 100% ${cheia.nome} hoje</div><div class="home-humor-cheio-sub" data-dica-unica="humor-feliz-guardado">guardado na sua gratidão, e o dia ganhou uma estrela ★</div>`
       : `<div class="home-humor-cheio-titulo">☀️ 100% ${cheia.nome} hoje! O que te fez feliz?</div>
          <div class="home-humor-cheio-linha">
            <input type="text" id="homeFelizInput" class="busca-input" maxlength="200" placeholder="escreve em poucas palavras..." onkeydown="if(event.key==='Enter') salvarFelicidadeDoDia()" />

@@ -91,7 +91,7 @@ window.abrirSalvos = async function () {
     .eq('usuario_id', sessionData.session.user.id)
     .order('salvo_em', { ascending: false });
 
-  if (error) { console.log('erro ao carregar salvos:', error.message); lista.innerHTML = estadoVazio(t('salvos_vazio_titulo'), t('salvos_vazio_sub'), null, null); return; }
+  if (error) { console.log('erro ao carregar salvos:', error.message); lista.innerHTML = estadoVazio(t('salvos_vazio_titulo'), `<span data-dica-unica="salvos-como">${t('salvos_vazio_sub')}</span>`, null, null); return; }
   const posts = (data || []).map(l => l.posts).filter(Boolean);
   lista.innerHTML = posts.map(p => {
     const handle = p.usuarios ? p.usuarios.handle : 'alguem';
@@ -107,7 +107,7 @@ window.abrirSalvos = async function () {
           <div class="post-action ativo" onclick="removerDosSalvos(${p.id})" aria-label="${t('post_remover_salvo')}">${icone('salvar', 14, 0)} ${t('post_remover_salvo')}</div>
         </div>
       </div>`;
-  }).join('') || estadoVazio(t('salvos_vazio_titulo'), t('salvos_vazio_sub'), null, null);
+  }).join('') || estadoVazio(t('salvos_vazio_titulo'), `<span data-dica-unica="salvos-como">${t('salvos_vazio_sub')}</span>`, null, null);
 };
 
 window.removerDosSalvos = async function (postId) {
