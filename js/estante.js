@@ -164,15 +164,25 @@ async function renderEstante() {
     estatisticasLeituraHtml(usuarioId),
     supabaseClient.from('estante_pessoal').select('*').eq('usuario_id', usuarioId).order('adicionado_em', { ascending: false }),
     // livros comprados na Loja (estante autoral) também moram na sua estante
-    supabaseClient.from('vendas_autorais').select('id, livro_id, pago_em, livros_autorais(titulo, capa_url)').eq('comprador_id', usuarioId).eq('status', 'pago').order('pago_em', { ascending: false }),
+    supabaseClient.from('vendas_autorais').select('id, livro_id, pago_em, livros_autorais(titulo, capa_url, arquivo_path, usuarios(handle))').eq('comprador_id', usuarioId).eq('status', 'pago').order('pago_em', { ascending: false }),
   ]);
   const compras = (comprasResp && !comprasResp.error && comprasResp.data) || [];
   window.MINHAS_COMPRAS_AUTORAIS = compras;
-  estanteExtrasHtml = {
-    streak: streakHtml,
-    stats: estatisticasHtml,
-    compras: compras.length ? `<div class="estante-secao-titulo">comprados na loja</div>${compras.map((d, i) => cardCompraAutoralHtml(d, i)).join('')}` : '',
-  };
+  // livros comprados na Loja moram NA estante, como qualquer livro (com progresso, grifos e marcadores).
+  // Normalmente o servidor já colocou ao confirmar o pagamento; se algum ficou de fora, entra agora.
+  const naEstante = new Set((data || []).filter(x => x.livro_autoral_id).map(x => Number(x.livro_autoral_id)));
+  const faltando = compras.filter(c => c.livros_autorais && !naEstante.has(Number(c.livro_id)));
+  if (!error && faltando.length) {
+    const linhas = faltando.map(c => ({
+      usuario_id: usuarioId, titulo: c.livros_autorais.titulo,
+      autor: c.livros_autorais.usuarios ? '@' + c.livros_autorais.usuarios.handle : null,
+      capa_url: c.livros_autorais.capa_url || null, arquivo_path: c.livros_autorais.arquivo_path || 'loja', livro_autoral_id: c.livro_id,
+    }));
+    const { data: novos, error: erroNovos } = await supabaseClient.from('estante_pessoal').insert(linhas).select();
+    if (!erroNovos && novos) data.unshift(...novos);
+    else if (erroNovos && /livro_autoral_id/.test(erroNovos.message)) console.log('falta rodar sql/sql_pendente_loja_estante.sql');
+  }
+  estanteExtrasHtml = { streak: streakHtml, stats: estatisticasHtml, compras: '' };
 
   if (error) {
     lista.innerHTML = cabecalhoEstanteHtml() + `<div class="visitor-lock-note">Não consegui carregar sua estante agora${error.message.includes('estante_pessoal') ? ' — a tabela ainda não existe no banco, falta rodar a migração' : ''}.</div>`;
@@ -554,6 +564,8 @@ window.escolherArquivoKindle = async function () {
 window.excluirDoEstante = async function (i) {
   const item = window.ITENS_ESTANTE_ATUAIS[i];
   if (!item) return;
+  // livro comprado é seu pra sempre: não sai da estante (e o arquivo é da autora, não seu)
+  if (item.livro_autoral_id) { mostrarToast('livro comprado na Loja fica sempre na sua estante 📚'); return; }
   abrirConfirmGenerico('Tirar "' + item.titulo + '" da estante?', 'O arquivo do livro é apagado. Não tem como desfazer.', async () => {
     await supabaseClient.storage.from('estante-epubs').remove([item.arquivo_path]);
     await supabaseClient.from('estante_pessoal').delete().eq('id', item.id);

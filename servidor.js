@@ -492,7 +492,16 @@ app.post('/api/estante-autoral/webhook-asaas', async (req, res) => {
       status: 'pago', pago_em: new Date().toISOString(), asaas_payment_id: dadosPagamento.id || venda.asaas_payment_id,
     }).eq('id', venda.id);
 
-    const { data: livro } = await supabaseAdmin.from('livros_autorais').select('titulo').eq('id', venda.livro_id).maybeSingle();
+    const { data: livro } = await supabaseAdmin.from('livros_autorais').select('titulo, capa_url, arquivo_path, usuarios(handle)').eq('id', venda.livro_id).maybeSingle();
+    // o livro comprado vai DIRETO pra estante de quem comprou, pronto pra ler no app
+    // (o app também confere isso ao abrir a estante, caso este passo falhe)
+    if (livro) {
+      const { error: erroEstante } = await supabaseAdmin.from('estante_pessoal').insert({
+        usuario_id: venda.comprador_id, titulo: livro.titulo, autor: livro.usuarios ? '@' + livro.usuarios.handle : null,
+        capa_url: livro.capa_url || null, arquivo_path: livro.arquivo_path, livro_autoral_id: venda.livro_id,
+      });
+      if (erroEstante && !/duplicate|unique/i.test(erroEstante.message)) console.log('erro ao pôr o livro na estante:', erroEstante.message);
+    }
     const dadosNotificacao = { titulo: livro ? livro.titulo : null };
     const modeloVendedor = MODELOS_NOTIFICACAO_PUSH.venda_autoral_vendedor(dadosNotificacao);
     const modeloComprador = MODELOS_NOTIFICACAO_PUSH.venda_autoral_comprador(dadosNotificacao);

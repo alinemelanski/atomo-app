@@ -192,7 +192,7 @@ window.abrirLivroAutoralDetalhe = async function (i) {
   const preco = (d.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
   const botaoAcao = souAutor ? '' : (jaComprou
-    ? `<button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="baixarLivroAutoralComprado(${d.id})">baixar epub</button>`
+    ? `<button class="btn-acao btn-acao-salvia" style="width:100%; margin-bottom:10px;" onclick="lerLivroComprado(${d.id})">${icone('livro', 18)} ler agora</button>`
     : `<button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="comprarLivroAutoral(${d.id})">comprar por R$ ${preco}</button>`);
 
   document.getElementById('livroAutoralDetalheConteudo').innerHTML = `
@@ -283,24 +283,19 @@ window.comprarLivroAutoral = async function (livroId) {
   }
 };
 
-window.baixarLivroAutoralComprado = async function (livroId) {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  const token = sessionData && sessionData.session ? sessionData.session.access_token : null;
-  if (!token) { mostrarToast('entra na sua conta primeiro'); return; }
-  mostrarToast('gerando link...');
-  try {
-    const resp = await fetch(`${API_BASE}/api/estante-autoral/arquivo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ livroId }),
-    });
-    const resultado = await resp.json().catch(() => ({}));
-    if (!resp.ok || !resultado.url) { mostrarToast('❌ ' + (resultado.erro || 'não consegui gerar o link')); return; }
-    window.open(resultado.url, '_blank');
-  } catch (e) {
-    mostrarToast('❌ erro ao baixar o livro');
-  }
+// Livro comprado: abre a Estante (onde ele mora) e já abre o leitor nele.
+window.lerLivroComprado = async function (livroId) {
+  closeOverlay('livroAutoralDetalheOverlay');
+  showScreen2('livros');
+  if (typeof trocarModoLivros === 'function') trocarModoLivros('estante');
+  await renderEstante(); // garante que a compra já entrou na estante
+  const i = (window.ITENS_ESTANTE_ATUAIS || []).findIndex(x => Number(x.livro_autoral_id) === Number(livroId));
+  if (i >= 0) abrirLeitorEpub(i);
+  else mostrarToast('o livro está chegando na sua estante — tenta de novo em instantes');
 };
+
+// (antigo: baixava o arquivo. Agora livro comprado é lido dentro do app.)
+window.baixarLivroAutoralComprado = function (livroId) { lerLivroComprado(livroId); };
 
 let arquivoCapaAutoralEscolhido = null;
 let arquivoEpubAutoralEscolhido = null;
@@ -671,9 +666,9 @@ function cardCompraAutoralHtml(d, i) {
   const livro = d.livros_autorais || {};
   const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
   const capaEstilo = livro.capa_url ? `background-image:url('${livro.capa_url}');` : `background:${cor};`;
-  return `<div class="clube-cap-card" style="align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;" onclick="baixarLivroAutoralComprado(${d.livro_id})">
+  return `<div class="clube-cap-card" style="align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;" onclick="lerLivroComprado(${d.livro_id})">
         <div class="livro-grid-capa" style="${capaEstilo} width:46px; height:62px; border-radius:6px; flex-shrink:0;"></div>
-        <div class="clube-cap-info"><div class="clube-cap-valor" style="font-size:15px;">${livro.titulo || 'livro'}</div><div class="clube-cap-pagina">toque pra baixar</div></div>
+        <div class="clube-cap-info"><div class="clube-cap-valor" style="font-size:15px;">${livro.titulo || 'livro'}</div><div class="clube-cap-pagina">toque pra ler</div></div>
       </div>`;
 }
 

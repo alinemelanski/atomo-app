@@ -35,8 +35,23 @@ window.abrirLeitorEpub = async function (i) {
 
   try {
     await carregarEpubJs();
-    const { data, error } = await supabaseClient.storage.from('estante-epubs').createSignedUrl(item.arquivo_path, 3600);
-    if (error) throw error;
+    let data;
+    if (item.livro_autoral_id) {
+      // livro comprado na Loja: o arquivo é da autora (outro "armário" do storage);
+      // o servidor confere que você comprou e devolve um link temporário só pra ler
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const resp = await fetch(`${API_BASE}/api/estante-autoral/arquivo`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sessionData.session.access_token },
+        body: JSON.stringify({ livroId: item.livro_autoral_id }),
+      });
+      const r = await resp.json().catch(() => ({}));
+      if (!resp.ok || !r.url) throw new Error(r.erro || 'sem link');
+      data = { signedUrl: r.url };
+    } else {
+      const resposta = await supabaseClient.storage.from('estante-epubs').createSignedUrl(item.arquivo_path, 3600);
+      if (resposta.error) throw resposta.error;
+      data = resposta.data;
+    }
 
     document.getElementById('epubViewerContainer').innerHTML = '';
     const book = ePub(data.signedUrl);
