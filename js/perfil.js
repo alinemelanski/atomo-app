@@ -90,10 +90,9 @@ function mostrarProximoPacoteSelo() {
   const posicao = totalSelosNaFila - filaSelosNovos.length; // 1, 2, 3...
   document.getElementById('seloPacoteContador').textContent = totalSelosNaFila > 1 ? `presente ${posicao} de ${totalSelosNaFila}` : '';
   document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
-  document.getElementById('seloPacoteNome').textContent = selo.nome;
   document.getElementById('seloPacoteFrase').textContent = selo.frase || 'Uma semana inteira escrevendo.';
-  document.getElementById('seloPacoteKicker').textContent = 'novo selo';
-  document.getElementById('seloPacoteBotao').textContent = 'guardar na estante de selos';
+  overlay.setAttribute('aria-label', 'Você ganhou o selo ' + selo.nome);
+  document.getElementById('seloPacoteDica').textContent = 'toque no papel para abrir';
   overlay.classList.remove('aberto'); // volta pro pacotinho fechado
   overlay.classList.add('show');
 }
@@ -107,18 +106,31 @@ window.reabrirPacoteSelo = function (selo) {
   const overlay = document.getElementById('seloPacoteOverlay');
   document.getElementById('seloPacoteContador').textContent = '';
   document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
-  document.getElementById('seloPacoteNome').textContent = selo.nome;
   document.getElementById('seloPacoteFrase').textContent = selo.frase || '';
-  document.getElementById('seloPacoteKicker').textContent = 'seu selo';
-  document.getElementById('seloPacoteBotao').textContent = 'fechar';
+  overlay.setAttribute('aria-label', 'Seu selo ' + selo.nome);
+  document.getElementById('seloPacoteDica').textContent = 'toque no papel para abrir';
   overlay.classList.remove('aberto');
   overlay.classList.add('show');
+};
+
+// Um toque em QUALQUER lugar da tela: se o papel está amassado, desamassa;
+// se já abriu, fecha (ou mostra o próximo selo, se ganhou mais de um).
+// Espera a animação de abrir terminar antes de aceitar o "fechar", pra ninguém fechar sem ver o selo.
+let seloAbertoEm = 0;
+window.tocarTelaDoSelo = function () {
+  const overlay = document.getElementById('seloPacoteOverlay');
+  if (!overlay.classList.contains('aberto')) { desembrulharSelo(); return; }
+  if (Date.now() - seloAbertoEm < 1100) return;
+  guardarSeloNaEstante();
 };
 
 window.desembrulharSelo = function () {
   const overlay = document.getElementById('seloPacoteOverlay');
   if (overlay.classList.contains('aberto')) return;
   overlay.classList.add('aberto'); // o CSS desamassa o papel e o selo aparece
+  seloAbertoEm = Date.now();
+  if (typeof tocarSomPapel === 'function') tocarSomPapel(); // "crec crec" do papel (feedback-sensorial.js)
+  document.getElementById('seloPacoteDica').textContent = 'toque em qualquer lugar para fechar';
   // vibrações curtinhas enquanto o papel desamassa (como o "crec" do papel) e uma maior quando o selo aparece
   vibrar([12, 40, 10, 60, 14]);
   setTimeout(() => vibrar([40, 70, 120]), 820);

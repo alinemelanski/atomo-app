@@ -1551,14 +1551,16 @@
 </div>
 
     <!-- NOVO SELO: pacotinho de papel kraft que desembrulha (js/perfil.js) -->
-    <div class="selo-pacote-overlay" id="seloPacoteOverlay" role="dialog" aria-label="Você ganhou um selo">
+    <div class="selo-pacote-overlay" id="seloPacoteOverlay" role="dialog" aria-label="Você ganhou um selo" onclick="tocarTelaDoSelo()">
       <div class="selo-pacote-contador" id="seloPacoteContador"></div>
       <div class="selo-pacote-cena">
         <!-- bolinha de papel amassado: o selo está "impresso" na folha; ao tocar, ela desamassa -->
-        <button class="selo-pacote" onclick="desembrulharSelo()" aria-label="Desamassar o papel">
+        <button class="selo-pacote" aria-label="Desamassar o papel">
           <div class="selo-papel-folha">
             <div class="selo-pacote-selo">
               <div class="selo-grande selo-pacote-img" id="seloPacoteImagem"></div>
+              <!-- a frase do selo, escrita à mão na própria folha -->
+              <div class="selo-papel-frase" id="seloPacoteFrase"></div>
               <span class="selo-pacote-brilho" aria-hidden="true"></span>
             </div>
             <span class="selo-papel-vincos" aria-hidden="true"></span>
@@ -1567,13 +1569,8 @@
           <span class="selo-papel-aba" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="selo-pacote-dica">toque no papel para abrir</div>
-      <div class="selo-pacote-info">
-        <div class="selo-pacote-kicker" id="seloPacoteKicker">novo selo</div>
-        <h3 id="seloPacoteNome"></h3>
-        <p id="seloPacoteFrase"></p>
-        <button class="btn-acao btn-acao-terracota" id="seloPacoteBotao" style="width:100%;" onclick="guardarSeloNaEstante()">guardar na estante de selos</button>
-      </div>
+      <div class="selo-pacote-dica" id="seloPacoteDica">toque no papel para abrir</div>
+      <!-- (nome, frase e botão saíram daqui: a frase vai escrita na folha e o toque em qualquer lugar fecha) -->
     </div>
  
     <!-- POP-UP: TRAILER -->

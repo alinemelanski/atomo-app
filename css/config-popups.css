@@ -176,7 +176,7 @@
   .selo-pacote-overlay.show { display: flex; }
   .selo-pacote-contador { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
     color: rgba(255,255,255,.75); min-height: 16px; margin-bottom: 14px; }
-  .selo-pacote-cena { position: relative; width: 200px; height: 240px; }
+  .selo-pacote-cena { position: relative; width: 210px; height: 280px; }
 
   /* textura de papel amassado: gerada por um filtro SVG (ruído + luz batendo de lado = relevo dos vincos).
      É uma imagem desenhada pelo navegador, então não pesa nada pra baixar. */
@@ -198,8 +198,12 @@
   @keyframes papelRespira { 0%, 100% { transform: scale(.74) rotate(-24deg); } 50% { transform: scale(.77) rotate(-19deg); } }
 
   /* o selo, impresso na folha (escondido enquanto está amassado) */
-  .selo-pacote-selo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; }
-  .selo-pacote-img { margin: 0; width: 150px; height: 200px; }
+  .selo-pacote-selo { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 14px 16px; opacity: 0; }
+  .selo-pacote-img { margin: 0; width: 150px; height: 185px; flex: none; }
+  /* a frase do selo escrita à mão na folha, como um bilhete */
+  .selo-papel-frase { font-family: 'Caveat', cursive; font-size: 21px; line-height: 1.1; color: #4A3F35; text-align: center;
+    transform: rotate(-2deg); max-width: 100%; }
+  .selo-papel-frase:empty { display: none; }
   /* vincos por cima de tudo: bem fortes amassado, quase sumindo quando abre */
   .selo-papel-vincos { position: absolute; inset: -10%; background: var(--fibra) center / 160px auto, var(--facetas) center / 100% 100%; background-blend-mode: multiply; /* as duas camadas se misturam (vincos + fibra) */ mix-blend-mode: multiply; opacity: .95; pointer-events: none; }
   /* sombras das dobras quando está amassado (escurece os "buracos" da bolinha) */
@@ -249,7 +253,10 @@
   .selo-pacote-overlay.aberto .selo-pacote-img img { filter: drop-shadow(0 4px 10px rgba(0,0,0,.18)); }
 
   .selo-pacote-dica { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.8); transition: opacity .2s ease; }
-  .selo-pacote-overlay.aberto .selo-pacote-dica { display: none; }
+  /* depois de abrir, a dica muda pra "toque em qualquer lugar para fechar" e aparece bem discreta */
+  .selo-pacote-overlay.aberto .selo-pacote-dica { opacity: 0; animation: dicaFecharAparece .4s ease 1.3s forwards; font-size: 12px; }
+  @keyframes dicaFecharAparece { to { opacity: .6; } }
+  .selo-pacote-overlay { cursor: pointer; }
   /* nome, frase e botão só aparecem depois de abrir */
   .selo-pacote-info { display: none; width: 100%; max-width: 300px; margin-top: 18px; text-align: center;
     background: var(--card); border-radius: 24px; padding: 18px 18px 16px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }

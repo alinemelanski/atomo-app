@@ -73,6 +73,57 @@ function tocarSom(nome) {
   notas.forEach(([freq, atraso, dur, vol]) => notaSuave(ctx, freq, t0 + atraso, dur, vol, nome === 'selo' ? 'triangle' : 'sine'));
 }
 
+// ---------- som de papel desamassando (selo) ----------
+// Papel amassado abrindo = um monte de "estalinhos" curtos e agudos, mais juntos no começo e
+// rareando no fim, por cima de um "farfalhar" baixinho. Cada estalinho é um pedacinho de RUÍDO
+// (chiado) passando por um filtro que deixa só uma faixa de frequência — cada um com faixa,
+// volume e duração sorteados, por isso nunca soa igual duas vezes.
+let ruidoBranco = null;
+function bufferDeRuido(ctx) {
+  if (ruidoBranco) return ruidoBranco;
+  ruidoBranco = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate); // 1 segundo de chiado
+  const dados = ruidoBranco.getChannelData(0);
+  for (let i = 0; i < dados.length; i++) dados[i] = Math.random() * 2 - 1;
+  return ruidoBranco;
+}
+// um trecho de ruído filtrado com volume que sobe rápido e cai em curva
+function rajadaDeRuido(ctx, inicio, dur, volume, freq, q, tipoFiltro) {
+  const fonte = ctx.createBufferSource();
+  fonte.buffer = bufferDeRuido(ctx);
+  const filtro = ctx.createBiquadFilter();
+  filtro.type = tipoFiltro || 'bandpass';
+  filtro.frequency.value = freq;
+  filtro.Q.value = q;
+  const ganho = ctx.createGain();
+  ganho.gain.setValueAtTime(0.0001, inicio);
+  ganho.gain.exponentialRampToValueAtTime(volume, inicio + Math.min(0.004, dur / 3));
+  ganho.gain.exponentialRampToValueAtTime(0.0001, inicio + dur);
+  fonte.connect(filtro).connect(ganho).connect(ctx.destination);
+  fonte.start(inicio, Math.random() * 0.8, dur + 0.02); // começa num ponto sorteado do chiado
+}
+window.tocarSomPapel = function () {
+  if (!sonsAtivos || document.visibilityState === 'hidden') return;
+  const ctx = prepararAudio();
+  if (!ctx) return;
+  const tocar = () => {
+    const t0 = ctx.currentTime + 0.01;
+    const sorteio = (a, b) => a + Math.random() * (b - a);
+    // farfalhar de fundo, o papel todo se mexendo
+    rajadaDeRuido(ctx, t0, 1.1, 0.03, 2400, 0.6);
+    // ~40 estalinhos: Math.pow(.., 1.7) junta mais estalos no começo (quando as dobras se soltam)
+    for (let k = 0; k < 40; k++) {
+      const quando = Math.pow(Math.random(), 1.7) * 1.0;
+      const forca = 1 - quando / 1.25;                     // vão ficando mais fracos
+      rajadaDeRuido(ctx, t0 + quando, sorteio(0.008, 0.035), sorteio(0.05, 0.16) * forca,
+        sorteio(1800, 6500), sorteio(0.9, 2.2));
+    }
+    // "fuuup" final: a última dobra saindo e a folha esticando
+    rajadaDeRuido(ctx, t0 + 0.78, 0.28, 0.06, 3200, 0.7, 'highpass');
+  };
+  if (ctx.state === 'running') tocar();
+  else ctx.resume().then(tocar).catch(() => {});
+};
+
 // ---------- interruptores em Configurações ----------
 function atualizarInterruptoresSensoriais() {
   const s = document.getElementById('sonsSwitch');
