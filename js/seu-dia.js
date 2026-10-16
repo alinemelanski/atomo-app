@@ -141,9 +141,75 @@ function escolherDoDia(lista, deslocamento) {
   return lista[(diaDoAno + (deslocamento || 0)) % lista.length];
 }
 
-function horaCurta(iso) {
-  const d = new Date(iso);
-  return String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0');
+// ---------- períodos do dia (em vez de horário exato) ----------
+// O resumo fala "pela manhã", "pela tarde"... e não "às 15h42": ninguém lembra do minuto,
+// mas lembra de como estava de manhã ou de tarde.
+const ORDEM_PERIODOS = ['madrugada', 'manha', 'tarde', 'noite'];
+const ROTULO_PERIODO = { madrugada: 'de madrugada', manha: 'pela manhã', tarde: 'pela tarde', noite: 'à noite' };
+const NOME_PERIODO_PLURAL = { madrugada: 'madrugadas', manha: 'manhãs', tarde: 'tardes', noite: 'noites' };
+function periodoDoDia(iso) {
+  const h = new Date(iso).getHours();
+  if (h < 5) return 'madrugada';
+  if (h < 12) return 'manha';
+  if (h < 18) return 'tarde';
+  return 'noite';
+}
+function maiuscula(t) { return t ? t[0].toUpperCase() + t.slice(1) : t; }
+
+// junta uma lista em português: ["a","b","c"] → "a, b e c"
+function juntarComE(lista) {
+  if (lista.length <= 1) return lista.join('');
+  return lista.slice(0, -1).join(', ') + ' e ' + lista[lista.length - 1];
+}
+
+// Agrupa os toques de humor por período e descreve cada um:
+// "pela manhã você esteve calma" / "pela tarde você oscilou entre alegria e ansiedade".
+// Se escreveu naquele período, junta: "...e foi quando você escreveu".
+function frasesPorPeriodo(eventos, posts) {
+  const porPeriodo = {};
+  eventos.forEach(e => {
+    const p = periodoDoDia(e.criado_em);
+    (porPeriodo[p] = porPeriodo[p] || {})[e.emocao] = (porPeriodo[p][e.emocao] || 0) + 1;
+  });
+  const escreveuEm = new Set(posts.filter(x => x.criado_em).map(x => periodoDoDia(x.criado_em)));
+  // 1º período: frase completa ("Pela manhã você esteve calma.")
+  // os seguintes: curtinhas, sem repetir "você esteve" ("Pela tarde, feliz.")
+  return ORDEM_PERIODOS.filter(p => porPeriodo[p]).map((p, i) => {
+    const ord = Object.entries(porPeriodo[p]).sort((a, b) => b[1] - a[1]);
+    // um humor só, ou um que claramente ganhou dos outros: "esteve X"; empate: "entre X e Y"
+    const claro = ord.length === 1 || ord[0][1] > ord[1][1];
+    const humor = claro ? ord[0][0] : `entre ${SUBSTANTIVO_HUMOR[ord[0][0]]} e ${SUBSTANTIVO_HUMOR[ord[1][0]]}`;
+    let f = i === 0
+      ? `${maiuscula(ROTULO_PERIODO[p])} você ${claro ? 'esteve ' + humor : 'oscilou ' + humor}`
+      : `${maiuscula(ROTULO_PERIODO[p])}, ${humor}`;
+    if (escreveuEm.has(p)) f += ', e foi quando você escreveu';
+    return f + '.';
+  });
+}
+
+// "Hoje foi..." — uma frase curta que fecha o dia, conforme o tom
+const HOJE_FOI = {
+  leve: ['Hoje foi um dia leve 🌿', 'Hoje foi um dia bom de guardar ☀️', 'Hoje foi um dia de respirar fácil 🌿'],
+  pesado: ['Hoje pesou um pouco, e tudo bem. Amanhã é outra página.', 'Hoje foi um dia difícil, e você chegou até o fim dele.', 'Hoje pediu mais de você. Amanhã é outra página.'],
+  misto: ['Hoje foi um dia de várias cores.', 'Hoje foi um dia de altos e baixos, como quase todo dia de verdade.'],
+};
+
+// Resumo da semana (só aos domingos): compara manhãs, tardes e noites dos últimos 7 dias
+// e conta em qual período a pessoa costuma estar mais leve.
+function resumoDaSemanaPorPeriodo(eventosSemana) {
+  const grupos = {};
+  eventosSemana.filter(e => e.criado_em).forEach(e => {
+    const p = periodoDoDia(e.criado_em);
+    (grupos[p] = grupos[p] || []).push(e);
+  });
+  // só compara períodos com registros suficientes (3 ou mais), pra não tirar conclusão de um toque só
+  const fatias = ORDEM_PERIODOS.filter(p => grupos[p] && grupos[p].length >= 3)
+    .map(p => ({ p, f: fatiaPositiva(grupos[p]) }))
+    .sort((a, b) => b.f - a.f);
+  if (fatias.length < 2) return null;
+  const melhor = fatias[0], pior = fatias[fatias.length - 1];
+  if (melhor.f - pior.f < 0.2) return 'Resumo da semana: seu humor ficou parecido de manhã, de tarde e de noite. Uma semana de ritmo constante.';
+  return `Resumo da semana: suas ${NOME_PERIODO_PLURAL[melhor.p]} foram mais leves que suas ${NOME_PERIODO_PLURAL[pior.p]}. Vale reparar o que costuma acontecer em cada uma.`;
 }
 
 function limparTrecho(texto, max) {
@@ -159,7 +225,7 @@ function fatiaPositiva(eventos) {
 
 // ---------- monta o conteúdo (função pura: recebe dados, devolve texto; fácil de testar) ----------
 // eventos: toques de emoção do dia | posts: o que foi escrito | semana: toques dos 7 dias anteriores
-function montarResumoDoDia({ eventos, posts, leuHoje, ontem, semana, sequencia }) {
+function montarResumoDoDia({ eventos, posts, leuHoje, ontem, semana, sequencia, domingo }) {
   const n = eventos.length;
   const contagem = {};
   eventos.forEach(e => { contagem[e.emocao] = (contagem[e.emocao] || 0) + 1; });
@@ -172,22 +238,23 @@ function montarResumoDoDia({ eventos, posts, leuHoje, ontem, semana, sequencia }
 
   const titulo = escolherDoDia(TITULOS_DIA[chave], 0);
   const abertura = escolherDoDia(ABERTURAS[chave], 1);
-  const fecho = escolherDoDia(FECHOS[tom], 2);
+  const fecho = escolherDoDia(HOJE_FOI[tom], 6) + ' ' + escolherDoDia(FECHOS[tom], 2);
 
   // ---- "o que rolou" ----
   const frases = [];
-  if (n === 1) {
-    frases.push(`Você registrou um momento hoje: ${SUBSTANTIVO_HUMOR[eventos[0].emocao]}, às ${horaCurta(eventos[0].criado_em)}.`);
-  } else if (n > 1 && ordenadas.length === 1) {
-    frases.push(`Você registrou ${n} momentos e todos de ${SUBSTANTIVO_HUMOR[dominante]}: esse foi o tom do dia.`);
-  } else if (n > 1) {
-    const primeiro = eventos[0], ultimo = eventos[n - 1];
-    frases.push(`Você registrou ${n} momentos. O dia começou com ${SUBSTANTIVO_HUMOR[primeiro.emocao]} (${horaCurta(primeiro.criado_em)}) e o último registro foi de ${SUBSTANTIVO_HUMOR[ultimo.emocao]} (${horaCurta(ultimo.criado_em)}).`);
-    if (!misto) frases.push(`${SUBSTANTIVO_HUMOR[dominante][0].toUpperCase() + SUBSTANTIVO_HUMOR[dominante].slice(1)} foi o que mais apareceu.`);
+  const periodos = frasesPorPeriodo(eventos, posts);
+  if (n && ordenadas.length === 1 && periodos.length > 1) {
+    // o mesmo humor o dia inteiro: uma frase só basta
+    frases.push(`Hoje o tom foi de ${SUBSTANTIVO_HUMOR[dominante]} o dia todo, ${juntarComE(ORDEM_PERIODOS.filter(p => eventos.some(e => periodoDoDia(e.criado_em) === p)).map(p => ROTULO_PERIODO[p]))}.`);
+  } else if (n) {
+    frases.push(...periodos);
+    if (!misto && periodos.length > 1) frases.push(`${maiuscula(SUBSTANTIVO_HUMOR[dominante])} foi o que mais apareceu.`);
   }
   let trechoDestaque = null;
   if (posts.length) {
-    frases.push(`Você escreveu ${posts.length === 1 ? 'uma vez' : posts.length + ' vezes'} hoje.`);
+    // se escreveu num período sem toque de humor, a frase de período não falou disso: conta aqui
+    const jaContou = periodos.some(f => f.includes('escreveu'));
+    if (!jaContou || posts.length > 1) frases.push(`Você escreveu ${posts.length === 1 ? 'uma vez' : posts.length + ' vezes'} hoje.`);
     const maior = posts.slice().sort((a, b) => String(b.texto || '').length - String(a.texto || '').length)[0];
     if (maior && String(maior.texto || '').trim().length >= 12) trechoDestaque = limparTrecho(maior.texto, 90);
   }
@@ -199,10 +266,14 @@ function montarResumoDoDia({ eventos, posts, leuHoje, ontem, semana, sequencia }
     observacoes.push(`Você passou por ${ordenadas.length} emoções diferentes hoje. Saber dar nome ao que se sente é meio caminho andado pra lidar com isso, e você fez esse exercício ${n} vezes.`);
   }
   if (n >= 4) {
-    const porHora = {};
-    eventos.forEach(e => { const h = new Date(e.criado_em).getHours(); porHora[h] = (porHora[h] || 0) + 1; });
-    const pico = Object.entries(porHora).sort((a, b) => b[1] - a[1])[0];
-    if (pico[1] >= 2) observacoes.push(`O horário mais movimentado foi por volta das ${String(pico[0]).padStart(2, '0')}h, com ${pico[1]} registros. Vale reparar o que costuma acontecer por aí.`);
+    const porPeriodo = {};
+    eventos.forEach(e => { const p = periodoDoDia(e.criado_em); porPeriodo[p] = (porPeriodo[p] || 0) + 1; });
+    const ord = Object.entries(porPeriodo).sort((a, b) => b[1] - a[1]);
+    const pico = ord[0];
+    // só fala do "período mais movimentado" se ele ganhou de verdade (sem empate)
+    if (pico[1] >= 2 && ord.length > 1 && pico[1] > ord[1][1]) {
+      observacoes.push(`${maiuscula(ROTULO_PERIODO[pico[0]].replace(/^pela |^à |^de /, 'a '))} foi o período mais movimentado, com ${pico[1]} registros. Vale reparar o que costuma acontecer nessa hora do dia.`);
+    }
   }
   if (n >= 2) {
     const pos = e => HUMORES_POSITIVOS.includes(e.emocao);
@@ -214,6 +285,10 @@ function montarResumoDoDia({ eventos, posts, leuHoje, ontem, semana, sequencia }
     const fatiaSemana = fatiaPositiva(semana);
     if (fatia - fatiaSemana >= 0.2) observacoes.push('Comparando com a sua semana, esse dia foi mais leve que o normal. Boa! Ao menos um motivo pra comemorar.');
     else if (fatiaSemana - fatia >= 0.2) observacoes.push('Comparando com a sua semana, esse dia foi mais pesado que o normal. Um dia fora da curva não define a semana. Cuide de você essa noite.');
+  }
+  if (domingo) {
+    const daSemana = resumoDaSemanaPorPeriodo((semana || []).concat(eventos));
+    if (daSemana) observacoes.unshift(daSemana);
   }
   if (posts.length) observacoes.push('Pôr em palavras o que se sente é um dos hábitos mais estudados pra aliviar a cabeça, e você fez isso hoje.');
   if (leuHoje) observacoes.push('Você arrumou tempo pra ler. Ler um pouco antes de dormir costuma desacelerar a mente e ajuda a pegar no sono.');
@@ -288,9 +363,9 @@ async function carregarResumoDia() {
   const semanaAntes = new Date(janela.inicio); semanaAntes.setDate(semanaAntes.getDate() - 7);
   const [respEventos, respPosts, respLeitura, respSemana] = await Promise.all([
     supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', janela.inicio.toISOString()).lt('criado_em', janela.fim.toISOString()).order('criado_em', { ascending: true }),
-    supabaseClient.from('posts').select('texto, tipo, privado').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', janela.inicio.toISOString()).lt('criado_em', janela.fim.toISOString()),
+    supabaseClient.from('posts').select('texto, tipo, privado, criado_em').eq('autor_id', meuId).is('clube_id', null).gte('criado_em', janela.inicio.toISOString()).lt('criado_em', janela.fim.toISOString()),
     supabaseClient.from('logs_leitura').select('data', { count: 'exact', head: true }).eq('usuario_id', meuId).eq('data', janela.diaISO),
-    supabaseClient.from('humor_eventos').select('emocao').eq('usuario_id', meuId).gte('criado_em', semanaAntes.toISOString()).lt('criado_em', janela.inicio.toISOString()),
+    supabaseClient.from('humor_eventos').select('emocao, criado_em').eq('usuario_id', meuId).gte('criado_em', semanaAntes.toISOString()).lt('criado_em', janela.inicio.toISOString()),
   ]);
   const eventos = respEventos.data || [];
   const posts = (respPosts.data || []).filter(p => String(p.texto || '').trim());
@@ -299,6 +374,7 @@ async function carregarResumoDia() {
   const r = montarResumoDoDia({
     eventos, posts, leuHoje: (respLeitura.count || 0) > 0, ontem: janela.diaJaVirou,
     semana: respSemana.data || [], sequencia: streakAtual,
+    domingo: janela.inicio.getDay() === 0, // o dia resumido é domingo: entra o resumo da semana
   });
   window.RESUMO_DIA_ATUAL = r;
 

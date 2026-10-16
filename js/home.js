@@ -353,7 +353,21 @@ function formatarHorarioMin(min) {
   return `${String(h24).padStart(2, '0')}:${m}`;
 }
 
+// exemplos do campo de lembrete: sempre sobre leitura, e mudam cada vez que o checklist carrega
+const EXEMPLOS_LEMBRETE = [
+  'ex: lembrar de leitura…',
+  'ex: ler 10 páginas antes de dormir…',
+  'ex: devolver o livro da biblioteca…',
+  'ex: terminar o capítulo do clube…',
+  'ex: anotar uma frase bonita do livro…',
+];
+function trocarExemploLembrete() {
+  const input = document.getElementById('checklistNovoInput');
+  if (input) input.placeholder = EXEMPLOS_LEMBRETE[Math.floor(Math.random() * EXEMPLOS_LEMBRETE.length)];
+}
+
 async function carregarChecklist() {
+  trocarExemploLembrete();
   const meuId = window.MEU_USUARIO_ID;
   if (!meuId) return;
   const { data, error } = await supabaseClient
