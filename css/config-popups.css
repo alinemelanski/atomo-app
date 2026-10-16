@@ -166,57 +166,100 @@
   .aviso-versao-nova.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
 
   /* =====================================================================
-     NOVO SELO: pacotinho de papel kraft (sem laço, parado) que desembrulha
-     .show = aparece o pacotinho · .aberto = o papel abriu e o selo apareceu
+     NOVO SELO: bolinha de papel amassado que DESAMASSA e revela o selo
+     (referência: vídeo do papel amassado — a folha cresce girando, as pontas
+     se abrem, a última dobra sai voando por cima e ficam só os vincos de leve)
+     .show = aparece a bolinha · .aberto = o papel desamassou e o selo apareceu
      ===================================================================== */
   .selo-pacote-overlay { position: fixed; inset: 0; z-index: 96; display: none; flex-direction: column; align-items: center; justify-content: center;
     padding: 24px; background: color-mix(in srgb, #1b140d 62%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
   .selo-pacote-overlay.show { display: flex; }
   .selo-pacote-contador { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
     color: rgba(255,255,255,.75); min-height: 16px; margin-bottom: 14px; }
-  .selo-pacote-cena { position: relative; width: 190px; height: 230px; perspective: 900px; }
+  .selo-pacote-cena { position: relative; width: 200px; height: 240px; }
 
-  /* o selo, escondido atrás do papel */
-  .selo-pacote-selo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    opacity: 0; transform: scale(.6); transition: opacity .35s ease .35s, transform .6s cubic-bezier(.34,1.56,.64,1) .35s; overflow: hidden; border-radius: 20px; }
+  /* textura de papel amassado: gerada por um filtro SVG (ruído + luz batendo de lado = relevo dos vincos).
+     É uma imagem desenhada pelo navegador, então não pesa nada pra baixar. */
+  .selo-papel-folha, .selo-papel-aba {
+    /* facetas: triângulos de tons de cinza diferentes, como as dobras retas do papel amassado */
+    --facetas: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='260' viewBox='0 0 220 260' preserveAspectRatio='none'%3E%3Cpath d='M0 0L24 0L0 26Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M24 0L18 25L0 26Z' fill='rgb(210,210,207)'/%3E%3Cpath d='M24 0L48 0L46 18Z' fill='rgb(203,203,200)'/%3E%3Cpath d='M24 0L46 18L18 25Z' fill='rgb(179,179,176)'/%3E%3Cpath d='M48 0L86 0L81 32Z' fill='rgb(197,197,194)'/%3E%3Cpath d='M48 0L81 32L46 18Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M86 0L101 0L81 32Z' fill='rgb(159,159,156)'/%3E%3Cpath d='M101 0L102 21L81 32Z' fill='rgb(226,226,223)'/%3E%3Cpath d='M101 0L138 0L140 35Z' fill='rgb(253,253,250)'/%3E%3Cpath d='M101 0L140 35L102 21Z' fill='rgb(242,242,239)'/%3E%3Cpath d='M138 0L162 0L140 35Z' fill='rgb(171,171,168)'/%3E%3Cpath d='M162 0L167 24L140 35Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M162 0L183 0L167 24Z' fill='rgb(239,239,236)'/%3E%3Cpath d='M183 0L202 17L167 24Z' fill='rgb(246,246,243)'/%3E%3Cpath d='M183 0L220 0L220 33Z' fill='rgb(160,160,157)'/%3E%3Cpath d='M183 0L220 33L202 17Z' fill='rgb(179,179,176)'/%3E%3Cpath d='M0 26L18 25L0 48Z' fill='rgb(208,208,205)'/%3E%3Cpath d='M18 25L20 44L0 48Z' fill='rgb(156,156,153)'/%3E%3Cpath d='M18 25L46 18L20 44Z' fill='rgb(188,188,185)'/%3E%3Cpath d='M46 18L51 58L20 44Z' fill='rgb(201,201,198)'/%3E%3Cpath d='M46 18L81 32L76 54Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M46 18L76 54L51 58Z' fill='rgb(227,227,224)'/%3E%3Cpath d='M81 32L102 21L76 54Z' fill='rgb(212,212,209)'/%3E%3Cpath d='M102 21L113 49L76 54Z' fill='rgb(250,250,247)'/%3E%3Cpath d='M102 21L140 35L113 49Z' fill='rgb(205,205,202)'/%3E%3Cpath d='M140 35L138 43L113 49Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M140 35L167 24L138 43Z' fill='rgb(217,217,214)'/%3E%3Cpath d='M167 24L156 46L138 43Z' fill='rgb(252,252,249)'/%3E%3Cpath d='M167 24L202 17L156 46Z' fill='rgb(194,194,191)'/%3E%3Cpath d='M202 17L196 51L156 46Z' fill='rgb(174,174,171)'/%3E%3Cpath d='M202 17L220 33L196 51Z' fill='rgb(200,200,197)'/%3E%3Cpath d='M220 33L220 48L196 51Z' fill='rgb(241,241,238)'/%3E%3Cpath d='M0 48L20 44L27 74Z' fill='rgb(221,221,218)'/%3E%3Cpath d='M0 48L27 74L0 80Z' fill='rgb(239,239,236)'/%3E%3Cpath d='M20 44L51 58L27 74Z' fill='rgb(225,225,222)'/%3E%3Cpath d='M51 58L61 82L27 74Z' fill='rgb(163,163,160)'/%3E%3Cpath d='M51 58L76 54L77 79Z' fill='rgb(170,170,167)'/%3E%3Cpath d='M51 58L77 79L61 82Z' fill='rgb(205,205,202)'/%3E%3Cpath d='M76 54L113 49L111 85Z' fill='rgb(236,236,233)'/%3E%3Cpath d='M76 54L111 85L77 79Z' fill='rgb(207,207,204)'/%3E%3Cpath d='M113 49L138 43L142 74Z' fill='rgb(189,189,186)'/%3E%3Cpath d='M113 49L142 74L111 85Z' fill='rgb(219,219,216)'/%3E%3Cpath d='M138 43L156 46L142 74Z' fill='rgb(176,176,173)'/%3E%3Cpath d='M156 46L175 70L142 74Z' fill='rgb(226,226,223)'/%3E%3Cpath d='M156 46L196 51L191 83Z' fill='rgb(198,198,195)'/%3E%3Cpath d='M156 46L191 83L175 70Z' fill='rgb(204,204,201)'/%3E%3Cpath d='M196 51L220 48L191 83Z' fill='rgb(175,175,172)'/%3E%3Cpath d='M220 48L220 71L191 83Z' fill='rgb(199,199,196)'/%3E%3Cpath d='M0 80L27 74L0 104Z' fill='rgb(196,196,193)'/%3E%3Cpath d='M27 74L18 107L0 104Z' fill='rgb(210,210,207)'/%3E%3Cpath d='M27 74L61 82L18 107Z' fill='rgb(156,156,153)'/%3E%3Cpath d='M61 82L61 105L18 107Z' fill='rgb(186,186,183)'/%3E%3Cpath d='M61 82L77 79L61 105Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M77 79L90 100L61 105Z' fill='rgb(250,250,247)'/%3E%3Cpath d='M77 79L111 85L114 106Z' fill='rgb(248,248,245)'/%3E%3Cpath d='M77 79L114 106L90 100Z' fill='rgb(217,217,214)'/%3E%3Cpath d='M111 85L142 74L114 106Z' fill='rgb(196,196,193)'/%3E%3Cpath d='M142 74L139 103L114 106Z' fill='rgb(175,175,172)'/%3E%3Cpath d='M142 74L175 70L172 113Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M142 74L172 113L139 103Z' fill='rgb(183,183,180)'/%3E%3Cpath d='M175 70L191 83L192 107Z' fill='rgb(162,162,159)'/%3E%3Cpath d='M175 70L192 107L172 113Z' fill='rgb(202,202,199)'/%3E%3Cpath d='M191 83L220 71L220 95Z' fill='rgb(222,222,219)'/%3E%3Cpath d='M191 83L220 95L192 107Z' fill='rgb(242,242,239)'/%3E%3Cpath d='M0 104L18 107L0 134Z' fill='rgb(228,228,225)'/%3E%3Cpath d='M18 107L31 140L0 134Z' fill='rgb(240,240,237)'/%3E%3Cpath d='M18 107L61 105L62 126Z' fill='rgb(198,198,195)'/%3E%3Cpath d='M18 107L62 126L31 140Z' fill='rgb(187,187,184)'/%3E%3Cpath d='M61 105L90 100L62 126Z' fill='rgb(192,192,189)'/%3E%3Cpath d='M90 100L80 133L62 126Z' fill='rgb(248,248,245)'/%3E%3Cpath d='M90 100L114 106L80 133Z' fill='rgb(246,246,243)'/%3E%3Cpath d='M114 106L100 129L80 133Z' fill='rgb(174,174,171)'/%3E%3Cpath d='M114 106L139 103L100 129Z' fill='rgb(246,246,243)'/%3E%3Cpath d='M139 103L131 122L100 129Z' fill='rgb(165,165,162)'/%3E%3Cpath d='M139 103L172 113L131 122Z' fill='rgb(252,252,249)'/%3E%3Cpath d='M172 113L156 135L131 122Z' fill='rgb(199,199,196)'/%3E%3Cpath d='M172 113L192 107L185 125Z' fill='rgb(158,158,155)'/%3E%3Cpath d='M172 113L185 125L156 135Z' fill='rgb(208,208,205)'/%3E%3Cpath d='M192 107L220 95L185 125Z' fill='rgb(198,198,195)'/%3E%3Cpath d='M220 95L220 128L185 125Z' fill='rgb(227,227,224)'/%3E%3Cpath d='M0 134L31 140L0 163Z' fill='rgb(187,187,184)'/%3E%3Cpath d='M31 140L19 155L0 163Z' fill='rgb(229,229,226)'/%3E%3Cpath d='M31 140L62 126L56 164Z' fill='rgb(250,250,247)'/%3E%3Cpath d='M31 140L56 164L19 155Z' fill='rgb(249,249,246)'/%3E%3Cpath d='M62 126L80 133L89 163Z' fill='rgb(197,197,194)'/%3E%3Cpath d='M62 126L89 163L56 164Z' fill='rgb(225,225,222)'/%3E%3Cpath d='M80 133L100 129L105 154Z' fill='rgb(245,245,242)'/%3E%3Cpath d='M80 133L105 154L89 163Z' fill='rgb(249,249,246)'/%3E%3Cpath d='M100 129L131 122L105 154Z' fill='rgb(227,227,224)'/%3E%3Cpath d='M131 122L135 164L105 154Z' fill='rgb(168,168,165)'/%3E%3Cpath d='M131 122L156 135L175 149Z' fill='rgb(185,185,182)'/%3E%3Cpath d='M131 122L175 149L135 164Z' fill='rgb(176,176,173)'/%3E%3Cpath d='M156 135L185 125L186 151Z' fill='rgb(191,191,188)'/%3E%3Cpath d='M156 135L186 151L175 149Z' fill='rgb(177,177,174)'/%3E%3Cpath d='M185 125L220 128L186 151Z' fill='rgb(178,178,175)'/%3E%3Cpath d='M220 128L220 151L186 151Z' fill='rgb(230,230,227)'/%3E%3Cpath d='M0 163L19 155L29 177Z' fill='rgb(251,251,248)'/%3E%3Cpath d='M0 163L29 177L0 182Z' fill='rgb(206,206,203)'/%3E%3Cpath d='M19 155L56 164L45 180Z' fill='rgb(200,200,197)'/%3E%3Cpath d='M19 155L45 180L29 177Z' fill='rgb(160,160,157)'/%3E%3Cpath d='M56 164L89 163L80 183Z' fill='rgb(242,242,239)'/%3E%3Cpath d='M56 164L80 183L45 180Z' fill='rgb(236,236,233)'/%3E%3Cpath d='M89 163L105 154L119 186Z' fill='rgb(179,179,176)'/%3E%3Cpath d='M89 163L119 186L80 183Z' fill='rgb(162,162,159)'/%3E%3Cpath d='M105 154L135 164L138 184Z' fill='rgb(180,180,177)'/%3E%3Cpath d='M105 154L138 184L119 186Z' fill='rgb(245,245,242)'/%3E%3Cpath d='M135 164L175 149L169 173Z' fill='rgb(212,212,209)'/%3E%3Cpath d='M135 164L169 173L138 184Z' fill='rgb(228,228,225)'/%3E%3Cpath d='M175 149L186 151L201 188Z' fill='rgb(247,247,244)'/%3E%3Cpath d='M175 149L201 188L169 173Z' fill='rgb(242,242,239)'/%3E%3Cpath d='M186 151L220 151L220 189Z' fill='rgb(242,242,239)'/%3E%3Cpath d='M186 151L220 189L201 188Z' fill='rgb(200,200,197)'/%3E%3Cpath d='M0 182L29 177L0 214Z' fill='rgb(174,174,171)'/%3E%3Cpath d='M29 177L25 206L0 214Z' fill='rgb(183,183,180)'/%3E%3Cpath d='M29 177L45 180L47 211Z' fill='rgb(188,188,185)'/%3E%3Cpath d='M29 177L47 211L25 206Z' fill='rgb(175,175,172)'/%3E%3Cpath d='M45 180L80 183L73 199Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M45 180L73 199L47 211Z' fill='rgb(175,175,172)'/%3E%3Cpath d='M80 183L119 186L73 199Z' fill='rgb(229,229,226)'/%3E%3Cpath d='M119 186L104 201L73 199Z' fill='rgb(175,175,172)'/%3E%3Cpath d='M119 186L138 184L104 201Z' fill='rgb(172,172,169)'/%3E%3Cpath d='M138 184L134 199L104 201Z' fill='rgb(158,158,155)'/%3E%3Cpath d='M138 184L169 173L134 199Z' fill='rgb(249,249,246)'/%3E%3Cpath d='M169 173L155 201L134 199Z' fill='rgb(241,241,238)'/%3E%3Cpath d='M169 173L201 188L184 205Z' fill='rgb(173,173,170)'/%3E%3Cpath d='M169 173L184 205L155 201Z' fill='rgb(186,186,183)'/%3E%3Cpath d='M201 188L220 189L184 205Z' fill='rgb(237,237,234)'/%3E%3Cpath d='M220 189L220 199L184 205Z' fill='rgb(160,160,157)'/%3E%3Cpath d='M0 214L25 206L0 241Z' fill='rgb(191,191,188)'/%3E%3Cpath d='M25 206L30 227L0 241Z' fill='rgb(211,211,208)'/%3E%3Cpath d='M25 206L47 211L50 231Z' fill='rgb(246,246,243)'/%3E%3Cpath d='M25 206L50 231L30 227Z' fill='rgb(210,210,207)'/%3E%3Cpath d='M47 211L73 199L50 231Z' fill='rgb(166,166,163)'/%3E%3Cpath d='M73 199L80 227L50 231Z' fill='rgb(221,221,218)'/%3E%3Cpath d='M73 199L104 201L80 227Z' fill='rgb(174,174,171)'/%3E%3Cpath d='M104 201L117 244L80 227Z' fill='rgb(223,223,220)'/%3E%3Cpath d='M104 201L134 199L137 234Z' fill='rgb(202,202,199)'/%3E%3Cpath d='M104 201L137 234L117 244Z' fill='rgb(218,218,215)'/%3E%3Cpath d='M134 199L155 201L156 226Z' fill='rgb(246,246,243)'/%3E%3Cpath d='M134 199L156 226L137 234Z' fill='rgb(175,175,172)'/%3E%3Cpath d='M155 201L184 205L156 226Z' fill='rgb(223,223,220)'/%3E%3Cpath d='M184 205L189 229L156 226Z' fill='rgb(216,216,213)'/%3E%3Cpath d='M184 205L220 199L220 240Z' fill='rgb(194,194,191)'/%3E%3Cpath d='M184 205L220 240L189 229Z' fill='rgb(150,150,147)'/%3E%3Cpath d='M0 241L30 227L20 260Z' fill='rgb(180,180,177)'/%3E%3Cpath d='M0 241L20 260L0 260Z' fill='rgb(170,170,167)'/%3E%3Cpath d='M30 227L50 231L45 260Z' fill='rgb(184,184,181)'/%3E%3Cpath d='M30 227L45 260L20 260Z' fill='rgb(221,221,218)'/%3E%3Cpath d='M50 231L80 227L92 260Z' fill='rgb(163,163,160)'/%3E%3Cpath d='M50 231L92 260L45 260Z' fill='rgb(200,200,197)'/%3E%3Cpath d='M80 227L117 244L92 260Z' fill='rgb(156,156,153)'/%3E%3Cpath d='M117 244L111 260L92 260Z' fill='rgb(187,187,184)'/%3E%3Cpath d='M117 244L137 234L130 260Z' fill='rgb(253,253,250)'/%3E%3Cpath d='M117 244L130 260L111 260Z' fill='rgb(216,216,213)'/%3E%3Cpath d='M137 234L156 226L166 260Z' fill='rgb(242,242,239)'/%3E%3Cpath d='M137 234L166 260L130 260Z' fill='rgb(188,188,185)'/%3E%3Cpath d='M156 226L189 229L183 260Z' fill='rgb(156,156,153)'/%3E%3Cpath d='M156 226L183 260L166 260Z' fill='rgb(190,190,187)'/%3E%3Cpath d='M189 229L220 240L183 260Z' fill='rgb(188,188,185)'/%3E%3Cpath d='M220 240L220 260L183 260Z' fill='rgb(229,229,226)'/%3E%3C/svg%3E");
+    /* fibra: um granulado fininho por cima, pra parecer papel e não plástico */
+    --fibra: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.06' numOctaves='2' seed='11'/%3E%3CfeDiffuseLighting lighting-color='%23fff' surfaceScale='1.6'%3E%3CfeDistantLight azimuth='235' elevation='42'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"); }
+
+  /* a folha: começa como bolinha (pequena, girada e com o contorno todo picotado pelo clip-path) */
+  .selo-pacote { position: absolute; inset: 0; border: none; padding: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .selo-papel-folha { position: absolute; inset: 0; border-radius: 6px; background: #F4F1EA;
+    transform: scale(.74) rotate(-24deg);
+    /* contorno de bolinha amassada: 12 pontas irregulares (o mesmo número de pontos da folha aberta, pra poder animar de um no outro) */
+    clip-path: polygon(28% 24%, 47% 17%, 63% 21%, 75% 31%, 79% 47%, 76% 62%, 67% 74%, 51% 80%, 35% 77%, 24% 66%, 20% 50%, 22% 36%);
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,.4));
+    animation: papelRespira 2.4s ease-in-out infinite; }
+  /* parada, a bolinha "respira" de leve, convidando o toque */
+  @keyframes papelRespira { 0%, 100% { transform: scale(.74) rotate(-24deg); } 50% { transform: scale(.77) rotate(-19deg); } }
+
+  /* o selo, impresso na folha (escondido enquanto está amassado) */
+  .selo-pacote-selo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; }
   .selo-pacote-img { margin: 0; width: 150px; height: 200px; }
+  /* vincos por cima de tudo: bem fortes amassado, quase sumindo quando abre */
+  .selo-papel-vincos { position: absolute; inset: -10%; background: var(--fibra) center / 160px auto, var(--facetas) center / 100% 100%; background-blend-mode: multiply; /* as duas camadas se misturam (vincos + fibra) */ mix-blend-mode: multiply; opacity: .95; pointer-events: none; }
+  /* sombras das dobras quando está amassado (escurece os "buracos" da bolinha) */
+  .selo-papel-folha::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 40% 36%, rgba(255,255,255,.18) 8%, transparent 26%, rgba(50,40,30,.45) 62%); transition: opacity .4s ease; }
+
   /* reflexo de luz passando por cima do selo, de tempos em tempos, como moeda nova */
   .selo-pacote-brilho { position: absolute; top: -20%; bottom: -20%; width: 40%; left: -60%; pointer-events: none;
     background: linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent); transform: skewX(-18deg); }
-  .selo-pacote-overlay.aberto .selo-pacote-selo { opacity: 1; transform: scale(1); }
-  .selo-pacote-overlay.aberto .selo-pacote-brilho { animation: seloBrilho 2.6s ease-in-out .9s infinite; }
-  @keyframes seloBrilho { 0% { left: -60%; } 45%, 100% { left: 130%; } }
-  .selo-pacote-overlay.aberto .selo-pacote-img img { filter: drop-shadow(0 0 18px rgba(255,214,120,.55)) drop-shadow(0 6px 14px rgba(0,0,0,.3)); }
 
-  /* o pacotinho: papel kraft com textura de fibra e dobras, sem laço, parado */
-  .selo-pacote { position: absolute; inset: 0; border: none; padding: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .selo-pacote-aba { position: absolute; top: 0; bottom: 0; width: 50%;
-    background-color: #C49A6C;
-    background-image:
-      repeating-linear-gradient(85deg, rgba(90,60,30,.07) 0 2px, transparent 2px 7px),
-      repeating-linear-gradient(-8deg, rgba(255,255,255,.06) 0 1px, transparent 1px 9px),
-      linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.08));
-    box-shadow: inset 0 0 0 1px rgba(90,60,30,.18), 0 12px 30px rgba(0,0,0,.35);
-    transition: transform .55s cubic-bezier(.6,.05,.3,1), opacity .4s ease .25s; }
-  .selo-pacote-aba.esquerda { left: 0; border-radius: 16px 0 0 16px; transform-origin: left center; }
-  .selo-pacote-aba.direita { right: 0; border-radius: 0 16px 16px 0; transform-origin: right center;
-    box-shadow: inset 1px 0 0 rgba(90,60,30,.28), inset 0 0 0 1px rgba(90,60,30,.18), 0 12px 30px rgba(0,0,0,.35); }
-  /* tira de papel colada no meio (a "fita adesiva" do embrulho, discreta) */
-  .selo-pacote-fita { position: absolute; left: 50%; top: 0; bottom: 0; width: 26px; transform: translateX(-50%);
-    background: rgba(240,225,200,.35); box-shadow: inset 0 0 0 1px rgba(90,60,30,.12); transition: opacity .2s ease; }
-  /* abrindo: cada aba gira pro seu lado, como papel de presente sendo aberto */
-  .selo-pacote-overlay.aberto .selo-pacote-aba.esquerda { transform: rotateY(-115deg); opacity: 0; }
-  .selo-pacote-overlay.aberto .selo-pacote-aba.direita { transform: rotateY(115deg); opacity: 0; }
-  .selo-pacote-overlay.aberto .selo-pacote-fita { opacity: 0; }
+  /* a última dobra: uma tira amassada presa no topo, que sai voando quando a folha termina de abrir */
+  .selo-papel-aba { position: absolute; left: -6%; right: -6%; top: -4%; height: 28%; opacity: 0; pointer-events: none;
+    background: linear-gradient(rgba(244,241,234,.5), rgba(244,241,234,.5)), var(--facetas) 0 0 / 70% 260%; background-blend-mode: multiply;
+    clip-path: polygon(0 10%, 18% 0, 40% 14%, 62% 2%, 84% 16%, 100% 6%, 96% 70%, 78% 100%, 55% 78%, 30% 96%, 10% 74%, 2% 88%);
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,.28)); transform-origin: 50% 0; }
+
+  /* ---------- abrindo ---------- */
   .selo-pacote-overlay.aberto .selo-pacote { pointer-events: none; }
+  .selo-pacote-overlay.aberto .selo-papel-folha { animation: papelDesamassa 1.25s cubic-bezier(.3,.7,.25,1) forwards; }
+  @keyframes papelDesamassa {
+    0%   { transform: scale(.74) rotate(-24deg);
+           clip-path: polygon(28% 24%, 47% 17%, 63% 21%, 75% 31%, 79% 47%, 76% 62%, 67% 74%, 51% 80%, 35% 77%, 24% 66%, 20% 50%, 22% 36%); }
+    /* as pontas começam a se soltar, a folha gira pro outro lado */
+    35%  { transform: scale(.68) rotate(14deg);
+           clip-path: polygon(14% 6%, 46% 2%, 70% 10%, 94% 4%, 90% 38%, 98% 64%, 84% 92%, 54% 86%, 26% 98%, 4% 82%, 10% 52%, 2% 26%); }
+    /* quase plana, com as bordas ainda tortinhas */
+    70%  { transform: scale(1.03) rotate(-4deg);
+           clip-path: polygon(2% 1%, 34% 0, 66% 2%, 99% 0, 100% 34%, 98% 66%, 100% 99%, 66% 100%, 34% 98%, 0 100%, 2% 66%, 0 34%); }
+    100% { transform: scale(1) rotate(0deg);
+           clip-path: polygon(0 0, 33% 0, 67% 0, 100% 0, 100% 33%, 100% 67%, 100% 100%, 67% 100%, 33% 100%, 0 100%, 0 67%, 0 33%); }
+  }
+  .selo-pacote-overlay.aberto .selo-papel-folha::after { opacity: 0; }
+  /* os vincos vão sumindo, mas ficam de leve — papel que já foi amassado nunca fica liso */
+  .selo-pacote-overlay.aberto .selo-papel-vincos { animation: vincosSuavizam 1.25s ease forwards; }
+  @keyframes vincosSuavizam { 0% { opacity: .95; } 60% { opacity: .5; } 100% { opacity: .24; } }
+  .selo-pacote-overlay.aberto .selo-pacote-selo { animation: seloAparece .7s ease .45s forwards; }
+  @keyframes seloAparece { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+  .selo-pacote-overlay.aberto .selo-papel-aba { animation: abaVoa .6s cubic-bezier(.5,0,.75,.4) .78s both; }
+  @keyframes abaVoa {
+    0%   { opacity: 0; transform: translateY(0) rotate(0) scaleY(1); }
+    8%   { opacity: 1; transform: translateY(0) rotate(0) scaleY(1); }
+    40%  { opacity: 1; transform: translateY(-18px) rotate(-4deg) scaleY(.85); }
+    100% { opacity: 0; transform: translateY(-120px) translateX(40px) rotate(-16deg) scaleY(.6); }
+  }
+  .selo-pacote-overlay.aberto .selo-pacote-brilho { animation: seloBrilho 2.6s ease-in-out 1.4s infinite; }
+  @keyframes seloBrilho { 0% { left: -60%; } 45%, 100% { left: 130%; } }
+  .selo-pacote-overlay.aberto .selo-pacote-img img { filter: drop-shadow(0 4px 10px rgba(0,0,0,.18)); }
 
   .selo-pacote-dica { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.8); transition: opacity .2s ease; }
   .selo-pacote-overlay.aberto .selo-pacote-dica { display: none; }
   /* nome, frase e botão só aparecem depois de abrir */
   .selo-pacote-info { display: none; width: 100%; max-width: 300px; margin-top: 18px; text-align: center;
     background: var(--card); border-radius: 24px; padding: 18px 18px 16px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
-  .selo-pacote-overlay.aberto .selo-pacote-info { display: block; animation: seloInfoSobe .45s ease .5s both; }
+  .selo-pacote-overlay.aberto .selo-pacote-info { display: block; animation: seloInfoSobe .45s ease 1.05s both; }
   @keyframes seloInfoSobe { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
   .selo-pacote-kicker { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--terracota); }
   .selo-pacote-info h3 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--ink); margin: 4px 0 6px; }
   .selo-pacote-info p { font-size: 13.5px; color: var(--ink-dim); line-height: 1.5; margin: 0 0 14px; }
+  @media (prefers-reduced-motion: reduce) {
+    .selo-papel-folha { animation: none; }
+    .selo-pacote-overlay.aberto .selo-papel-folha, .selo-pacote-overlay.aberto .selo-papel-vincos,
+    .selo-pacote-overlay.aberto .selo-pacote-selo, .selo-pacote-overlay.aberto .selo-papel-aba { animation-duration: .01s; animation-delay: 0s; }
+  }

@@ -1554,18 +1554,20 @@
     <div class="selo-pacote-overlay" id="seloPacoteOverlay" role="dialog" aria-label="Você ganhou um selo">
       <div class="selo-pacote-contador" id="seloPacoteContador"></div>
       <div class="selo-pacote-cena">
-        <!-- o selo fica ATRÁS do papel; quando o papel abre, ele aparece -->
-        <div class="selo-pacote-selo">
-          <div class="selo-grande selo-pacote-img" id="seloPacoteImagem"></div>
-          <span class="selo-pacote-brilho" aria-hidden="true"></span>
-        </div>
-        <button class="selo-pacote" onclick="desembrulharSelo()" aria-label="Abrir o presente">
-          <span class="selo-pacote-aba esquerda" aria-hidden="true"></span>
-          <span class="selo-pacote-aba direita" aria-hidden="true"></span>
-          <span class="selo-pacote-fita" aria-hidden="true"></span>
+        <!-- bolinha de papel amassado: o selo está "impresso" na folha; ao tocar, ela desamassa -->
+        <button class="selo-pacote" onclick="desembrulharSelo()" aria-label="Desamassar o papel">
+          <div class="selo-papel-folha">
+            <div class="selo-pacote-selo">
+              <div class="selo-grande selo-pacote-img" id="seloPacoteImagem"></div>
+              <span class="selo-pacote-brilho" aria-hidden="true"></span>
+            </div>
+            <span class="selo-papel-vincos" aria-hidden="true"></span>
+          </div>
+          <!-- a última dobra, que sai voando por cima quando a folha termina de abrir -->
+          <span class="selo-papel-aba" aria-hidden="true"></span>
         </button>
       </div>
-      <div class="selo-pacote-dica">toque no pacotinho para abrir</div>
+      <div class="selo-pacote-dica">toque no papel para abrir</div>
       <div class="selo-pacote-info">
         <div class="selo-pacote-kicker" id="seloPacoteKicker">novo selo</div>
         <h3 id="seloPacoteNome"></h3>

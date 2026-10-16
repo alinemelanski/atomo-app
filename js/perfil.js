@@ -118,9 +118,10 @@ window.reabrirPacoteSelo = function (selo) {
 window.desembrulharSelo = function () {
   const overlay = document.getElementById('seloPacoteOverlay');
   if (overlay.classList.contains('aberto')) return;
-  overlay.classList.add('aberto'); // o CSS faz o papel abrir e o selo aparecer
-  // a vibração acontece quando o selo aparece (o papel leva ~0,5s pra abrir)
-  setTimeout(() => vibrar([40, 70, 40, 70, 120]), 480);
+  overlay.classList.add('aberto'); // o CSS desamassa o papel e o selo aparece
+  // vibrações curtinhas enquanto o papel desamassa (como o "crec" do papel) e uma maior quando o selo aparece
+  vibrar([12, 40, 10, 60, 14]);
+  setTimeout(() => vibrar([40, 70, 120]), 820);
 };
 
 window.guardarSeloNaEstante = function () {
