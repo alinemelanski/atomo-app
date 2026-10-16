@@ -490,13 +490,7 @@ async function renderDestaques() {
 window.compartilharDestaque = function (i) {
   const d = window.DESTAQUES_ATUAIS[i];
   if (!d) return;
-  document.getElementById('citacaoTextoInput').value = d.texto;
-  document.getElementById('citacaoTituloInput').value = d.livro_titulo || '';
-  document.getElementById('citacaoAutorInput').value = d.livro_autor || '';
-  window.CITACAO_CLUBE_ID = null;
-  mostrarPreviaCitacao(false);
-  document.getElementById('citacaoAcoes').style.display = 'none';
-  document.getElementById('citacaoCartaoOverlay').classList.add('open');
+  abrirCitacaoPronta(d.texto, d.livro_titulo, d.livro_autor); // já abre com a citação pronta (cartoes.js)
 };
 
 window.apagarDestaque = function (i) {

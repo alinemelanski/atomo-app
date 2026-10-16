@@ -15,12 +15,29 @@ window.mostrarPreviaCitacao = function (mostrar) {
 
 window.abrirCartaoCitacao = function (titulo, autor) {
   window.CITACAO_CLUBE_ID = null;
+  document.getElementById('citacaoForm').style.display = ''; // do zero: precisa do formulário pra escrever o trecho
+  document.getElementById('citacaoCartaoOverlay').classList.remove('citacao-pronta');
   document.getElementById('citacaoTextoInput').value = '';
   document.getElementById('citacaoTituloInput').value = titulo || '';
   document.getElementById('citacaoAutorInput').value = autor || '';
   mostrarPreviaCitacao(false);
   document.getElementById('citacaoAcoes').style.display = 'none';
   document.getElementById('citacaoCartaoOverlay').classList.add('open');
+};
+
+// Citação PRONTA: vinda de um grifo ou de "Meus destaques" o trecho, o título e o autor já são
+// conhecidos — então não mostra formulário nenhum: abre direto com a imagem pronta
+// e as opções de compartilhar no fim da tela.
+// (os campos continuam existindo escondidos, porque o gerarCartaoCitacao lê o texto deles)
+window.abrirCitacaoPronta = function (texto, titulo, autor) {
+  window.CITACAO_CLUBE_ID = null;
+  document.getElementById('citacaoTextoInput').value = texto || '';
+  document.getElementById('citacaoTituloInput').value = titulo || '';
+  document.getElementById('citacaoAutorInput').value = autor || '';
+  document.getElementById('citacaoForm').style.display = 'none';
+  document.getElementById('citacaoCartaoOverlay').classList.add('citacao-pronta'); // a prévia ganha a altura que era do formulário
+  document.getElementById('citacaoCartaoOverlay').classList.add('open');
+  gerarCartaoCitacao(); // desenha a citação e mostra "compartilhar"
 };
 
 // abre a tela de criar citação a partir do livro atual de um clube (ver clubeLivroAtualCitacao)

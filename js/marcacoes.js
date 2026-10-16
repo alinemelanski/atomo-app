@@ -168,13 +168,7 @@ window.grifarECompartilhar = async function () {
 };
 
 function abrirCartaoDoGrifo(g) {
-  document.getElementById('citacaoTextoInput').value = g.texto;
-  document.getElementById('citacaoTituloInput').value = g.livro_titulo || '';
-  document.getElementById('citacaoAutorInput').value = g.livro_autor || '';
-  window.CITACAO_CLUBE_ID = null;
-  mostrarPreviaCitacao(false);
-  document.getElementById('citacaoAcoes').style.display = 'none';
-  document.getElementById('citacaoCartaoOverlay').classList.add('open');
+  abrirCitacaoPronta(g.texto, g.livro_titulo, g.livro_autor); // já abre com a citação pronta (cartoes.js)
 }
 
 // compatibilidade: o botão antigo "grifar esse trecho" chamava esta função

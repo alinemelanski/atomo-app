@@ -1480,6 +1480,9 @@
         <button class="back-btn" onclick="closeOverlay('citacaoCartaoOverlay')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;">Criar citação</h2>
       </div>
+      <!-- formulário: só aparece quando a citação é criada do zero (ex.: no clube).
+           Vindo de um grifo/destaque, ele fica escondido e a citação já abre pronta. -->
+      <div id="citacaoForm">
       <div class="edit-field-label">Trecho do livro</div>
       <textarea id="citacaoTextoInput" class="edit-bio-textarea" placeholder="cole ou escreva o trecho que você quer guardar..." style="min-height:90px;"></textarea>
       <div class="edit-field-label">Título do livro</div>
@@ -1487,6 +1490,7 @@
       <div class="edit-field-label">Autor</div>
       <input type="text" id="citacaoAutorInput" class="busca-input" />
       <button class="post-btn" style="width:100%; padding:12px; margin-top:10px;" onclick="gerarCartaoCitacao()">Compartilhar citação</button>
+      </div>
       <div id="citacaoPreviaWrap" style="display:none; max-height:58vh; overflow-y:auto; margin-top:14px; border-radius:14px; box-shadow:var(--shadow); -webkit-overflow-scrolling:touch;">
         <canvas id="citacaoCanvas" width="600" height="750" style="display:none; width:100%; height:auto; vertical-align:top;"></canvas>
       </div>

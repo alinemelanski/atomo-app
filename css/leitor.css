@@ -66,3 +66,7 @@
   .destaque-nota { font-size: 12.5px; color: var(--ink-dim); margin-top: 6px; display: flex; gap: 5px; align-items: flex-start; }
   /* o kit pinta .btn-icone.ativo de sálvia; aqui a fitinha só fica terracota, sem fundo */
   .leitor-topo-btn.ativo { background: transparent; border-color: transparent; box-shadow: none; }
+
+/* citação pronta (veio de um grifo/destaque): sem formulário, a prévia ocupa o espaço
+   e o "compartilhar" fica logo embaixo dela, no fim da tela */
+#citacaoCartaoOverlay.citacao-pronta #citacaoPreviaWrap { max-height: calc(100dvh - 190px) !important; }
