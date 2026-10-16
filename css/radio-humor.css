@@ -69,3 +69,37 @@
   .humor-face-wrap.tocando .humor-face-intenso { opacity: 1; }
   .humor-face-label { font-family:'DM Sans', sans-serif; font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:capitalize; }
 
+
+  /* ---------- humor em 100% ---------- */
+  /* feliz/calma cheio: a barra brilha (luz dourada em volta + reflexo passando) */
+  .home-emocao-barra-wrap.brilhando { box-shadow: 0 0 0 2px rgba(244,211,94,.55), 0 0 18px rgba(244,190,70,.55); animation: humorBrilhaPulso 2.4s ease-in-out infinite; }
+  @keyframes humorBrilhaPulso { 0%, 100% { box-shadow: 0 0 0 2px rgba(244,211,94,.45), 0 0 12px rgba(244,190,70,.4); } 50% { box-shadow: 0 0 0 2px rgba(244,211,94,.75), 0 0 22px rgba(244,190,70,.7); } }
+  .home-emocao-barra.cheia-brilha { position: relative; overflow: hidden; }
+  .home-emocao-barra.cheia-brilha::after { content: ''; position: absolute; left: 0; right: 0; height: 40%; top: 100%;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,.7), transparent); animation: humorReflexo 2.2s ease-in-out infinite; }
+  @keyframes humorReflexo { 0% { top: 100%; } 60%, 100% { top: -45%; } }
+
+  /* triste/ansiosa/brava cheio: a barra ferve — vermelha, tremendo de leve, com bolhinhas subindo */
+  .home-emocao-barra.cheia-ferve { background: #D2463A !important; position: relative;
+    background-image: radial-gradient(circle, rgba(255,255,255,.55) 0 2px, transparent 2.5px),
+                      radial-gradient(circle, rgba(255,255,255,.4) 0 1.5px, transparent 2px) !important;
+    /* !important: o style inline da barra usa 'background:' (atalho), que zeraria o tamanho das bolhas */
+    background-size: 14px 22px, 10px 16px !important; background-repeat: repeat !important;
+    animation: humorFerveBolhas 1.1s linear infinite, humorFerveTreme .18s ease-in-out infinite; }
+  @keyframes humorFerveBolhas { from { background-position: 3px 0, 8px 6px; } to { background-position: 3px -22px, 8px -26px; } }
+  @keyframes humorFerveTreme { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(.6px); } }
+
+  /* caixinha embaixo da barra */
+  .home-humor-cheio { margin: 10px 0 4px; padding: 12px 14px; border-radius: 18px; }
+  .home-humor-cheio.boa { background: color-mix(in srgb, #F4D35E 18%, var(--card)); border: 1px solid color-mix(in srgb, #F4D35E 45%, transparent); }
+  .home-humor-cheio.pesada { background: color-mix(in srgb, #D2463A 10%, var(--card)); border: 1px solid color-mix(in srgb, #D2463A 30%, transparent);
+    display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .home-humor-cheio-titulo { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.4; }
+  .home-humor-cheio-sub { font-size: 12px; color: var(--ink-dim); margin-top: 4px; }
+  .home-humor-cheio-linha { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+  .home-humor-cheio-linha input { flex: 1; min-width: 0; }
+
+  /* estrela dourada no calendário da semana */
+  .home-semana-dia { position: relative; }
+  .estrela-dourada { position: absolute; top: 12px; right: calc(50% - 19px); font-size: 11px; color: #E3B021;
+    text-shadow: 0 0 6px rgba(244,190,70,.8); line-height: 1; }

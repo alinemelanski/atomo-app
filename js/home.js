@@ -13,10 +13,32 @@ function renderHomeSemana() {
     const d = new Date(inicioSemana);
     d.setDate(inicioSemana.getDate() + i);
     const ehHoje = d.toDateString() === hoje.toDateString();
-    html += `<div class="home-semana-dia${ehHoje ? ' hoje' : ''}"><div class="rotulo">${dias[i]}</div><div class="numero">${d.getDate()}</div></div>`;
+    html += `<div class="home-semana-dia${ehHoje ? ' hoje' : ''}" data-dia="${d.toISOString().slice(0, 10)}"><div class="rotulo">${dias[i]}</div><div class="numero">${d.getDate()}</div></div>`;
   }
   const el = document.getElementById('homeSemanaRow');
   if (el) el.innerHTML = html;
+  marcarEstrelasDaSemana(inicioSemana);
+}
+
+// ESTRELA DOURADA: dia em que feliz ou calma chegou a 100% ganha uma estrelinha no calendário.
+// Não precisa de tabela nova: o humor de cada dia já fica salvo em humor_diario.
+async function marcarEstrelasDaSemana(inicioSemana) {
+  try {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (!sessionData || !sessionData.session) return;
+    const fim = new Date(inicioSemana); fim.setDate(fim.getDate() + 7);
+    const { data } = await supabaseClient.from('humor_diario').select('data, feliz, calma')
+      .eq('usuario_id', sessionData.session.user.id)
+      .gte('data', inicioSemana.toISOString().slice(0, 10)).lt('data', fim.toISOString().slice(0, 10));
+    (data || []).forEach(linha => {
+      if ((linha.feliz || 0) < 100 && (linha.calma || 0) < 100) return;
+      const dia = document.querySelector(`.home-semana-dia[data-dia="${linha.data}"]`);
+      if (dia && !dia.querySelector('.estrela-dourada')) {
+        dia.classList.add('com-estrela');
+        dia.insertAdjacentHTML('beforeend', '<span class="estrela-dourada" aria-label="dia de humor cheio">★</span>');
+      }
+    });
+  } catch (e) { /* sem rede: o calendário aparece sem as estrelas */ }
 }
 
 // humor do dia: cada bichinho que a pessoa toca (ou cada "diario rapido" bom que ela
@@ -76,7 +98,68 @@ async function renderHomeHumor(emocaoMudou) {
   }
   const tag = document.getElementById('homeHumorTag');
   if (tag) tag.textContent = 'hoje';
+  reagirHumorCheio(emocoes, emocaoMudou);
 }
+
+// ---------- humor em 100% ----------
+// feliz ou calma em 100%: a barra BRILHA, aparece "o que te fez feliz hoje?" (vai pra gratidão)
+//   e o dia ganha a estrela dourada no calendário.
+// triste, ansiosa ou brava em 100%: a barra FERVE (vermelha, com bolhinhas) e aparece uma
+//   frase acolhedora com atalho pro diário.
+const HUMORES_BONS = ['feliz', 'calma'];
+function chaveRespostaFeliz() { return 'atomo_feliz_resp_' + new Date().toISOString().slice(0, 10); }
+
+function reagirHumorCheio(emocoes, emocaoMudou) {
+  emocoes.forEach(e => {
+    const barra = document.getElementById('homeEmocaoBarra_' + e.nome);
+    if (!barra) return;
+    const cheia = e.pct >= 100;
+    const boa = HUMORES_BONS.includes(e.nome);
+    barra.classList.toggle('cheia-brilha', cheia && boa);
+    barra.classList.toggle('cheia-ferve', cheia && !boa);
+    if (barra.parentElement) barra.parentElement.classList.toggle('brilhando', cheia && boa);
+  });
+  const cheia = emocoes.find(e => e.pct >= 100);
+  const caixa = document.getElementById('homeHumorCheioMsg');
+  if (!caixa) return;
+  if (!cheia) { caixa.innerHTML = ''; caixa.style.display = 'none'; return; }
+  caixa.style.display = '';
+  if (HUMORES_BONS.includes(cheia.nome)) {
+    let jaRespondeu = false;
+    try { jaRespondeu = localStorage.getItem(chaveRespostaFeliz()) === '1'; } catch (e) { /* sem storage */ }
+    caixa.className = 'home-humor-cheio boa';
+    caixa.innerHTML = jaRespondeu
+      ? `<div class="home-humor-cheio-titulo">☀️ 100% ${cheia.nome} hoje</div><div class="home-humor-cheio-sub">guardado na sua gratidão, e o dia ganhou uma estrela ★</div>`
+      : `<div class="home-humor-cheio-titulo">☀️ 100% ${cheia.nome} hoje! O que te fez feliz?</div>
+         <div class="home-humor-cheio-linha">
+           <input type="text" id="homeFelizInput" class="busca-input" maxlength="200" placeholder="escreve em poucas palavras..." onkeydown="if(event.key==='Enter') salvarFelicidadeDoDia()" />
+           <button class="btn-acao btn-acao-terracota btn-mini" onclick="salvarFelicidadeDoDia()">guardar</button>
+         </div>`;
+    // chegou em 100% agora: a estrela aparece no calendário na hora
+    if (cheia.nome === emocaoMudou) renderHomeSemana();
+  } else {
+    caixa.className = 'home-humor-cheio pesada';
+    caixa.innerHTML = `<div class="home-humor-cheio-titulo">dia pesado? respira um pouco, tá tudo bem não estar bem.</div>
+      <button class="btn-acao btn-acao-contorno-salvia btn-mini" onclick="abrirPaginaDiario()">${icone('editar', 14)} escrever no diário</button>`;
+  }
+}
+
+// a resposta vira uma gratidão do dia (aparece no diário, como as outras)
+window.salvarFelicidadeDoDia = async function () {
+  const input = document.getElementById('homeFelizInput');
+  const texto = input ? input.value.trim() : '';
+  if (!texto) { mostrarToast('escreve o que te fez feliz'); return; }
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData || !sessionData.session) return;
+  const { error } = await supabaseClient.from('posts').insert({
+    autor_id: sessionData.session.user.id, texto, tipo: 'Gratidão do dia', privado: true,
+  });
+  if (error) { mostrarToast('❌ ' + error.message); return; }
+  try { localStorage.setItem(chaveRespostaFeliz(), '1'); } catch (e) { /* sem storage */ }
+  mostrarToast('☀️ guardado na sua gratidão');
+  renderHomeHumor();
+  if (typeof renderDiary === 'function') renderDiary();
+};
 
 const TODAS_EMOCOES = ['feliz', 'calma', 'triste', 'ansiosa', 'brava'];
 
@@ -114,6 +197,9 @@ async function somarPontoHumor(emocao, pontos) {
       });
     }
   }
+
+  // chegou a 100%: as outras zeram (o arredondamento da divisão acima às vezes deixava 1 ou 2 pontos sobrando)
+  if (novoValor >= 100) TODAS_EMOCOES.filter(e => e !== emocao).forEach(e => { payload[e] = 0; });
 
   const { error } = await supabaseClient
     .from('humor_diario')
