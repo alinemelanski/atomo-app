@@ -1419,6 +1419,17 @@
       <div class="marcacoes-lista" id="marcacoesLista"></div>
     </div>
 
+    <!-- POPUP: OUTRA SUGESTÃO DE FILME (um filme por vez) — feed.js -->
+    <div class="prazo-popup-overlay" id="filmeSugestaoOverlay" onclick="if (event.target === this) fecharSugestaoFilme()">
+      <div class="prazo-popup-card filme-sug-card" role="dialog" aria-label="Sugestão de filme">
+        <div id="filmeSugestaoConteudo"></div>
+        <div class="prazo-popup-acoes">
+          <button class="btn-acao btn-acao-contorno-salvia" style="flex:1;" id="filmeSugTrailerBtn" onclick="verTrailerSugestaoFilme()">ver trailer</button>
+          <button class="btn-acao btn-acao-terracota" style="flex:1;" onclick="proximaSugestaoFilme()">outra sugestão</button>
+        </div>
+      </div>
+    </div>
+
     <!-- POPUP: NOTA NO GRIFO -->
     <div class="prazo-popup-overlay" id="notaGrifoOverlay" onclick="if (event.target === this) fecharNotaGrifo()">
       <div class="prazo-popup-card" role="dialog" aria-labelledby="notaGrifoTitulo">

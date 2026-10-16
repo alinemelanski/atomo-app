@@ -556,6 +556,7 @@ function renderFeed() {
         ${p.imagem_url ? `<img src="${p.imagem_url}" class="post-foto-fixa" loading="lazy" />` : ''}
         ${p.video_url ? `<video src="${p.video_url}" data-auto-video muted loop playsinline preload="metadata" style="width:100%; border-radius:12px; margin-top:8px; display:block; background:#000;"></video>` : ''}
         ${renderRefCard(p.ref)}
+        ${p.ref && p.ref.tipo === 'Filme' && /^átomo$/i.test(p.autor || '') ? `<button class="btn-acao btn-acao-contorno-salvia btn-mini filme-outra-btn" onclick="abrirOutraSugestaoFilme(${Number(p.ref.filmeId) || 0})">${icone('atualizar', 14)} outra sugestão</button>` : ''}
         <div class="post-actions">
           <div class="post-action ${p.curtiu ? 'liked' : ''}${p.id === postRecemCurtidoId ? ' pulando' : ''}" onclick="curtirPost(${i}, event)">${icone('curtir',14,i)} ${p.likes}</div>
           <div class="post-action" onclick="abrirComentarios(${i})">${icone('comentar',14,i)} ${p.comentarios.length}</div>
@@ -799,6 +800,41 @@ async function avisarGrupo(grupo, grupoId, evento, texto) {
   } catch (e) { /* nunca atrapalha a ação principal */ }
 }
 window.avisarGrupo = avisarGrupo;
+
+// ---------- "outra sugestão" de filme (no post de sugestão do @Átomo) ----------
+// Mostra UM filme por vez num cartão com pôster grande; cada toque em "outra sugestão"
+// pede mais um ao servidor, pulando os que já apareceram.
+let filmesJaSugeridos = [];
+let filmeSugeridoAtual = null;
+window.abrirOutraSugestaoFilme = function (filmeDoPostId) {
+  filmesJaSugeridos = filmeDoPostId ? [filmeDoPostId] : [];
+  document.getElementById('filmeSugestaoOverlay').classList.add('show');
+  proximaSugestaoFilme();
+};
+window.fecharSugestaoFilme = function () { document.getElementById('filmeSugestaoOverlay').classList.remove('show'); };
+window.proximaSugestaoFilme = async function () {
+  const caixa = document.getElementById('filmeSugestaoConteudo');
+  caixa.innerHTML = `<div class="visitor-lock-note">procurando um filme…</div>`;
+  try {
+    const resp = await fetch(`${API_BASE}/api/filme-outra-sugestao?genero=53&excluir=${filmesJaSugeridos.join(',')}`);
+    const f = await resp.json();
+    if (!resp.ok) { caixa.innerHTML = `<div class="visitor-lock-note">${f.erro || 'não consegui buscar agora'}</div>`; return; }
+    filmesJaSugeridos.push(f.id);
+    filmeSugeridoAtual = f;
+    const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    caixa.innerHTML = `
+      <div class="filme-sug-poster" ${f.poster ? `style="background-image:url('${f.poster}');"` : ''}>${f.poster ? '' : '🎬'}</div>
+      <div class="filme-sug-titulo">${esc(f.titulo)}</div>
+      <div class="filme-sug-meta">${[f.ano, f.nota ? '⭐ ' + f.nota : null, 'suspense'].filter(Boolean).join(' · ')}</div>
+      ${f.sinopse ? `<div class="filme-sug-sinopse">${esc(f.sinopse)}</div>` : ''}`;
+    document.getElementById('filmeSugTrailerBtn').disabled = !f.trailer;
+  } catch (e) {
+    caixa.innerHTML = `<div class="visitor-lock-note">o servidor não respondeu — tenta de novo em instantes</div>`;
+  }
+};
+window.verTrailerSugestaoFilme = function () {
+  if (filmeSugeridoAtual && filmeSugeridoAtual.trailer) abrirTrailerPopup(filmeSugeridoAtual.trailer, 'Filme');
+};
 
 // id do post que acabou de ser curtido: só ele recebe a classe "pulando" no próximo desenho da lista
 let postRecemCurtidoId = null;

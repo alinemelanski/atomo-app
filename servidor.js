@@ -1533,13 +1533,43 @@ async function rodarCronSugestaoFilme(req, res) {
   const generoId = req.query.genero || '53'; // 53 = suspense/thriller no TMDB
   const generoLabel = req.query.generoLabel || 'suspense';
   const forcar = req.query.forcar === 'true' || req.query.forcar === '1';
-  const quantidade = Math.max(1, Math.min(5, parseInt(req.query.quantidade, 10) || 1));
+  // SEMPRE 1 filme por post (pedido da Aline): mesmo que o agendador mande ?quantidade=3,
+  // o post sai com um filme só. Quem quiser mais toca em "outra sugestão" no próprio post.
+  const quantidade = 1;
 
   const resultado = await postarSugestaoFilmeDoDia(generoId, generoLabel, forcar, quantidade);
   res.json(resultado);
 }
 
 app.get('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
+
+// "outra sugestão": devolve UM filme do gênero, sorteado entre os bem avaliados,
+// pulando os que a pessoa já viu nessa sequência (?excluir=1,2,3). Não posta nada.
+app.get('/api/filme-outra-sugestao', async (req, res) => {
+  if (!process.env.TMDB_API_KEY_V3) return res.status(500).json({ erro: 'TMDB não configurado' });
+  try {
+    const generoId = /^\d+$/.test(req.query.genero || '') ? req.query.genero : '53';
+    const excluir = String(req.query.excluir || '').split(',').map(Number).filter(n => !isNaN(n) && n > 0);
+    // sorteia uma página (1 a 5) pra não repetir sempre os mesmos do topo
+    const pagina = 1 + Math.floor(Math.random() * 5);
+    const resposta = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`);
+    const dados = await resposta.json();
+    const opcoes = (dados.results || []).filter(f => !excluir.includes(f.id));
+    if (!opcoes.length) return res.status(404).json({ erro: 'acabaram as sugestões por agora' });
+    const f = opcoes[Math.floor(Math.random() * opcoes.length)];
+    res.json({
+      id: f.id,
+      titulo: f.title,
+      ano: f.release_date ? f.release_date.slice(0, 4) : '',
+      nota: f.vote_average ? f.vote_average.toFixed(1) : null,
+      sinopse: f.overview || '',
+      poster: f.poster_path ? `https://image.tmdb.org/t/p/w500${f.poster_path}` : null,
+      trailer: await buscarTrailerParaSugestao(f.id),
+    });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
 app.post('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
 
 // troca 1 filme específico (por título/trecho) dentro do ÚLTIMO post de lista

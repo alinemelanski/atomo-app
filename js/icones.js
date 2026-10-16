@@ -13,6 +13,7 @@ const ICONE_SVG = {
   buscar: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/>',
   lixeira: '<path d="M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13"/><path d="M10 11v5M14 11v5"/>',
   editar: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+  atualizar: '<path d="M19.5 8A8 8 0 0 0 5 9.5"/><path d="M4.5 16A8 8 0 0 0 19 14.5"/><path d="M19.5 4v4h-4M4.5 20v-4h4"/>',
   enviar: '<path d="M4 12l16-7-6 16-2.5-6.5z"/>',
   compartilhar: '<path d="M7 17L17 7"/><path d="M9 7h8v8"/>',
   convite: '<rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M4 7l8 6 8-6"/>',
