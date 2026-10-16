@@ -107,6 +107,21 @@ async function renderHomeHumor(emocaoMudou) {
 // triste, ansiosa ou brava em 100%: a barra FERVE (vermelha, com bolhinhas) e aparece uma
 //   frase acolhedora com atalho pro diário.
 const HUMORES_BONS = ['feliz', 'calma'];
+
+// Cria as bolhas da barra "fervendo". Cada uma ganha valores sorteados (tamanho, lugar,
+// atraso, velocidade, balanço) — é isso que faz parecer líquido de verdade, e não um padrão repetido.
+// Só cria uma vez: se a barra já tem bolhas, não mexe (senão a animação recomeçaria a cada toque).
+function colocarBolhasFervendo(barra) {
+  if (barra.querySelector('.bolha-ferve')) return;
+  const sorteio = (min, max) => min + Math.random() * (max - min);
+  let html = '';
+  for (let n = 0; n < 14; n++) {
+    const tamanho = sorteio(4, 11).toFixed(1);
+    html += `<span class="bolha-ferve" style="--x:${sorteio(8, 78).toFixed(0)}%; --t:${tamanho}px; ` +
+      `--d:${sorteio(0, 2.4).toFixed(2)}s; --dur:${sorteio(1.6, 2.8).toFixed(2)}s; --balanco:${sorteio(-5, 5).toFixed(1)}px;"></span>`;
+  }
+  barra.insertAdjacentHTML('beforeend', html);
+}
 function chaveRespostaFeliz() { return 'atomo_feliz_resp_' + new Date().toISOString().slice(0, 10); }
 
 function reagirHumorCheio(emocoes, emocaoMudou) {
@@ -118,6 +133,8 @@ function reagirHumorCheio(emocoes, emocaoMudou) {
     barra.classList.toggle('cheia-brilha', cheia && boa);
     barra.classList.toggle('cheia-ferve', cheia && !boa);
     if (barra.parentElement) barra.parentElement.classList.toggle('brilhando', cheia && boa);
+    if (cheia && !boa) colocarBolhasFervendo(barra);
+    else barra.querySelectorAll('.bolha-ferve').forEach(b => b.remove());
   });
   const cheia = emocoes.find(e => e.pct >= 100);
   const caixa = document.getElementById('homeHumorCheioMsg');

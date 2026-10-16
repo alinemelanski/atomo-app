@@ -79,15 +79,46 @@
     background: linear-gradient(180deg, transparent, rgba(255,255,255,.7), transparent); animation: humorReflexo 2.2s ease-in-out infinite; }
   @keyframes humorReflexo { 0% { top: 100%; } 60%, 100% { top: -45%; } }
 
-  /* triste/ansiosa/brava cheio: a barra ferve — vermelha, tremendo de leve, com bolhinhas subindo */
-  .home-emocao-barra.cheia-ferve { background: #D2463A !important; position: relative;
-    background-image: radial-gradient(circle, rgba(255,255,255,.55) 0 2px, transparent 2.5px),
-                      radial-gradient(circle, rgba(255,255,255,.4) 0 1.5px, transparent 2px) !important;
-    /* !important: o style inline da barra usa 'background:' (atalho), que zeraria o tamanho das bolhas */
-    background-size: 14px 22px, 10px 16px !important; background-repeat: repeat !important;
-    animation: humorFerveBolhas 1.1s linear infinite, humorFerveTreme .18s ease-in-out infinite; }
-  @keyframes humorFerveBolhas { from { background-position: 3px 0, 8px 6px; } to { background-position: 3px -22px, 8px -26px; } }
-  @keyframes humorFerveTreme { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(.6px); } }
+  /* triste/ansiosa/brava cheio: a barra vira um "líquido fervendo" — vermelho com profundidade
+     (mais escuro no fundo, mais claro na superfície) e bolhas de verdade subindo.
+     As bolhas são <span class="bolha-ferve"> criadas pelo home.js, cada uma com tamanho,
+     posição e velocidade sorteados (variáveis --x, --t, --d, --dur, --balanco). */
+  .home-emocao-barra.cheia-ferve { position: relative; overflow: hidden;
+    /* !important: o style inline da barra usa 'background:' (atalho) e ganharia sem ele */
+    background: linear-gradient(180deg, #E8665A 0%, #D2463A 35%, #A9302A 100%) !important;
+    box-shadow: inset 0 -10px 18px rgba(90,15,10,.35), inset 0 3px 6px rgba(255,255,255,.25);
+    animation: humorFerveRespira 2.6s ease-in-out infinite; }
+  /* superfície: um brilho mexendo no topo, como água agitada */
+  .home-emocao-barra.cheia-ferve::before { content: ''; position: absolute; left: -20%; right: -20%; top: 0; height: 14px;
+    background: radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.45), transparent 60%),
+                radial-gradient(ellipse at 75% 0%, rgba(255,255,255,.3), transparent 55%);
+    animation: humorFerveSuperficie 1.4s ease-in-out infinite alternate; pointer-events: none; }
+  @keyframes humorFerveSuperficie { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+  @keyframes humorFerveRespira { 0%, 100% { filter: saturate(1); } 50% { filter: saturate(1.15) brightness(1.04); } }
+
+  /* cada bolha: um anelzinho translúcido com reflexo de luz em cima à esquerda */
+  .bolha-ferve { position: absolute; bottom: -12px; left: var(--x); width: var(--t); height: var(--t); border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.9) 0 14%, rgba(255,255,255,.18) 15% 55%, rgba(255,255,255,.05) 56%);
+    border: 1px solid rgba(255,255,255,.6); box-shadow: 0 0 3px rgba(255,220,210,.35);
+    opacity: 0; pointer-events: none;
+    animation: bolhaSobe var(--dur) cubic-bezier(.45,.05,.7,.9) var(--d) infinite; }
+  /* sobe balançando de um lado pro outro, cresce um pouco e "estoura" (aumenta e some) perto do topo */
+  @keyframes bolhaSobe {
+    0%   { transform: translate(0, 0) scale(.5); opacity: 0; }
+    10%  { opacity: .95; }
+    30%  { transform: translate(var(--balanco), -30cqh) scale(.75); }
+    55%  { transform: translate(calc(var(--balanco) * -1), -58cqh) scale(.9); }
+    82%  { transform: translate(var(--balanco), -86cqh) scale(1); opacity: .9; }
+    92%  { transform: translate(0, -96cqh) scale(1.35); opacity: .5; }
+    100% { transform: translate(0, -100cqh) scale(1.6); opacity: 0; }
+  }
+  /* cqh = % da altura da barra (a barra é um "container"), assim a bolha sobe a barra inteira, seja qual for a altura */
+  .home-emocao-barra.cheia-ferve { container-type: size; }
+  /* quem pediu menos movimento no celular não vê bolhas mexendo */
+  @media (prefers-reduced-motion: reduce) {
+    .home-emocao-barra.cheia-ferve, .home-emocao-barra.cheia-ferve::before, .bolha-ferve { animation: none; }
+    .bolha-ferve { opacity: .6; bottom: 30%; }
+  }
 
   /* caixinha embaixo da barra */
   .home-humor-cheio { margin: 10px 0 4px; padding: 12px 14px; border-radius: 18px; }
