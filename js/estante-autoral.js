@@ -191,7 +191,21 @@ window.abrirLivroAutoralDetalhe = async function (i) {
   const media = notas.length ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(1) : null;
   const preco = (d.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
   const cor = CORES_LOMBADA_ESTANTE[i % CORES_LOMBADA_ESTANTE.length];
-  const botaoAcao = souAutor ? '' : (jaComprou
+  // quem escreveu não compra o próprio livro: no lugar do botão de comprar, um painel da autora
+  // (preço de venda + ler o próprio livro + editar). Sem ele ficava um vazio na tela.
+  const painelAutora = `
+      <div class="autoral-painel-autora">
+        <div class="autoral-painel-autora-topo">
+          <span class="autoral-painel-autora-selo">${icone('editar', 14)} este livro é seu</span>
+          <span class="autoral-preco-tag">R$ ${preco}</span>
+        </div>
+        <div class="autoral-painel-autora-dica">é assim que os leitores veem seu livro na Loja.</div>
+        <div class="autoral-painel-autora-botoes">
+          <button class="btn-acao btn-acao-salvia" onclick="lerLivroComprado(${d.id})">${icone('livro', 18)} ler meu livro</button>
+          <button class="btn-acao btn-acao-contorno-salvia" onclick="editarLivroAutoralPeloDetalhe()">${icone('editar', 16)} editar</button>
+        </div>
+      </div>`;
+  const botaoAcao = souAutor ? painelAutora : (jaComprou
     ? `<button class="btn-acao btn-acao-salvia" style="width:100%; margin-bottom:10px;" onclick="lerLivroComprado(${d.id})">${icone('livro', 18)} ler agora</button>`
     : `<button class="post-btn" style="width:100%; margin-bottom:10px;" onclick="comprarLivroAutoral(${d.id})">comprar por R$ ${preco}</button>`);
 
@@ -319,8 +333,19 @@ async function renderAvaliacoesLivroAutoral(livroId) {
   const { data } = await supabaseClient.from('avaliacoes_autorais').select('nota, comentario, criado_em, usuarios(handle)').eq('livro_id', livroId).order('criado_em', { ascending: false });
   wrap.innerHTML = (data && data.length)
     ? data.map(a => `<div class="autoral-avaliacao-row"><span class="autoral-avaliacao-nota">⭐ ${a.nota}</span> @${a.usuarios ? a.usuarios.handle : 'alguém'}${a.comentario ? ` — ${a.comentario}` : ''}</div>`).join('')
-    : '';
+    : `<div class="autoral-avaliacoes-vazio">${icone('estrela', 16)} ainda sem avaliações</div>`;
 }
+
+// Do detalhe da Loja direto pra tela de editar (a tela de editar trabalha com a lista "meus livros")
+window.editarLivroAutoralPeloDetalhe = function () {
+  const d = window.LIVRO_AUTORAL_ATUAL;
+  if (!d) return;
+  window.MEUS_LIVROS_AUTORAIS = window.MEUS_LIVROS_AUTORAIS || [];
+  let i = window.MEUS_LIVROS_AUTORAIS.findIndex(x => x.id === d.id);
+  if (i < 0) { window.MEUS_LIVROS_AUTORAIS.push(d); i = window.MEUS_LIVROS_AUTORAIS.length - 1; }
+  closeOverlay('livroAutoralDetalheOverlay');
+  abrirEditarLivroAutoral(i);
+};
 
 window.comprarLivroAutoral = async function (livroId) {
   const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -347,7 +372,21 @@ window.lerLivroComprado = async function (livroId) {
   showScreen2('livros');
   if (typeof trocarModoLivros === 'function') trocarModoLivros('estante');
   await renderEstante(); // garante que a compra já entrou na estante
-  const i = (window.ITENS_ESTANTE_ATUAIS || []).findIndex(x => Number(x.livro_autoral_id) === Number(livroId));
+  let i = (window.ITENS_ESTANTE_ATUAIS || []).findIndex(x => Number(x.livro_autoral_id) === Number(livroId));
+  // a autora lendo o próprio livro: ele não veio de compra, então entra na estante dela agora
+  // (o servidor deixa a autora pegar o arquivo, igual a quem comprou)
+  const d = window.LIVRO_AUTORAL_ATUAL;
+  if (i < 0 && d && Number(d.id) === Number(livroId)) {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    if (sessionData.session && sessionData.session.user.id === d.autor_id) {
+      await supabaseClient.from('estante_pessoal').insert({
+        usuario_id: d.autor_id, titulo: d.titulo, autor: d.usuarios ? '@' + d.usuarios.handle : null,
+        capa_url: d.capa_url || null, arquivo_path: d.arquivo_path || 'loja', livro_autoral_id: d.id,
+      });
+      await renderEstante();
+      i = (window.ITENS_ESTANTE_ATUAIS || []).findIndex(x => Number(x.livro_autoral_id) === Number(livroId));
+    }
+  }
   if (i >= 0) abrirLeitorEpub(i);
   else mostrarToast('o livro está chegando na sua estante — tenta de novo em instantes');
 };
