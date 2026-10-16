@@ -52,6 +52,7 @@ const STATIC_ASSETS = [
   './js/mencoes-previas.js',
   './js/conexoes.js',
   './js/sequencia-selos.js',
+  './js/roda-tempo.js',
   './js/home.js',
   './js/radio.js',
   './js/perfil.js',

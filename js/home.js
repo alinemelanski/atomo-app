@@ -522,20 +522,60 @@ window.removerItemChecklist = async function (id) {
 
 window.TEMPO_PICKER_MIN = 7 * 60;
 
-function renderTempoPicker() {
+// ---------- escolher horário com a RODA (js/roda-tempo.js) ----------
+// minutos de 5 em 5 (00, 05, 10...): mais rápido de achar e suficiente pra lembrete
+const MINUTOS_RODA = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+let rodaHora = null, rodaMin = null, rodaHoraFormato12 = null;
+
+function montarRodasTempo() {
+  // a roda das horas muda conforme o formato (24h: 00–23 · 12h: 12, 01–11 + AM/PM)
+  if (rodaHora && rodaHoraFormato12 === formatoHora12h) return;
+  rodaHoraFormato12 = formatoHora12h;
+  const horas = formatoHora12h
+    ? ['12', ...Array.from({ length: 11 }, (_, i) => String(i + 1).padStart(2, '0'))]
+    : Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  rodaHora = criarRodaTempo(document.getElementById('rodaTempoHora'), {
+    valores: horas,
+    aoMudar: (i) => {
+      const tarde = Math.floor(window.TEMPO_PICKER_MIN / 60) >= 12;
+      const h24 = formatoHora12h ? (i % 12) + (tarde ? 12 : 0) : i;
+      window.TEMPO_PICKER_MIN = h24 * 60 + (window.TEMPO_PICKER_MIN % 60);
+      atualizarCampoTempo();
+    },
+  });
+  if (!rodaMin) {
+    rodaMin = criarRodaTempo(document.getElementById('rodaTempoMin'), {
+      valores: MINUTOS_RODA,
+      aoMudar: (i) => {
+        window.TEMPO_PICKER_MIN = Math.floor(window.TEMPO_PICKER_MIN / 60) * 60 + i * 5;
+        atualizarCampoTempo();
+      },
+    });
+  }
+}
+
+function atualizarCampoTempo() {
   const h24 = Math.floor(window.TEMPO_PICKER_MIN / 60);
   const m = window.TEMPO_PICKER_MIN % 60;
   const pillAmPm = document.getElementById('tempoPickerAmPm');
-  if (formatoHora12h) {
-    let h12 = h24 % 12; if (h12 === 0) h12 = 12;
-    document.getElementById('tempoPickerHoraNum').textContent = String(h12).padStart(2, '0');
-    if (pillAmPm) { pillAmPm.style.display = 'flex'; pillAmPm.textContent = h24 < 12 ? 'AM' : 'PM'; }
-  } else {
-    document.getElementById('tempoPickerHoraNum').textContent = String(h24).padStart(2, '0');
-    if (pillAmPm) pillAmPm.style.display = 'none';
+  if (pillAmPm) {
+    pillAmPm.style.display = formatoHora12h ? 'flex' : 'none';
+    pillAmPm.textContent = h24 < 12 ? 'AM' : 'PM';
   }
-  document.getElementById('tempoPickerMinNum').textContent = String(m).padStart(2, '0');
   document.getElementById('checklistLembreteInput').value = String(h24).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+function renderTempoPicker() {
+  // arredonda pro múltiplo de 5 mais perto (a roda dos minutos anda de 5 em 5)
+  window.TEMPO_PICKER_MIN = (Math.round(window.TEMPO_PICKER_MIN / 5) * 5) % 1440;
+  montarRodasTempo();
+  atualizarCampoTempo();
+  const h24 = Math.floor(window.TEMPO_PICKER_MIN / 60);
+  // posiciona as rodas DEPOIS que a janelinha aparece na tela (escondida, a rolagem não funciona)
+  requestAnimationFrame(() => {
+    rodaHora.irPara(formatoHora12h ? h24 % 12 : h24);
+    rodaMin.irPara((window.TEMPO_PICKER_MIN % 60) / 5);
+  });
 }
 
 window.alternarAmPm = function () {

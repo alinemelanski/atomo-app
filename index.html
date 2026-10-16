@@ -876,18 +876,12 @@
       <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('checklistLembreteOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
     </div>
     <div id="lembretePickerDesc" style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin:-2px 0 10px;">o app avisa nesse horário até você marcar como feito.</div>
+    <!-- horário escolhido por RODA DE ROLAGEM (js/roda-tempo.js), não mais por setinhas -->
     <div class="tempo-picker">
-      <div class="tempo-picker-col">
-        <button class="tempo-picker-btn" onclick="ajustarTempoPicker('h',1)"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V7"/><path d="M8 11l4-4 4 4"/></svg></span></button>
-        <div class="tempo-picker-num" id="tempoPickerHoraNum">07</div>
-        <button class="tempo-picker-btn" onclick="ajustarTempoPicker('h',-1)"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13"/><path d="M8 13l4 4 4-4"/></svg></span></button>
-      </div>
+      <div class="tempo-picker-faixa" aria-hidden="true"></div>
+      <div id="rodaTempoHora" aria-label="Hora"></div>
       <div class="tempo-picker-sep">:</div>
-      <div class="tempo-picker-col">
-        <button class="tempo-picker-btn" onclick="ajustarTempoPicker('m',1)"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V7"/><path d="M8 11l4-4 4 4"/></svg></span></button>
-        <div class="tempo-picker-num" id="tempoPickerMinNum">00</div>
-        <button class="tempo-picker-btn" onclick="ajustarTempoPicker('m',-1)"><span class="icon-svg" style="width:15px;height:15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13"/><path d="M8 13l4 4 4-4"/></svg></span></button>
-      </div>
+      <div id="rodaTempoMin" aria-label="Minutos"></div>
       <div class="tempo-picker-ampm" id="tempoPickerAmPm" onclick="alternarAmPm()" style="display:none;">AM</div>
     </div>
     <input type="hidden" id="checklistLembreteInput" />
@@ -1882,6 +1876,7 @@
 <script src="js/mencoes-previas.js"></script>
 <script src="js/conexoes.js"></script>
 <script src="js/sequencia-selos.js"></script>
+<script src="js/roda-tempo.js"></script>
 <script src="js/home.js"></script>
 <script src="js/radio.js"></script>
 <script src="js/perfil.js"></script>

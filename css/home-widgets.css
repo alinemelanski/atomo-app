@@ -141,3 +141,21 @@
   .home-resumo-conselho-p { font-size: 11.5px; line-height: 1.45; color: var(--ink); opacity: .6; margin-top: 6px; font-style: italic; }
   .home-resumo-fecho { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--card-b); font-size: 13px; line-height: 1.55;
     font-style: italic; color: var(--ink); text-align: center; }
+
+  /* ---------- RODA DE ROLAGEM do horário (js/roda-tempo.js) ---------- */
+  .tempo-picker { position: relative; gap: 6px; }
+  /* faixa clarinha atrás do número escolhido, de ponta a ponta */
+  .tempo-picker-faixa { position: absolute; left: 8px; right: 8px; top: 50%; height: 40px; transform: translateY(-50%);
+    border-radius: 12px; background: color-mix(in srgb, var(--salvia) 16%, var(--card)); pointer-events: none; }
+  .roda-tempo { position: relative; z-index: 1; width: 64px; height: 200px; overflow-y: scroll;
+    scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    /* as pontas somem suavemente, como uma roda */
+    -webkit-mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+    mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent); }
+  .roda-tempo::-webkit-scrollbar { display: none; }
+  .roda-trilho { padding: 80px 0; } /* (200 - 40) / 2: deixa o 1º e o último número conseguirem ficar no meio */
+  .roda-item { height: 40px; line-height: 40px; text-align: center; scroll-snap-align: center; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 26px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums;
+    transition: opacity .08s linear; user-select: none; -webkit-user-select: none; }
+  .tempo-picker .tempo-picker-sep { position: relative; z-index: 1; }
+  .tempo-picker .tempo-picker-ampm { position: relative; z-index: 1; margin-left: 6px; }

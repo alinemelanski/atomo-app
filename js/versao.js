@@ -11,4 +11,4 @@
 
    Este arquivo roda em DOIS lugares: na página (window) e no service worker (self).
    Por isso usa "self", que existe nos dois. */
-self.VERSAO_APP = '0.9.3';
+self.VERSAO_APP = '0.9.4';
