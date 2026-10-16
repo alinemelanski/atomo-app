@@ -467,6 +467,24 @@ function desenharGradeGratidao() {
   });
 }
 
+// Os 3 formatos da grade ficam RECOLHIDOS num ícone só (o formato em uso).
+// Tocar nele estende uma barrinha com os 3; escolher um recolhe de novo —
+// o mesmo jeito da busca de amigos e do disco de vinil.
+window.tocarLayoutGratidao = function (n) {
+  const barra = document.getElementById('gratidaoLayouts');
+  if (!barra.classList.contains('aberto')) {
+    barra.classList.add('aberto'); // estava recolhida: só abre (mesmo tocando no que já estava escolhido)
+    return;
+  }
+  escolherLayoutGratidao(n);
+  barra.classList.remove('aberto');
+};
+// tocar fora da barrinha recolhe ela
+document.addEventListener('click', (e) => {
+  const barra = document.getElementById('gratidaoLayouts');
+  if (barra && barra.classList.contains('aberto') && !barra.contains(e.target)) barra.classList.remove('aberto');
+});
+
 window.escolherLayoutGratidao = function (n) {
   layoutGratidao = n;
   desenharGradeGratidao();

@@ -283,3 +283,15 @@
   #btnSalvarQuickGratidao { max-width: 280px; align-self: center; }
   /* assinatura à mão no canto inferior direito de toda folha (fora da área que rola) */
   .folha-assinatura-rodape { flex:none; display:flex; justify-content:flex-end; padding-top:6px; }
+
+  /* ---------- formatos da grade: recolhidos num ícone só, que se estende ---------- */
+  /* recolhida: aparece só o botão do formato em uso, pequeno e discreto */
+  .gratidao-layouts { align-self: center; gap: 0; padding: 3px; border-radius: 999px; background: var(--card); border: 1px solid var(--card-b);
+    transition: gap .3s ease; }
+  .gratidao-layouts .gratidao-layout-btn { width: 40px; height: 32px; border: none; background: transparent; padding: 0 !important; flex: none;
+    transition: max-width .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease, transform .15s ease, background .2s ease; max-width: 40px; overflow: hidden; }
+  .gratidao-layouts:not(.aberto) .gratidao-layout-btn:not(.on) { max-width: 0; opacity: 0; padding: 0; pointer-events: none; }
+  .gratidao-layouts:not(.aberto) .gratidao-layout-btn.on { background: transparent; }
+  /* aberta: a barrinha se estende e mostra os 3; o escolhido fica marcado em sálvia */
+  .gratidao-layouts.aberto { gap: 4px; }
+  .gratidao-layouts.aberto .gratidao-layout-btn.on { background: color-mix(in srgb, var(--accent-b) 16%, var(--card)); }
