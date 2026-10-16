@@ -156,3 +156,11 @@
     font-family:'DM Sans', sans-serif; font-size:11.5px; font-weight:800; color: var(--ink-faint); transition: background .2s ease, color .2s ease, transform .15s ease; }
   .idioma-pilula:active { transform: scale(.94); }
   .idioma-pilula.on { background: var(--accent-a); color:#fff; }
+
+  /* aviso "tem versão nova" — pílula sálvia no topo, discreta */
+  .aviso-versao-nova { position: absolute; left: 50%; top: calc(14px + env(safe-area-inset-top)); z-index: 99;
+    transform: translate(-50%, -140%); opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; border: none; cursor: pointer;
+    background: var(--salvia); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    box-shadow: 0 8px 22px rgba(0,0,0,.18); white-space: nowrap; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
+  .aviso-versao-nova.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }

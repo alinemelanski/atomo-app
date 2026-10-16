@@ -1419,6 +1419,12 @@
       <div class="marcacoes-lista" id="marcacoesLista"></div>
     </div>
 
+    <!-- AVISO: VERSÃO NOVA DISPONÍVEL (aparece quando o app foi atualizado com ele aberto) -->
+    <button class="aviso-versao-nova" id="avisoVersaoNova" onclick="location.reload()">
+      <span class="icon-svg" style="width:16px;height:16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 8A8 8 0 0 0 5 9.5"/><path d="M4.5 16A8 8 0 0 0 19 14.5"/><path d="M19.5 4v4h-4M4.5 20v-4h4"/></svg></span>
+      tem versão nova — toque para atualizar
+    </button>
+
     <!-- POPUP: OUTRA SUGESTÃO DE FILME (um filme por vez) — feed.js -->
     <div class="prazo-popup-overlay" id="filmeSugestaoOverlay" onclick="if (event.target === this) fecharSugestaoFilme()">
       <div class="prazo-popup-card filme-sug-card" role="dialog" aria-label="Sugestão de filme">
@@ -1771,7 +1777,7 @@
         <div style="text-align:center; margin-top:14px;">
           <a href="termos.html" download style="font-size:11px; color:var(--ink-faint); text-decoration:underline;">Termos de Uso e Política de Privacidade</a>
         </div>
-        <div class="config-version">Átomo · versão 0.1 (Beta)</div>
+        <div class="config-version" id="configVersao">Átomo</div>
       </div>
     </div>
 
@@ -1842,6 +1848,7 @@
   </div>
 
 <!-- JavaScript do app: arquivos em js/, carregados nesta ordem (a ordem importa) -->
+<script src="js/versao.js"></script>
 <script src="js/config.js"></script>
 <script src="js/registro-erros.js"></script>
 <script src="js/i18n.js"></script>
@@ -1893,7 +1900,18 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(err => console.log('service worker não registrou:', err.message));
     });
+    // VERSÃO NOVA: quando um service worker novo assume (porque a versão subiu),
+    // a página aberta ainda está com o código antigo na memória. Em vez de recarregar
+    // sozinho no meio do que a pessoa está fazendo, mostra um aviso pra ela tocar.
+    const jaTinhaControle = !!navigator.serviceWorker.controller; // false na 1ª visita: aí não avisa
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!jaTinhaControle) return;
+      const aviso = document.getElementById('avisoVersaoNova');
+      if (aviso) aviso.classList.add('show');
+    });
   }
+  // Configurações: "Átomo · versão 0.9.0" (vem de js/versao.js)
+  document.getElementById('configVersao').textContent = 'Átomo · versão ' + (self.VERSAO_APP || '');
 
   // ---------- deep-link de notificação push ----------
   // lê tipo/post_id/ator_id (seja da URL com que o app abriu, seja da mensagem

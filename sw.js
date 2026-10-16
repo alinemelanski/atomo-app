@@ -3,7 +3,10 @@
 // toda hora); só usa o cache se o celular estiver offline. Nunca mexe em chamadas
 // pra fora (Supabase, TMDB, etc.) — essas passam direto pela rede.
 
-const CACHE_NAME = 'atomo-v49';
+// a versão mora em js/versao.js; o nome do cache vem dela (ex.: atomo-0.9.0).
+// Subiu a versão lá → o cache muda → o celular baixa os arquivos novos.
+importScripts('./js/versao.js');
+const CACHE_NAME = 'atomo-' + self.VERSAO_APP;
 const STATIC_ASSETS = [
   './index.html',
   './manifest.json',
@@ -31,6 +34,7 @@ const STATIC_ASSETS = [
   './css/etimologia.css',
   './css/radio-humor.css',
   './css/home-widgets.css',
+  './js/versao.js',
   './js/config.js',
   './js/registro-erros.js',
   './js/i18n.js',
