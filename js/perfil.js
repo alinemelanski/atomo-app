@@ -92,9 +92,28 @@ function mostrarProximoPacoteSelo() {
   document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
   document.getElementById('seloPacoteNome').textContent = selo.nome;
   document.getElementById('seloPacoteFrase').textContent = selo.frase || 'Uma semana inteira escrevendo.';
+  document.getElementById('seloPacoteKicker').textContent = 'novo selo';
+  document.getElementById('seloPacoteBotao').textContent = 'guardar na estante de selos';
   overlay.classList.remove('aberto'); // volta pro pacotinho fechado
   overlay.classList.add('show');
 }
+
+// Tocar num selo que você JÁ tem: abre o mesmo pacotinho pra desembrulhar de novo.
+// Muda só os textos ("seu selo" / "fechar") — o resto (papel abrindo, brilho, vibração) é igual.
+window.reabrirPacoteSelo = function (selo) {
+  if (!selo) return;
+  filaSelosNovos = [];   // não é uma fila de selos novos: é um só, pra rever
+  totalSelosNaFila = 1;
+  const overlay = document.getElementById('seloPacoteOverlay');
+  document.getElementById('seloPacoteContador').textContent = '';
+  document.getElementById('seloPacoteImagem').innerHTML = conteudoSelo(selo);
+  document.getElementById('seloPacoteNome').textContent = selo.nome;
+  document.getElementById('seloPacoteFrase').textContent = selo.frase || '';
+  document.getElementById('seloPacoteKicker').textContent = 'seu selo';
+  document.getElementById('seloPacoteBotao').textContent = 'fechar';
+  overlay.classList.remove('aberto');
+  overlay.classList.add('show');
+};
 
 window.desembrulharSelo = function () {
   const overlay = document.getElementById('seloPacoteOverlay');

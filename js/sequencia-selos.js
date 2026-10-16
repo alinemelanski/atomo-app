@@ -174,6 +174,8 @@ const ICONE_CADEADO_SELO = '<div class="selo-lock-pin"><svg viewBox="0 0 24 24" 
 
 window.abrirSeloIndividual = function (nome) {
 const selo = SELOS.find(s => s.nome === nome);
+// selo da coleção também vem embrulhado: abre o pacotinho de papel kraft (perfil.js)
+if (typeof reabrirPacoteSelo === 'function') { reabrirPacoteSelo(selo); return; }
 const svgEl = document.getElementById('seloIndividualSvg');
 svgEl.innerHTML = conteudoSelo(selo);
 svgEl.classList.remove('abrindo');
@@ -196,7 +198,7 @@ window.abrirColecaoSelos = function () {
   document.getElementById('selosGrid').innerHTML = SELOS.map((s, i) => {
     const desbloqueado = seloDesbloqueado(i, semanasCompletas);
     return `<div class="selo-item ${desbloqueado ? '' : 'bloqueado'}">
-        <div class="selo-circulo">${conteudoSelo(s)}</div>
+        <div class="selo-circulo"${desbloqueado ? ` onclick="abrirSeloIndividual('${s.nome}')"` : ''}>${conteudoSelo(s)}</div>
         ${desbloqueado ? '' : ICONE_CADEADO_SELO}
         <div class="selo-nome">${s.nome}</div>
       </div>`;
