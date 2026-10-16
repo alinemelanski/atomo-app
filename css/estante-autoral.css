@@ -72,3 +72,17 @@
     font-size: 15px; line-height: 1.5; }
   #autoralDescricaoInput::placeholder, #autoralEditarSinopse::placeholder { color: #9A9184; }
   .autoral-sinopse { background: #FBF6EC; color: #2C2925; border: 1px solid #E5DDD1; border-radius: 16px; padding: 12px 14px; }
+
+/* ---------- dedicatória da autora ---------- */
+.autoral-dedicatoria-input { font-family: 'Caveat', cursive; font-size: 19px; }
+.dedicatoria-card { max-width: 340px; text-align: center; }
+.dedicatoria-kicker { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+.dedicatoria-texto { font-family: 'Caveat', cursive; font-size: 27px; line-height: 1.2; color: var(--ink); margin-bottom: 8px; }
+.dedicatoria-assinatura { font-family: 'Caveat', cursive; font-size: 20px; color: var(--terracota, #D07B60); margin-bottom: 18px; }
+
+/* ---------- estrelas do "avaliar ao terminar" ---------- */
+.avaliar-estrelas { display: flex; justify-content: center; gap: 4px; }
+.avaliar-estrela { background: none; border: 0; padding: 2px; cursor: pointer; color: var(--ink-faint); transition: transform .15s; }
+.avaliar-estrela .icon-svg svg { fill: none; }
+.avaliar-estrela.on { color: #E0A93B; transform: scale(1.08); }
+.avaliar-estrela.on .icon-svg svg { fill: #E0A93B; }

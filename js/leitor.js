@@ -60,6 +60,8 @@ window.abrirLeitorEpub = async function (i) {
 
     leitorEpubAtual = { book, rendition, item, inicioSessao: Date.now(), selecaoAtual: null };
     prepararMarcacoesEpub(); // pinta os grifos salvos e acerta a fitinha do marcador (marcacoes.js)
+    // livro da Loja aberto pela 1ª vez: mostra a dedicatória da autora (se ela escreveu uma)
+    if (item.livro_autoral_id && typeof mostrarDedicatoriaSePrecisar === 'function') mostrarDedicatoriaSePrecisar(item.livro_autoral_id);
 
     rendition.on('relocated', (loc) => {
       const temLocations = book.locations && book.locations.length();
@@ -117,7 +119,11 @@ function salvarProgressoEpub(cfi, pct) {
     }
     leitorEpubAtual.item.progresso_percentual = pct;
     registrarLeituraHoje();
-    if (acabouDeTerminar) document.getElementById('livroConcluidoOverlay').classList.add('open');
+    if (acabouDeTerminar) {
+      // livro da Loja: aproveita o momento pra pedir a avaliação (ajuda a autora); os outros, a comemoração de sempre
+      if (leitorEpubAtual.item.livro_autoral_id && typeof pedirAvaliacaoAoTerminar === 'function') pedirAvaliacaoAoTerminar(leitorEpubAtual.item.livro_autoral_id);
+      else document.getElementById('livroConcluidoOverlay').classList.add('open');
+    }
   }, 1500);
 }
 

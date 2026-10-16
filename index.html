@@ -903,6 +903,31 @@
   </div>
 </div>
 
+<!-- OVERLAY: DEDICATÓRIA DA AUTORA (1ª vez que abre um livro comprado na Loja) -->
+<div class="composer-glass-bg" id="dedicatoriaOverlay" onclick="if(event.target===this) closeOverlay('dedicatoriaOverlay')">
+  <div class="composer-glass-card dedicatoria-card">
+    <div class="dedicatoria-kicker">uma palavra da autora</div>
+    <div class="dedicatoria-texto" id="dedicatoriaTexto"></div>
+    <div class="dedicatoria-assinatura" id="dedicatoriaAssinatura"></div>
+    <button class="btn-acao btn-acao-salvia" style="width:100%;" onclick="closeOverlay('dedicatoriaOverlay')">começar a ler</button>
+  </div>
+</div>
+
+<!-- OVERLAY: AVALIAR AO TERMINAR um livro da Loja (no lugar do "você terminou!") -->
+<div class="composer-glass-bg" id="avaliarAoTerminarOverlay" onclick="if(event.target===this) closeOverlay('avaliarAoTerminarOverlay')">
+  <div class="composer-glass-card" style="max-width:340px; text-align:center;">
+    <div style="font-size:38px; margin-bottom:4px;">🎉</div>
+    <h2 style="margin-bottom:6px;">Você terminou!</h2>
+    <div style="font-family:'Nunito', sans-serif; font-size:12.5px; color:var(--ink-dim); margin-bottom:12px; line-height:1.55;">quantas estrelas <b id="avaliarAoTerminarTitulo"></b> merece? sua avaliação é anônima e ajuda a autora.</div>
+    <div class="avaliar-estrelas" id="avaliarAoTerminarEstrelas"></div>
+    <textarea id="avaliarAoTerminarComentario" class="busca-input" style="width:100%; min-height:54px; margin:10px 0;" placeholder="um comentário (opcional)" maxlength="1000"></textarea>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-acao btn-acao-contorno-salvia" style="flex:1;" onclick="closeOverlay('avaliarAoTerminarOverlay')">agora não</button>
+      <button class="btn-acao btn-acao-terracota" style="flex:1;" onclick="enviarAvaliacaoAoTerminar()">enviar</button>
+    </div>
+  </div>
+</div>
+
 <!-- OVERLAY: SUPORTE E FEEDBACK -->
 <div class="composer-glass-bg" id="feedbackOverlay" onclick="if(event.target===this) closeOverlay('feedbackOverlay')">
   <div class="composer-glass-card" style="max-width:400px;">
@@ -1195,6 +1220,8 @@
         <div id="autoralWalletEnvioWrap"></div>
         <input type="text" id="autoralTituloInput" class="busca-input" style="width:100%; margin-bottom:10px;" placeholder="título do livro" />
         <textarea id="autoralDescricaoInput" class="busca-input" style="width:100%; min-height:110px; margin-bottom:10px;" placeholder="sinopse: do que o livro fala? (opcional)" maxlength="3000"></textarea>
+        <!-- dedicatória: quem comprar vê essa frase uma vez, ao abrir o livro pela primeira vez -->
+        <textarea id="autoralDedicatoriaInput" class="busca-input autoral-dedicatoria-input" style="width:100%; min-height:64px; margin-bottom:10px;" placeholder="dedicatória pra quem comprar (opcional) — ex: obrigada por levar minha história pra casa" maxlength="280"></textarea>
         <div class="autoral-campo-rotulo">Categorias <span class="autoral-campo-dica">(até 2)</span></div>
         <div class="autoral-categorias" id="autoralCategoriasEnvio"></div>
         <input type="text" id="autoralPrecoInput" class="busca-input" style="width:100%; margin-bottom:6px;" placeholder="preço simbólico (ex: 5,00)" inputmode="decimal" />
@@ -1244,6 +1271,8 @@
         <div class="autoral-categorias" id="autoralEditarCategorias"></div>
         <div class="autoral-campo-rotulo">Sinopse</div>
         <textarea id="autoralEditarSinopse" class="busca-input" style="width:100%; min-height:150px; margin-bottom:8px;" placeholder="do que o livro fala?" maxlength="3000"></textarea>
+        <div class="autoral-campo-rotulo">Dedicatória <span class="autoral-campo-dica">(quem comprar vê ao abrir o livro)</span></div>
+        <textarea id="autoralEditarDedicatoria" class="busca-input autoral-dedicatoria-input" style="width:100%; min-height:64px; margin-bottom:8px;" placeholder="uma frase sua pra quem comprar (opcional)" maxlength="280"></textarea>
         <div class="autoral-dica-preco" style="margin-bottom:14px;">título, preço e arquivo não mudam por aqui.</div>
         <button class="btn-acao btn-acao-terracota" style="width:100%;" onclick="salvarEdicaoLivroAutoral()">salvar</button>
       </div>

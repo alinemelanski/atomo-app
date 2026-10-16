@@ -242,9 +242,11 @@ window.filtrarEstante = function (v) { filtroEstante = v; desenharEstante(); };
 
 // capa: a imagem do livro, ou uma "capa de papel" com o título em letra de livro
 function capaEstanteHtml(d, classe) {
+  // livro comprado na Loja ganha uma fitinha terracota no canto, pra diferenciar dos epubs que você subiu
+  const fita = d.livro_autoral_id ? `<span class="fita-loja" aria-label="comprado na Loja">Loja</span>` : '';
   return d.capa_url
-    ? `<div class="${classe}" style="background-image:url('${d.capa_url}');"></div>`
-    : `<div class="${classe} capa-papel"><span class="capa-papel-titulo">${d.titulo}</span>${d.autor ? `<span class="capa-papel-autor">${d.autor}</span>` : ''}</div>`;
+    ? `<div class="${classe}${fita ? ' com-fita-loja' : ''}" style="background-image:url('${d.capa_url}');">${fita}</div>`
+    : `<div class="${classe} capa-papel${fita ? ' com-fita-loja' : ''}"><span class="capa-papel-titulo">${d.titulo}</span>${d.autor ? `<span class="capa-papel-autor">${d.autor}</span>` : ''}${fita}</div>`;
 }
 
 function barraProgressoHtml(pct) {

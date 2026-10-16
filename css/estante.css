@@ -225,3 +225,12 @@
   .kindle-balao ol { margin: 0 0 8px; padding-left: 20px; font-family: 'Nunito', sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--ink-dim); }
   .kindle-balao li { margin-bottom: 3px; }
   .kindle-balao p { margin: 0; font-family: 'Nunito', sans-serif; font-size: 12px; line-height: 1.5; color: var(--ink-faint); }
+
+/* ---------- fitinha "Loja" na capa dos livros comprados ----------
+   uma faixa terracota atravessada no canto de cima; overflow:hidden corta as pontas */
+.com-fita-loja { position: relative; overflow: hidden; }
+.fita-loja { position: absolute; top: 7px; right: -20px; width: 66px; transform: rotate(45deg);
+  background: var(--terracota, #D07B60); color: #fff; text-align: center;
+  font-family: 'DM Sans', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 0; box-shadow: 0 1px 3px rgba(0,0,0,.18); pointer-events: none; }
+.estante-continuar-capa .fita-loja { top: 12px; right: -22px; width: 84px; font-size: 9px; padding: 3px 0; }

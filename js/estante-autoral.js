@@ -232,13 +232,23 @@ window.escolherNotaAutoral = function (n) {
 window.enviarAvaliacaoAutoral = async function () {
   if (!notaAutoralEscolhida) { mostrarToast('escolhe uma nota de 1 a 5'); return; }
   const d = window.LIVRO_AUTORAL_ATUAL;
+  const comentario = document.getElementById('autoralComentarioInput').value.trim();
+  const ok = await gravarAvaliacaoAutoral(d, notaAutoralEscolhida, comentario);
+  if (!ok) return;
+  notaAutoralEscolhida = 0;
+  renderAvaliacoesLivroAutoral(d.id);
+};
+
+// Grava a avaliação e avisa a autora (sem dizer quem foi). Usada na Loja E no fim do livro.
+// d = { id, titulo, autor_id }
+async function gravarAvaliacaoAutoral(d, nota, comentario) {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   const usuarioId = sessionData.session.user.id;
-  const comentario = document.getElementById('autoralComentarioInput').value.trim();
   const { error } = await supabaseClient.from('avaliacoes_autorais').upsert({
-    livro_id: d.id, usuario_id: usuarioId, nota: notaAutoralEscolhida, comentario: comentario || null,
+    livro_id: d.id, usuario_id: usuarioId, nota, comentario: comentario || null,
   }, { onConflict: 'livro_id,usuario_id' });
-  if (error) { mostrarToast('❌ erro: ' + error.message); return; }
+  if (error) { mostrarToast('❌ erro: ' + error.message); return false; }
+  const notaAutoralEscolhida = nota; // (o texto do aviso abaixo usa esse nome)
   if (d.autor_id && d.autor_id !== usuarioId) {
     // ator_id fica vazio de propósito: quem avalia continua anônimo pro autor
     supabaseClient.from('notificacoes').insert({
@@ -251,8 +261,56 @@ window.enviarAvaliacaoAutoral = async function () {
     }).catch(() => {});
   }
   mostrarToast('⭐ avaliação enviada');
-  notaAutoralEscolhida = 0;
-  renderAvaliacoesLivroAutoral(d.id);
+  return true;
+}
+
+// ---------- dedicatória: aparece UMA vez, na primeira vez que quem comprou abre o livro ----------
+// (o "já vi" fica guardado no aparelho; se apagar os dados do app, ela aparece de novo — sem problema)
+window.mostrarDedicatoriaSePrecisar = async function (livroAutoralId) {
+  const chave = 'atomo-dedicatoria-vista-' + livroAutoralId;
+  try { if (localStorage.getItem(chave)) return; } catch (e) {}
+  const { data: livro } = await supabaseClient.from('livros_autorais').select('dedicatoria, usuarios(handle)').eq('id', livroAutoralId).maybeSingle();
+  if (!livro || !livro.dedicatoria) return;
+  document.getElementById('dedicatoriaTexto').textContent = '“' + livro.dedicatoria + '”';
+  document.getElementById('dedicatoriaAssinatura').textContent = '— @' + (livro.usuarios ? livro.usuarios.handle : 'a autora');
+  document.getElementById('dedicatoriaOverlay').classList.add('open');
+  try { localStorage.setItem(chave, '1'); } catch (e) {}
+};
+
+// ---------- terminou um livro da Loja: pede a avaliação (se ainda não avaliou) ----------
+let livroAvaliandoAoTerminar = null;
+let notaAoTerminar = 0;
+window.pedirAvaliacaoAoTerminar = async function (livroAutoralId) {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const meuId = sessionData.session && sessionData.session.user.id;
+  const [{ data: livro }, { data: jaAvaliei }] = await Promise.all([
+    supabaseClient.from('livros_autorais').select('id, titulo, autor_id').eq('id', livroAutoralId).maybeSingle(),
+    supabaseClient.from('avaliacoes_autorais').select('nota').eq('livro_id', livroAutoralId).eq('usuario_id', meuId).maybeSingle(),
+  ]);
+  // já avaliou (ou não achou o livro): mostra a comemoração de sempre
+  if (!livro || jaAvaliei) { document.getElementById('livroConcluidoOverlay').classList.add('open'); return; }
+  livroAvaliandoAoTerminar = livro;
+  notaAoTerminar = 0;
+  document.getElementById('avaliarAoTerminarTitulo').textContent = livro.titulo;
+  document.getElementById('avaliarAoTerminarComentario').value = '';
+  desenharEstrelasAoTerminar();
+  document.getElementById('avaliarAoTerminarOverlay').classList.add('open');
+};
+
+function desenharEstrelasAoTerminar() {
+  document.getElementById('avaliarAoTerminarEstrelas').innerHTML = [1, 2, 3, 4, 5].map(n =>
+    `<button class="avaliar-estrela${n <= notaAoTerminar ? ' on' : ''}" aria-label="${n} estrela${n > 1 ? 's' : ''}" onclick="escolherNotaAoTerminar(${n})">${icone('estrela', 30)}</button>`).join('');
+}
+window.escolherNotaAoTerminar = function (n) {
+  notaAoTerminar = n;
+  desenharEstrelasAoTerminar();
+  if (navigator.vibrate) navigator.vibrate(8);
+};
+window.enviarAvaliacaoAoTerminar = async function () {
+  if (!notaAoTerminar) { mostrarToast('toca nas estrelas pra dar a nota'); return; }
+  const comentario = document.getElementById('avaliarAoTerminarComentario').value.trim();
+  const ok = await gravarAvaliacaoAutoral(livroAvaliandoAoTerminar, notaAoTerminar, comentario);
+  if (ok) closeOverlay('avaliarAoTerminarOverlay');
 };
 
 async function renderAvaliacoesLivroAutoral(livroId) {
@@ -484,6 +542,7 @@ window.enviarLivroAutoral = async function (confirmado) {
     autor_id: usuarioId,
     titulo,
     descricao: descricao || null,
+    dedicatoria: document.getElementById('autoralDedicatoriaInput').value.trim() || null,
     preco_centavos: preco,
     capa_url: capaUrl,
     arquivo_path: caminhoEpub,
@@ -500,6 +559,11 @@ window.enviarLivroAutoral = async function (confirmado) {
   // mesma ideia pra "categoria" (sql/sql_pendente_loja_categoria.sql ainda não rodado)
   if (error && /categoria/.test(error.message)) {
     delete novoLivro.categoria;
+    ({ error } = await supabaseClient.from('livros_autorais').insert(novoLivro));
+  }
+  // e pra "dedicatoria" (sql/sql_pendente_loja_dedicatoria.sql ainda não rodado)
+  if (error && /dedicatoria/.test(error.message)) {
+    delete novoLivro.dedicatoria;
     ({ error } = await supabaseClient.from('livros_autorais').insert(novoLivro));
   }
 
@@ -574,7 +638,7 @@ function cardMeuLivroAutoralHtml(d, i) {
         </div>
         ${d.categoria ? `<div class="autoral-categoria-linha" style="margin-top:6px;">${etiquetasCategoriaHtml(d)}</div>` : ''}
         ${d.status === 'recusado' && d.motivo_recusa ? `<div class="autoral-motivo">motivo: ${d.motivo_recusa}</div><button class="post-btn" style="margin-top:8px;" onclick="reenviarLivroAutoral(${d.id})">corrigir e reenviar</button>` : ''}
-        <button class="btn-acao btn-acao-contorno-salvia btn-mini" style="margin-top:10px;" onclick="abrirEditarLivroAutoral(${i})">${icone('editar', 14)} editar sinopse, categoria e capa</button>
+        <button class="btn-acao btn-acao-contorno-salvia btn-mini" style="margin-top:10px;" onclick="abrirEditarLivroAutoral(${i})">${icone('editar', 14)} editar sinopse, dedicatória, categoria e capa</button>
       </div>`;
 }
 
@@ -587,6 +651,7 @@ window.abrirEditarLivroAutoral = function (i) {
   arquivoCapaEdicaoAutoral = null;
   document.getElementById('autoralEditarTitulo').textContent = d.titulo;
   document.getElementById('autoralEditarSinopse').value = d.descricao || '';
+  document.getElementById('autoralEditarDedicatoria').value = d.dedicatoria || '';
   document.getElementById('autoralEditarCategorias').innerHTML = chipsCategoriasHtml(categoriasEdicaoAutoral, 'escolherCategoriaEdicaoAutoral');
   const capa = document.getElementById('autoralEditarCapaPreview');
   capa.style.backgroundImage = d.capa_url ? `url('${d.capa_url}')` : '';
@@ -617,7 +682,7 @@ window.salvarEdicaoLivroAutoral = async function () {
   if (!sessionData.session) return;
   mostrarToast('salvando...');
 
-  const corpo = { livroId: livroAutoralEditandoId, descricao: document.getElementById('autoralEditarSinopse').value, categoria: juntarCategorias(categoriasEdicaoAutoral) };
+  const corpo = { livroId: livroAutoralEditandoId, descricao: document.getElementById('autoralEditarSinopse').value, dedicatoria: document.getElementById('autoralEditarDedicatoria').value, categoria: juntarCategorias(categoriasEdicaoAutoral) };
   if (arquivoCapaEdicaoAutoral) {
     const capaUrl = await subirCapaAutoral(sessionData.session.user.id, arquivoCapaEdicaoAutoral);
     if (!capaUrl) { mostrarToast('❌ não consegui subir a capa'); return; }

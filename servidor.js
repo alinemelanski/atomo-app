@@ -548,10 +548,16 @@ app.post('/api/estante-autoral/editar', async (req, res) => {
   if (!supabaseAdmin) return res.status(500).json({ erro: 'não configurado' });
   const usuario = await usuarioDoToken(req);
   if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
-  const { livroId, descricao, categoria, capaUrl } = req.body || {};
+  const { livroId, descricao, categoria, capaUrl, dedicatoria } = req.body || {};
   if (!livroId) return res.status(400).json({ erro: 'faltou livroId' });
 
   const patch = {};
+  if (dedicatoria !== undefined) {
+    // frase curta da autora pra quem comprou (aparece 1x, ao abrir o livro pela primeira vez)
+    const frase = String(dedicatoria || '').trim();
+    if (frase.length > 280) return res.status(400).json({ erro: 'a dedicatória pode ter até 280 letras' });
+    patch.dedicatoria = frase || null;
+  }
   if (descricao !== undefined) {
     const texto = String(descricao || '').trim();
     if (texto.length > 3000) return res.status(400).json({ erro: 'a sinopse pode ter até 3000 letras' });
