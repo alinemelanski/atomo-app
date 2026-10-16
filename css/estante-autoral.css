@@ -86,3 +86,16 @@
 .avaliar-estrela .icon-svg svg { fill: none; }
 .avaliar-estrela.on { color: #E0A93B; transform: scale(1.08); }
 .avaliar-estrela.on .icon-svg svg { fill: #E0A93B; }
+
+/* ---------- painel da autora (no detalhe do próprio livro, no lugar do "comprar") ---------- */
+.autoral-painel-autora { background: color-mix(in srgb, var(--salvia, #869B83) 12%, #FBF6EC); border: 1px solid color-mix(in srgb, var(--salvia, #869B83) 35%, transparent);
+  border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+.autoral-painel-autora-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.autoral-painel-autora-selo { display: inline-flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--salvia, #869B83); }
+.autoral-painel-autora-dica { font-size: 12px; color: var(--ink-dim); margin: 6px 0 12px; }
+/* dois botões lado a lado sempre com a mesma largura */
+.autoral-painel-autora-botoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.autoral-painel-autora-botoes .btn-acao { width: 100%; }
+
+.autoral-avaliacoes-vazio { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; margin-top: 4px;
+  border: 1px dashed var(--card-b); border-radius: 14px; font-size: 12.5px; color: var(--ink-faint); }
