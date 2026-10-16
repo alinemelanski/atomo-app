@@ -1360,10 +1360,18 @@
         <button class="back-btn" onclick="fecharLeitorEpub()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="leitorEpubTitulo">Lendo</h2>
         <span id="leitorEpubProgresso" style="margin-left:auto; font-size:12px; color:var(--ink-faint);">0%</span>
+        <button class="btn-icone leitor-topo-btn fita-marcador" id="fitaMarcadorEpub" aria-label="Marcar esta página" aria-pressed="false" onclick="alternarMarcador()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg></span></button>
+        <button class="btn-icone leitor-topo-btn" aria-label="Marcações deste livro" onclick="abrirMarcacoes()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg></span></button>
       </div>
       <div id="epubViewerContainer" style="flex:1; overflow:hidden; position:relative;"></div>
-      <div id="grifarBarra" style="display:none; align-items:center; justify-content:center; gap:8px; padding:8px 4px;">
-        <button class="livro-link-externo" style="margin:0;" onclick="grifarSelecaoAtual()">🖍️ grifar esse trecho</button>
+      <div id="grifarBarra" class="grifar-barra" style="display:none;" role="toolbar" aria-label="Grifar trecho">
+        <button class="grifar-cor" style="background:#F4D35E;" aria-label="Grifar de amarelo" onmousedown="event.preventDefault()" onclick="grifarComCor('amarelo')"></button>
+        <button class="grifar-cor" style="background:#A9C4A4;" aria-label="Grifar de sálvia" onmousedown="event.preventDefault()" onclick="grifarComCor('salvia')"></button>
+        <button class="grifar-cor" style="background:#E8A48C;" aria-label="Grifar de terracota" onmousedown="event.preventDefault()" onclick="grifarComCor('terracota')"></button>
+        <button class="grifar-cor" style="background:#C9B6E4;" aria-label="Grifar de lilás" onmousedown="event.preventDefault()" onclick="grifarComCor('lilas')"></button>
+        <span class="grifar-sep"></span>
+        <button class="btn-icone btn-icone-mini" aria-label="Grifar com nota" onmousedown="event.preventDefault()" onclick="abrirNotaGrifo()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/></svg></span></button>
+        <button class="btn-icone btn-icone-mini" aria-label="Grifar e compartilhar" onmousedown="event.preventDefault()" onclick="grifarECompartilhar()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v6h14v-6"/></svg></span></button>
       </div>
       <div style="display:flex; justify-content:space-between; padding:10px 4px; gap:10px;">
         <button class="post-btn" style="flex:1;" onclick="paginaAnteriorEpub()">← anterior</button>
@@ -1377,10 +1385,50 @@
         <button class="back-btn" onclick="fecharLeitorLivro()"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.1s;animation-delay:0.88s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
         <h2 style="font-size:16px;" id="leitorLivroTitulo">Lendo</h2>
         <span id="leitorLivroProgresso" style="margin-left:auto; font-size:12px; color:var(--ink-faint);"></span>
+        <button class="btn-icone leitor-topo-btn fita-marcador" id="fitaMarcadorLivro" aria-label="Marcar esta página" aria-pressed="false" onclick="alternarMarcador()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6.5 3.5h11v17l-5.5-4-5.5 4z"/></svg></span></button>
+        <button class="btn-icone leitor-topo-btn" aria-label="Marcações deste livro" onclick="abrirMarcacoes()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></svg></span></button>
       </div>
       <div class="leitor-livro-barra"><div class="leitor-livro-barra-preenchida" id="leitorLivroBarra"></div></div>
       <div class="leitor-livro-area" id="leitorLivroArea">
         <div class="leitor-livro-pagina" id="leitorLivroPagina"></div>
+      </div>
+      <div id="grifarBarraLivro" class="grifar-barra" style="display:none;" role="toolbar" aria-label="Grifar trecho">
+        <button class="grifar-cor" style="background:#F4D35E;" aria-label="Grifar de amarelo" onmousedown="event.preventDefault()" onclick="grifarComCor('amarelo')"></button>
+        <button class="grifar-cor" style="background:#A9C4A4;" aria-label="Grifar de sálvia" onmousedown="event.preventDefault()" onclick="grifarComCor('salvia')"></button>
+        <button class="grifar-cor" style="background:#E8A48C;" aria-label="Grifar de terracota" onmousedown="event.preventDefault()" onclick="grifarComCor('terracota')"></button>
+        <button class="grifar-cor" style="background:#C9B6E4;" aria-label="Grifar de lilás" onmousedown="event.preventDefault()" onclick="grifarComCor('lilas')"></button>
+        <span class="grifar-sep"></span>
+        <button class="btn-icone btn-icone-mini" aria-label="Grifar com nota" onmousedown="event.preventDefault()" onclick="abrirNotaGrifo()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/></svg></span></button>
+        <button class="btn-icone btn-icone-mini" aria-label="Grifar e compartilhar" onmousedown="event.preventDefault()" onclick="grifarECompartilhar()"><span class="icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v6h14v-6"/></svg></span></button>
+      </div>
+    </div>
+
+    <!-- OVERLAY: MARCAÇÕES DO LIVRO (grifos + marcadores) — js/marcacoes.js -->
+    <div class="dm-chat-overlay" id="marcacoesOverlay">
+      <div class="dm-chat-header">
+        <button class="back-btn" aria-label="Voltar pro livro" onclick="closeOverlay('marcacoesOverlay')"><span class="icon-svg" style="width:17px;height:17px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span></button>
+        <div style="flex:1; min-width:0;">
+          <h2 style="font-size:16px; font-family:'Fraunces', serif; margin:0;">Marcações</h2>
+          <div id="marcacoesLivroTitulo" style="font-size:12px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
+        </div>
+      </div>
+      <div class="marcacoes-abas" role="tablist">
+        <button class="marcacoes-aba ativo" role="tab" data-aba="grifos" aria-selected="true" onclick="trocarAbaMarcacoes('grifos')">Grifos <span id="marcacoesContaGrifos">0</span></button>
+        <button class="marcacoes-aba" role="tab" data-aba="marcadores" aria-selected="false" onclick="trocarAbaMarcacoes('marcadores')">Marcadores <span id="marcacoesContaMarcadores">0</span></button>
+      </div>
+      <div class="marcacoes-lista" id="marcacoesLista"></div>
+    </div>
+
+    <!-- POPUP: NOTA NO GRIFO -->
+    <div class="prazo-popup-overlay" id="notaGrifoOverlay" onclick="if (event.target === this) fecharNotaGrifo()">
+      <div class="prazo-popup-card" role="dialog" aria-labelledby="notaGrifoTitulo">
+        <div class="prazo-popup-titulo" id="notaGrifoTitulo">Nota no grifo</div>
+        <div class="nota-grifo-trecho" id="notaGrifoTrecho"></div>
+        <textarea id="notaGrifoInput" class="busca-input nota-grifo-input" maxlength="500" placeholder="o que esse trecho te fez pensar?"></textarea>
+        <div class="prazo-popup-acoes">
+          <button class="btn-acao btn-acao-contorno-salvia" style="flex:1;" onclick="fecharNotaGrifo()">cancelar</button>
+          <button class="btn-acao btn-acao-terracota" style="flex:1;" onclick="salvarNotaGrifo()">grifar</button>
+        </div>
       </div>
     </div>
 
@@ -1814,6 +1862,7 @@
 <script src="js/estante-autoral.js"></script>
 <script src="js/cartoes.js"></script>
 <script src="js/leitor.js"></script>
+<script src="js/marcacoes.js"></script>
 <script src="js/descobrir-itens.js"></script>
 <script src="js/tema-chat.js"></script>
 <script src="js/mensagens.js"></script>

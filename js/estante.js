@@ -463,8 +463,9 @@ async function renderDestaques() {
         <span class="destaques-livro-conta">${g.itens.length}</span>
       </div>
       ${g.itens.map(({ d, i }) => `
-        <figure class="destaque-card">
+        <figure class="destaque-card"${d.cor && window.CORES_GRIFO ? ` style="border-left:4px solid ${CORES_GRIFO[d.cor] || 'transparent'};"` : ''}>
           <blockquote>${d.texto}</blockquote>
+          ${d.nota ? `<figcaption class="destaque-nota">${icone('editar', 12)} ${d.nota}</figcaption>` : ''}
           <div class="destaque-acoes">
             <button class="btn-icone btn-icone-mini" onclick="compartilharDestaque(${i})" aria-label="Virar cartão de citação">${icone('compartilhar', 14)}</button>
             <button class="btn-icone btn-icone-mini terracota" onclick="apagarDestaque(${i})" aria-label="Apagar destaque">${icone('lixeira', 14)}</button>

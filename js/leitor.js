@@ -44,6 +44,7 @@ window.abrirLeitorEpub = async function (i) {
     await rendition.display(item.ultima_posicao || undefined);
 
     leitorEpubAtual = { book, rendition, item, inicioSessao: Date.now(), selecaoAtual: null };
+    prepararMarcacoesEpub(); // pinta os grifos salvos e acerta a fitinha do marcador (marcacoes.js)
 
     rendition.on('relocated', (loc) => {
       const temLocations = book.locations && book.locations.length();
@@ -56,6 +57,7 @@ window.abrirLeitorEpub = async function (i) {
         const paginaAtual = book.locations.locationFromCfi(loc.start.cfi) + 1;
         registrarProgressoPaginas(paginaAtual);
       }
+      atualizarFitaMarcador(); // mudou de página: a fitinha mostra se ESTA página está marcada
     });
 
     // seleção de texto na página — mostra a barrinha de "grifar"
@@ -64,6 +66,8 @@ window.abrirLeitorEpub = async function (i) {
       const barra = document.getElementById('grifarBarra');
       if (textoSelecionado && textoSelecionado.length > 3) {
         leitorEpubAtual.selecaoAtual = textoSelecionado;
+        leitorEpubAtual.selecaoCfi = cfiRange;       // endereço do trecho, pra pintar e voltar nele depois
+        leitorEpubAtual.selecaoContents = contents;  // pra limpar a seleção depois de grifar
         barra.style.display = 'flex';
       } else {
         barra.style.display = 'none';
@@ -136,33 +140,7 @@ registrarEventoApp('leu'); // métrica: "leu hoje" (1 vez por dia)
   }
 }
 
-// ---------- grifar: marca o trecho selecionado e abre a tela de criar citação já preenchida ----------
-window.grifarSelecaoAtual = async function () {
-  if (!leitorEpubAtual || !leitorEpubAtual.selecaoAtual) return;
-  const texto = leitorEpubAtual.selecaoAtual;
-  const item = leitorEpubAtual.item;
-
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  if (sessionData.session) {
-    await supabaseClient.from('grifos_livro').insert({
-      usuario_id: sessionData.session.user.id,
-      estante_id: item.id,
-      livro_titulo: item.titulo,
-      livro_autor: item.autor || null,
-      texto,
-    });
-  }
-
-  document.getElementById('grifarBarra').style.display = 'none';
-  document.getElementById('citacaoTextoInput').value = texto;
-  document.getElementById('citacaoTituloInput').value = item.titulo || '';
-  document.getElementById('citacaoAutorInput').value = item.autor || '';
-  window.CITACAO_CLUBE_ID = null;
-  mostrarPreviaCitacao(false);
-  document.getElementById('citacaoAcoes').style.display = 'none';
-  document.getElementById('citacaoCartaoOverlay').classList.add('open');
-  mostrarToast('🖍️ grifado — agora é só compartilhar a citação');
-};
+// grifar e marcador de página: ficam em js/marcacoes.js
 
 window.paginaAnteriorEpub = function () { if (leitorEpubAtual) leitorEpubAtual.rendition.prev(); };
 window.proximaPaginaEpub = function () { if (leitorEpubAtual) leitorEpubAtual.rendition.next(); };
@@ -234,8 +212,9 @@ window.abrirLeitorLivroGutendex = async function (i) {
       document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">${dados.erro || 'Não consegui carregar esse livro agora.'}</div>`;
       return;
     }
-    leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now() };
+    leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now(), chave: 'gutendex:' + item.gutendexId };
     renderPaginaLivroAtual();
+    prepararMarcacoesLivro(); // grifos e marcadores desse livro (marcacoes.js)
     registrarLeituraHoje();
   } catch (e) {
     document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Não consegui carregar esse livro agora — tenta de novo em instantes.</div>`;
@@ -260,8 +239,9 @@ window.abrirLeitorLivroWikisource = async function (i) {
       document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">${dados.erro || 'Não consegui carregar esse texto agora.'}</div>`;
       return;
     }
-    leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now() };
+    leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now(), chave: 'wikisource:' + item.wikisourceTitulo };
     renderPaginaLivroAtual();
+    prepararMarcacoesLivro();
     registrarLeituraHoje();
   } catch (e) {
     document.getElementById('leitorLivroPagina').innerHTML = `<div class="visitor-lock-note">Não consegui carregar esse texto agora — tenta de novo em instantes.</div>`;
@@ -305,8 +285,9 @@ window.abrirLeitorLivroArquivo = async function (i) {
       closeOverlay('leitorLivroOverlay');
       return false;
     }
-    leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now() };
+    leitorLivroAtual = { paginas: paginarTextoLivro(dados.texto), paginaIdx: 0, item, inicioSessao: Date.now(), chave: 'archive:' + item.iaId };
     renderPaginaLivroAtual();
+    prepararMarcacoesLivro();
     registrarLeituraHoje();
     return true;
   } catch (e) {
@@ -319,7 +300,10 @@ function renderPaginaLivroAtual() {
   if (!leitorLivroAtual) return;
   const { paginas, paginaIdx } = leitorLivroAtual;
   const pagEl = document.getElementById('leitorLivroPagina');
-  pagEl.textContent = paginas[paginaIdx] || '';
+  desenharPaginaComGrifos(pagEl, paginas[paginaIdx] || '', paginaIdx); // texto + grifos pintados (marcacoes.js)
+  atualizarFitaMarcador();
+  const barraGrifar = document.getElementById('grifarBarraLivro');
+  if (barraGrifar) barraGrifar.style.display = 'none';
   pagEl.scrollTop = 0;
   pagEl.style.animation = 'none';
   void pagEl.offsetWidth;
