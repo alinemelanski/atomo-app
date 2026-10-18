@@ -1025,7 +1025,11 @@ app.get('/api/admin/metricas', async (req, res) => {
       contar('posts'),
       contar('posts', q => q.gte('criado_em', seteDiasAtras)),
       contar('push_subscriptions'),
-      contar('usuarios', q => q.eq('notif_ativado', true)),
+      // antes contava quem tem a chave "Notificações" ligada em Configurações — que já vem
+      // ligada pra todo mundo, então o número era sempre igual ao total de contas (enganava).
+      // Agora conta PESSOAS com pelo menos um aparelho inscrito de verdade.
+      supabaseAdmin.from('push_subscriptions').select('usuario_id')
+        .then(({ data }) => new Set((data || []).map((x) => x.usuario_id)).size),
     ]);
 
     // usuários ativos = quem postou algo nos últimos 7 dias (contagem de autores únicos)

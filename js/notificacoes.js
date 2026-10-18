@@ -106,10 +106,22 @@ window.iniciarBoasVindas = function (jaViuGuia) {
   setTimeout(() => quandoTelaLivre(() => abrirGuiaInstalacao()), 1200);
 };
 
+// "Agora não" vale por 7 dias neste aparelho. Marca antiga ("1", do jeito de antes) conta como
+// "já faz tempo", então quem dispensou no passado é perguntado de novo agora.
+const DIAS_PRA_PERGUNTAR_NOTIF_DE_NOVO = 7;
+function podePerguntarNotifDeNovo() {
+  let marca = null;
+  try { marca = localStorage.getItem('atomoNotifBannerDispensado'); } catch (e) { return true; }
+  if (!marca) return true;
+  const quando = Number(marca);
+  if (!quando || quando < 1e12) return true; // marca antiga "1"
+  return Date.now() - quando > DIAS_PRA_PERGUNTAR_NOTIF_DE_NOVO * 24 * 60 * 60 * 1000;
+}
+
 function passoNotificacaoBoasVindas() {
   etapaBoasVindas = null;
   // a marca é deste APARELHO (cada celular/navegador precisa da própria permissão)
-  try { if (localStorage.getItem('atomoNotifBannerDispensado') === '1') return; } catch (e) {}
+  if (!podePerguntarNotifDeNovo()) return;
   setTimeout(() => mostrarBannerNotificacao(), 900);
 }
 
@@ -138,8 +150,17 @@ window.pedirPermissaoEInscreverPush = async function () {
   if (Notification.permission !== 'granted') return;
 
   try {
-    const resp = await fetch(`${API_BASE}/api/push/chave-publica`);
-    const { chave } = await resp.json();
+    // o servidor grátis "dorme" quando fica parado e leva uns 30-50s pra acordar. Antes, se a
+    // pessoa tocava em "Ativar" nessa hora, a inscrição falhava calada (permissão dada, mas o
+    // servidor nunca ficava sabendo). Agora tenta de novo algumas vezes, com calma.
+    let chave = null;
+    for (let tentativa = 0; tentativa < 4 && !chave; tentativa++) {
+      try {
+        const resp = await fetch(`${API_BASE}/api/push/chave-publica`);
+        chave = (await resp.json()).chave;
+      } catch (e) { /* servidor acordando */ }
+      if (!chave && tentativa < 3) await new Promise(r => setTimeout(r, 12000));
+    }
     if (!chave) return;
 
     const registration = await navigator.serviceWorker.ready;
@@ -154,11 +175,15 @@ window.pedirPermissaoEInscreverPush = async function () {
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (sessionData.session) {
       // o servidor descobre de quem é a inscrição pelo token (não aceita mais "usuarioId" no corpo)
-      await fetch(`${API_BASE}/api/push/inscrever`, {
+      const respInscricao = await fetch(`${API_BASE}/api/push/inscrever`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sessionData.session.access_token },
         body: JSON.stringify({ subscription }),
       });
+      if (respInscricao.ok && !window.NOTIF_INSCRICAO_AVISADA) {
+        window.NOTIF_INSCRICAO_AVISADA = true;
+        if (Notification.permission === 'granted' && window.NOTIF_ACABOU_DE_ATIVAR) mostrarToast('🔔 Notificações ativadas!');
+      }
     }
   } catch (e) {
     console.log('erro ao inscrever notificação push:', e.message);
@@ -193,7 +218,8 @@ window.mostrarBannerNotificacao = function () {
 window.fecharBannerNotificacao = async function (marcarPedido) {
   document.getElementById('notifBanner').classList.remove('show');
   if (marcarPedido) {
-    try { localStorage.setItem('atomoNotifBannerDispensado', '1'); } catch (e) {}
+    // guarda QUANDO a pessoa disse "agora não" — a pergunta volta em 7 dias (antes: nunca mais)
+    try { localStorage.setItem('atomoNotifBannerDispensado', String(Date.now())); } catch (e) {}
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (sessionData.session) {
       await supabaseClient.from('usuarios').update({ pediu_permissao_notif: true }).eq('id', sessionData.session.user.id);
@@ -202,6 +228,7 @@ window.fecharBannerNotificacao = async function (marcarPedido) {
 };
 
 window.ativarNotifPeloBanner = function () {
+  window.NOTIF_ACABOU_DE_ATIVAR = true; // pra mostrar o "ativadas!" só quando a pessoa tocou em Ativar
   fecharBannerNotificacao(false);
   pedirPermissaoEInscreverPush();
 };
