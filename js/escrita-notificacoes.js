@@ -108,7 +108,8 @@ window.abrirNotificacao = async function (n) {
 closeOverlay('notifOverlay');
 if (n.tipo === 'comentario' || n.tipo === 'curtida' || n.tipo === 'post_amigo') { // post_amigo = alguém que você segue postou
   if (n.post_id) { irParaPostDaNotif(n.post_id); } else { showScreen2('descobrir'); }
-} else if (n.tipo === 'seguidor' && n.ator_id) {
+} else if ((n.tipo === 'seguidor' || n.tipo === 'mencao') && n.ator_id) {
+  // menção: abre o perfil de quem te mencionou (é lá que o post/comentário aparece)
   abrirPerfilAlheio(n.ator_id);
 } else if (n.tipo === 'mensagem' && n.ator_id) {
   const { data: usuario } = await supabaseClient.from('usuarios').select('handle').eq('id', n.ator_id).maybeSingle();

@@ -269,10 +269,7 @@ async function gravarAvaliacaoAutoral(d, nota, comentario) {
       usuario_id: d.autor_id, tipo: 'avaliacao_autoral', titulo: '⭐ Nova avaliação',
       subtitulo: `"${d.titulo}" recebeu ${notaAutoralEscolhida} estrela${notaAutoralEscolhida === 1 ? '' : 's'}`,
     }).then(({ error: e }) => { if (e) console.log('erro ao avisar o autor:', e.message); });
-    fetch(`${API_BASE}/api/push/notificar`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuarioId: d.autor_id, tipo: 'avaliacao_autoral', dados: { titulo: d.titulo, nota: notaAutoralEscolhida } }),
-    }).catch(() => {});
+    notificarPushEvento(d.autor_id, 'avaliacao_autoral', { titulo: d.titulo, nota: notaAutoralEscolhida }); // (feed.js — vai com login)
   }
   mostrarToast('⭐ avaliação enviada');
   return true;
@@ -390,9 +387,6 @@ window.lerLivroComprado = async function (livroId) {
   if (i >= 0) abrirLeitorEpub(i);
   else mostrarToast('o livro está chegando na sua estante — tenta de novo em instantes');
 };
-
-// (antigo: baixava o arquivo. Agora livro comprado é lido dentro do app.)
-window.baixarLivroAutoralComprado = function (livroId) { lerLivroComprado(livroId); };
 
 let arquivoCapaAutoralEscolhido = null;
 let arquivoEpubAutoralEscolhido = null;

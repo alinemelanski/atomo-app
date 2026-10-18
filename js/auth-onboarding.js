@@ -181,14 +181,9 @@ window.confirmarOnboarding = async function () {
     mostrarToast('💭 Toda manhã o @Átomo deixa uma pergunta no Feed pra você responder');
   }, 4000);
 
-  // pede permissão de notificação externa já no cadastro, como combinado
-  // (via banner com botão, pra não ser bloqueado silenciosamente pelo navegador)
-  setTimeout(() => mostrarBannerNotificacao(), 1200);
-
-  // só agora, com a configuração de verdade concluída e a pessoa já na
-  // Home/Perfil, mostra o guia de instalação do PWA (antes disparava em
-  // cima da escolha de tópicos, no meio do onboarding — confuso)
-  setTimeout(() => verificarGuiaInstalacao(false), 2600);
+  // perguntas respondidas: agora sim começa a fila de boas-vindas
+  // (guia de instalação → pedido de notificação, um de cada vez — notificacoes.js)
+  iniciarBoasVindas(window.PERFIL_VIU_GUIA === true);
 
   // veio por convite de grupo? cadastro e perguntas já foram, agora leva ela até lá
   setTimeout(() => { verificarConviteClubePendente(); verificarConviteComunidadePendente(); }, 1800);

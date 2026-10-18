@@ -70,33 +70,6 @@ window.abrirLivroPreview = async function (i) {
     `;
 };
 
-window.comentarItemLivro = function (i) {
-  discoverPendenteReal = window.ITENS_LIVROS_ATUAIS[i];
-  abrirWritePopup('💬', 'O que você achou?', discoverPendenteReal.title + ' — seu comentário vai pro feed');
-};
-
-window.compartilharItemLivro = async function (i) {
-  const item = window.ITENS_LIVROS_ATUAIS[i];
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-
-  const capaUrl = item.coverId ? `https://covers.openlibrary.org/b/id/${item.coverId}-L.jpg` : null;
-  const textoCompleto = `↗ compartilhou de Livros — ${item.title}${item.desc ? `
-
-${item.desc}` : ''}`;
-
-  await supabaseClient.from('posts').insert({
-    autor_id: sessionData.session.user.id,
-    texto: textoCompleto,
-    tipo: 'Livro',
-    privado: false,
-    imagem_url: capaUrl,
-  });
-
-  mostrarToast('↗ Compartilhado no seu feed');
-  avisarSeguidores();
-  carregarPostsReais();
-};
-
 function cardDescobrirHtml(d, i) {
 return `
       <div class="discover-card ${d.destaque ? 'discover-card-destaque' : ''}">
@@ -247,13 +220,3 @@ discoverCarregandoMais = false;
 };
 
 let discoverPendente = null;
-window.comentarDescobrir = function (i) {
-  discoverPendente = i;
-  abrirWritePopup('💬', 'O que você achou?', DISCOVER[i].title + ' — seu comentário vai pro feed');
-};
-window.compartilharDescobrir = function (i) {
-  const d = DISCOVER[i];
-  feedPosts.unshift({ autor: 'ana_art', iniciais: 'A', tipo: 'Assunto', texto: `↗ compartilhou de Descobrir: "${d.title}"`, tempo: 'agora', likes: 0, curtiu: false, comentarios: [] });
-  renderFeed();
-  mostrarToast('↗ Compartilhado no seu feed');
-};

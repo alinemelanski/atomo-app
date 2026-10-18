@@ -227,6 +227,3 @@ window.filtrarConteudo = function () {
     : `<div class="visitor-lock-note">Nada encontrado pra "${termo}".</div>`;
 };
 
-window.irParaAnotacoes = function () {
-  abrirPaginaDiario();
-};

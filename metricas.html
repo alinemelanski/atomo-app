@@ -62,6 +62,17 @@
   .gate button:active{ transform:scale(.98); }
   .gate .erro{ color:var(--accent-a); font-size:12px; margin-top:10px; min-height:14px; }
 
+  /* ---------- e-mail pra todas as contas ---------- */
+  .email-box{ background:var(--card); border:1px solid var(--card-b); border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+  .email-box label{ display:block; font-size:11.5px; color:var(--ink-dim); margin:0 0 6px; }
+  .email-box input, .email-box textarea{ width:100%; box-sizing:border-box; padding:11px 13px; border-radius:12px; border:1px solid var(--card-b);
+    background:var(--bg); color:var(--ink); font-size:14px; font-family:inherit; margin-bottom:12px; }
+  .email-box textarea{ min-height:260px; line-height:1.5; resize:vertical; }
+  .email-botoes{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .email-botoes button{ padding:12px; border-radius:999px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; border:1.5px solid var(--accent-b); background:none; color:var(--accent-b); }
+  .email-botoes button.todos{ grid-column:1 / -1; background:var(--accent-a); border-color:var(--accent-a); color:#fff; }
+  .email-botoes button.confirmar{ background:#B4412E; border-color:#B4412E; }
+  .email-resultado{ font-size:12.5px; color:var(--ink-dim); margin-top:12px; min-height:16px; line-height:1.5; }
   /* ---------- dashboard ---------- */
   .dash{ display:none; }
   .dash.show{ display:block; }
@@ -184,6 +195,45 @@
         <div class="n" id="mNotifAtivada">–</div>
         <div class="l">usuários com notificação ativada</div>
       </div>
+    </div>
+
+    <div class="secao">E-mail pra todas as contas</div>
+    <div class="email-box">
+      <label for="emailAssunto">assunto</label>
+      <input id="emailAssunto" value="O Átomo mudou — vem ver o que tem de novo 📖" />
+      <label for="emailTexto">texto (troque [link do Átomo] pelo endereço do app)</label>
+      <textarea id="emailTexto">Oi!
+
+O Átomo ganhou uma versão nova, e ela foi feita pensando em quem gosta de ler e escrever.
+
+O que tem de novo:
+• Grifos coloridos com nota e marcador de página em todo livro que você abre no app
+• Livros da Loja de autores independentes: comprou, foi direto pra sua estante, pronto pra ler
+• Selos que chegam como um papel amassado pra você desamassar
+• Palavra do dia, com a origem e a história de cada palavra
+• Um diário que parece um caderno de verdade
+
+Pra aproveitar tudo, três passos rapidinhos:
+1. Entre no Átomo e responda as perguntinhas de boas-vindas (leva um minuto).
+2. Instale o app no seu celular: o próprio Átomo te mostra como, é só seguir o guia.
+3. Ative as notificações: é por elas que chegam a pergunta do dia e os lembretes de leitura.
+
+👉 [link do Átomo]
+
+O Átomo ainda está em fase de testes, e sua opinião faz diferença de verdade. Achou um erro ou teve uma ideia? Em Configurações → Suporte e feedback, sua mensagem chega direto pra mim.
+
+Obrigada por fazer parte do começo disso.
+
+Aline
+Criadora do Átomo</textarea>
+      <label for="emailTeste">e-mail pra receber o teste</label>
+      <input id="emailTeste" type="email" value="alinemelanski10@gmail.com" />
+      <div class="email-botoes">
+        <button onclick="emailTodos('contar')">contar contas</button>
+        <button onclick="emailTodos('teste')">mandar teste</button>
+        <button class="todos" id="btnEmailTodos" onclick="emailTodos('todos')">mandar pra todas as contas</button>
+      </div>
+      <div class="email-resultado" id="emailResultado"></div>
     </div>
 
     <div class="secao">Erros abertos <span id="mErrosAbertos"></span></div>
@@ -339,6 +389,35 @@
     fetch(API_BASE + '/api/admin/erros/resolver?segredo=' + encodeURIComponent(senhaAtual), {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensagem: g.e.mensagem })
     }).then(function(){ carregarErros(); });
+  }
+  // ---------- e-mail pra todas as contas ----------
+  // "mandar pra todas" pede 2 toques (o primeiro só arma o botão por 5s) — sem pop-up nativo
+  var emailArmado = false, emailProximoInicio = 0;
+  function emailTodos(modo){
+    var out = document.getElementById('emailResultado');
+    var btn = document.getElementById('btnEmailTodos');
+    var texto = document.getElementById('emailTexto').value;
+    if (modo !== 'contar' && texto.indexOf('[link do Átomo]') >= 0) { out.textContent = 'Troque o [link do Átomo] pelo endereço de verdade antes de mandar.'; return; }
+    if (modo === 'todos' && !emailArmado) {
+      emailArmado = true; btn.classList.add('confirmar'); btn.textContent = 'toque de novo pra confirmar o envio';
+      setTimeout(function(){ emailArmado = false; btn.classList.remove('confirmar'); btn.textContent = 'mandar pra todas as contas'; }, 5000);
+      return;
+    }
+    emailArmado = false; btn.classList.remove('confirmar'); btn.textContent = 'mandar pra todas as contas';
+    out.textContent = modo === 'contar' ? 'contando...' : 'enviando... (não feche a página)';
+    fetch(API_BASE + '/api/admin/email-todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': senhaAtual },
+      body: JSON.stringify({ modo: modo, assunto: document.getElementById('emailAssunto').value, texto: texto,
+        emailTeste: document.getElementById('emailTeste').value.trim(), inicio: modo === 'todos' ? emailProximoInicio : 0 })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d.erro && !('enviados' in d)) { out.textContent = 'Erro: ' + d.erro; return; }
+      if (modo === 'contar') { out.textContent = d.total + ' contas com e-mail confirmado vão receber. Remetente: ' + d.remetente; return; }
+      if (d.ok) { emailProximoInicio = 0; out.textContent = '✅ enviado: ' + d.enviados + (modo === 'todos' ? ' de ' + d.total + ' contas.' : ' (teste).'); return; }
+      emailProximoInicio = d.proximoInicio || 0;
+      out.textContent = 'Parou depois de ' + d.enviados + ' envios (' + (d.erro || 'erro') + '). ' +
+        (d.proximoInicio != null ? 'Tocando em "mandar pra todas" de novo, continua a partir da conta ' + (d.proximoInicio + 1) + ' (ex.: amanhã, se foi o limite diário).' : '');
+    }).catch(function(){ out.textContent = 'Não consegui conectar no servidor (ele pode estar acordando, tenta em 1 minuto).'; });
   }
 </script>
 </body>

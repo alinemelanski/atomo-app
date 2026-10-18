@@ -207,11 +207,6 @@ window.selecionarTipo = function (t) {
   }
 };
 
-window.toggleComposerPrivado = function () {
-  composerPrivado = !composerPrivado;
-  document.getElementById('composerPrivIcon').innerHTML = composerPrivado ? icone('cadeado',16) : icone('globo',16);
-  document.getElementById('composerPrivLabel').textContent = composerPrivado ? 'Só eu' : 'Compartilhável';
-};
 async function subirFotoParaStorage(usuarioId, arquivo) {
 if (!arquivo) return null;
 
@@ -357,11 +352,6 @@ const input = el || document.getElementById('explorarComposerFotoInput');
 if (!input.files || !input.files[0]) return;
 arquivoFotoComposerExplorar = input.files[0];
 exibirPreviewMidia(arquivoFotoComposerExplorar, 'composerExplorarFotoPreview', 'composerExplorarFotoPreviewVideo');
-};
-
-window.abrirComposerExplorar = function () {
-document.getElementById('composerExplorarOverlay').classList.add('open');
-setTimeout(() => document.getElementById('composerExplorarText').focus(), 250);
 };
 
 window.publicarPostExplorar = async function () {
@@ -775,13 +765,20 @@ async function avisarSeguidores() {
 }
 window.avisarSeguidores = avisarSeguidores;
 
-function notificarPushEvento(destinatarioId, tipo, dados) {
+// Avisa no celular de outra pessoa (curtida, comentário, mensagem...).
+// Manda o token de login: o servidor confere quem está avisando e pega o @ dela do banco
+// (antes ia sem login e o servidor acreditava em qualquer nome — brecha fechada).
+async function notificarPushEvento(destinatarioId, tipo, dados) {
   if (!destinatarioId || destinatarioId === window.MEU_USUARIO_ID) return;
-  fetch(`${API_BASE}/api/push/notificar`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ usuarioId: destinatarioId, tipo, dados: Object.assign({ de: window.MEU_HANDLE || 'alguém' }, dados || {}) }),
-  }).catch(() => {});
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data || !data.session) return;
+    fetch(`${API_BASE}/api/push/notificar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + data.session.access_token },
+      body: JSON.stringify({ usuarioId: destinatarioId, tipo, dados: dados || {} }),
+    }).catch(() => {}); // aviso é extra: nunca atrapalha a ação principal
+  } catch (e) { /* idem */ }
 }
 
 // Aviso pros membros de um CLUBE ou COMUNIDADE (sino + celular).

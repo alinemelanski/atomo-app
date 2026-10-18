@@ -18,8 +18,6 @@ const CATEGORIAS_COMUNIDADE_ESTUDO = [
   { valor: 'geral', label: '📚 geral' },
 ];
 
-function iniciaisNome(nome) { return nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
-
 window.ITENS_COMUNIDADES_ESTUDO_ATUAIS = [];
 
 async function renderComunidades() {
@@ -398,12 +396,6 @@ window.toggleComunidadeOverflowMenu = function () {
 window.abrirMembrosComunidade = async function () {
   document.getElementById('comunidadeMembrosOverlay').classList.add('open');
   await renderMembrosComunidade();
-};
-
-window.toggleMembroMenu = function (btn) {
-  const menu = btn.nextElementSibling;
-  document.querySelectorAll('.comunidade-membro-row .clube-overflow-menu.show').forEach(m => { if (m !== menu) m.classList.remove('show'); });
-  menu.classList.toggle('show');
 };
 
 async function renderMembrosComunidade() {

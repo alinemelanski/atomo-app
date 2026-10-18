@@ -6,19 +6,6 @@
 const MARCOS_SEQUENCIA = [7, 30, 100, 365];
 let streakAtual = 0;
 
-window.abrirDetalheSequencia = function () {
-  document.getElementById('seqPopupNum').textContent = streakAtual;
-  const proximo = MARCOS_SEQUENCIA.find(m => m > streakAtual) || MARCOS_SEQUENCIA[MARCOS_SEQUENCIA.length - 1];
-  const anterior = [0, ...MARCOS_SEQUENCIA].reverse().find(m => m <= streakAtual) || 0;
-  const pct = Math.min(100, ((streakAtual - anterior) / (proximo - anterior)) * 100);
-  document.getElementById('seqProgressFill').style.width = pct + '%';
-  const faltam = proximo - streakAtual;
-  document.getElementById('seqProgressLabel').textContent = faltam > 0
-    ? `${faltam} dia${faltam > 1 ? 's' : ''} pro seu marco de ${proximo} dias`
-    : `Marco de ${proximo} dias alcançado!`;
-  if (window.STREAK_EM_CHANCE) document.getElementById('seqProgressLabel').textContent += ' · 🛟 chance usada: escreva hoje pra manter';
-  document.getElementById('sequenciaPopupBg').classList.add('show');
-};
 window.fecharSequenciaPopup = function () {
   document.getElementById('sequenciaPopupBg').classList.remove('show');
 };

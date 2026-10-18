@@ -13,12 +13,20 @@ if (session) {
     .maybeSingle();
 
   const contaNova = !perfilExistente;
-      if (contaNova) {
-    await supabaseClient.from('usuarios').insert({
-      id: session.user.id,
-      nome: session.user.user_metadata.full_name || session.user.email,
-      handle: session.user.email.split('@')[0],
-    });
+  if (contaNova) {
+    // o @ nasce do começo do e-mail; se já existir alguém com esse @ (ex.: ana@gmail e
+    // ana@hotmail), tenta de novo com um numerinho no fim, em vez de a conta ficar sem perfil
+    const base = (session.user.email || 'leitora').split('@')[0].toLowerCase().replace(/[^a-z0-9_.]/g, '').slice(0, 24) || 'leitora';
+    for (let tentativa = 0; tentativa < 5; tentativa++) {
+      const handle = tentativa === 0 ? base : base + Math.floor(100 + Math.random() * 900);
+      const { error: erroPerfil } = await supabaseClient.from('usuarios').insert({
+        id: session.user.id,
+        nome: (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email,
+        handle,
+      });
+      if (!erroPerfil || !/duplicate|unique/i.test(erroPerfil.message)) break;
+      if (/usuarios_pkey/i.test(erroPerfil.message)) break; // o perfil já existe (corrida de duas abas)
+    }
   }
 
   iniciarHeartbeatPresenca(session.user.id);
@@ -84,7 +92,12 @@ if (session) {
       const tiposNovos = TIPOS.filter(t => !ordemSalva.includes(t));
       ordemTipos = [...ordemSalva, ...tiposNovos];
     }
-    if (Array.isArray(perfil.tipos_ocultos)) tiposOcultos = perfil.tipos_ocultos;
+    // tipos escondidos do composer: consulta separada, assim se a coluna ainda não existir
+    // no banco o resto do perfil carrega normalmente (antes nem era buscada e sempre voltava vazia)
+    supabaseClient.from('usuarios').select('tipos_ocultos').eq('id', session.user.id).maybeSingle()
+      .then(({ data: t, error: e }) => {
+        if (!e && t && Array.isArray(t.tipos_ocultos)) { tiposOcultos = t.tipos_ocultos; renderTypeChips(); }
+      });
     if (perfil.emoji_streak) {
       meuEmojiStreak = normalizarIconeStreak(perfil.emoji_streak);
       document.getElementById('streakEmoji').innerHTML = iconeStreakHtml(meuEmojiStreak);
@@ -146,10 +159,10 @@ if (session) {
   // só dispara aqui pra quem NÃO está prestes a passar pelo onboarding agora —
   // pra conta nova/pendente, confirmarOnboarding() cuida disso no fim de
   // verdade da configuração, senão o guia abria por cima da escolha de tópicos
-  if (!precisaCompletarOnboarding) {
-    verificarGuiaInstalacao(perfil && perfil.viu_guia_instalacao === true);
-  }
-  verificarPermissaoNotifPush(perfil && perfil.pediu_permissao_notif === true);
+  // fila de boas-vindas (guia de instalação → notificação). Quem ainda vai responder as
+  // perguntas agora começa a fila só no fim delas (confirmarOnboarding), não por cima delas.
+  window.PERFIL_VIU_GUIA = !!(perfil && perfil.viu_guia_instalacao === true);
+  if (!precisaCompletarOnboarding) iniciarBoasVindas(window.PERFIL_VIU_GUIA);
   verificarConviteMatch(matchAtivado, streakAtual, perfil && perfil.viu_convite_match === true);
 
   // se o app abriu (ou recebeu a mensagem do service worker) por causa de um

@@ -232,19 +232,6 @@ document.getElementById('stickerPickerArea').style.display = 'none';
 await renderDmMsgs();
 };
 
-window.enviarSticker = async function (chave) {
-const { data: sessionData } = await supabaseClient.auth.getSession();
-const { error } = await supabaseClient.from('mensagens').insert({
-  conversa_id: conversaAbertaId,
-  autor_id: sessionData.session.user.id,
-  texto: chave,
-  tipo_conteudo: 'sticker',
-});
-if (error) { mostrarToast('❌ erro: ' + error.message); return; }
-document.getElementById('stickerPickerArea').style.display = 'none';
-await renderDmMsgs();
-};
-
 // ---------- mensagem de voz (gravação e player por mensagem) ----------
 let mediaRecorderAtomo = null;
 let chunksAudioAtomo = [];

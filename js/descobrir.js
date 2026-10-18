@@ -4,12 +4,6 @@
 
 // ---------- descobrir ----------
 let regiaoAtiva = 'todos';
-window.filtrarRegiao = function (r) {
-  regiaoAtiva = r;
-  document.querySelectorAll('.regiao-chip').forEach(c => c.classList.toggle('on', c.dataset.r === r));
-  renderDiscover();
-};
-
 const TUMBLR_TAGS_PADRAO = ['diario', 'poesia', 'frases', 'leitura', 'reflexão', 'escrita', 'literatura brasileira', 'resenha'];
 function embaralhar(lista) {
   for (let i = lista.length - 1; i > 0; i--) {
@@ -20,21 +14,7 @@ function embaralhar(lista) {
 }
 let termoBuscaDescobrir = '';
 let debounceBuscaDescobrir = null;
-window.aoDigitarBuscaDescobrir = function () {
-  clearTimeout(debounceBuscaDescobrir);
-  debounceBuscaDescobrir = setTimeout(() => {
-    termoBuscaDescobrir = document.getElementById('buscaDescobrirInput').value.trim();
-    renderDiscover();
-  }, 400);
-};
-
 let modoDescobrirAtivo = 'relevante';
-window.trocarModoDescobrir = function (modo) {
-modoDescobrirAtivo = modo;
-document.querySelectorAll('.feed-modo-chip[data-modo-descobrir]').forEach(c => c.classList.toggle('on', c.dataset.modoDescobrir === modo));
-renderDiscover();
-};
-
 // ---------- aba própria: livros ----------
 let modoLivrosAtivo = 'clube';
 window.trocarModoLivros = function (modo) {

@@ -91,9 +91,15 @@ app.get('/api/push/chave-publica', (req, res) => {
   res.json({ chave: VAPID_PUBLIC_KEY || null });
 });
 
+// SEGURANÇA: quem é o dono da inscrição vem do TOKEN de login, nunca do body.
+// Antes o client mandava "usuarioId" e o servidor acreditava — dava pra qualquer pessoa
+// cadastrar o próprio celular no lugar de outra conta e receber as notificações dela.
 app.post('/api/push/inscrever', async (req, res) => {
-  const { usuarioId, subscription } = req.body || {};
-  if (!usuarioId || !subscription || !subscription.endpoint) {
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+  const usuarioId = usuario.id;
+  const { subscription } = req.body || {};
+  if (!subscription || !subscription.endpoint) {
     return res.status(400).json({ erro: 'dados incompletos' });
   }
   if (!supabaseAdmin) return res.status(500).json({ erro: 'push não configurado no servidor' });
@@ -113,8 +119,10 @@ app.post('/api/push/inscrever', async (req, res) => {
 // se o push tá chegando no aparelho — não depende de horário nem passa pelas
 // checagens de "já mandou hoje" do cron
 app.post('/api/push/testar', async (req, res) => {
-  const { usuarioId } = req.body || {};
-  if (!usuarioId) return res.status(400).json({ erro: 'usuarioId obrigatório' });
+  // só manda o teste pra própria conta logada (antes aceitava qualquer usuarioId)
+  const usuario = await usuarioDoToken(req);
+  if (!usuario) return res.status(401).json({ erro: 'token inválido ou expirado' });
+  const usuarioId = usuario.id;
   if (!supabaseAdmin || !VAPID_PUBLIC_KEY) return res.status(500).json({ erro: 'push não configurado no servidor' });
 
   try {
@@ -133,6 +141,8 @@ const MODELOS_NOTIFICACAO_PUSH = {
   curtida: (d) => ({ titulo: '❤️ Nova curtida', corpo: `@${d.de || 'alguém'} curtiu seu post` }),
   comentario: (d) => ({ titulo: '💬 Novo comentário', corpo: `@${d.de || 'alguém'} comentou: "${String(d.texto || '').slice(0, 80)}"` }),
   seguidor: (d) => ({ titulo: '➕ Novo seguidor', corpo: `@${d.de || 'alguém'} começou a te seguir` }),
+  // faltava: o app pedia 'mencao' e o servidor respondia "tipo inválido" — ninguém era avisado ao ser marcado
+  mencao: (d) => ({ titulo: '📣 Te mencionaram', corpo: `@${d.de || 'alguém'} te mencionou no Átomo` }),
   mensagem: (d) => ({ titulo: '✉️ Nova mensagem', corpo: `@${d.de || 'alguém'} te mandou uma mensagem` }),
   apoio_abraco: (d) => ({ titulo: '🫂 Alguém te mandou um abraço', corpo: `@${d.de || 'alguém'} te mandou um abraço` }),
   apoio_conselho: (d) => ({ titulo: '💬 Você recebeu um conselho', corpo: `@${d.de || 'alguém'}: "${String(d.texto || '').slice(0, 80)}"` }),
@@ -144,18 +154,48 @@ const MODELOS_NOTIFICACAO_PUSH = {
   avaliacao_autoral: (d) => ({ titulo: '⭐ Nova avaliação', corpo: `"${d.titulo || 'seu livro'}" recebeu ${d.nota || ''} estrela${d.nota == 1 ? '' : 's'}` }),
 };
 
+// tipos que o APP pode pedir. Os de Loja (aprovado/recusado/venda) só o próprio servidor manda.
+const TIPOS_PUSH_DO_APP = ['curtida', 'comentario', 'seguidor', 'mensagem', 'mencao',
+  'apoio_abraco', 'apoio_conselho', 'apoio_musica', 'avaliacao_autoral'];
+// anti-spam simples, na memória do servidor: no máximo 40 avisos a cada 10 min por remetente
+const ANTISPAM_PUSH = new Map();
+function passouLimitePush(remetenteId) {
+  const agora = Date.now();
+  const lista = (ANTISPAM_PUSH.get(remetenteId) || []).filter((t) => agora - t < 10 * 60 * 1000);
+  lista.push(agora);
+  ANTISPAM_PUSH.set(remetenteId, lista);
+  return lista.length > 40;
+}
+
+// SEGURANÇA: antes qualquer um chamava essa rota sem login, escolhendo o destinatário,
+// o nome de quem "mandou" (@de) e até o texto — dava pra mandar notificação falsa pra qualquer
+// pessoa. Agora: precisa estar logada, o @ de quem manda vem do banco (pelo token) e não do
+// client, e só os tipos de evento normais do app são aceitos.
 app.post('/api/push/notificar', async (req, res) => {
+  const remetente = await usuarioDoToken(req);
+  if (!remetente) return res.status(401).json({ erro: 'token inválido ou expirado' });
   const { usuarioId, tipo, dados } = req.body || {};
   if (!usuarioId || !tipo) return res.status(400).json({ erro: 'dados incompletos' });
+  if (!TIPOS_PUSH_DO_APP.includes(tipo)) return res.status(400).json({ erro: 'tipo inválido' });
   const modelo = MODELOS_NOTIFICACAO_PUSH[tipo];
   if (!modelo) return res.status(400).json({ erro: 'tipo inválido' });
+  if (usuarioId === remetente.id) return res.json({ ok: true, enviadas: 0 }); // ninguém se notifica
+  if (passouLimitePush(remetente.id)) return res.status(429).json({ erro: 'muitos avisos seguidos' });
 
   try {
-    const { titulo, corpo } = modelo(dados || {});
+    const dadosSeguros = Object.assign({}, dados || {});
+    dadosSeguros.ator_id = remetente.id;           // quem fez a ação = quem está logado
+    delete dadosSeguros.de;
+    if (tipo !== 'avaliacao_autoral' && supabaseAdmin) {
+      // avaliação continua anônima (sem @); nos outros o @ vem do banco
+      const { data: perfilRemetente } = await supabaseAdmin.from('usuarios').select('handle').eq('id', remetente.id).maybeSingle();
+      dadosSeguros.de = (perfilRemetente && perfilRemetente.handle) || 'alguém';
+    }
+    const { titulo, corpo } = modelo(dadosSeguros);
     // só repassa pro service worker o que ele precisa pra montar o link —
     // nunca o texto livre que a pessoa digitou, então continua sem dar pra
     // usar isso pra levar quem clica pra qualquer lugar arbitrário
-    const dadosExtra = { tipo, post_id: (dados || {}).post_id || null, ator_id: (dados || {}).ator_id || null };
+    const dadosExtra = { tipo, post_id: dadosSeguros.post_id || null, ator_id: tipo === 'avaliacao_autoral' ? null : remetente.id };
     const enviadas = await enviarPushParaUsuario(usuarioId, titulo, corpo, dadosExtra);
     res.json({ ok: true, enviadas });
   } catch (erro) {
@@ -724,6 +764,91 @@ app.post('/api/feedback', async (req, res) => {
   }
 });
 
+// ---------- e-mail de novidade pra TODAS as contas (painel metricas.html) ----------
+// Só você usa (senha ADMIN_SECRET no cabeçalho). Três modos:
+//   contar → só diz quantas contas vão receber (não manda nada)
+//   teste  → manda só pro e-mail de teste, pra você ver como chega
+//   todos  → manda pra todo mundo, em lotes de 100 (cada pessoa recebe o seu,
+//            ninguém vê o e-mail de ninguém)
+// IMPORTANTE: o remetente de teste do Resend (onboarding@resend.dev) só entrega pro
+// dono da conta Resend. Pra mandar pra todo mundo, precisa de um domínio verificado no
+// Resend e da variável EMAIL_REMETENTE (ex.: "Átomo <oi@seudominio.com.br>").
+const EMAIL_REMETENTE = process.env.EMAIL_REMETENTE || 'Átomo <onboarding@resend.dev>';
+
+async function listarEmailsDeTodasAsContas() {
+  const emails = [];
+  for (let pagina = 1; pagina < 100; pagina++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: pagina, perPage: 1000 });
+    if (error) throw error;
+    const usuarios = (data && data.users) || [];
+    usuarios.forEach((u) => { if (u.email && (u.email_confirmed_at || u.confirmed_at)) emails.push(u.email.toLowerCase()); });
+    if (usuarios.length < 1000) break;
+  }
+  return [...new Set(emails)].sort(); // sem repetidos, sempre na mesma ordem (pra dar pra continuar de onde parou)
+}
+
+// texto simples → HTML simples: escapa caracteres especiais, quebra em parágrafos e vira link o que for URL
+function textoParaHtmlEmail(texto) {
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return '<div style="font-family:Georgia,serif;font-size:16px;line-height:1.6;color:#3A2E22;max-width:560px">' +
+    esc(texto).split(/\n{2,}/).map((par) => '<p>' + par.replace(/\n/g, '<br>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#D07B60">$1</a>') + '</p>').join('') + '</div>';
+}
+
+const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+app.post('/api/admin/email-todos', async (req, res) => {
+  const segredo = req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || segredo !== process.env.ADMIN_SECRET) return res.status(401).json({ erro: 'não autorizado' });
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado no servidor' });
+  if (!RESEND_API_KEY) return res.status(500).json({ erro: 'falta RESEND_API_KEY no servidor' });
+
+  const { modo, assunto, texto, emailTeste } = req.body || {};
+  const inicio = Math.max(0, parseInt((req.body || {}).inicio, 10) || 0);
+  if (!['contar', 'teste', 'todos'].includes(modo)) return res.status(400).json({ erro: 'modo inválido' });
+
+  try {
+    const todos = await listarEmailsDeTodasAsContas();
+    if (modo === 'contar') return res.json({ ok: true, total: todos.length, remetente: EMAIL_REMETENTE });
+
+    if (!assunto || !texto || String(texto).trim().length < 10) return res.status(400).json({ erro: 'escreve o assunto e o texto' });
+    const html = textoParaHtmlEmail(String(texto));
+    const textoFinal = String(texto) + '\n\n—\nVocê recebeu este e-mail porque tem uma conta no Átomo.';
+    const htmlFinal = html + '<p style="font-size:12px;color:#8A7860">Você recebeu este e-mail porque tem uma conta no Átomo.</p>';
+
+    let destinos;
+    if (modo === 'teste') {
+      if (!emailTeste || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTeste)) return res.status(400).json({ erro: 'e-mail de teste inválido' });
+      destinos = [emailTeste];
+    } else {
+      if (/resend\.dev/.test(EMAIL_REMETENTE)) {
+        return res.status(400).json({ erro: 'o remetente ainda é o de teste do Resend (só entrega pra você). Verifique um domínio no Resend e configure EMAIL_REMETENTE no Render.' });
+      }
+      destinos = todos.slice(inicio);
+    }
+
+    let enviados = 0;
+    for (let i = 0; i < destinos.length; i += 100) {
+      const lote = destinos.slice(i, i + 100).map((para) => ({ from: EMAIL_REMETENTE, to: [para], subject: assunto, text: textoFinal, html: htmlFinal }));
+      const resposta = await fetch('https://api.resend.com/emails/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+        body: JSON.stringify(lote),
+      });
+      if (!resposta.ok) {
+        const erroTxt = (await resposta.text()).slice(0, 300);
+        // parou no meio (ex.: limite diário do plano grátis): devolve de onde continuar
+        return res.json({ ok: false, enviados, total: todos.length, proximoInicio: modo === 'todos' ? inicio + enviados : null, erro: erroTxt });
+      }
+      enviados += lote.length;
+      await esperar(700); // o Resend aceita poucas chamadas por segundo
+    }
+    res.json({ ok: true, enviados, total: todos.length, proximoInicio: null });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
 // painel de métricas privado — só pra você acompanhar quantos usuários o
 // Átomo tem, protegido por senha (ADMIN_SECRET), sem link em nenhum lugar
 // do app pros outros usuários
@@ -1182,28 +1307,42 @@ async function rodarCronNotificacoes(req, res) {
     const d = String(agoraBrasilia.getDate()).padStart(2, '0');
     const hojeBrasilia = `${y}-${m}-${d}`;
 
-    // manha: dispara quando "agora" bate com horario_acordar_min + 15min
-    // (ex: acordou 10:00 -> notificação por volta de 10:15)
-    const { data: candidatosManha } = await supabaseAdmin
+    // Quem recebe agora? Pra cada pessoa calcula o "minuto-alvo" do dia:
+    //   manhã = horário de acordar + 15min · noite = horário de dormir - 30min
+    // e manda se o alvo passou há menos de RECUPERACAO_MIN minutos (e ainda não mandou hoje).
+    // Duas correções em relação a antes:
+    //  1. a conta é feita "dando a volta no relógio" (% 1440 = minutos num dia): antes, quem
+    //     dorme depois da meia-noite (ex.: 00h10) NUNCA recebia a reflexão, porque
+    //     "agora + 30min" passava de 1440 e não batia com nada;
+    //  2. recuperação: se o cron atrasar (Render acordando, agendador falhando uma rodada),
+    //     a notificação ainda sai até 1h depois, em vez de se perder no dia.
+    const RECUPERACAO_MIN = 60;
+    const minutosDesde = (alvo) => ((minutosAgora - alvo) % 1440 + 1440) % 1440; // 0 = agora; 30 = há meia hora
+    const { data: candidatos } = await supabaseAdmin
       .from('usuarios')
-      .select('id, horario_acordar_min, ultima_notif_manha_data')
-      .not('horario_acordar_min', 'is', null)
-      .gte('horario_acordar_min', minutosAgora - OFFSET_MANHA_MIN)
-      .lt('horario_acordar_min', minutosAgora - OFFSET_MANHA_MIN + JANELA_CRON_MIN);
+      .select('id, horario_acordar_min, horario_dormir_min, ultima_notif_manha_data, ultima_notif_noite_data')
+      .or('horario_acordar_min.not.is.null,horario_dormir_min.not.is.null');
 
-    const precisamManha = (candidatosManha || []).filter(u => u.ultima_notif_manha_data !== hojeBrasilia);
+    // "de que dia é esse alvo?": se o alvo foi 23h40 e agora é 00h05, ele é de ONTEM.
+    // A marca de "já mandei" usa essa data — senão, virando a meia-noite, mandaria de novo.
+    const ontem = new Date(agoraBrasilia); ontem.setDate(ontem.getDate() - 1);
+    const ontemBrasilia = `${ontem.getFullYear()}-${String(ontem.getMonth() + 1).padStart(2, '0')}-${String(ontem.getDate()).padStart(2, '0')}`;
+    const diaDoAlvo = (alvo) => (minutosAgora >= ((alvo % 1440) + 1440) % 1440 ? hojeBrasilia : ontemBrasilia);
 
-    // noite: dispara quando "agora" bate com horario_dormir_min - 30min
-    // (ex: dorme 23:00 -> reflexão por volta de 22:30) -- por pessoa, não mais
-    // um horário fixo igual pra todo mundo
-    const { data: candidatosNoite } = await supabaseAdmin
-      .from('usuarios')
-      .select('id, horario_dormir_min, ultima_notif_noite_data')
-      .not('horario_dormir_min', 'is', null)
-      .gte('horario_dormir_min', minutosAgora + OFFSET_NOITE_MIN)
-      .lt('horario_dormir_min', minutosAgora + OFFSET_NOITE_MIN + JANELA_CRON_MIN);
-
-    const precisamNoite = (candidatosNoite || []).filter(u => u.ultima_notif_noite_data !== hojeBrasilia);
+    const precisamManha = (candidatos || []).filter(u => {
+      if (u.horario_acordar_min == null) return false;
+      const alvo = u.horario_acordar_min + OFFSET_MANHA_MIN;
+      if (minutosDesde(alvo) >= RECUPERACAO_MIN) return false;
+      u.diaAlvo = diaDoAlvo(alvo);
+      return u.ultima_notif_manha_data !== u.diaAlvo;
+    });
+    const precisamNoite = (candidatos || []).filter(u => {
+      if (u.horario_dormir_min == null) return false;
+      const alvo = u.horario_dormir_min - OFFSET_NOITE_MIN;
+      if (minutosDesde(alvo) >= RECUPERACAO_MIN) return false;
+      u.diaAlvoNoite = diaDoAlvo(alvo);
+      return u.ultima_notif_noite_data !== u.diaAlvoNoite;
+    });
 
     let totalEnviadas = 0;
     // a partir das 5h o bot já publica a pergunta do dia (uma vez só por dia);
@@ -1219,12 +1358,12 @@ async function rodarCronNotificacoes(req, res) {
         const msg = MENSAGENS_MANHA[indiceRotativoDoDia(hojeBrasilia, MENSAGENS_MANHA.length)];
         totalEnviadas += await enviarPushParaUsuario(u.id, 'Bom dia 🌙', msg);
       }
-      await supabaseAdmin.from('usuarios').update({ ultima_notif_manha_data: hojeBrasilia }).eq('id', u.id);
+      await supabaseAdmin.from('usuarios').update({ ultima_notif_manha_data: u.diaAlvo }).eq('id', u.id);
     }
     for (const u of precisamNoite) {
       const msg = mensagemEmbaralhadaDoDia(MENSAGENS_NOITE, hojeBrasilia, ehSalmo);
       totalEnviadas += await enviarPushParaUsuario(u.id, 'Reflexão do dia', msg);
-      await supabaseAdmin.from('usuarios').update({ ultima_notif_noite_data: hojeBrasilia }).eq('id', u.id);
+      await supabaseAdmin.from('usuarios').update({ ultima_notif_noite_data: u.diaAlvoNoite }).eq('id', u.id);
     }
 
     // lembretes de itens do checklist (Home) — cada item pode ter um horário
@@ -1276,20 +1415,27 @@ async function rodarCronNotificacoes(req, res) {
     // A linha em resumos_dia (texto vazio) serve só pra não avisar duas vezes.
     let resumosGerados = 0;
     if (precisamNoite.length) {
-      const inicioHojeUTC = new Date(Date.UTC(agoraBrasilia.getFullYear(), agoraBrasilia.getMonth(), agoraBrasilia.getDate(), 3, 0, 0));
-      const idsNoiteAgora = precisamNoite.map(u => u.id);
+      // o "dia" do resumo é o dia do alvo da noite (quem dorme 00h10 tem a reflexão às 23h40 de ONTEM)
+      // meia-noite em Brasília = 03:00 UTC
+      const inicioDoDia = (dataStr) => new Date(dataStr + 'T03:00:00Z');
+      const diaDe = {};
+      precisamNoite.forEach(u => { diaDe[u.id] = u.diaAlvoNoite; });
+      const maisCedo = precisamNoite.map(u => inicioDoDia(u.diaAlvoNoite)).sort((x, y) => x - y)[0];
       const { data: eventosHoje } = await supabaseAdmin
         .from('humor_eventos')
-        .select('usuario_id')
-        .in('usuario_id', idsNoiteAgora)
-        .gte('criado_em', inicioHojeUTC.toISOString());
+        .select('usuario_id, criado_em')
+        .in('usuario_id', Object.keys(diaDe))
+        .gte('criado_em', maisCedo.toISOString());
 
-      const idsComMomentos = [...new Set((eventosHoje || []).map(e => e.usuario_id))];
+      const idsComMomentos = [...new Set((eventosHoje || [])
+        .filter(e => new Date(e.criado_em) >= inicioDoDia(diaDe[e.usuario_id]))
+        .map(e => e.usuario_id))];
       for (const usuarioId of idsComMomentos) {
+        const diaResumo = diaDe[usuarioId];
         const { data: jaAvisou } = await supabaseAdmin
-          .from('resumos_dia').select('id').eq('usuario_id', usuarioId).eq('data', hojeBrasilia).maybeSingle();
+          .from('resumos_dia').select('id').eq('usuario_id', usuarioId).eq('data', diaResumo).maybeSingle();
         if (jaAvisou) continue;
-        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: hojeBrasilia, texto: '' });
+        await supabaseAdmin.from('resumos_dia').insert({ usuario_id: usuarioId, data: diaResumo, texto: '' });
         totalEnviadas += await enviarPushParaUsuario(usuarioId, '📊 Seu dia no Átomo', 'abre o app pra ver como foi o seu dia');
         resumosGerados++;
       }
@@ -1329,17 +1475,27 @@ app.post('/api/lista-espera', async (req, res) => {
 // SEGURANÇA: nunca escrever chave de API no log (nem um pedaço dela) — o log
 // fica guardado no Render e qualquer pessoa com acesso ao painel leria a chave.
 // Pra conferir se a chave carregou, basta dizer SIM ou NÃO:
-console.log('chave TMDB carregada:', process.env.TMDB_API_KEY ? 'sim' : 'NÃO', '| chave TMDB v3:', process.env.TMDB_API_KEY_V3 ? 'sim' : 'NÃO');
+// TMDB aceita 2 tipos de chave: a "v3" (curtinha, vai na URL como api_key=) e o token "v4"
+// (longo, vai no cabeçalho Authorization). Antes o código só aceitava a v3 — com só o token v4
+// no servidor.env, os filmes do @Átomo e a busca de filme não funcionavam.
+// (e nunca mais imprime a URL com a chave no log: quem vê o painel do Render veria a chave)
+const TMDB_CHAVE_V3 = process.env.TMDB_API_KEY_V3 || '';
+const TMDB_TOKEN_V4 = process.env.TMDB_API_KEY || '';
+const TMDB_CONFIGURADO = !!(TMDB_CHAVE_V3 || TMDB_TOKEN_V4);
+function tmdbFetch(url) {
+  if (TMDB_CHAVE_V3) return fetch(url + (url.includes('?') ? '&' : '?') + 'api_key=' + TMDB_CHAVE_V3);
+  return fetch(url, { headers: { Authorization: 'Bearer ' + TMDB_TOKEN_V4, accept: 'application/json' } });
+}
+console.log('TMDB:', TMDB_CHAVE_V3 ? 'chave v3' : (TMDB_TOKEN_V4 ? 'token v4' : 'NÃO configurado'));
 
 app.get('/api/buscar-filme', async (req, res) => {
   const termo = req.query.q;
   if (!termo) return res.status(400).json({ erro: 'faltou o parâmetro q' });
 
-  const urlCompleta = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.TMDB_API_KEY_V3}&query=${encodeURIComponent(termo)}&language=pt-BR`;
-  console.log('URL SENDO CHAMADA:', urlCompleta);
+  const urlCompleta = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(termo)}&language=pt-BR`;
 
   try {
-    const resposta = await fetch(urlCompleta);
+    const resposta = await tmdbFetch(urlCompleta);
     const dados = await resposta.json();
     res.json(dados);
   } catch (erro) {
@@ -1352,8 +1508,8 @@ app.get('/api/filme-trailer', async (req, res) => {
   if (!filmeId) return res.status(400).json({ erro: 'faltou o parâmetro id' });
 
   try {
-    const resposta = await fetch(
-      `https://api.themoviedb.org/3/movie/${filmeId}/videos?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR`
+    const resposta = await tmdbFetch(
+      `https://api.themoviedb.org/3/movie/${filmeId}/videos?language=pt-BR`
     );
     const dados = await resposta.json();
     const trailer = (dados.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
@@ -1394,8 +1550,8 @@ app.get('/api/buscar-livro', async (req, res) => {
 app.get('/api/filmes-em-cartaz', async (req, res) => {
   try {
     const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
-    const resposta = await fetch(
-      `https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&page=${pagina}`
+    const resposta = await tmdbFetch(
+      `https://api.themoviedb.org/3/movie/now_playing?language=pt-BR&region=BR&page=${pagina}`
     );
     const dados = await resposta.json();
     res.json(dados);
@@ -1422,8 +1578,8 @@ async function buscarSugestoesFilmePorGenero(generoId, jaPostadosIds, quantidade
   // diferentes (pra post de lista, tipo "3 sugestões de domingo").
   const escolhidos = [];
   for (let pagina = 1; pagina <= 5 && escolhidos.length < quantidade; pagina++) {
-    const resposta = await fetch(
-      `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`
+    const resposta = await tmdbFetch(
+      `https://api.themoviedb.org/3/discover/movie?language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`
     );
     const dados = await resposta.json();
     for (const f of (dados.results || [])) {
@@ -1438,8 +1594,8 @@ async function buscarSugestoesFilmePorGenero(generoId, jaPostadosIds, quantidade
 
 async function buscarTrailerParaSugestao(filmeId) {
   try {
-    const resposta = await fetch(
-      `https://api.themoviedb.org/3/movie/${filmeId}/videos?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR`
+    const resposta = await tmdbFetch(
+      `https://api.themoviedb.org/3/movie/${filmeId}/videos?language=pt-BR`
     );
     const dados = await resposta.json();
     const trailer = (dados.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube');
@@ -1491,7 +1647,7 @@ function gerarLegendaListaFilmes(filmes, generoLabel) {
 
 async function postarSugestaoFilmeDoDia(generoId, generoLabel, forcar, quantidade) {
   if (!supabaseAdmin) return { ok: false, motivo: 'supabase admin não configurado' };
-  if (!process.env.TMDB_API_KEY_V3) return { ok: false, motivo: 'TMDB não configurado' };
+  if (!TMDB_CONFIGURADO) return { ok: false, motivo: 'TMDB não configurado' };
 
   const botId = await buscarIdContaBotAtomo();
   if (!botId) return { ok: false, motivo: `conta bot "@${BOT_HANDLE_ATOMO}" não encontrada (confira o handle salvo no banco)` };
@@ -1561,13 +1717,13 @@ app.get('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
 // "outra sugestão": devolve UM filme do gênero, sorteado entre os bem avaliados,
 // pulando os que a pessoa já viu nessa sequência (?excluir=1,2,3). Não posta nada.
 app.get('/api/filme-outra-sugestao', async (req, res) => {
-  if (!process.env.TMDB_API_KEY_V3) return res.status(500).json({ erro: 'TMDB não configurado' });
+  if (!TMDB_CONFIGURADO) return res.status(500).json({ erro: 'TMDB não configurado' });
   try {
     const generoId = /^\d+$/.test(req.query.genero || '') ? req.query.genero : '53';
     const excluir = String(req.query.excluir || '').split(',').map(Number).filter(n => !isNaN(n) && n > 0);
     // sorteia uma página (1 a 5) pra não repetir sempre os mesmos do topo
     const pagina = 1 + Math.floor(Math.random() * 5);
-    const resposta = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`);
+    const resposta = await tmdbFetch(`https://api.themoviedb.org/3/discover/movie?language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`);
     const dados = await resposta.json();
     const opcoes = (dados.results || []).filter(f => !excluir.includes(f.id));
     if (!opcoes.length) return res.status(404).json({ erro: 'acabaram as sugestões por agora' });
@@ -1592,7 +1748,7 @@ app.post('/api/cron/sugestao-filme', rodarCronSugestaoFilme);
 // quando ela não curtiu uma das sugestões (ex: "troca o do Batman")
 async function trocarFilmeNoUltimoPost(termoRemover, generoId, generoLabel) {
   if (!supabaseAdmin) return { ok: false, motivo: 'supabase admin não configurado' };
-  if (!process.env.TMDB_API_KEY_V3) return { ok: false, motivo: 'TMDB não configurado' };
+  if (!TMDB_CONFIGURADO) return { ok: false, motivo: 'TMDB não configurado' };
 
   const botId = await buscarIdContaBotAtomo();
   if (!botId) return { ok: false, motivo: 'conta bot não encontrada' };
@@ -1628,8 +1784,8 @@ async function trocarFilmeNoUltimoPost(termoRemover, generoId, generoLabel) {
 
   let substituto = null;
   for (let pagina = 1; pagina <= 5 && !substituto; pagina++) {
-    const resposta = await fetch(
-      `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.TMDB_API_KEY_V3}&language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`
+    const resposta = await tmdbFetch(
+      `https://api.themoviedb.org/3/discover/movie?language=pt-BR&region=BR&sort_by=vote_average.desc&vote_count.gte=200&with_genres=${generoId}&page=${pagina}`
     );
     const dados = await resposta.json();
     for (const f of (dados.results || [])) {

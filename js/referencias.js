@@ -72,28 +72,6 @@ corpo.innerHTML = `<img src="${capaUrl}" style="width:100%; border-radius:12px; 
 document.getElementById('trailerPopupBg').classList.add('show');
 };
 
-window.curtirItemDescobrir = async function (i) {
-const item = window.ITENS_DESCOBRIR_ATUAIS[i];
-const { data: sessionData } = await supabaseClient.auth.getSession();
-const meuId = sessionData.session.user.id;
-const botao = document.getElementById(`curtida-descobrir-${i}`);
-
-const { data: jaCurtiu } = await supabaseClient
-  .from('curtidas_descobrir').select('id')
-  .eq('usuario_id', meuId).eq('item_titulo', item.title).eq('item_tipo', item.kind)
-  .maybeSingle();
-
-if (jaCurtiu) {
-  await supabaseClient.from('curtidas_descobrir').delete().eq('id', jaCurtiu.id);
-  botao.classList.remove('liked');
-} else {
-  await supabaseClient.from('curtidas_descobrir').insert({ usuario_id: meuId, item_titulo: item.title, item_tipo: item.kind });
-  botao.classList.add('liked');
-  botao.classList.add('pulando');
-  setTimeout(() => botao.classList.remove('pulando'), 450);
-}
-};
-
 let discoverPendenteReal = null;
 window.comentarItemDescobrir = function (i) {
 discoverPendenteReal = window.ITENS_DESCOBRIR_ATUAIS[i];
@@ -119,21 +97,6 @@ await supabaseClient.from('posts').insert({
 mostrarToast('↗ Compartilhado no seu feed');
 avisarSeguidores();
 carregarPostsReais();
-};
-
-window.tocarPreviewDescobrir = async function (i) {
-const item = window.ITENS_DESCOBRIR_ATUAIS[i];
-if (item.previewUrl) {
-  abrirTrailerPopup(item.previewUrl, 'Música');
-} else if (item.filmeId) {
-  const resp = await fetch(`${API_BASE}/api/filme-trailer?id=${item.filmeId}`);
-  const dados = await resp.json();
-  if (dados.url) abrirTrailerPopup(dados.url, 'Filme');
-} else if (item.collectionId) {
-  const resp = await fetch(`${API_BASE}/api/podcast-episodio?id=${item.collectionId}`);
-  const dados = await resp.json();
-  if (dados.url) abrirTrailerPopup(dados.url, 'Podcast');
-}
 };
 
 // ---------- mesmas ações, mas pros itens curados usados pra preencher o Feed (array separado do Descobrir) ----------
@@ -162,22 +125,6 @@ mostrarToast('↗ Compartilhado no seu feed');
 avisarSeguidores();
 carregarPostsReais();
 };
-
-window.tocarPreviewPreenchimentoFeed = async function (i) {
-const item = itensPreenchimentoFeed[i];
-if (item.previewUrl) {
-  abrirTrailerPopup(item.previewUrl, 'Música');
-} else if (item.filmeId) {
-  const resp = await fetch(`${API_BASE}/api/filme-trailer?id=${item.filmeId}`);
-  const dados = await resp.json();
-  if (dados.url) abrirTrailerPopup(dados.url, 'Filme');
-} else if (item.collectionId) {
-  const resp = await fetch(`${API_BASE}/api/podcast-episodio?id=${item.collectionId}`);
-  const dados = await resp.json();
-  if (dados.url) abrirTrailerPopup(dados.url, 'Podcast');
-}
-};
-
 
 window.buscarPreviaFilmePost = async function (filmeId, tipo) {
 const resp = await fetch(`${API_BASE}/api/filme-trailer?id=${filmeId}`);

@@ -33,26 +33,6 @@ function cardLivroGridHtml(d, i) {
         </div>`;
 }
 
-function cardLivroHtml(d, i) {
-  const selinhoAmostra = d.fonte === 'Google Books' && !d.leituraCompleta
-    ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">apenas amostra</span>`
-    : (d.fonte === 'Open Library' && d.leituraCompleta
-      ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">📗 leitura completa</span>`
-      : (d.fonte === 'Wikisource'
-        ? `<span class="discover-kind" style="margin-left:6px; opacity:.7;">📜 domínio público</span>`
-        : ''));
-  return `
-        <div class="discover-card" onclick="abrirLivroPreview(${i})" style="cursor:pointer;">
-          <span class="discover-kind">${d.kind}</span>${selinhoAmostra}
-          <div class="discover-title">${d.title}</div>
-          <div class="discover-desc">${d.desc}</div>
-          <div class="post-actions" style="margin-top:10px;">
-            <div class="post-action" onclick="event.stopPropagation(); comentarItemLivro(${i})">${icone('comentar',14,i)}</div>
-            <div class="post-action" onclick="event.stopPropagation(); compartilharItemLivro(${i})">${icone('compartilhar',14,i)}</div>
-          </div>
-        </div>`;
-}
-
 // livros gratuitos mais rápidos depois da primeira leva: cada página fica guardada na memória
 // (reabrir a aba ou voltar uma busca já feita é instantâneo) e a PRÓXIMA página já é buscada
 // em segundo plano enquanto a pessoa olha a atual, então o "carregar mais" chega pronto

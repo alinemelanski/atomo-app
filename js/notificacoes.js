@@ -67,25 +67,51 @@ window.instalarAgoraPwa = async function () {
 
 window.fecharGuiaInstalacao = async function () {
   document.getElementById('guiaInstalacaoPopupBg').classList.remove('show');
+  await marcarGuiaVisto();
+  if (etapaBoasVindas === 'guia') passoNotificacaoBoasVindas(); // próxima etapa da fila
+};
+
+// ---------- FILA DE BOAS-VINDAS: perguntas → guia de instalação → notificação ----------
+// Antes cada coisa tinha seu próprio relógio (setTimeout de 1,2s, 1,8s, 2,6s, 4,5s) e elas
+// abriam umas por cima das outras — o banner de notificação aparecia até no meio das perguntas.
+// Agora é uma fila: cada etapa só começa quando a anterior FECHA.
+//   1. as perguntas (onboarding) — quem chama esta fila só chama depois delas
+//   2. o guia "adicione à tela inicial" — só se ainda não viu e não está no app instalado
+//   3. o pedido de notificação — só se o navegador ainda não perguntou nada
+let etapaBoasVindas = null;
+
+// espera a tela ficar livre (sem perguntas, sem outra janela aberta) antes de mostrar algo
+function quandoTelaLivre(fn) {
+  const ocupada = document.querySelector('#onboardOverlay:not(.hide), .write-popup-bg.show, .config-overlay.open, .dm-chat-overlay.open, .selo-pacote-overlay.show');
+  if (ocupada) { setTimeout(() => quandoTelaLivre(fn), 2500); return; }
+  fn();
+}
+
+async function marcarGuiaVisto() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (sessionData.session) {
     await supabaseClient.from('usuarios').update({ viu_guia_instalacao: true }).eq('id', sessionData.session.user.id);
   }
-};
+}
 
-window.verificarGuiaInstalacao = async function (jaViu) {
+window.iniciarBoasVindas = function (jaViuGuia) {
+  reinscreverPushSilencioso(); // quem já deu permissão: garante que o servidor tem a inscrição deste aparelho
   if (isStandalonePwa()) {
-    if (!jaViu) {
-      const { data: sessionData } = await supabaseClient.auth.getSession();
-      if (sessionData.session) {
-        await supabaseClient.from('usuarios').update({ viu_guia_instalacao: true }).eq('id', sessionData.session.user.id);
-      }
-    }
+    if (!jaViuGuia) marcarGuiaVisto(); // já está usando o app instalado: não precisa do guia
+    passoNotificacaoBoasVindas();
     return;
   }
-  if (jaViu) return;
-  setTimeout(() => abrirGuiaInstalacao(), 1800);
+  if (jaViuGuia) { passoNotificacaoBoasVindas(); return; }
+  etapaBoasVindas = 'guia';
+  setTimeout(() => quandoTelaLivre(() => abrirGuiaInstalacao()), 1200);
 };
+
+function passoNotificacaoBoasVindas() {
+  etapaBoasVindas = null;
+  // a marca é deste APARELHO (cada celular/navegador precisa da própria permissão)
+  try { if (localStorage.getItem('atomoNotifBannerDispensado') === '1') return; } catch (e) {}
+  setTimeout(() => mostrarBannerNotificacao(), 900);
+}
 
 // ---------- notificação push externa (manhã/noite) ----------
 function urlBase64ToUint8Array(base64String) {
@@ -127,10 +153,11 @@ window.pedirPermissaoEInscreverPush = async function () {
 
     const { data: sessionData } = await supabaseClient.auth.getSession();
     if (sessionData.session) {
+      // o servidor descobre de quem é a inscrição pelo token (não aceita mais "usuarioId" no corpo)
       await fetch(`${API_BASE}/api/push/inscrever`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuarioId: sessionData.session.user.id, subscription }),
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sessionData.session.access_token },
+        body: JSON.stringify({ subscription }),
       });
     }
   } catch (e) {
@@ -138,17 +165,14 @@ window.pedirPermissaoEInscreverPush = async function () {
   }
 };
 
-window.verificarPermissaoNotifPush = function (jaPediu) {
-  // "jaPediu" vem do banco (por CONTA), mas o pedido de notificação é por
-  // NAVEGADOR/aparelho — se a pessoa já ativou no celular isso não quer dizer
-  // que esse computador/navegador já tem inscrição de push. Por isso o que
-  // realmente decide se mostra o banner de novo é uma marca local desse
-  // aparelho (localStorage), não a flag da conta.
-  try {
-    if (localStorage.getItem('atomoNotifBannerDispensado') === '1') return;
-  } catch (e) {}
-  setTimeout(() => mostrarBannerNotificacao(), 4500);
-};
+// Quem JÁ deu permissão antes: renova a inscrição em silêncio a cada entrada.
+// Sem isso, se a inscrição sumisse do servidor (aparelho trocou a chave, banco limpou uma
+// inscrição expirada...), a pessoa nunca mais recebia notificação e nem ficava sabendo.
+function reinscreverPushSilencioso() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  if (typeof notifAtivo !== 'undefined' && notifAtivo === false) return; // desligou em Configurações
+  pedirPermissaoEInscreverPush(); // com permissão já dada, isso NÃO mostra pergunta nenhuma
+}
 
 // pedir notificação direto (sem toque da pessoa) é bloqueado silenciosamente pela
 // maioria dos navegadores mobile — por isso mostramos um banner com botão, e só
@@ -156,7 +180,7 @@ window.verificarPermissaoNotifPush = function (jaPediu) {
 window.mostrarBannerNotificacao = function () {
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
   if (Notification.permission !== 'default') return;
-  if (document.querySelector('.write-popup-bg.show, .config-overlay.open, .dm-chat-overlay.open')) {
+  if (document.querySelector('#onboardOverlay:not(.hide), .write-popup-bg.show, .config-overlay.open, .dm-chat-overlay.open, .selo-pacote-overlay.show')) {
     setTimeout(() => mostrarBannerNotificacao(), 3000);
     return;
   }
@@ -200,8 +224,7 @@ window.testarNotificacaoPush = async function () {
   try {
     const resp = await fetch(`${API_BASE}/api/push/testar`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuarioId: sessionData.session.user.id }),
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sessionData.session.access_token },
     });
     const dados = await resp.json();
     if (dados.ok && dados.enviadas > 0) {

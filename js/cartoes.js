@@ -209,16 +209,6 @@ window.compartilharCitacaoNoGrupo = function () {
   }, 'image/png');
 };
 
-window.baixarCartaoCitacao = function () {
-  const canvas = document.getElementById('citacaoCanvas');
-  canvas.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'citacao-atomo.png'; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
-  }, 'image/png');
-};
-
 // compartilha a imagem do cartão pra fora do app (WhatsApp, Instagram, Twitter, o que a pessoa escolher
 // no menu nativo de compartilhamento) — usa a Web Share API com o arquivo de verdade quando o navegador suporta
 window.compartilharCartaoCitacaoExterno = function () {

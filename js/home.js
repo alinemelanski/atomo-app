@@ -682,16 +682,6 @@ window.responderConviteMatch = async function (ativar) {
   }
 };
 
-window.ajustarTempoPicker = function (parte, dir) {
-  vibrar(6);
-  let h = Math.floor(window.TEMPO_PICKER_MIN / 60);
-  let m = window.TEMPO_PICKER_MIN % 60;
-  if (parte === 'h') { h = (h + dir + 24) % 24; }
-  else { m = (Math.round(m / 5) * 5 + dir * 5 + 60) % 60; }
-  window.TEMPO_PICKER_MIN = h * 60 + m;
-  renderTempoPicker();
-};
-
 window.abrirLembreteItem = function (id) {
   window.MODO_LEMBRETE_ATUAL = 'checklist';
   document.getElementById('lembretePickerTitulo').textContent = 'Avisar em que horário?';

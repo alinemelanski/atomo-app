@@ -313,21 +313,6 @@ window.verificarConviteClubePendente = async function () {
   await abrirClubePorId(convite.id);
 };
 
-function sugestaoClubeHtml(s, i, meuId, souAdmin) {
-  const podeRemover = souAdmin || s.sugerido_por === meuId;
-  return `
-      <div class="discover-card" style="display:flex; gap:10px; align-items:center; margin-bottom:8px; animation-delay:${Math.min(i, 6) * 0.05}s;">
-        ${s.capa_url
-        ? `<img src="${s.capa_url}" alt="" style="width:40px; height:58px; object-fit:cover; border-radius:4px; flex-shrink:0;">`
-        : `<div class="capa-vazia-mini" style="width:40px; height:58px;">${icone('livro',18,i,'#fff')}</div>`}
-        <div style="min-width:0; flex:1;">
-          <div class="discover-title" style="font-size:14px;">${s.titulo}</div>
-          ${s.autor ? `<div class="discover-desc">${s.autor}</div>` : ''}
-        </div>
-        ${podeRemover ? `<div class="post-action" onclick="removerSugestaoClube(${i})">${icone('lixeira',14)}</div>` : ''}
-      </div>`;
-}
-
 // ---------- ferramentas do clube: card "onde o clube está" ----------
 // Quem administra vê, dentro do próprio card, o botão "Avançar capítulo" (pula
 // pro próximo com 1 toque, sem abrir formulário) e um lápis pequeno pra quem
@@ -413,62 +398,6 @@ async function renderFerramentasClube(c, souMembro, souAdmin, meuId) {
   if (!souMembro) { wrap.innerHTML = ''; return; }
   wrap.innerHTML = capituloCardHtml(souAdmin);
 }
-
-window.removerSugestaoClube = async function (i) {
-  const s = (window.SUGESTOES_CLUBE_ATUAIS || [])[i];
-  if (!s) return;
-  await supabaseClient.from('clube_sugestoes_livro').delete().eq('id', s.id);
-  renderClubeDetalhe();
-};
-
-window.girarRoletaClube = async function () {
-  const lista = window.SUGESTOES_CLUBE_ATUAIS || [];
-  if (lista.length < 1) { mostrarToast('❌ precisa de pelo menos 1 sugestão pra girar'); return; }
-  const elResultado = document.getElementById('roletaResultadoTexto');
-  const btn = document.getElementById('btnGirarRoleta');
-  if (btn) btn.disabled = true;
-
-  const vencedorIdx = Math.floor(Math.random() * lista.length);
-  const totalPassos = 14 + vencedorIdx + Math.floor(Math.random() * lista.length);
-
-  await new Promise(resolve => {
-    let passo = 0;
-    let atraso = 55;
-    function girar() {
-      const idx = passo % lista.length;
-      if (elResultado) elResultado.innerHTML = `<span style="display:inline-flex; width:13px; height:13px; vertical-align:-2px; margin-right:4px; animation:pull-spin .5s linear infinite;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 8H15a3 3 0 0 1 3 3v1.2"/><path d="M9.3 5 6.5 8l2.8 3"/><path d="M17.5 16H9a3 3 0 0 1-3-3v-1.2"/><path d="M14.7 19l2.8-3-2.8-3"/></svg></span>${lista[idx].titulo}`;
-      passo++;
-      atraso += 14; // desacelera a cada passo, como uma roleta de verdade
-      if (passo < totalPassos) setTimeout(girar, atraso);
-      else {
-        if (elResultado) elResultado.textContent = `🎉 sorteado: ${lista[vencedorIdx].titulo}`;
-        resolve();
-      }
-    }
-    girar();
-  });
-
-  const vencedor = lista[vencedorIdx];
-  const { error } = await supabaseClient.from('clubes_livro').update({
-    livro_titulo: vencedor.titulo,
-    livro_autor: vencedor.autor || null,
-    livro_capa_url: vencedor.capa_url || null,
-    livro_google_id: vencedor.google_id || null,
-  }).eq('id', clubeAtualId);
-  if (error) { mostrarToast('❌ erro ao definir o livro: ' + error.message); if (btn) btn.disabled = false; return; }
-
-  await supabaseClient.from('clube_sugestoes_livro').delete().eq('clube_id', clubeAtualId);
-  mostrarToast(`📖 o clube vai ler: ${vencedor.titulo}`);
-  renderClubeDetalhe();
-};
-
-window.abrirSugerirLivroRoleta = function () {
-  modoBuscaLivroClube = 'sugerir';
-  document.getElementById('buscaLivroClubeTitulo').textContent = 'Sugerir livro pra roleta';
-  document.getElementById('buscaGuiaClubeInput').value = '';
-  document.getElementById('guiaClubeResultados').innerHTML = '';
-  document.getElementById('buscaLivroClubeOverlay').classList.add('open');
-};
 
 window.entrarNoClube = async function () {
   const { data: sessionData } = await supabaseClient.auth.getSession();

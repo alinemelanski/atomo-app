@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Átomo">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js"></script>
 <!-- daily-js: SDK do provedor de áudio ao vivo (Daily.co) usado na sala de
      call de estudo das comunidades — carrega o objeto global DailyIframe -->
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
@@ -167,7 +167,7 @@
       <div id="climaWidget" class="clima-chip"></div>
       <div class="composer">
         <textarea id="composerText" placeholder="O que você quer compartilhar hoje?"></textarea>
-        <img id="composerFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
+        <img id="composerFotoPreview" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
         <video id="composerFotoPreviewVideo" controls style="max-width:100%; max-height:220px; border-radius:12px; display:none; margin:6px 0; background:#000;"></video>
         <input type="file" id="composerFotoInput" accept="image/*,video/*" onchange="previewFotoComposer(this)" style="display:none;" />
         <input type="file" id="composerFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoComposer(this)" style="display:none;" />
@@ -668,7 +668,7 @@
         </header>
         <div class="folha-corpo">
           <textarea id="perfilComposerText" class="folha-texto folha-input" onfocus="entrarEdicaoDiario()"></textarea>
-          <img id="perfilComposerFotoPreview" class="folha-foto" src="" style="display:none;" />
+          <img id="perfilComposerFotoPreview" class="folha-foto" style="display:none;" />
           <video id="perfilComposerFotoPreviewVideo" controls class="folha-foto" style="display:none; background:#000;"></video>
         </div>
         <input type="file" id="perfilComposerFotoInput" accept="image/*,video/*" onchange="previewFotoComposerPerfil(this)" style="display:none;" />
@@ -997,7 +997,7 @@
         <h2 style="font-size:16px;">Editar perfil</h2>
       </div>
             <div style="text-align:center; margin:10px 0;">
-        <img id="editAvatarPreview" src="" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:none; margin-bottom:8px;" />
+        <img id="editAvatarPreview" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:none; margin-bottom:8px;" />
         <div id="editAvatarInfo" style="display:none; font-size:11.5px; color:var(--ink-faint); margin:-2px 0 8px;"></div>
         <span class="upload-foto-icon" style="margin:0 auto; display:flex; cursor:pointer;" onclick="abrirEscolherFoto('avatar')"><span class="icon-svg" style="width:17px;height:17px;animation-duration:3.45s;animation-delay:1.54s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
       <input type="file" id="editAvatarInput" accept="image/*" onchange="previewAvatarEscolhido(this)" style="display:none;" />
@@ -1039,7 +1039,7 @@
           <button class="back-btn" style="width:28px;height:28px;" onclick="closeOverlay('composerExplorarOverlay')"><span class="icon-svg" style="width:14px;height:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
         </div>
         <textarea id="composerExplorarText" placeholder="O que você quer compartilhar com a comunidade?"></textarea>
-        <img id="composerExplorarFotoPreview" src="" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
+        <img id="composerExplorarFotoPreview" style="max-width:100%; max-height:160px; border-radius:12px; display:none; margin:6px 0;" />
         <video id="composerExplorarFotoPreviewVideo" controls style="max-width:100%; max-height:220px; border-radius:12px; display:none; margin:6px 0; background:#000;"></video>
         <div class="composer-glass-foot">
           <span class="upload-foto-icon" style="cursor:pointer;" onclick="abrirEscolherFoto('explorar')"><span class="icon-svg" style="width:18px;height:18px;animation-duration:3.45s;animation-delay:1.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/></svg></span></span>
@@ -1817,7 +1817,7 @@
       <div class="config-footer">
         <div class="config-logout" onclick="sairDaConta()">Sair da conta</div>
         <div style="text-align:center; margin-top:14px;">
-          <a href="termos.html" download style="font-size:11px; color:var(--ink-faint); text-decoration:underline;">Termos de Uso e Política de Privacidade</a>
+          <a href="termos.html" target="_blank" rel="noopener" style="font-size:11px; color:var(--ink-faint); text-decoration:underline;">Termos de Uso e Política de Privacidade</a>
         </div>
         <div class="config-version" id="configVersao">Átomo</div>
       </div>
