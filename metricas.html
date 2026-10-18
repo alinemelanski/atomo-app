@@ -197,6 +197,20 @@
       </div>
     </div>
 
+    <div class="secao">Aviso pra todas as contas (sininho + celular)</div>
+    <div class="email-box">
+      <label for="avisoTitulo">título (até 60 letras)</label>
+      <input id="avisoTitulo" maxlength="60" value="✨ O Átomo tem versão nova" />
+      <label for="avisoTexto">texto (até 180 letras — o celular corta o que passar disso)</label>
+      <textarea id="avisoTexto" maxlength="180" style="min-height:90px;">Grifos e marcadores nos livros, Loja de autores, palavra do dia e muito mais. Entra pra ver o que mudou 📖</textarea>
+      <div class="email-botoes">
+        <button onclick="avisoTodos('contar')">contar contas</button>
+        <button onclick="avisoTodos('teste')">mandar teste pra mim</button>
+        <button class="todos" id="btnAvisoTodos" onclick="avisoTodos('todos')">mandar pra todas as contas</button>
+      </div>
+      <div class="email-resultado" id="avisoResultado"></div>
+    </div>
+
     <div class="secao">E-mail pra todas as contas</div>
     <div class="email-box">
       <label for="emailAssunto">assunto</label>
@@ -389,6 +403,29 @@ Criadora do Átomo</textarea>
     fetch(API_BASE + '/api/admin/erros/resolver?segredo=' + encodeURIComponent(senhaAtual), {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensagem: g.e.mensagem })
     }).then(function(){ carregarErros(); });
+  }
+  // ---------- aviso pra todas as contas (sininho + celular) ----------
+  // mesma ideia do e-mail: "mandar pra todas" pede 2 toques (o 1º só arma o botão por 5s)
+  var avisoArmado = false;
+  function avisoTodos(modo){
+    var out = document.getElementById('avisoResultado');
+    var btn = document.getElementById('btnAvisoTodos');
+    if (modo === 'todos' && !avisoArmado) {
+      avisoArmado = true; btn.classList.add('confirmar'); btn.textContent = 'toque de novo pra confirmar o envio';
+      setTimeout(function(){ avisoArmado = false; btn.classList.remove('confirmar'); btn.textContent = 'mandar pra todas as contas'; }, 5000);
+      return;
+    }
+    avisoArmado = false; btn.classList.remove('confirmar'); btn.textContent = 'mandar pra todas as contas';
+    out.textContent = modo === 'contar' ? 'contando...' : 'enviando... (não feche a página)';
+    fetch(API_BASE + '/api/admin/aviso-todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': senhaAtual },
+      body: JSON.stringify({ modo: modo, titulo: document.getElementById('avisoTitulo').value, texto: document.getElementById('avisoTexto').value })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (!d.ok) { out.textContent = 'Erro: ' + (d.erro || 'desconhecido'); return; }
+      if (modo === 'contar') { out.textContent = d.contas + ' contas vão ver no sininho · ' + d.celulares + ' celulares com notificação ativada.'; return; }
+      out.textContent = '✅ ' + (modo === 'teste' ? 'teste enviado pra sua conta' : 'aviso enviado pra ' + d.contas + ' contas') + ' · ' + d.celularesAvisados + ' celular(es) receberam a notificação.';
+    }).catch(function(){ out.textContent = 'Não consegui conectar no servidor (ele pode estar acordando, tenta em 1 minuto).'; });
   }
   // ---------- e-mail pra todas as contas ----------
   // "mandar pra todas" pede 2 toques (o primeiro só arma o botão por 5s) — sem pop-up nativo

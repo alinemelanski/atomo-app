@@ -849,6 +849,69 @@ app.post('/api/admin/email-todos', async (req, res) => {
   }
 });
 
+// ---------- AVISO PRA TODAS AS CONTAS: sininho + celular (painel metricas.html) ----------
+// Não precisa de domínio nem de e-mail: grava uma notificação no sininho de cada conta
+// e manda notificação no celular de quem tem push ativado. Três modos, igual ao e-mail:
+//   contar → quantas contas e quantos celulares inscritos
+//   teste  → só pra sua conta (a do EMAIL_ADMIN_ESTANTE_AUTORAL)
+//   todos  → pra todo mundo
+async function idDaContaAdmin() {
+  for (let pagina = 1; pagina < 100; pagina++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: pagina, perPage: 1000 });
+    if (error) throw error;
+    const usuarios = (data && data.users) || [];
+    const eu = usuarios.find((u) => (u.email || '').toLowerCase() === EMAIL_ADMIN_ESTANTE_AUTORAL.toLowerCase());
+    if (eu) return eu.id;
+    if (usuarios.length < 1000) return null;
+  }
+  return null;
+}
+
+app.post('/api/admin/aviso-todos', async (req, res) => {
+  const segredo = req.headers['x-admin-secret'];
+  if (!process.env.ADMIN_SECRET || segredo !== process.env.ADMIN_SECRET) return res.status(401).json({ erro: 'não autorizado' });
+  if (!supabaseAdmin) return res.status(500).json({ erro: 'admin não configurado no servidor' });
+
+  const { modo } = req.body || {};
+  const titulo = String((req.body || {}).titulo || '').trim().slice(0, 60);   // notificação de celular corta textos longos
+  const texto = String((req.body || {}).texto || '').trim().slice(0, 180);
+  if (!['contar', 'teste', 'todos'].includes(modo)) return res.status(400).json({ erro: 'modo inválido' });
+
+  try {
+    // todas as contas (de 1000 em 1000, porque o banco devolve no máximo isso por vez)
+    let ids = [];
+    for (let de = 0; ; de += 1000) {
+      const { data, error } = await supabaseAdmin.from('usuarios').select('id').range(de, de + 999);
+      if (error) throw error;
+      ids = ids.concat((data || []).map((u) => u.id));
+      if (!data || data.length < 1000) break;
+    }
+    const { count: celulares } = await supabaseAdmin.from('push_subscriptions').select('id', { count: 'exact', head: true });
+    if (modo === 'contar') return res.json({ ok: true, contas: ids.length, celulares: celulares || 0 });
+
+    if (titulo.length < 3 || texto.length < 5) return res.status(400).json({ erro: 'escreve o título e o texto do aviso' });
+
+    if (modo === 'teste') {
+      const meuId = await idDaContaAdmin();
+      if (!meuId) return res.status(404).json({ erro: 'não achei sua conta (confira EMAIL_ADMIN_ESTANTE_AUTORAL)' });
+      ids = [meuId];
+    }
+
+    // 1) sininho: uma linha por conta, gravadas de 500 em 500
+    for (let i = 0; i < ids.length; i += 500) {
+      await criarNotificacoesNoApp(ids.slice(i, i + 500).map((id) => ({ usuario_id: id, tipo: 'aviso_atomo', titulo, subtitulo: texto })));
+    }
+    // 2) celular: quem tem notificação ativada (a função já pula quem não tem inscrição)
+    let celularesAvisados = 0;
+    for (const id of ids) {
+      celularesAvisados += await enviarPushParaUsuario(id, titulo, texto, { tipo: 'aviso_atomo' });
+    }
+    res.json({ ok: true, contas: ids.length, celularesAvisados });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
 // painel de métricas privado — só pra você acompanhar quantos usuários o
 // Átomo tem, protegido por senha (ADMIN_SECRET), sem link em nenhum lugar
 // do app pros outros usuários
