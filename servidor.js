@@ -2484,8 +2484,13 @@ app.get('/api/livro-texto', async (req, res) => {
 
     const chaveTxt = Object.keys(formatos).find(k => k.startsWith('text/plain'));
     const chaveHtml = Object.keys(formatos).find(k => k.startsWith('text/html'));
-    // 2) endereço fixo do próprio Project Gutenberg (todo livro tem o .txt nesse formato)
-    const urlEscolhida = formatos[chaveTxt] || formatos[chaveHtml] || `https://www.gutenberg.org/cache/epub/${id}/pg${id}.txt`;
+    // 2) endereços fixos do .txt: o site do Project Gutenberg e os ESPELHOS oficiais dele
+    //    (cópias do mesmo acervo em outros servidores — se um recusar, tenta o próximo)
+    const candidatos = [formatos[chaveTxt], formatos[chaveHtml],
+      `https://www.gutenberg.org/cache/epub/${id}/pg${id}.txt`,
+      `https://gutenberg.pglaf.org/cache/epub/${id}/pg${id}.txt`,
+      `https://aleph.pglaf.org/cache/epub/${id}/pg${id}.txt`].filter(Boolean);
+    const urlEscolhida = candidatos[0];
 
     if (!urlEscolhida) {
       return res.json({
@@ -2496,11 +2501,21 @@ app.get('/api/livro-texto', async (req, res) => {
       });
     }
 
-    const respTexto = await fetch(urlEscolhida, { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } });
-    if (!respTexto.ok) throw new Error('Gutenberg respondeu ' + respTexto.status);
-    let bruto = await respTexto.text();
+    // tenta cada endereço até um responder; guarda o motivo de cada falha pra mostrar no erro
+    let bruto = '', urlQueFuncionou = '';
+    const motivos = [];
+    for (const url of candidatos) {
+      try {
+        const respTexto = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Atomo-app; projeto de estudo)' } });
+        if (!respTexto.ok) { motivos.push(new URL(url).host + ' ' + respTexto.status); continue; }
+        bruto = await respTexto.text();
+        urlQueFuncionou = url;
+        break;
+      } catch (e) { motivos.push(new URL(url).host + ' ' + e.message); }
+    }
+    if (!bruto) throw new Error('nenhuma fonte respondeu: ' + motivos.join(' | '));
 
-    if (!chaveTxt && chaveHtml && urlEscolhida === formatos[chaveHtml]) {
+    if (chaveHtml && urlQueFuncionou === formatos[chaveHtml]) {
       bruto = bruto.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
     }
 
@@ -2522,7 +2537,7 @@ app.get('/api/livro-texto', async (req, res) => {
     // 200 com aviso amigável em vez de 500 — o Gutendex faz parte da internet
     // e falha na hora vez ou outra; melhor a pessoa ver "tenta de novo" do
     // que um erro cru no console sem explicação nenhuma
-    res.json({ erro: 'não consegui carregar o livro', texto: '' });
+    res.json({ erro: 'não consegui carregar o livro', texto: '', detalhe: String(erro.message).slice(0, 300) }); // "detalhe" = motivo técnico, ajuda a consertar sem adivinhar
   }
 });
 
