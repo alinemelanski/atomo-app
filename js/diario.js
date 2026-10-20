@@ -492,7 +492,8 @@ window.escolherLayoutGratidao = function (n) {
 
 window.escolherFotoCasinha = function (i) {
   casinhaGratidaoAtual = i;
-  document.getElementById('polaroidFotoInput').click();
+  // pergunta "câmera ou galeria" (no Android, só a galeria não tinha câmera)
+  abrirEscolherFoto('gratidao');
 };
 
 window.abrirQuickGratidao = function () {

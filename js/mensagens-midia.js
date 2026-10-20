@@ -198,13 +198,24 @@ try {
 }
 }
 
+// busca enquanto digita (espera a pessoa parar 0,5s). Antes só buscava com Enter — e no
+// teclado do Android o Enter nem sempre chega pro app, então parecia que a busca não funcionava.
+let esperaBuscaSticker = null;
+window.buscarStickerDigitando = function () {
+  clearTimeout(esperaBuscaSticker);
+  esperaBuscaSticker = setTimeout(() => buscarStickerReal(), 500);
+};
+
+let buscaStickerSeq = 0; // se a pessoa digitar rápido, só a resposta da ÚLTIMA busca aparece
 window.buscarStickerReal = async function () {
+const minhaBusca = ++buscaStickerSeq;
 const termo = document.getElementById('buscaStickerInput').value.trim();
 if (!termo) { await carregarStickersEmAlta(); return; }
 document.getElementById('resultadosSticker').innerHTML = `<div class="visitor-lock-note">Buscando...</div>`;
 try {
   const resposta = await fetch(`${API_BASE}/api/buscar-sticker?q=${encodeURIComponent(termo)}`);
   const dados = await resposta.json();
+  if (minhaBusca !== buscaStickerSeq) return; // chegou uma busca mais nova no meio do caminho
   const resultados = (dados.data?.data || dados.data || []).slice(0, 16);
   document.getElementById('resultadosSticker').innerHTML = resultados.length
     ? resultados.map(s => {

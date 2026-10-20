@@ -984,6 +984,8 @@
       <input type="text" id="polaroidLegendaInput" class="gratidao-legenda-input" placeholder="escreve sua gratidão aqui..." />
     </div>
     <input type="file" id="polaroidFotoInput" accept="image/*" onchange="previewFotoPolaroid(this)" style="display:none;" />
+    <!-- câmera: no Android o seletor de fotos do sistema não oferece câmera, por isso um input só pra ela -->
+    <input type="file" id="polaroidFotoInputCamera" accept="image/*" capture="environment" onchange="previewFotoPolaroid(this)" style="display:none;" />
 
     <button class="post-btn quick-diario-salvar" id="btnSalvarQuickGratidao" onclick="salvarQuickGratidao()">Guardar</button>
   </div>
@@ -1688,7 +1690,7 @@
             <div id="stickerPickerArea" style="display:none; padding:8px 0;">
         <div class="busca-wrap" style="margin-bottom:6px;">
           <span class="icon-svg" style="width:15px;height:15px;animation-duration:3.1s;animation-delay:0.0s;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.3" cy="10.3" r="6"/><path d="M20 20l-5.2-5.2"/></svg></span>
-          <input type="text" id="buscaStickerInput" class="busca-input" placeholder="Buscar figurinha (ex: anime, fofo, gato)..." onkeydown="if(event.key==='Enter') buscarStickerReal()" />
+          <input type="search" id="buscaStickerInput" class="busca-input" enterkeyhint="search" placeholder="Buscar figurinha (ex: anime, fofo, gato)..." oninput="buscarStickerDigitando()" onkeydown="if(event.key==='Enter'){event.preventDefault(); buscarStickerReal();}" />
         </div>
         <div id="resultadosSticker" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-height:220px; overflow-y:auto;"></div>
       </div>

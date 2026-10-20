@@ -24,6 +24,13 @@
      vira gradiente quando ligado. */
   .home-diario-streak.arco-iris-on .streak-fill {
     background: linear-gradient(90deg, #E0447C, #F2B705, #3FA34D, #3B82C4, #8B5CF6); }
+  /* antes só o preenchimento mudava — com poucos dias (ou zero) ele é tão curtinho que
+     parecia que nada acontecia. Agora a pílula INTEIRA ganha um arco-íris clarinho no fundo */
+  .home-diario-streak.arco-iris-on {
+    background: linear-gradient(90deg, #FBD3E0, #FDEFC0, #D3EDD6, #D3E4F5, #E4DBFB); color: #4A3A2A; }
+  /* "pulinho" ao tocar, pra mostrar que o toque pegou */
+  .home-diario-streak.pulando { animation: pilulaPula .35s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes pilulaPula { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1); } }
   .home-diario-streak .streak-conteudo { position:relative; z-index:1; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
   .streak-dots { display:inline-block; width:1.1em; overflow:hidden; vertical-align:bottom; }
   .streak-dots::after { content:'...'; animation: streakReticencias 1.3s steps(4) infinite; }

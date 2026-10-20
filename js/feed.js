@@ -238,6 +238,7 @@ dm: { galeria: 'dmFotoInput', camera: 'dmFotoInputCamera' },
 clube: { galeria: 'clubeFotoInput', camera: 'clubeFotoInputCamera' },
 comunidade: { galeria: 'comunidadeFotoInput', camera: 'comunidadeFotoInputCamera' },
 explorar: { galeria: 'explorarComposerFotoInput', camera: 'explorarComposerFotoInputCamera' },
+gratidao: { galeria: 'polaroidFotoInput', camera: 'polaroidFotoInputCamera' }, // casinhas de foto da gratidão
 };
 let fotoOrigemAtual = null;
 

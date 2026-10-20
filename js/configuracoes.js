@@ -167,6 +167,9 @@ aplicarArcoIrisPilula(arcoIrisPilulaAtivo);
 
 window.alternarArcoIrisPilula = function () {
 aplicarArcoIrisPilula(!arcoIrisPilulaAtivo);
+const pilula = document.getElementById('homeDiarioStreak');
+if (pilula) { pilula.classList.remove('pulando'); void pilula.offsetWidth; pilula.classList.add('pulando'); } // reinicia o pulinho
+if (typeof vibrar === 'function') vibrar(10);
 };
 
 // pilula de sequencia: numero + barrinha que enche ao longo da semana (reinicia

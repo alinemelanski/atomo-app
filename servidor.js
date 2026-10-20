@@ -1319,13 +1319,30 @@ const PERGUNTAS_DO_DIA = [
   { pt: 'Se a sua vida tivesse uma trilha sonora, qual seria a primeira música?', en: 'If your life had a soundtrack, what would the first song be?' }
 ];
 
+// ---------- 3 perguntas por semana (segunda, quarta e sexta) ----------
+// Antes era uma pergunta TODO dia — cansativo (pedido da Aline). Nos outros dias a notificação
+// da manhã volta a ser um "bom dia" curtinho.
+const DIAS_DA_PERGUNTA = [1, 3, 5]; // 0 = domingo, 1 = segunda ... 6 = sábado
+function diaDaSemana(dataYyyyMmDd) { return new Date(dataYyyyMmDd + 'T12:00:00Z').getUTCDay(); }
+function ehDiaDePergunta(dataYyyyMmDd) { return DIAS_DA_PERGUNTA.includes(diaDaSemana(dataYyyyMmDd)); }
+// qual pergunta da lista: conta "perguntas já feitas" (3 por semana) em vez de dias,
+// pra lista andar uma por uma, sem pular nenhuma
+function indiceDaPergunta(dataYyyyMmDd) {
+  const [ano, mes, dia] = dataYyyyMmDd.split('-').map(Number);
+  const dias = Math.floor(Date.UTC(ano, mes - 1, dia) / 86400000);
+  const semana = Math.floor((dias + 3) / 7); // 01/01/1970 foi quinta: +3 faz a semana começar na segunda
+  const posicao = Math.max(0, DIAS_DA_PERGUNTA.indexOf(diaDaSemana(dataYyyyMmDd)));
+  return ((semana * DIAS_DA_PERGUNTA.length + posicao) % PERGUNTAS_DO_DIA.length + PERGUNTAS_DO_DIA.length) % PERGUNTAS_DO_DIA.length;
+}
+
 // garante que o post da pergunta de HOJE existe (cria uma vez por dia) e devolve { id, pergunta }.
 // Se o cron rodar várias vezes no mesmo dia, ele reaproveita o post já criado.
 async function garantirPerguntaDoDia(hojeBrasilia) {
   if (!supabaseAdmin) return null;
   const botId = await buscarIdContaBotAtomo();
   if (!botId) return null;
-  const pergunta = PERGUNTAS_DO_DIA[indiceRotativoDoDia(hojeBrasilia, PERGUNTAS_DO_DIA.length)];
+  if (!ehDiaDePergunta(hojeBrasilia)) return null; // só segunda, quarta e sexta
+  const pergunta = PERGUNTAS_DO_DIA[indiceDaPergunta(hojeBrasilia)];
 
   // já postou hoje? (olha o último post desse tipo e compara o dia em Brasília)
   const { data: ultimo } = await supabaseAdmin
@@ -1350,7 +1367,7 @@ async function garantirPerguntaDoDia(hojeBrasilia) {
 // o app pode pedir a pergunta de hoje (nos dois idiomas) — útil pro inglês
 app.get('/api/pergunta-do-dia', (req, res) => {
   const hoje = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-  res.json(PERGUNTAS_DO_DIA[indiceRotativoDoDia(hoje, PERGUNTAS_DO_DIA.length)]);
+  res.json(PERGUNTAS_DO_DIA[indiceDaPergunta(hoje)]); // a pergunta mais recente (nos dias sem pergunta, repete a última posição da semana)
 });
 
 // chamada por um agendador EXTERNO (o Render free não fica ligado sozinho o
@@ -2452,14 +2469,23 @@ app.get('/api/livro-texto', async (req, res) => {
   const id = (req.query.id || '').trim();
   if (!id) return res.status(400).json({ erro: 'faltou o parâmetro id' });
 
+  if (!/^\d+$/.test(id)) return res.status(400).json({ erro: 'id inválido' });
+
   try {
-    const respLivro = await fetch(`https://gutendex.com/books/${encodeURIComponent(id)}`);
-    const livro = await respLivro.json();
+    // 1) tenta o Gutendex (ele diz onde está o .txt de cada livro). O Gutendex começou a
+    //    recusar pedidos vindos do Render (resposta em ~0,3s, não é lentidão) — então,
+    //    se falhar, o servidor não desiste: vai pro passo 2.
+    let livro = {};
+    try {
+      const respLivro = await fetch(`https://gutendex.com/books/${encodeURIComponent(id)}/`, { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)', accept: 'application/json' } });
+      if (respLivro.ok) livro = await respLivro.json();
+    } catch (e) { console.log('gutendex falhou, indo direto pro Gutenberg:', e.message); }
     const formatos = livro.formats || {};
 
     const chaveTxt = Object.keys(formatos).find(k => k.startsWith('text/plain'));
     const chaveHtml = Object.keys(formatos).find(k => k.startsWith('text/html'));
-    const urlEscolhida = formatos[chaveTxt] || formatos[chaveHtml];
+    // 2) endereço fixo do próprio Project Gutenberg (todo livro tem o .txt nesse formato)
+    const urlEscolhida = formatos[chaveTxt] || formatos[chaveHtml] || `https://www.gutenberg.org/cache/epub/${id}/pg${id}.txt`;
 
     if (!urlEscolhida) {
       return res.json({
@@ -2470,10 +2496,11 @@ app.get('/api/livro-texto', async (req, res) => {
       });
     }
 
-    const respTexto = await fetch(urlEscolhida);
+    const respTexto = await fetch(urlEscolhida, { headers: { 'User-Agent': 'Atomo-app (projeto de estudo)' } });
+    if (!respTexto.ok) throw new Error('Gutenberg respondeu ' + respTexto.status);
     let bruto = await respTexto.text();
 
-    if (!chaveTxt && chaveHtml) {
+    if (!chaveTxt && chaveHtml && urlEscolhida === formatos[chaveHtml]) {
       bruto = bruto.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ');
     }
 
