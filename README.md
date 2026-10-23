@@ -2,6 +2,8 @@
 
 > seu diário tem visitas.
 
+**Acesse:** [atomoapp.netlify.app](https://atomoapp.netlify.app/)
+
 O **Átomo** é um app brasileiro que incentiva a leitura e a escrita: diário pessoal, estante de livros, leitor embutido com livros gratuitos em português, clubes do livro, comunidades de estudo e mensagens entre amigos. Funciona como PWA (instala direto do navegador) e está sendo preparado para a Play Store.
 
 Criado e mantido por **Aline Melanski**.
@@ -26,7 +28,7 @@ Criado e mantido por **Aline Melanski**.
 | Back-end | Node.js + Express (`servidor.js`) |
 | Banco, login e arquivos | Supabase (Postgres, Auth, Storage, Realtime) |
 | Notificações | Web Push |
-| Hospedagem | Front estático + API no Render |
+| Hospedagem | Front no Netlify e API no Render |
 
 ## Estrutura do projeto
 
@@ -82,7 +84,8 @@ Os scripts em `sql/` criam tabelas, colunas e regras de acesso no Supabase. Rode
 
 ## Publicação
 
-- **Front-end e API:** cada `git push origin main` publica o front. Mudanças no `servidor.js` precisam de um novo deploy da API no Render.
+- **Front-end (Netlify):** cada `git push origin main` publica o site.
+- **API (Render):** mudanças no `servidor.js` precisam de um novo deploy no Render.
 - **Service worker:** ao mexer em arquivos de `css/` ou `js/`, aumente o `CACHE_NAME` em `sw.js`, senão quem já abriu o app continua vendo a versão antiga guardada.
 - **Play Store:** o app é empacotado como TWA, que abre o site publicado dentro de um app Android.
 
